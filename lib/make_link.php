@@ -39,7 +39,8 @@ class InlineConverter
 	var $pos;
 	var $result;
 
-	function get_clone($obj) {
+	function get_clone($obj)
+	{
 		static $clone_func;
 
 		if (! isset($clone_func)) {
@@ -52,9 +53,10 @@ class InlineConverter
 		return $clone_func($obj);
 	}
 
-	function __clone() {
+	function __clone()
+	{
 		$converters = array();
-		foreach ($this->converters as $key=>$converter) {
+		foreach ($this->converters as $key => $converter) {
 			$converters[$key] = $this->get_clone($converter);
 		}
 		$this->converters = $converters;
@@ -102,8 +104,11 @@ class InlineConverter
 		$this->page   = $page;
 		$this->result = array();
 
-		$string = preg_replace_callback('/' . $this->pattern . '/x',
-			array(& $this, 'replace'), $string);
+		$string = preg_replace_callback(
+			'/' . $this->pattern . '/x',
+			array(&$this, 'replace'),
+			$string
+		);
 
 		$arr = explode("\x08", make_line_rules(htmlspecialchars($string)));
 		$retval = '';
@@ -138,7 +143,7 @@ class InlineConverter
 		return $arr;
 	}
 
-	function & get_converter(& $arr)
+	function &get_converter(&$arr)
 	{
 		foreach (array_keys($this->converters) as $start) {
 			if ($arr[$start] == $arr[0])
@@ -195,8 +200,10 @@ class Link
 		$this->name = $name;
 		$this->body = $body;
 		$this->type = $type;
-		if (! PKWK_DISABLE_INLINE_IMAGE_FROM_URI &&
-			is_url($alias) && preg_match('/\.(gif|png|jpe?g)$/i', $alias)) {
+		if (
+			! PKWK_DISABLE_INLINE_IMAGE_FROM_URI &&
+			is_url($alias) && preg_match('/\.(gif|png|jpe?g)$/i', $alias)
+		) {
 			$alias = '<img src="' . htmlspecialchars($alias) . '" alt="' . $name . '" />';
 		} else if ($alias != '') {
 			if ($converter === NULL)
@@ -217,7 +224,7 @@ class Link
 class Link_plugin extends Link
 {
 	var $pattern;
-	var $plain,$param;
+	var $plain, $param;
 
 	function Link_plugin($start)
 	{
@@ -274,8 +281,10 @@ EOD;
 
 		// Re-get true plugin name and patameters (for PHP 4.1.2)
 		$matches = array();
-		if (preg_match('/^' . $this->pattern . '/x', $all, $matches)
-			&& $matches[1] != $this->plain)
+		if (
+			preg_match('/^' . $this->pattern . '/x', $all, $matches)
+			&& $matches[1] != $this->plain
+		)
 			list(, $this->plain, $name, $this->param) = $matches;
 
 		return parent::setParam($page, $name, $body, 'plugin');
@@ -398,9 +407,14 @@ EOD;
 
 	function set($arr, $page)
 	{
-		list(, , $alias, $name) = $this->splice($arr);
-		return parent::setParam($page, htmlspecialchars($name),
-			'', 'url', $alias == '' ? $name : $alias);
+		list(,, $alias, $name) = $this->splice($arr);
+		return parent::setParam(
+			$page,
+			htmlspecialchars($name),
+			'',
+			'url',
+			$alias == '' ? $name : $alias
+		);
 	}
 
 	function toString()
@@ -536,7 +550,7 @@ EOD;
 	{
 		global $script;
 
-		list(, $alias, , $name, $this->param) = $this->splice($arr);
+		list(, $alias,, $name, $this->param) = $this->splice($arr);
 
 		$matches = array();
 		if (preg_match('/^([^#]+)(#[A-Za-z][\w-]*)$/', $this->param, $matches))
@@ -602,7 +616,7 @@ EOD;
 	{
 		global $WikiName;
 
-		list(, $alias, , $name, $this->anchor) = $this->splice($arr);
+		list(, $alias,, $name, $this->anchor) = $this->splice($arr);
 		if ($name == '' && $this->anchor == '') return FALSE;
 
 		if ($name == '' || ! preg_match('/^' . $WikiName . '$/', $name)) {
@@ -787,7 +801,7 @@ function get_fullname($name, $refer)
 	if ($name == '' || $name == './') return $refer;
 
 	// Absolute path
-	if ($name{0} == '/') {
+	if ($name[0] == '/') {
 		$name = substr($name, 1);
 		return ($name == '') ? $defaultpage : $name;
 	}
@@ -808,8 +822,7 @@ function get_fullname($name, $refer)
 			array_shift($arrn);
 			array_pop($arrp);
 		}
-		$name = ! empty($arrp) ? join('/', array_merge($arrp, $arrn)) :
-			(! empty($arrn) ? $defaultpage . '/' . join('/', $arrn) : $defaultpage);
+		$name = ! empty($arrp) ? join('/', array_merge($arrp, $arrn)) : (! empty($arrn) ? $defaultpage . '/' . join('/', $arrn) : $defaultpage);
 	}
 
 	return $name;
@@ -820,14 +833,17 @@ function get_interwiki_url($name, $param)
 {
 	global $WikiName, $interwiki;
 	static $interwikinames;
-	static $encode_aliases = array('sjis'=>'SJIS', 'euc'=>'EUC-JP', 'utf8'=>'UTF-8');
+	static $encode_aliases = array('sjis' => 'SJIS', 'euc' => 'EUC-JP', 'utf8' => 'UTF-8');
 
 	if (! isset($interwikinames)) {
 		$interwikinames = $matches = array();
 		foreach (get_source($interwiki) as $line)
-			if (preg_match('/\[(' . '(?:(?:https?|ftp|news):\/\/|\.\.?\/)' .
-			    '[!~*\'();\/?:\@&=+\$,%#\w.-]*)\s([^\]]+)\]\s?([^\s]*)/',
-			    $line, $matches))
+			if (preg_match(
+				'/\[(' . '(?:(?:https?|ftp|news):\/\/|\.\.?\/)' .
+					'[!~*\'();\/?:\@&=+\$,%#\w.-]*)\s([^\]]+)\]\s?([^\s]*)/',
+				$line,
+				$matches
+			))
 				$interwikinames[$matches[2]] = array($matches[1], $matches[3]);
 	}
 
@@ -838,30 +854,30 @@ function get_interwiki_url($name, $param)
 	// Encoding
 	switch ($opt) {
 
-	case '':    /* FALLTHROUGH */
-	case 'std': // Simply URL-encode the string, whose base encoding is the internal-encoding
-		$param = rawurlencode($param);
-		break;
+		case '':    /* FALLTHROUGH */
+		case 'std': // Simply URL-encode the string, whose base encoding is the internal-encoding
+			$param = rawurlencode($param);
+			break;
 
-	case 'asis': /* FALLTHROUGH */
-	case 'raw' : // Truly as-is
-		break;
+		case 'asis': /* FALLTHROUGH */
+		case 'raw': // Truly as-is
+			break;
 
-	case 'yw': // YukiWiki
-		if (! preg_match('/' . $WikiName . '/', $param))
-			$param = '[[' . mb_convert_encoding($param, 'SJIS', SOURCE_ENCODING) . ']]';
-		break;
+		case 'yw': // YukiWiki
+			if (! preg_match('/' . $WikiName . '/', $param))
+				$param = '[[' . mb_convert_encoding($param, 'SJIS', SOURCE_ENCODING) . ']]';
+			break;
 
-	case 'moin': // MoinMoin
-		$param = str_replace('%', '_', rawurlencode($param));
-		break;
+		case 'moin': // MoinMoin
+			$param = str_replace('%', '_', rawurlencode($param));
+			break;
 
-	default:
-		// Alias conversion of $opt
-		if (isset($encode_aliases[$opt])) $opt = & $encode_aliases[$opt];
+		default:
+			// Alias conversion of $opt
+			if (isset($encode_aliases[$opt])) $opt = &$encode_aliases[$opt];
 
-		// Encoding conversion into specified encode, and URLencode
-		$param = rawurlencode(mb_convert_encoding($param, $opt, SOURCE_ENCODING));
+			// Encoding conversion into specified encode, and URLencode
+			$param = rawurlencode(mb_convert_encoding($param, $opt, SOURCE_ENCODING));
 	}
 
 	// Replace or Add the parameter
@@ -876,4 +892,3 @@ function get_interwiki_url($name, $param)
 
 	return $url;
 }
-?>

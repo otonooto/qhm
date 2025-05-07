@@ -45,12 +45,11 @@ class Config
 		foreach (get_source($this->page) as $line) {
 			if ($line == '') continue;
 
-			$head  = $line{0};	// The first letter
+			$head  = $line[0];	// The first letter
 			$level = strspn($line, $head);
 
 			if ($level > 3) {
 				$obj->add_line($line);
-
 			} else if ($head == '*') {
 				// Cut fixed-heading anchors
 				$line = preg_replace('/^(\*{1,3}.*)\[#[A-Za-z][\w-]+\](.*)$/', '$1$2', $line);
@@ -63,12 +62,10 @@ class Config
 						$obj = new ConfigTable_Direct('', $obj);
 					$obj->set_key($line);
 				}
-				
 			} else if ($head == '-' && $level > 1) {
 				if (! is_a($obj, 'ConfigTable_Direct'))
 					$obj = new ConfigTable_Direct('', $obj);
 				$obj->add_value($line);
-
 			} else if ($head == '|' && preg_match('/^\|(.+)\|\s*$/', $line, $matches)) {
 				// Table row
 				if (! is_a($obj, 'ConfigTable_Sequential'))
@@ -85,28 +82,28 @@ class Config
 	}
 
 	// Get an array
-	function & get($title)
+	function &get($title)
 	{
-		$obj = & $this->get_object($title);
+		$obj = &$this->get_object($title);
 		return $obj->values;
 	}
 
 	// Set an array (Override)
 	function put($title, $values)
 	{
-		$obj         = & $this->get_object($title);
+		$obj         = &$this->get_object($title);
 		$obj->values = $values;
 	}
 
 	// Add a line
 	function add($title, $value)
 	{
-		$obj = & $this->get_object($title);
+		$obj = &$this->get_object($title);
 		$obj->values[] = $value;
 	}
 
 	// Get an object (or create it)
-	function & get_object($title)
+	function &get_object($title)
 	{
 		if (! isset($this->objs[$title]))
 			$this->objs[$title] = new ConfigTable('*' . trim($title) . "\n");
@@ -121,7 +118,7 @@ class Config
 	function toString()
 	{
 		$retval = '';
-		foreach ($this->objs as $title=>$obj)
+		foreach ($this->objs as $title => $obj)
 			$retval .= $obj->toString();
 		return $retval;
 	}
@@ -194,9 +191,9 @@ class ConfigTable_Direct extends ConfigTable
 	function add_value($line)
 	{
 		$level = strspn($line, '-');
-		$arr   = & $this->values;
+		$arr   = &$this->values;
 		for ($n = 2; $n <= $level; $n++)
-			$arr = & $arr[$this->_keys[$n]];
+			$arr = &$arr[$this->_keys[$n]];
 		$arr[] = trim(substr($line, $level));
 	}
 
@@ -206,9 +203,9 @@ class ConfigTable_Direct extends ConfigTable
 		$root   = ($values === NULL);
 		if ($root) {
 			$retval = join('', $this->before);
-			$values = & $this->values;
+			$values = &$this->values;
 		}
-		foreach ($values as $key=>$value) {
+		foreach ($values as $key => $value) {
 			if (is_array($value)) {
 				$retval .= str_repeat('*', $level) . $key . "\n";
 				$retval .= $this->toString($value, $level + 1);
@@ -221,4 +218,3 @@ class ConfigTable_Direct extends ConfigTable
 		return $retval;
 	}
 }
-?>

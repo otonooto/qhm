@@ -36,15 +36,15 @@ class Element
 	function Element()
 	{
 		$this->elements = array();
-		$this->last     = & $this;
+		$this->last     = &$this;
 	}
 
-	function setParent(& $parent)
+	function setParent(&$parent)
 	{
-		$this->parent = & $parent;
+		$this->parent = &$parent;
 	}
 
-	function & add(& $obj)
+	function &add(&$obj)
 	{
 		if ($this->canContain($obj)) {
 			return $this->insert($obj);
@@ -53,12 +53,12 @@ class Element
 		}
 	}
 
-	function & insert(& $obj)
+	function &insert(&$obj)
 	{
 		$obj->setParent($this);
-		$this->elements[] = & $obj;
+		$this->elements[] = &$obj;
 
-		$this->last = & $obj->last;
+		$this->last = &$obj->last;
 		return $this->last;
 	}
 
@@ -88,14 +88,14 @@ class Element
 		foreach (array_keys($this->elements) as $key) {
 			$ret .= is_object($this->elements[$key]) ?
 				$this->elements[$key]->dump($indent) : '';
-				//str_repeat(' ', $indent) . $this->elements[$key];
+			//str_repeat(' ', $indent) . $this->elements[$key];
 		}
 		return $ret;
 	}
 }
 
 // Returns inline-related object
-function & Factory_Inline($text)
+function &Factory_Inline($text)
 {
 	// Check the first letter of the line
 	if (substr($text, 0, 1) == '~') {
@@ -105,7 +105,7 @@ function & Factory_Inline($text)
 	}
 }
 
-function & Factory_DList(& $root, $text)
+function &Factory_DList(&$root, $text)
 {
 	$out = explode('|', ltrim($text), 2);
 	if (count($out) < 2) {
@@ -116,7 +116,7 @@ function & Factory_DList(& $root, $text)
 }
 
 // '|'-separated table
-function & Factory_Table(& $root, $text)
+function &Factory_Table(&$root, $text)
 {
 	if (! preg_match('/^\|(.+)\|([hHfFcC]?)$/', $text, $out)) {
 		return Factory_Inline($text);
@@ -126,7 +126,7 @@ function & Factory_Table(& $root, $text)
 }
 
 // Comma-separated table
-function & Factory_YTable(& $root, $text)
+function &Factory_YTable(&$root, $text)
 {
 	if ($text == ',') {
 		return Factory_Inline($text);
@@ -135,21 +135,25 @@ function & Factory_YTable(& $root, $text)
 	}
 }
 
-function & Factory_Div(& $root, $text)
+function &Factory_Div(&$root, $text)
 {
 	$matches = array();
 
 	// Seems block plugin?
 	if (PKWKEXP_DISABLE_MULTILINE_PLUGIN_HACK) {
 		// Usual code
-		if (preg_match('/^\#([^\(]+)(?:\((.*)\))?/', $text, $matches) &&
-			exist_plugin_convert($matches[1])) {
+		if (
+			preg_match('/^\#([^\(]+)(?:\((.*)\))?/', $text, $matches) &&
+			exist_plugin_convert($matches[1])
+		) {
 			return new Div($matches);
 		}
 	} else {
 		// Hack code
-		if(preg_match('/^#([^\(\{]+)(?:\(([^\r]*)\))?(\{*)/', $text, $matches) &&
-			exist_plugin_convert($matches[1])) {
+		if (
+			preg_match('/^#([^\(\{]+)(?:\(([^\r]*)\))?(\{*)/', $text, $matches) &&
+			exist_plugin_convert($matches[1])
+		) {
 			$len  = strlen($matches[3]);
 			$body = array();
 			if ($len == 0) {
@@ -174,7 +178,7 @@ class Inline extends Element
 			$text : make_link($text));
 	}
 
-	function & insert(& $obj)
+	function &insert(&$obj)
 	{
 		$this->elements[] = $obj->elements[0];
 		return $this;
@@ -191,7 +195,7 @@ class Inline extends Element
 		return join(($line_break ? '<br />' . "\n" : "\n"), $this->elements);
 	}
 
-	function & toPara($class = '')
+	function &toPara($class = '')
 	{
 		$obj = new Paragraph('', $class);
 		$obj->insert($this);
@@ -236,30 +240,27 @@ class Heading extends Element
 	var $id;
 	var $msg_top;
 
-	function Heading(& $root, $text)
+	function Heading(&$root, $text)
 	{
 		parent::Element();
 
-	if (strspn($text, '!') > 0)
-	{
-		$this->level = 0;
-	}
-	else
-	{
-		$this->level = min(3, strspn($text, '*'));
-	}
+		if (strspn($text, '!') > 0) {
+			$this->level = 0;
+		} else {
+			$this->level = min(3, strspn($text, '*'));
+		}
 		list($text, $this->msg_top, $this->id) = $root->getAnchor($text, $this->level);
 		$this->insert(Factory_Inline($text));
 		$this->level++; // h2,h3,h4
 	}
 
-	function & insert(& $obj)
+	function &insert(&$obj)
 	{
 		parent::insert($obj);
-		return $this->last = & $this;
+		return $this->last = &$this;
 	}
 
-	function canContain(& $obj)
+	function canContain(&$obj)
 	{
 		return FALSE;
 	}
@@ -272,8 +273,11 @@ class Heading extends Element
 
 	function toString()
 	{
-		return $this->msg_top .  $this->wrap(parent::toString(),
-			'h' . $this->level, ' id="' . $this->id . '"');
+		return $this->msg_top .  $this->wrap(
+			parent::toString(),
+			'h' . $this->level,
+			' id="' . $this->id . '"'
+		);
 	}
 }
 
@@ -281,12 +285,12 @@ class Heading extends Element
 // Horizontal Rule
 class HRule extends Element
 {
-	function HRule(& $root, $text)
+	function HRule(&$root, $text)
 	{
 		parent::Element();
 	}
 
-	function canContain(& $obj)
+	function canContain(&$obj)
 	{
 		return FALSE;
 	}
@@ -326,16 +330,16 @@ class ListContainer extends Element
 
 		parent::insert(new ListElement($this->level, $tag2));
 		if ($text != '')
-			$this->last = & $this->last->insert(Factory_Inline($text));
+			$this->last = &$this->last->insert(Factory_Inline($text));
 	}
 
-	function canContain(& $obj)
+	function canContain(&$obj)
 	{
 		return (! is_a($obj, 'ListContainer')
 			|| ($this->tag == $obj->tag && $this->level == $obj->level));
 	}
 
-	function setParent(& $parent)
+	function setParent(&$parent)
 	{
 		parent::setParent($parent);
 
@@ -347,29 +351,26 @@ class ListContainer extends Element
 		if ($step == $this->level)
 			$margin += $this->left_margin;
 
-		if ($this->tag !== 'dl')
-		{
+		if ($this->tag !== 'dl') {
 			global $_list_pad_str;
 			$this->style = sprintf($_list_pad_str, $this->level, $margin, $margin);
-		}
-		else
-		{
+		} else {
 			global $_dlist_pad_str;
 			$this->style = sprintf(' class="list%d dl-horizontal" ', $this->level, $margin, $margin);
 		}
 	}
 
-	function & insert(& $obj)
+	function &insert(&$obj)
 	{
 		if (! is_a($obj, get_class($this)))
-			return $this->last = & $this->last->insert($obj);
+			return $this->last = &$this->last->insert($obj);
 
 		// Break if no elements found (BugTrack/524)
 		if (count($obj->elements) == 1 && empty($obj->elements[0]->elements))
 			return $this->last->parent; // up to ListElement
 
 		// Move elements
-		foreach(array_keys($obj->elements) as $key)
+		foreach (array_keys($obj->elements) as $key)
 			parent::insert($obj->elements[$key]);
 
 		return $this->last;
@@ -390,7 +391,7 @@ class ListElement extends Element
 		$this->head  = $head;
 	}
 
-	function canContain(& $obj)
+	function canContain(&$obj)
 	{
 		return (! is_a($obj, 'ListContainer') || ($obj->level > $this->level));
 	}
@@ -406,7 +407,7 @@ class ListElement extends Element
 // - Three
 class UList extends ListContainer
 {
-	function UList(& $root, $text)
+	function UList(&$root, $text)
 	{
 		parent::ListContainer('ul', 'li', '-', $text);
 	}
@@ -417,7 +418,7 @@ class UList extends ListContainer
 // + Three
 class OList extends ListContainer
 {
-	function OList(& $root, $text)
+	function OList(&$root, $text)
 	{
 		parent::ListContainer('ol', 'li', '+', $text);
 	}
@@ -431,9 +432,9 @@ class DList extends ListContainer
 	function DList($out)
 	{
 		parent::ListContainer('dl', 'dt', ':', $out[0]);
-		$this->last = & Element::insert(new ListElement($this->level, 'dd'));
+		$this->last = &Element::insert(new ListElement($this->level, 'dd'));
 		if ($out[1] != '')
-			$this->last = & $this->last->insert(Factory_Inline($out[1]));
+			$this->last = &$this->last->insert(Factory_Inline($out[1]));
 	}
 }
 
@@ -443,7 +444,7 @@ class BQuote extends Element
 {
 	var $level;
 
-	function BQuote(& $root, $text)
+	function BQuote(&$root, $text)
 	{
 		parent::Element();
 
@@ -454,29 +455,29 @@ class BQuote extends Element
 		if ($head == '<') { // Blockquote close
 			$level       = $this->level;
 			$this->level = 0;
-			$this->last  = & $this->end($root, $level);
+			$this->last  = &$this->end($root, $level);
 			if ($text != '')
-				$this->last = & $this->last->insert(Factory_Inline($text));
+				$this->last = &$this->last->insert(Factory_Inline($text));
 		} else {
 			$this->insert(Factory_Inline($text));
 		}
 	}
 
-	function canContain(& $obj)
+	function canContain(&$obj)
 	{
 		return (! is_a($obj, get_class($this)) || $obj->level >= $this->level);
 	}
 
-	function & insert(& $obj)
+	function &insert(&$obj)
 	{
 		// BugTrack/521, BugTrack/545
 		if (is_a($obj, 'inline'))
 			return parent::insert($obj->toPara(' class="quotation"'));
 
 		if (is_a($obj, 'BQuote') && $obj->level == $this->level && count($obj->elements)) {
-			$obj = & $obj->elements[0];
+			$obj = &$obj->elements[0];
 			if (is_a($this->last, 'Paragraph') && count($obj->elements))
-				$obj = & $obj->elements[0];
+				$obj = &$obj->elements[0];
 		}
 		return parent::insert($obj);
 	}
@@ -486,14 +487,14 @@ class BQuote extends Element
 		return $this->wrap(parent::toString(), 'blockquote');
 	}
 
-	function & end(& $root, $level)
+	function &end(&$root, $level)
 	{
-		$parent = & $root->last;
+		$parent = &$root->last;
 
 		while (is_object($parent)) {
 			if (is_a($parent, 'BQuote') && $parent->level == $level)
 				return $parent->parent;
-			$parent = & $parent->parent;
+			$parent = &$parent->parent;
 		}
 		return $this;
 	}
@@ -536,21 +537,21 @@ class TableCell extends Element
 			$text      = substr($text, 1);
 		}
 
-		if ($text != '' && $text{0} == '#') {
+		if ($text != '' && $text[0] == '#') {
 			// Try using Div class for this $text
-			$obj = & Factory_Div($this, $text);
+			$obj = &Factory_Div($this, $text);
 			if (is_a($obj, 'Paragraph'))
-				$obj = & $obj->elements[0];
+				$obj = &$obj->elements[0];
 		} else {
-			$obj = & Factory_Inline($text);
+			$obj = &Factory_Inline($text);
 		}
 
 		$this->insert($obj);
 	}
 
-	function setStyle(& $style)
+	function setStyle(&$style)
 	{
-		foreach ($style as $key=>$value)
+		foreach ($style as $key => $value)
 			if (! isset($this->style[$key]))
 				$this->style[$key] = $value;
 	}
@@ -592,29 +593,29 @@ class Table extends Element
 		// --------------------------------
 		// customize by hokuken.com
 		// enable table setting
-		if( preg_match('/^\|STYLE:(.+)\|$/', $out[0], $ms) ){
+		if (preg_match('/^\|STYLE:(.+)\|$/', $out[0], $ms)) {
 
-			$params = explode(',', trim($ms[1], ", \t\n\r") );
+			$params = explode(',', trim($ms[1], ", \t\n\r"));
 
 			$style = array();
-			foreach($params as $p){
+			foreach ($params as $p) {
 
 				$pp = explode('=', $p);
 
-				switch($pp[0]){
-					case 'right'  :
-					case 'left'   :
-					case 'center' :
+				switch ($pp[0]) {
+					case 'right':
+					case 'left':
+					case 'center':
 						$style['align'] = $p;
 						break;
-					case 'around' :
+					case 'around':
 						$style['float'] = true;
 						break;
-					case 'sortable' :
+					case 'sortable':
 						$style['sortable'] = true;
 						break;
-					case 'class' :
-						if(isset($pp[1])) $style['class'] = $pp[1];
+					case 'class':
+						if (isset($pp[1])) $style['class'] = $pp[1];
 						break;
 					case 'responsive':
 						$style['responsive'] = true;
@@ -625,14 +626,12 @@ class Table extends Element
 
 			//装飾に関する設定
 			$addstyle = '';
-			if( isset($style['align']) ) {
-				if( isset($style['float']) ){
-					$addstyle .= 'float:'.$style['align'].';';
-					$addstyle .= ($style['align']=='left') ? 'margin-right:1em;' : 'margin-left:1em;';
-				}
-				else{
-					switch ($style['align'])
-					{
+			if (isset($style['align'])) {
+				if (isset($style['float'])) {
+					$addstyle .= 'float:' . $style['align'] . ';';
+					$addstyle .= ($style['align'] == 'left') ? 'margin-right:1em;' : 'margin-left:1em;';
+				} else {
+					switch ($style['align']) {
 						case 'left':
 							$addstyle .= 'margin-left:0;margin-right:auto;';
 							break;
@@ -647,16 +646,15 @@ class Table extends Element
 			}
 
 			$this->css_class = 'style_table';
-			if( isset($style['class']) ){
+			if (isset($style['class'])) {
 				$this->css_class = $style['class'];
-			}
-			else if($style != ''){
-				$this->css_style = ' style="'.$addstyle.'" ';
+			} else if ($style != '') {
+				$this->css_style = ' style="' . $addstyle . '" ';
 			}
 
 
 			//sortable設定
-			if( isset($style['sortable']) ){
+			if (isset($style['sortable'])) {
 				$this->css_class .= ' tablesorter';
 				$qt = get_qt();
 				$qt->setv('jquery_include', true);
@@ -665,13 +663,11 @@ class Table extends Element
 <script type="text/javascript">
 $(document).ready(function(){ $("table.tablesorter").tablesorter(); });
 </script>');
-
 			}
 
 			# Responsive Table
 			# @see http://getbootstrap.com/css/#tables
-			if (isset($style['responsive']))
-			{
+			if (isset($style['responsive'])) {
 				$this->css_class .= ' table qhm-table-responsive';
 				$qt = get_qt();
 				$qt->setv('jquery_include', true);
@@ -685,9 +681,8 @@ EOS;
 				$qt->appendv_once('lib_convert_html_table_responsive', 'lastscript', $addscript);
 			}
 
-			$this->css_enable = ($this->css_class != '') || ($this->css_style !='');
-		}
-		else{ //normal table process
+			$this->css_enable = ($this->css_class != '') || ($this->css_style != '');
+		} else { //normal table process
 			$cells       = explode('|', $out[1]);
 			$this->col   = count($cells);
 			$this->type  = strtolower($out[2]);
@@ -700,7 +695,7 @@ EOS;
 		}
 	}
 
-	function canContain(& $obj)
+	function canContain(&$obj)
 	{
 		if (is_a($obj, 'Table')) {
 			if ($obj->col == $this->col) {
@@ -713,7 +708,7 @@ EOS;
 		return FALSE;
 	}
 
-	function & insert(& $obj)
+	function &insert(&$obj)
 	{
 		$this->elements[] = $obj->elements[0];
 		$this->types[]    = $obj->type;
@@ -722,13 +717,13 @@ EOS;
 
 	function toString()
 	{
-		static $parts = array('h'=>'thead', 'f'=>'tfoot', ''=>'tbody');
+		static $parts = array('h' => 'thead', 'f' => 'tfoot', '' => 'tbody');
 
 		// Set rowspan (from bottom, to top)
 		for ($ncol = 0; $ncol < $this->col; $ncol++) {
 			$rowspan = 1;
 			foreach (array_reverse(array_keys($this->elements)) as $nrow) {
-				$row = & $this->elements[$nrow];
+				$row = &$this->elements[$nrow];
 				if ($row[$ncol]->rowspan == 0) {
 					++$rowspan;
 					continue;
@@ -744,9 +739,9 @@ EOS;
 		// Set colspan and style
 		$stylerow = NULL;
 		foreach (array_keys($this->elements) as $nrow) {
-			$row = & $this->elements[$nrow];
+			$row = &$this->elements[$nrow];
 			if ($this->types[$nrow] == 'c')
-				$stylerow = & $row;
+				$stylerow = &$row;
 			$colspan = 1;
 			foreach (array_keys($row) as $ncol) {
 				if ($row[$ncol]->colspan == 0) {
@@ -766,13 +761,12 @@ EOS;
 
 		// toString
 		$string = '';
-		foreach ($parts as $type => $part)
-		{
+		foreach ($parts as $type => $part) {
 			$part_string = '';
 			foreach (array_keys($this->elements) as $nrow) {
 				if ($this->types[$nrow] != $type)
 					continue;
-				$row        = & $this->elements[$nrow];
+				$row        = &$this->elements[$nrow];
 				$row_string = '';
 				foreach (array_keys($row) as $ncol)
 					$row_string .= $row[$ncol]->toString();
@@ -782,7 +776,7 @@ EOS;
 		}
 
 		$class = $this->css_class == '' ? 'style_table' : $this->css_class;
-		$string = $this->wrap($string, 'table', ' class="'.$class.'" cellspacing="1" border="0"'.$this->css_style);
+		$string = $this->wrap($string, 'table', ' class="' . $class . '" cellspacing="1" border="0"' . $this->css_style);
 
 		return $this->css_enable ? $string : $this->wrap($string, 'div', ' class="ie5" ');
 	}
@@ -800,9 +794,9 @@ class YTable extends Element
 		parent::Element();
 
 		$align = $value = $matches = array();
-		foreach($_value as $val) {
+		foreach ($_value as $val) {
 			if (preg_match('/^(\s+)?(.+?)(\s+)?$/', $val, $matches)) {
-				$align[] =($matches[1] != '') ?
+				$align[] = ($matches[1] != '') ?
 					((isset($matches[3]) && $matches[3] != '') ?
 						' style="text-align:center"' :
 						' style="text-align:right"'
@@ -830,12 +824,12 @@ class YTable extends Element
 		$this->elements[] = $str;
 	}
 
-	function canContain(& $obj)
+	function canContain(&$obj)
 	{
 		return is_a($obj, 'YTable') && ($obj->col == $this->col);
 	}
 
-	function & insert(& $obj)
+	function &insert(&$obj)
 	{
 		$this->elements[] = $obj->elements[0];
 		return $this;
@@ -856,20 +850,21 @@ class YTable extends Element
 // ' 'Space-beginning sentence
 class Pre extends Element
 {
-	function Pre(& $root, $text)
+	function Pre(&$root, $text)
 	{
 		global $preformat_ltrim;
 		parent::Element();
 		$this->elements[] = htmlspecialchars(
-			(! $preformat_ltrim || $text == '' || $text{0} != ' ') ? $text : substr($text, 1));
+			(! $preformat_ltrim || $text == '' || $text[0] != ' ') ? $text : substr($text, 1)
+		);
 	}
 
-	function canContain(& $obj)
+	function canContain(&$obj)
 	{
 		return is_a($obj, 'Pre');
 	}
 
-	function & insert(& $obj)
+	function &insert(&$obj)
 	{
 		$this->elements[] = $obj->elements[0];
 		return $this;
@@ -893,7 +888,7 @@ class Div extends Element
 		list(, $this->name, $this->param) = array_pad($out, 3, '');
 	}
 
-	function canContain(& $obj)
+	function canContain(&$obj)
 	{
 		return FALSE;
 	}
@@ -911,22 +906,22 @@ class Align extends Element
 	var $align;
 	var $ptag;
 
-	function Align($align, $ptag=true)
+	function Align($align, $ptag = true)
 	{
 		parent::Element();
 		$this->align = $align;
 		$this->ptag = $ptag;
 	}
 
-	function canContain(& $obj)
+	function canContain(&$obj)
 	{
-		return is_a($obj, 'Inline') OR is_a($obj, 'Heading') OR is_a($obj, 'Paragraph');
+		return is_a($obj, 'Inline') or is_a($obj, 'Heading') or is_a($obj, 'Paragraph');
 	}
 
 	function toString()
 	{
 		$str = parent::toString();
-		return $this->wrap($str, 'div', ' class="qhm-align-'.$this->align.'" style="text-align:' . $this->align . '"');
+		return $this->wrap($str, 'div', ' class="qhm-align-' . $this->align . '" style="text-align:' . $this->align . '"');
 	}
 }
 
@@ -941,25 +936,27 @@ class Body extends Element
 		'-' => 'UList',
 		'+' => 'OList',
 		'>' => 'BQuote',
-		'<' => 'BQuote');
+		'<' => 'BQuote'
+	);
 	var $factories = array(
 		':' => 'DList',
 		'|' => 'Table',
 		',' => 'YTable',
-		'#' => 'Div');
+		'#' => 'Div'
+	);
 	var $noPara = FALSE;
 
 	function Body($id)
 	{
 		$this->id            = $id;
 		$this->contents      = new Element();
-		$this->contents_last = & $this->contents;
+		$this->contents_last = &$this->contents;
 		parent::Element();
 	}
 
-	function parse(& $lines)
+	function parse(&$lines)
 	{
-		$this->last = & $this;
+		$this->last = &$this;
 		$matches = array();
 
 		while (! empty($lines)) {
@@ -971,7 +968,7 @@ class Body extends Element
 			if (preg_match('/^(LEFT|CENTER|RIGHT)(2?):(.*)$/', $line, $matches)) {
 				// <div style="text-align:...">
 				$ptag = ($matches[2] == '') ? true : false;
-				$this->last = & $this->last->add(new Align(strtolower($matches[1]),$ptag));
+				$this->last = &$this->last->add(new Align(strtolower($matches[1]), $ptag));
 				if ($matches[3] == '') continue;
 				$line = $matches[3];
 			}
@@ -980,7 +977,7 @@ class Body extends Element
 
 			// Empty
 			if ($line == '') {
-				$this->last = & $this;
+				$this->last = &$this;
 				continue;
 			}
 
@@ -991,8 +988,10 @@ class Body extends Element
 			}
 
 			// Multiline-enabled block plugin
-			if ( ! PKWKEXP_DISABLE_MULTILINE_PLUGIN_HACK &&
-				preg_match('/^#[^{]+(\{\{+)\s*$/', $line, $matches)) {
+			if (
+				! PKWKEXP_DISABLE_MULTILINE_PLUGIN_HACK &&
+				preg_match('/^#[^{]+(\{\{+)\s*$/', $line, $matches)
+			) {
 				$len = strlen($matches[1]);
 				$line .= "\r"; // Delimiter
 				while (! empty($lines)) {
@@ -1007,10 +1006,10 @@ class Body extends Element
 			}
 
 			// The first character
-			$head = $line{0};
+			$head = $line[0];
 
 			// Heading
-			if ($head === '*' OR $head === '!') {
+			if ($head === '*' or $head === '!') {
 				if (is_a($this->last, 'Align'))
 					$this->last->add(new Heading($this, $line));
 				else
@@ -1020,7 +1019,7 @@ class Body extends Element
 
 			// Pre
 			if ($head == ' ' || $head == "\t") {
-				$this->last = & $this->last->add(new Pre($this, $line));
+				$this->last = &$this->last->add(new Pre($this, $line));
 				continue;
 			}
 
@@ -1031,33 +1030,31 @@ class Body extends Element
 			// Other Character
 			if (isset($this->classes[$head])) {
 				$classname  = $this->classes[$head];
-				$this->last = & $this->last->add(new $classname($this, $line));
+				$this->last = &$this->last->add(new $classname($this, $line));
 				continue;
 			}
 
 			// Other Character
 			if (isset($this->factories[$head])) {
 				$factoryname = 'Factory_' . $this->factories[$head];
-				$this->last  = & $this->last->add($factoryname($this, $line));
+				$this->last  = &$this->last->add($factoryname($this, $line));
 				continue;
 			}
 
 			// Extend TITLE by hokuken
-			if (preg_match('/^(TITLE):(.*)$/',$line,$matches))
-			{
+			if (preg_match('/^(TITLE):(.*)$/', $line, $matches)) {
 				global $page_title;
 				$title = h($matches[2]);
 
 				$qt = get_qt();
-				$qt->setv_once('this_page_title', $title. " - ". $page_title);
+				$qt->setv_once('this_page_title', $title . " - " . $page_title);
 				$qt->setv_once('this_right_title', $title);
 
 				continue;
 			}
 
 			// Extend FREETITLE by hokuken
-			if (preg_match('/^(FREETITLE):(.*)$/',$line,$matches))
-			{
+			if (preg_match('/^(FREETITLE):(.*)$/', $line, $matches)) {
 				$t = h($matches[2]);
 
 				$qt = get_qt();
@@ -1068,15 +1065,14 @@ class Body extends Element
 			}
 
 			// Extend TITLE by miko
-			if (preg_match('/^(HEAD):(.*)$/',$line,$matches))
-			{
+			if (preg_match('/^(HEAD):(.*)$/', $line, $matches)) {
 				global $headcopy;
 				$headcopy = $matches[2];
 				continue;
 			}
 
 			// Extend KILLERPAGE by hokuken
-			if (preg_match('/^(KILLERPAGE):(.*)$/', $line, $matches)){
+			if (preg_match('/^(KILLERPAGE):(.*)$/', $line, $matches)) {
 				global $autolink, $killer_fg, $killer_bg;
 				$autolink = 0;
 				$tmpstr = htmlspecialchars($matches[2]);
@@ -1085,18 +1081,18 @@ class Body extends Element
 			}
 
 			// Extend KILLERPAGE2 by hokuken 2008 12/1
-			if (preg_match('/^(KILLERPAGE2):(.*)$/', $line, $matches)){
+			if (preg_match('/^(KILLERPAGE2):(.*)$/', $line, $matches)) {
 				global $autolink, $killer_page2;
 				$autolink = 0;
 				$killer_page2 = array();
 				$tmpstr = htmlspecialchars($matches[2]);
 				list($fg, $bg, $width, $padding, $bg_body, $fg_body)
-					= array_pad(preg_split('/,/', $tmpstr),6,'');
-				$width = ($width!='' && preg_match('/^[0-9]+$/',$width)) ? $width : 720;
-				$padding = ($padding!='' && preg_match('/^[0-9]+$/',$width))
-						? $padding : '60';
-				$bg_body = ($bg_body =='') ? '#fff' : $bg_body;
-				$fg_body = ($fg_body =='') ? '#111' : $fg_body;
+					= array_pad(preg_split('/,/', $tmpstr), 6, '');
+				$width = ($width != '' && preg_match('/^[0-9]+$/', $width)) ? $width : 720;
+				$padding = ($padding != '' && preg_match('/^[0-9]+$/', $width))
+					? $padding : '60';
+				$bg_body = ($bg_body == '') ? '#fff' : $bg_body;
+				$fg_body = ($fg_body == '') ? '#111' : $fg_body;
 
 				$killer_page2['fg'] = $fg;
 				$killer_page2['bg'] = $bg;
@@ -1109,7 +1105,7 @@ class Body extends Element
 			}
 
 			// Extend KILLERPAGE2IMG by hokuken 2008 12/1
-			if (preg_match('/^(KILLERPAGE2IMG):(.*)$/', $line, $matches)){
+			if (preg_match('/^(KILLERPAGE2IMG):(.*)$/', $line, $matches)) {
 				global $autolink, $killer_page2;
 
 				$autolink = 0;
@@ -1118,7 +1114,7 @@ class Body extends Element
 			}
 
 			// Extend KILLERPAGE2BG by hokuken 2008 12/1
-			if (preg_match('/^(KILLERPAGE2BG):(.*)$/', $line, $matches)){
+			if (preg_match('/^(KILLERPAGE2BG):(.*)$/', $line, $matches)) {
 				global $autolink, $killer_page2;
 
 				$autolink = 0;
@@ -1128,68 +1124,58 @@ class Body extends Element
 
 
 			// Extend AUTOLINK SETTING by hokuken
-			if (preg_match('/^(NOAUTOLINK):(.*)$/', $line, $matches)){
+			if (preg_match('/^(NOAUTOLINK):(.*)$/', $line, $matches)) {
 				global $autolink;
 				$autolink = 0;
 				continue;
 			}
 
 			// Extend NOINDEX by hokuken
-			if (preg_match('/^(NOINDEX):(.*)$/', $line, $matches)){
+			if (preg_match('/^(NOINDEX):(.*)$/', $line, $matches)) {
 				global $noindex;
 				$noindex = ' <meta name="robots" content="NOINDEX,NOFOLLOW" /><meta name="googlebot" content="noindex,nofollow" />';
 				continue;
 			}
 
-			if (preg_match('/^STYLE:(.*)$/', $line, $matches))
-			{
+			if (preg_match('/^STYLE:(.*)$/', $line, $matches)) {
 				global $block_style;
 				$block_style = $matches[1];
 				continue;
 			}
 
-			if (preg_match('/^CLASS:(.*)$/', $line, $matches))
-			{
+			if (preg_match('/^CLASS:(.*)$/', $line, $matches)) {
 				global $block_class;
 				$block_class = $matches[1];
 				continue;
 			}
 
-			if (preg_match('/^IMAGE:(.*)$/', $line, $matches))
-			{
+			if (preg_match('/^IMAGE:(.*)$/', $line, $matches)) {
 				global $block_image;
 				$block_imagefile = '';
-				if (preg_match('/\.(gif|png|jpe?g)$/i', $matches[1]))
-				{
+				if (preg_match('/\.(gif|png|jpe?g)$/i', $matches[1])) {
 					$matches[1] = trim($matches[1]);
-					if (is_url($matches[1]) || is_file($matches[1]))
-					{
+					if (is_url($matches[1]) || is_file($matches[1])) {
 						$block_imagefile = $matches[1];
-					}
-					else
-					{
-						if (is_file(UPLOAD_DIR.$matches[1]))
-						{
-							$block_imagefile = UPLOAD_DIR.$matches[1];
+					} else {
+						if (is_file(UPLOAD_DIR . $matches[1])) {
+							$block_imagefile = UPLOAD_DIR . $matches[1];
 						}
 					}
 				}
 
-				if ($block_imagefile != '')
-				{
-					$block_image = '<img src="'.h($block_imagefile).'">';
+				if ($block_imagefile != '') {
+					$block_image = '<img src="' . h($block_imagefile) . '">';
 				}
 				continue;
 			}
 
-			if (is_a($this->last, 'Align') && $this->last->ptag)
-			{
-				$this->last = $this->last->add(Factory_Inline('~'.$line));
+			if (is_a($this->last, 'Align') && $this->last->ptag) {
+				$this->last = $this->last->add(Factory_Inline('~' . $line));
 				continue;
 			}
 
 			// Default
-			$this->last = & $this->last->add(Factory_Inline($line));
+			$this->last = &$this->last->add(Factory_Inline($line));
 		}
 	}
 
@@ -1205,7 +1191,7 @@ class Body extends Element
 		$id = make_heading($text, FALSE); // Cut fixed-anchor from $text
 		if ($id == '') {
 			// Not specified
-			$id     = & $autoid;
+			$id     = &$autoid;
 			$anchor = '';
 		} else {
 			$anchor = ' &aname(' . $id . ');';
@@ -1214,15 +1200,15 @@ class Body extends Element
 		$text = ' ' . $text;
 
 		// Add 'page contents' link to its heading
-		$this->contents_last = & $this->contents_last->add(new Contents_UList($text, $level, $id));
+		$this->contents_last = &$this->contents_last->add(new Contents_UList($text, $level, $id));
 
 		// Add heding
 		return array($text . $anchor, $this->count > 1 ? "\n" . $top : '', $autoid);
 	}
 
-	function & insert(& $obj)
+	function &insert(&$obj)
 	{
-		if (is_a($obj, 'Inline') && ! $this->noPara) $obj = & $obj->toPara();
+		if (is_a($obj, 'Inline') && ! $this->noPara) $obj = &$obj->toPara();
 		return parent::insert($obj);
 	}
 
@@ -1233,8 +1219,11 @@ class Body extends Element
 		$text = parent::toString();
 
 		// #contents
-		$text = preg_replace_callback('/<#_contents_>/',
-			array(& $this, 'replace_contents'), $text);
+		$text = preg_replace_callback(
+			'/<#_contents_>/',
+			array(&$this, 'replace_contents'),
+			$text
+		);
 
 		return $text . "\n";
 	}
@@ -1242,9 +1231,9 @@ class Body extends Element
 	function replace_contents($arr)
 	{
 		$contents  = '<div class="contents">' . "\n" .
-				'<a id="contents_' . $this->id . '"></a>' . "\n" .
-				$this->contents->toString() . "\n" .
-				'</div>' . "\n";
+			'<a id="contents_' . $this->id . '"></a>' . "\n" .
+			$this->contents->toString() . "\n" .
+			'</div>' . "\n";
 		return $contents;
 	}
 }
@@ -1261,7 +1250,7 @@ class Contents_UList extends ListContainer
 		$this->insert(Factory_Inline($text));
 	}
 
-	function setParent(& $parent)
+	function setParent(&$parent)
 	{
 		global $_list_pad_str;
 

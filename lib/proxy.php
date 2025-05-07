@@ -18,9 +18,14 @@ define('PKWK_HTTP_REQUEST_URL_REDIRECT_MAX', 2);
  * $redirect_max : Max number of HTTP redirect
  * $content_charset : Content charset. Use '' or CONTENT_CHARSET
 */
-function http_request($url, $method = 'GET', $headers = '', $post = array(),
-	$redirect_max = PKWK_HTTP_REQUEST_URL_REDIRECT_MAX, $content_charset = '')
-{
+function http_request(
+	$url,
+	$method = 'GET',
+	$headers = '',
+	$post = array(),
+	$redirect_max = PKWK_HTTP_REQUEST_URL_REDIRECT_MAX,
+	$content_charset = ''
+) {
 	global $use_proxy, $no_proxy, $proxy_host, $proxy_port;
 	global $need_proxy_auth, $proxy_auth_user, $proxy_auth_pass;
 
@@ -44,12 +49,12 @@ function http_request($url, $method = 'GET', $headers = '', $post = array(),
 
 	// Basic-auth for HTTP proxy server
 	if ($need_proxy_auth && isset($proxy_auth_user) && isset($proxy_auth_pass))
-		$query .= 'Proxy-Authorization: Basic '.
+		$query .= 'Proxy-Authorization: Basic ' .
 			base64_encode($proxy_auth_user . ':' . $proxy_auth_pass) . "\r\n";
 
 	// (Normal) Basic-auth for remote host
 	if (isset($arr['user']) && isset($arr['pass']))
-		$query .= 'Authorization: Basic '.
+		$query .= 'Authorization: Basic ' .
 			base64_encode($arr['user'] . ':' . $arr['pass']) . "\r\n";
 
 	$query .= $headers;
@@ -57,7 +62,7 @@ function http_request($url, $method = 'GET', $headers = '', $post = array(),
 	if (strtoupper($method) == 'POST') {
 		// 'application/x-www-form-urlencoded', especially for TrackBack ping
 		$POST = array();
-		foreach ($post as $name=>$val) $POST[] = $name . '=' . urlencode($val);
+		foreach ($post as $name => $val) $POST[] = $name . '=' . urlencode($val);
 		$data = join('&', $POST);
 
 		if (preg_match('/^[a-zA-Z0-9_-]+$/', $content_charset)) {
@@ -76,8 +81,7 @@ function http_request($url, $method = 'GET', $headers = '', $post = array(),
 		$query .= "\r\n";
 	}
 
-	if ($arr['scheme'] === 'https')
-	{
+	if ($arr['scheme'] === 'https') {
 		$arr['port'] = 443;
 		$arr['host'] = "ssl://{$arr['host']}";
 	}
@@ -87,7 +91,10 @@ function http_request($url, $method = 'GET', $headers = '', $post = array(),
 	$fp = fsockopen(
 		$via_proxy ? $proxy_host : $arr['host'],
 		$via_proxy ? $proxy_port : $arr['port'],
-		$errno, $errstr, 30);
+		$errno,
+		$errstr,
+		30
+	);
 	if ($fp === FALSE) {
 		return array(
 			'query'  => $query, // Query string
@@ -103,25 +110,26 @@ function http_request($url, $method = 'GET', $headers = '', $post = array(),
 
 	$resp = explode("\r\n\r\n", $response, 2);
 	$rccd = explode(' ', $resp[0], 3); // array('HTTP/1.1', '200', 'OK\r\n...')
-	$rc   = (integer)$rccd[1];
+	$rc   = (int)$rccd[1];
 
 	switch ($rc) {
-	case 301: // Moved Permanently
-	case 302: // Moved Temporarily
-		$matches = array();
-		if (preg_match('/^Location: (.+)$/m', $resp[0], $matches)
-			&& --$redirect_max > 0)
-		{
-			$url = trim($matches[1]);
-			if (! preg_match('/^https?:\//', $url)) {
-				// Relative path to Absolute
-				if ($url{0} != '/')
-					$url = substr($url_path, 0, strrpos($url_path, '/')) . '/' . $url;
-				$url = $url_base . $url; // Add sheme, host
+		case 301: // Moved Permanently
+		case 302: // Moved Temporarily
+			$matches = array();
+			if (
+				preg_match('/^Location: (.+)$/m', $resp[0], $matches)
+				&& --$redirect_max > 0
+			) {
+				$url = trim($matches[1]);
+				if (! preg_match('/^https?:\//', $url)) {
+					// Relative path to Absolute
+					if ($url[0] != '/')
+						$url = substr($url_path, 0, strrpos($url_path, '/')) . '/' . $url;
+					$url = $url_base . $url; // Add sheme, host
+				}
+				// Redirect
+				return http_request($url, $method, $headers, $post, $redirect_max);
 			}
-			// Redirect
-			return http_request($url, $method, $headers, $post, $redirect_max);
-		}
 	}
 	return array(
 		'query'  => $query,   // Query String
@@ -150,8 +158,10 @@ function in_the_net($networks = array(), $host = '')
 	$l_ip = ip2long($ip);
 
 	foreach ($networks as $network) {
-		if (preg_match(PKWK_CIDR_NETWORK_REGEX, $network, $matches) &&
-		    is_long($l_ip) && long2ip($l_ip) == $ip) {
+		if (
+			preg_match(PKWK_CIDR_NETWORK_REGEX, $network, $matches) &&
+			is_long($l_ip) && long2ip($l_ip) == $ip
+		) {
 			// $host seems valid IPv4 address
 			// Sample: '10.0.0.0/8' or '10.0.0.0/255.0.0.0'
 			$l_net = ip2long($matches[1]); // '10.0.0.0'
@@ -171,4 +181,3 @@ function in_the_net($networks = array(), $host = '')
 
 	return FALSE; // Not found
 }
-?>

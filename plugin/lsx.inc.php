@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Page List (ls) Plugin
  *
@@ -24,7 +25,7 @@ class PluginLsx
         static $default_options = array(
             'hierarchy' => array('bool', true),
             'non_list'  => array('bool', true),
-            'reverse'   => array('bool', false), 
+            'reverse'   => array('bool', false),
             'basename'  => array('bool', false), // obsolete
             'sort'      => array('enum', 'name', array('name', 'reading', 'date')),
             'tree'      => array('enum', false, array(false, 'leaf', 'dir')),
@@ -57,7 +58,7 @@ class PluginLsx
             $this->ereg = 'ereg';
         }
     }
-    
+
     // static
     var $conf;
     var $default_options;
@@ -96,78 +97,123 @@ class PluginLsx
         } else {
             $msg = $this->plugin;
         }
-        return array('msg'=>$msg, 'body'=>$body);
+        return array('msg' => $msg, 'body' => $body);
     }
 
     function body($args)
     {
         $parser = new PluginLsxOptionParser();
         $this->options = $parser->parse_options($args, $this->options);
-        if ($parser->error != "") { $this->error = $parser->error; return; }
+        if ($parser->error != "") {
+            $this->error = $parser->error;
+            return;
+        }
 
         $this->validate_options();
-        if ($this->error !== "") { return $this->error; }
-        
+        if ($this->error !== "") {
+            return $this->error;
+        }
+
         $this->init_metapages();
-        if ($this->error !== "") { return $this->error; }
+        if ($this->error !== "") {
+            return $this->error;
+        }
         $this->prefix_filter_metapages();
-        if ($this->error !== "") { return $this->error; }
+        if ($this->error !== "") {
+            return $this->error;
+        }
         $this->nonlist_filter_metapages();
-        if ($this->error !== "") { return $this->error; }
+        if ($this->error !== "") {
+            return $this->error;
+        }
         $this->relative_metapages(); // before filter, except
-        if ($this->error !== "") { return $this->error; }
+        if ($this->error !== "") {
+            return $this->error;
+        }
         $this->filter_filter_metapages();
-        if ($this->error !== "") { return $this->error; }
+        if ($this->error !== "") {
+            return $this->error;
+        }
         $this->except_filter_metapages();
-        if ($this->error !== "") { return $this->error; }
+        if ($this->error !== "") {
+            return $this->error;
+        }
 
         $this->newpage_filter_metapages();
-        if ($this->error !== "") { return $this->error; }
+        if ($this->error !== "") {
+            return $this->error;
+        }
 
         $parser = new PluginLsxOptionParser();
         $this->maxdepth = $this->depth_metapages();
         $this->options['depth'][1] = $parser->parse_numoption($this->options['depth'][1], 1, $this->maxdepth);
-        if ($parser->error != "") { $this->error = $parser->error; return; }
+        if ($parser->error != "") {
+            $this->error = $parser->error;
+            return;
+        }
         $this->depth_filter_metapages();
-        if ($this->error !== "") { return $this->error; }
+        if ($this->error !== "") {
+            return $this->error;
+        }
 
         $this->tree_filter_metapages();
-        if ($this->error !== "") { return $this->error; }
+        if ($this->error !== "") {
+            return $this->error;
+        }
         $this->popular_metapages(); // before sort
-        if ($this->error !== "") { return $this->error; }
+        if ($this->error !== "") {
+            return $this->error;
+        }
         $this->timestamp_metapages(); // before sort
-        if ($this->error !== "") { return $this->error; }
+        if ($this->error !== "") {
+            return $this->error;
+        }
         $this->sort_metapages(); // before num_filter
-        if ($this->error !== "") { return $this->error; }
+        if ($this->error !== "") {
+            return $this->error;
+        }
 
         $this->maxnum = sizeof($this->metapages); // after all filters
         $this->options['num'][1] = $parser->parse_numoption($this->options['num'][1], 1, $this->maxnum);
-        if ($parser->error != "") { $this->error = $parser->error; return; }
+        if ($parser->error != "") {
+            $this->error = $parser->error;
+            return;
+        }
         $this->num_filter_metapages();
-        if ($this->error !== "") { return $this->error; }
+        if ($this->error !== "") {
+            return $this->error;
+        }
 
         $this->hierarchy_metapages();
-        if ($this->error !== "") { return $this->error; }
+        if ($this->error !== "") {
+            return $this->error;
+        }
 
         $this->info_metapages();
-        if ($this->error !== "") { return $this->error; }
+        if ($this->error !== "") {
+            return $this->error;
+        }
         $this->linkstr_metapages();
-        if ($this->error !== "") { return $this->error; }
+        if ($this->error !== "") {
+            return $this->error;
+        }
         $this->link_metapages();
-        if ($this->error !== "") { return $this->error; }
+        if ($this->error !== "") {
+            return $this->error;
+        }
 
         $body = $this->list_pages();
         $body .= $this->next_pages();
 
         return $body;
     }
-    
+
     function validate_options()
     {
         global $vars;
         $qm = get_qm();
         if ($this->options['tag'][1] != '') {
-            if(! exist_plugin($this->conf['plugin_tag'])) {
+            if (! exist_plugin($this->conf['plugin_tag'])) {
                 $this->error .= $qm->replace('plg_lsx.err_plg', 'tag', $this->conf['plugin_tag']);
                 return;
             }
@@ -203,14 +249,14 @@ class PluginLsx
         // }
 
         if ($this->options['contents'][1] != '') {
-            if(! exist_plugin_convert($this->conf['plugin_contents'])) {
+            if (! exist_plugin_convert($this->conf['plugin_contents'])) {
                 $this->error .= $qm->replace('plg_lsx.err_plg', 'contents', $this->conf['plugin_contents']);
                 return;
             }
         }
 
         if ($this->options['include'][1] != '') {
-            if(! exist_plugin_convert($this->conf['plugin_include'])) {
+            if (! exist_plugin_convert($this->conf['plugin_include'])) {
                 $this->error .= $qm->replace('plg_lsx.err_plg', 'include', $this->conf['plugin_include']);
                 return;
             }
@@ -221,7 +267,7 @@ class PluginLsx
         }
 
         if ($this->options['linkstr'][1] === 'title' || $this->options['linkstr'][1] === 'headline') {
-            if(! exist_plugin_convert($this->conf['plugin_contents'])) {
+            if (! exist_plugin_convert($this->conf['plugin_contents'])) {
                 $this->error .= $qm->replace('plg_lsx.err_plg', 'linkstr', $this->conf['plugin_contents']);
                 return;
             }
@@ -230,7 +276,7 @@ class PluginLsx
         // to support lower versions
         // basename -> linkstr
         if ($this->options['basename'][1] === true) {
-            $this->options['linkstr'][1] = 'basename'; 
+            $this->options['linkstr'][1] = 'basename';
         }
 
         // new,date -> info
@@ -272,7 +318,7 @@ class PluginLsx
         $prevlink = '';
         if ($prevmax > 0) {
             $prevhref = $href . '&amp;num=' . $prevmin . ':' . $prevmax;
-            $prevlink = '<span class="prev" style="float:left;"><a href="' . $prevhref . '">' . $qm->m['plg_lsx']['prev'] . ' '.  $count . '</a></span>';
+            $prevlink = '<span class="prev" style="float:left;"><a href="' . $prevhref . '">' . $qm->m['plg_lsx']['prev'] . ' ' .  $count . '</a></span>';
         }
         $nextmin = max($max + 1, 0);
         $nextmax = min($max + $count, $maxnum);
@@ -293,7 +339,7 @@ class PluginLsx
         if (sizeof($this->metapages) == 0) {
             return;
         }
-        
+
         /* HTML validate (without <ul><li style="list-type:none"><ul><li>, we have to do as 
            <ul><li style="padding-left:16*2px;margin-left:16*2px"> as pukiwiki standard. I did not like it)
            
@@ -315,11 +361,11 @@ class PluginLsx
         $ul = $pdepth = 0;
         $html = '';
         foreach ($this->metapages as $i => $metapage) {
-            $page     = isset($metapage['page'])? $metapage['page']: '';
-            $exist    = isset($metapage['exist'])? $metapage['exist']: '';
-            $depth    = isset($metapage['listdepth'])? $metapage['listdepth']: '';
-            $info     = isset($metapage['info'])? $metapage['info']: '';
-            $link     = isset($metapage['link'])? $metapage['link']: '';
+            $page     = isset($metapage['page']) ? $metapage['page'] : '';
+            $exist    = isset($metapage['exist']) ? $metapage['exist'] : '';
+            $depth    = isset($metapage['listdepth']) ? $metapage['listdepth'] : '';
+            $info     = isset($metapage['info']) ? $metapage['info'] : '';
+            $link     = isset($metapage['link']) ? $metapage['link'] : '';
             if ($exist && $this->options['include'][1] != '') {
                 $option = '"' . $page . '"';
                 if (! empty($this->options['include'][1])) {
@@ -351,10 +397,10 @@ class PluginLsx
             if (isset($info) && $info != '') {
                 $html .= '<span class="lsx_info">' . $info . '</span>' . "\n";
             }
-            
+
             if ($exist && $this->options['contents'][1] != '') {
                 $args = $this->options['contents'][1];
-                $pagearg = 'page=' . $page ;
+                $pagearg = 'page=' . $page;
                 array_unshift($args, $pagearg);
                 $contentsx = new PluginContentsx();
                 $html .= call_user_func(array($contentsx, 'body'), $args);
@@ -367,82 +413,82 @@ class PluginLsx
     function link_metapages()
     {
         switch ($this->options['link'][1]) {
-        case 'page':
-            foreach ($this->metapages as $i => $metapage) {
-                if ($metapage['exist']) {
-                    $this->metapages[$i]['link'] = 
-                        $this->make_pagelink($metapage['page'], $metapage['linkstr']);
-                } else {
+            case 'page':
+                foreach ($this->metapages as $i => $metapage) {
+                    if ($metapage['exist']) {
+                        $this->metapages[$i]['link'] =
+                            $this->make_pagelink($metapage['page'], $metapage['linkstr']);
+                    } else {
+                        $this->metapages[$i]['link'] = $metapage['linkstr'];
+                    }
+                }
+                break;
+            case 'anchor':
+                foreach ($this->metapages as $i => $metapage) {
+                    // PluginIncludex::get_page_anchor($metapage['page'])
+                    $anchor = 'z' . md5($metapage['page']);
+                    $anchor = '#' . htmlspecialchars($anchor);
+                    if ($metapage['exist']) {
+                        $this->metapages[$i]['link'] =
+                            $this->make_pagelink('', $metapage['linkstr'], $anchor);
+                    } else {
+                        $this->metapages[$i]['link'] = $metapage['linkstr'];
+                    }
+                }
+                break;
+            case 'off':
+                foreach ($this->metapages as $i => $metapage) {
                     $this->metapages[$i]['link'] = $metapage['linkstr'];
                 }
-            }
-            break;
-        case 'anchor':
-            foreach ($this->metapages as $i => $metapage) {
-                // PluginIncludex::get_page_anchor($metapage['page'])
-                $anchor = 'z' . md5($metapage['page']);
-                $anchor = '#' . htmlspecialchars($anchor);
-                if ($metapage['exist']) {
-                    $this->metapages[$i]['link'] = 
-                        $this->make_pagelink('', $metapage['linkstr'], $anchor);
-                } else {
-                    $this->metapages[$i]['link'] = $metapage['linkstr'];
-                }
-            }
-            break;
-        case 'off':
-            foreach ($this->metapages as $i => $metapage) {
-                $this->metapages[$i]['link'] = $metapage['linkstr'];
-            }
-            break;
+                break;
         }
     }
 
     function linkstr_metapages()
     {
         switch ($this->options['linkstr'][1]) {
-        case 'absolute':
-            foreach ($this->metapages as $i => $metapage) {
-                $this->metapages[$i]['linkstr'] = 
-                    htmlspecialchars($metapage['page']);
-            }
-            break;
-        case 'basename':
-            foreach ($this->metapages as $i => $metapage) {
-                $this->metapages[$i]['linkstr'] = 
-                    htmlspecialchars($this->my_basename($metapage['page']));
-            }
-            break;
-        case 'title':
-            $contentsx = new PluginContentsx();
-            foreach ($this->metapages as $i => $metapage) {
-                $title = $contentsx->get_title($metapage['page']);
-                $title = strip_htmltag(make_link($title));
-                $this->metapages[$i]['linkstr'] = $title;
-            }
-            break;
-        case 'headline':
-            $contentsx = new PluginContentsx();
-            foreach ($this->metapages as $i => $metapage) {
-                $metalines = $contentsx->get_metalines($metapage['page']);
-                $title =  $metalines[0]['headline'];
-                $title = strip_htmltag(make_link($title));
-                $this->metapages[$i]['linkstr'] = $title;
-            }
-            break;
+            case 'absolute':
+                foreach ($this->metapages as $i => $metapage) {
+                    $this->metapages[$i]['linkstr'] =
+                        htmlspecialchars($metapage['page']);
+                }
+                break;
+            case 'basename':
+                foreach ($this->metapages as $i => $metapage) {
+                    $this->metapages[$i]['linkstr'] =
+                        htmlspecialchars($this->my_basename($metapage['page']));
+                }
+                break;
+            case 'title':
+                $contentsx = new PluginContentsx();
+                foreach ($this->metapages as $i => $metapage) {
+                    $title = $contentsx->get_title($metapage['page']);
+                    $title = strip_htmltag(make_link($title));
+                    $this->metapages[$i]['linkstr'] = $title;
+                }
+                break;
+            case 'headline':
+                $contentsx = new PluginContentsx();
+                foreach ($this->metapages as $i => $metapage) {
+                    $metalines = $contentsx->get_metalines($metapage['page']);
+                    $title =  $metalines[0]['headline'];
+                    $title = strip_htmltag(make_link($title));
+                    $this->metapages[$i]['linkstr'] = $title;
+                }
+                break;
         }
         // default: relative
         if ($this->options['hierarchy'][1] === true) {
             foreach ($this->metapages as $i => $metapage) {
                 if (! isset($metapage['linkstr']) || $metapage['linkstr'] === '') {
-                    $this->metapages[$i]['linkstr'] = 
+                    $this->metapages[$i]['linkstr'] =
                         htmlspecialchars($this->my_basename($metapage['page']));
                 }
             }
         } else {
             foreach ($this->metapages as $i => $metapage) {
                 if (! isset($metapage['linkstr']) || $metapage['linkstr'] === '') {
-                    $this->metapages[$i]['linkstr'] = 
+                    $this->metapages[$i]['linkstr'] =
                         htmlspecialchars($metapage['relative']);
                 }
             }
@@ -459,43 +505,43 @@ class PluginLsx
             list($zone, $zonetime) = set_timezone(DEFAULT_LANG);
             $localtime = UTIME + $zonetime;
             $today = gmdate('Y/m/d', $localtime);
-            $yesterday = gmdate('Y/m/d',gmmktime(0,0,0, gmdate('m',$localtime), gmdate('d',$localtime)-1, gmdate('Y',$localtime)));
+            $yesterday = gmdate('Y/m/d', gmmktime(0, 0, 0, gmdate('m', $localtime), gmdate('d', $localtime) - 1, gmdate('Y', $localtime)));
         } else {
             $localtime = ZONETIME + UTIME;
             $today = get_date('Y/m/d'); // == get_date('Y/m/d', UTIME) == date('Y/m/d, ZONETIME + UTIME);
-            $yesterday = get_date('Y/m/d', mktime(0,0,0, date('m',$localtime), date('d',$localtime)-1, date('Y',$localtime)));
+            $yesterday = get_date('Y/m/d', mktime(0, 0, 0, date('m', $localtime), date('d', $localtime) - 1, date('Y', $localtime)));
         }
-        
+
         foreach ($this->metapages as $i => $metapage) {
             $page = $metapage['page'];
             $lines = file(COUNTER_DIR . encode($page) . '.count');
             $lines = array_map('rtrim', $lines);
             list($total_count, $date, $today_count, $yesterday_count, $ip) = $lines;
-            
+
             $popular = 0;
             switch ($this->options['popular'][1]) {
-            case 'total':
-                $popular = $total_count;
-                break;
-            case 'today':
-                if ($date == $today) {
-                    $popular = $today_count;
-                }
-                break;
-            case 'yesterday':
-                if ($date == $today) {
-                    $popular = $yesterday_count;
-                } elseif ($date == $yesterday) {
-                    $popular = $today_count;
-                }
-                break;
-            case 'recent':
-                if ($date == $today) {
-                    $popular = $today_count + $yesterday_count;
-                } elseif ($date == $yesterday) {
-                    $popular = $today_count;
-                }
-                break;
+                case 'total':
+                    $popular = $total_count;
+                    break;
+                case 'today':
+                    if ($date == $today) {
+                        $popular = $today_count;
+                    }
+                    break;
+                case 'yesterday':
+                    if ($date == $today) {
+                        $popular = $yesterday_count;
+                    } elseif ($date == $yesterday) {
+                        $popular = $today_count;
+                    }
+                    break;
+                case 'recent':
+                    if ($date == $today) {
+                        $popular = $today_count + $yesterday_count;
+                    } elseif ($date == $yesterday) {
+                        $popular = $today_count;
+                    }
+                    break;
             }
             if ($popular > 0) {
                 $this->metapages[$i]['popular'] = $popular;
@@ -507,8 +553,10 @@ class PluginLsx
 
     function timestamp_metapages()
     {
-        if (! $this->options['date'][1] && ! $this->options['new'][1] && 
-            $this->options['sort'][1] !== 'date') {
+        if (
+            ! $this->options['date'][1] && ! $this->options['new'][1] &&
+            $this->options['sort'][1] !== 'date'
+        ) {
             return;
         }
         foreach ($this->metapages as $i => $metapage) {
@@ -518,7 +566,7 @@ class PluginLsx
         }
     }
 
-    function date_metapages() 
+    function date_metapages()
     {
         if (! $this->options['date'][1] && ! $this->options['new'][1]) {
             return;
@@ -536,7 +584,7 @@ class PluginLsx
             return;
         }
         foreach ($this->metapages as $i => $metapage) {
-            $this->metapages[$i]['info_date'] = 
+            $this->metapages[$i]['info_date'] =
                 '<span class="comment_date">' .  $metapage['date'] . '</span>';
         }
     }
@@ -563,7 +611,7 @@ class PluginLsx
         $this->date_metapages();
         $this->info_date_metapages();
         $this->info_new_metapages();
-        
+
         //foreach ($this->options['info'][2] as $key) {
         //    call_user_func(array($this, $key . '_metapages'));
         //}
@@ -595,22 +643,22 @@ class PluginLsx
         $leafs[$current] = TRUE;
 
         switch ($this->options['tree'][1]) {
-        case 'dir':
-            foreach ($this->metapages as $i => $metapage) {
-                $page = $metapage['page'];
-                if ($leafs[$page]) {
-                    unset($this->metapages[$i]);
+            case 'dir':
+                foreach ($this->metapages as $i => $metapage) {
+                    $page = $metapage['page'];
+                    if ($leafs[$page]) {
+                        unset($this->metapages[$i]);
+                    }
                 }
-            }
-            break;
-        case 'leaf':
-            foreach ($this->metapages as $i => $metapage) {
-                $page = $metapage['page'];
-                if (! $leafs[$page]) {
-                    unset($this->metapages[$i]);
+                break;
+            case 'leaf':
+                foreach ($this->metapages as $i => $metapage) {
+                    $page = $metapage['page'];
+                    if (! $leafs[$page]) {
+                        unset($this->metapages[$i]);
+                    }
                 }
-            }
-            break;
+                break;
         }
     }
 
@@ -639,7 +687,7 @@ class PluginLsx
                     if ($this->options['hierarchy'][1] === true) {
                         $relative = substr($page, $pdirlen);
                         $listdepth = $depth;
-                        $this->metapages[] = array('reading'=>$page,'page'=>$page, 'relative'=>$relative, 'exist'=>false, 'depth'=>$depth, 'listdepth'=>$listdepth, 'timestamp'=>1, 'date'=>'', 'leaf'=>false);
+                        $this->metapages[] = array('reading' => $page, 'page' => $page, 'relative' => $relative, 'exist' => false, 'depth' => $depth, 'listdepth' => $listdepth, 'timestamp' => 1, 'date' => '', 'leaf' => false);
                         // PHP: new item is ignored on this loop
                     }
                 }
@@ -653,32 +701,34 @@ class PluginLsx
     function sort_metapages($sort = 'natcasesort', $sortflag = SORT_REGULAR)
     {
         switch ($this->options['sort'][1]) {
-        case 'name':
-            $this->sort_by($this->metapages, 'page', 'sort', SORT_STRING);
-            break;
-        case 'date':
-            $this->sort_by($this->metapages, 'timestamp', 'rsort', SORT_NUMERIC);
-            break;
-        case 'reading':
-            $this->sort_by($this->metapages, 'reading', 'sort', SORT_STRING);
-            break;
-        case 'popular':
-            $this->sort_by($this->metapages, 'popular', 'rsort', SORT_NUMERIC);
-            break;
-        default:
-            $this->sort_by($this->metapages, $this->options['sort'][1], $sort, $sortflag);
-            break;
+            case 'name':
+                $this->sort_by($this->metapages, 'page', 'sort', SORT_STRING);
+                break;
+            case 'date':
+                $this->sort_by($this->metapages, 'timestamp', 'rsort', SORT_NUMERIC);
+                break;
+            case 'reading':
+                $this->sort_by($this->metapages, 'reading', 'sort', SORT_STRING);
+                break;
+            case 'popular':
+                $this->sort_by($this->metapages, 'popular', 'rsort', SORT_NUMERIC);
+                break;
+            default:
+                $this->sort_by($this->metapages, $this->options['sort'][1], $sort, $sortflag);
+                break;
         }
-        
+
         if ($this->options['reverse'][1]) {
             $this->metapages = array_reverse($this->metapages);
         }
     }
-    
+
     function depth_metapages()
     {
-        if ($this->options['depth'][1] === '' && $this->options['hierarchy'][1] === false &&
-            $this->options['tree'][1] === false ) {
+        if (
+            $this->options['depth'][1] === '' && $this->options['hierarchy'][1] === false &&
+            $this->options['tree'][1] === false
+        ) {
             return;
         }
         $pdepth = substr_count($this->options['prefix'][1], '/') - 1;
@@ -688,10 +738,10 @@ class PluginLsx
             $depth = substr_count($page, '/');
             $this->metapages[$i]['depth']   = $depth - $pdepth;
         }
-        
+
         return $this->max_by($this->metapages, 'depth');
     }
-    
+
     function relative_metapages()
     {
         $pdir = $this->my_dirname($this->options['prefix'][1]);
@@ -706,11 +756,11 @@ class PluginLsx
             }
         }
     }
-    
+
     function init_metapages()
     {
-    	$qm = get_qm();
-        if ($this->options['sort'][1] === 'reading') { 
+        $qm = get_qm();
+        if ($this->options['sort'][1] === 'reading') {
             // Beta Function
             if ($this->options['tag'][1] == '') {
                 $readings = $this->get_readings();
@@ -718,7 +768,7 @@ class PluginLsx
                 $plugin_tag = new PluginTag();
                 $pages = $plugin_tag->get_taggedpages($this->options['tag'][1]);
                 if ($pages === FALSE) {
-                	$this->error = $qm->replace('plg_lsx.err_invalid_tag', h($this->options['tag'][1]));
+                    $this->error = $qm->replace('plg_lsx.err_invalid_tag', h($this->options['tag'][1]));
                 }
                 $readings = $this->get_readings(); // why can not set pages...
                 foreach ($pages as $page)
@@ -732,7 +782,7 @@ class PluginLsx
             $metapages = array();
             foreach ($readings as $page => $reading) {
                 unset($readings[$page]);
-                $metapages[] = array('reading'=>$reading,'page'=>$page, 'exist'=>true, 'depth'=>1, 'listdepth'=>1, 'timestamp'=>1, 'date'=>'');
+                $metapages[] = array('reading' => $reading, 'page' => $page, 'exist' => true, 'depth' => 1, 'listdepth' => 1, 'timestamp' => 1, 'date' => '');
             }
             $this->metapages = $metapages;
         } else {
@@ -742,13 +792,13 @@ class PluginLsx
                 $plugin_tag = new PluginTag();
                 $pages = $plugin_tag->get_taggedpages($this->options['tag'][1]);
                 if ($pages === FALSE) {
-                	$this->error = $qm->replace('plg_lsx.err_invalid_tag', h($this->options['tag'][1]));
+                    $this->error = $qm->replace('plg_lsx.err_invalid_tag', h($this->options['tag'][1]));
                 }
             }
             $metapages = array();
             foreach ($pages as $i => $page) {
                 unset($pages[$i]);
-                $metapages[] = array('page'=>$page, 'exist'=>true, 'depth'=>1, 'listdepth'=>1, 'timestamp'=>1, 'date'=>'');
+                $metapages[] = array('page' => $page, 'exist' => true, 'depth' => 1, 'listdepth' => 1, 'timestamp' => 1, 'date' => '');
             }
             $this->metapages = $metapages;
         }
@@ -768,7 +818,7 @@ class PluginLsx
         }
         $this->metapages = $metapages;
     }
-    
+
     // sort before this ($this->sort_by)
     function num_filter_metapages()
     {
@@ -802,7 +852,7 @@ class PluginLsx
         }
         $this->metapages = $metapages;
     }
-    
+
     function prefix_filter_metapages()
     {
         if ($this->options['prefix'][1] === "") {
@@ -811,7 +861,7 @@ class PluginLsx
         $metapages = array();
         foreach ($this->metapages as $i => $metapage) {
             unset($this->metapages[$i]);
-            if (strpos($metapage['page'], $this->options['prefix'][1]) !== 0) { 
+            if (strpos($metapage['page'], $this->options['prefix'][1]) !== 0) {
                 continue;
             }
             $metapages[] = $metapage;
@@ -828,8 +878,8 @@ class PluginLsx
         $metapages = array();
         foreach ($this->metapages as $i => $metapage) {
             unset($this->metapages[$i]);
-            if (preg_match("/$non_list/", $metapage['page'])) { 
-                continue; 
+            if (preg_match("/$non_list/", $metapage['page'])) {
+                continue;
             }
             $metapages[] = $metapage;
         }
@@ -844,7 +894,7 @@ class PluginLsx
         $metapages = array();
         foreach ($this->metapages as $i => $metapage) {
             unset($this->metapages[$i]);
-            if (call_user_func($this->ereg, $this->options['except'][1], $metapage['relative'])) { 
+            if (call_user_func($this->ereg, $this->options['except'][1], $metapage['relative'])) {
                 continue;
             }
             $metapages[] = $metapage;
@@ -882,36 +932,35 @@ class PluginLsx
     function get_fullname($name, $refer)
     {
         global $defaultpage;
-        
+
         // 'Here'
         if ($name == '' || $name == './') return $refer;
-        
+
         // Absolute path
-        if ($name{0} == '/') {
+        if ($name[0] == '/') {
             $name = substr($name, 1);
             return ($name == '') ? $defaultpage : $name;
         }
-        
+
         // Relative path from 'Here'
         if (substr($name, 0, 2) == './') {
             $arrn    = preg_split('#/#', $name, -1); //, PREG_SPLIT_NO_EMPTY);
             $arrn[0] = $refer;
             return join('/', $arrn);
         }
-        
+
         // Relative path from dirname()
         if (substr($name, 0, 3) == '../') {
             $arrn = preg_split('#/#', $name,  -1); //, PREG_SPLIT_NO_EMPTY);
             $arrp = preg_split('#/#', $refer, -1, PREG_SPLIT_NO_EMPTY);
-            
+
             while (! empty($arrn) && $arrn[0] == '..') {
                 array_shift($arrn);
                 array_pop($arrp);
             }
-            $name = ! empty($arrp) ? join('/', array_merge($arrp, $arrn)) :
-                (! empty($arrn) ? $defaultpage . '/' . join('/', $arrn) : $defaultpage);
+            $name = ! empty($arrp) ? join('/', array_merge($arrp, $arrn)) : (! empty($arrn) ? $defaultpage . '/' . join('/', $arrn) : $defaultpage);
         }
-        
+
         return $name;
     }
 
@@ -925,7 +974,8 @@ class PluginLsx
     {
         // no passage
         global $show_passage;
-        $tmp = $show_passage; $show_passage = 0;
+        $tmp = $show_passage;
+        $show_passage = 0;
         $link = make_pagelink($page, $alias, $anchor, $refer, $isautolink);
         $show_passage = $tmp;
         return $link;
@@ -981,7 +1031,7 @@ class PluginLsx
         //    $field_array[$i] = $array[$i][$fieldname];
         //}
         //return in_array($value, $field_array);
-        
+
         foreach ($array as $i => $val) {
             if ($value == $val[$fieldname]) {
                 return true;
@@ -1000,29 +1050,29 @@ class PluginLsx
         }
         $field_array = str_replace('/', "\0", $field_array); // must not be here. Refactor me.
         switch ($sort) {
-        case 'sort':
-            # sort an array and maintain index association...
-            asort($field_array, $sortflag);
-            break;
-        case 'rsort':
-            # sort an array in reverse order and maintain index association
-            arsort($field_array, $sortflag);
-            break;
-        case 'natsort':
-            natsort($field_array);
-        case 'natcasesort':
-            # sort an array using a case insensitive "natural order" algorithm
-            natcasesort($field_array);
-        break;
+            case 'sort':
+                # sort an array and maintain index association...
+                asort($field_array, $sortflag);
+                break;
+            case 'rsort':
+                # sort an array in reverse order and maintain index association
+                arsort($field_array, $sortflag);
+                break;
+            case 'natsort':
+                natsort($field_array);
+            case 'natcasesort':
+                # sort an array using a case insensitive "natural order" algorithm
+                natcasesort($field_array);
+                break;
         }
         # rebuild the array
-    	$outarray = array();
-        foreach ( $field_array as $i=> $befree) {
+        $outarray = array();
+        foreach ($field_array as $i => $befree) {
             $outarray[] = $array[$i];
             unset($array[$i]);
         }
         $array = $outarray;
-    } 
+    }
 
     function max_by($array, $fieldname = null)
     {
@@ -1032,10 +1082,9 @@ class PluginLsx
             $field_array[$i] = $array[$i][$fieldname];
         }
         if (count($field_array) > 0) {
-        	return max($field_array);
-        }
-        else {
-        	return '';
+            return max($field_array);
+        } else {
+            return '';
         }
     }
 }
@@ -1046,101 +1095,105 @@ class PluginLsxOptionParser
 
     function parse_options($args, $options)
     {
-    	$qm = get_qm();
+        $qm = get_qm();
         if (! $this->is_associative_array($args)) {
             $args = $this->associative_args($args, $options);
-            if ($this->error != "") { return; }
+            if ($this->error != "") {
+                return;
+            }
         }
 
         foreach ($args as $key => $val) {
-            if ( !isset($options[$key]) ) { continue; } // for action ($vars)
+            if (!isset($options[$key])) {
+                continue;
+            } // for action ($vars)
             $type = $options[$key][0];
             $options[$key][4] = $val;
 
             switch ($type) {
-            case 'bool':
-                if($val == "" || $val == "on" || $val == "true") {
-                    $options[$key][1] = true;
-                } elseif ($val == "off" || $val == "false" ) {
-                    $options[$key][1] = false;
-                } else {
-                	$this->error = $qm->replace('plg_lsx.err_usage_boolean', h($key), h($val), 'lsx');
-                    return;
-                }
-                break;
-            case 'string':
-                $options[$key][1] = $val;
-                break;
-            case 'sanitize':
-                $options[$key][1] = htmlspecialchars($val);
-                break;
-            case 'number':
-                // Do not parse yet, parse after getting min and max. Here, just format checking
-                if ($val === '') {
-                    $options[$key][1] = '';
-                    break;
-                }
-                if ($val[0] === '(' && $val[strlen($val) - 1] == ')') {
-                    $val = substr($val, 1, strlen($val) - 2);
-                }
-                foreach (explode(",", $val) as $range) {
-                    if (preg_match('/^-?\d+$/', $range)) {
-                    } elseif (preg_match('/^-?\d*\:-?\d*$/', $range)) {
-                    } elseif (preg_match('/^-?\d+\+-?\d+$/', $range)) {
+                case 'bool':
+                    if ($val == "" || $val == "on" || $val == "true") {
+                        $options[$key][1] = true;
+                    } elseif ($val == "off" || $val == "false") {
+                        $options[$key][1] = false;
                     } else {
-                    	$this->error = $qm->replace('plg_lsx.err_usage_number', h($key), h($val));
+                        $this->error = $qm->replace('plg_lsx.err_usage_boolean', h($key), h($val), 'lsx');
                         return;
                     }
-                }
-                $options[$key][1] = $val;
-                break;
-            case 'enum':
-                if($val == "") {
-                    $options[$key][1] = $options[$key][2][0];
-                } elseif (in_array($val, $options[$key][2])) {
+                    break;
+                case 'string':
                     $options[$key][1] = $val;
-                } else {
-                	$this->error = $qm->replace('plg_lsx.err_usage_enum', h($key), h($val), join(',', $options[$key][2]), 'lsx', $options[$key][2][0]);
-                    return;
-                }
-                break;
-            case 'array':
-                if ($val == '') {
-                    $options[$key][1] = array();
                     break;
-                }
-                if ($val[0] === '(' && $val[strlen($val) - 1] == ')') {
-                    $val = substr($val, 1, strlen($val) - 2);
-                }
-                $val = explode(',', $val);
-                //$val = $this->support_paren($val);
-                $options[$key][1] = $val;
-                break;
-            case 'enumarray':
-                if ($val == '') {
-                    $options[$key][1] = $options[$key][2];
+                case 'sanitize':
+                    $options[$key][1] = htmlspecialchars($val);
                     break;
-                }
-                if ($val[0] === '(' && $val[strlen($val) - 1] == ')') {
-                    $val = substr($val, 1, strlen($val) - 2);
-                }
-                $val = explode(',', $val);
-                //$val = $this->support_paren($val);
-                $options[$key][1] = $val;
-                foreach ($options[$key][1] as $each) {
-                    if (! in_array($each, $options[$key][2])) {
-                    	$this->error = $qm->replace('plg_lsx.err_usage_enumarray', h($key), h(join(",", $options[$key][1])), join(",", $options[$key][2]), 'lsx');
+                case 'number':
+                    // Do not parse yet, parse after getting min and max. Here, just format checking
+                    if ($val === '') {
+                        $options[$key][1] = '';
+                        break;
+                    }
+                    if ($val[0] === '(' && $val[strlen($val) - 1] == ')') {
+                        $val = substr($val, 1, strlen($val) - 2);
+                    }
+                    foreach (explode(",", $val) as $range) {
+                        if (preg_match('/^-?\d+$/', $range)) {
+                        } elseif (preg_match('/^-?\d*\:-?\d*$/', $range)) {
+                        } elseif (preg_match('/^-?\d+\+-?\d+$/', $range)) {
+                        } else {
+                            $this->error = $qm->replace('plg_lsx.err_usage_number', h($key), h($val));
+                            return;
+                        }
+                    }
+                    $options[$key][1] = $val;
+                    break;
+                case 'enum':
+                    if ($val == "") {
+                        $options[$key][1] = $options[$key][2][0];
+                    } elseif (in_array($val, $options[$key][2])) {
+                        $options[$key][1] = $val;
+                    } else {
+                        $this->error = $qm->replace('plg_lsx.err_usage_enum', h($key), h($val), join(',', $options[$key][2]), 'lsx', $options[$key][2][0]);
                         return;
                     }
-                } 
-                break;
-            default:
+                    break;
+                case 'array':
+                    if ($val == '') {
+                        $options[$key][1] = array();
+                        break;
+                    }
+                    if ($val[0] === '(' && $val[strlen($val) - 1] == ')') {
+                        $val = substr($val, 1, strlen($val) - 2);
+                    }
+                    $val = explode(',', $val);
+                    //$val = $this->support_paren($val);
+                    $options[$key][1] = $val;
+                    break;
+                case 'enumarray':
+                    if ($val == '') {
+                        $options[$key][1] = $options[$key][2];
+                        break;
+                    }
+                    if ($val[0] === '(' && $val[strlen($val) - 1] == ')') {
+                        $val = substr($val, 1, strlen($val) - 2);
+                    }
+                    $val = explode(',', $val);
+                    //$val = $this->support_paren($val);
+                    $options[$key][1] = $val;
+                    foreach ($options[$key][1] as $each) {
+                        if (! in_array($each, $options[$key][2])) {
+                            $this->error = $qm->replace('plg_lsx.err_usage_enumarray', h($key), h(join(",", $options[$key][1])), join(",", $options[$key][2]), 'lsx');
+                            return;
+                        }
+                    }
+                    break;
+                default:
             }
         }
 
         return $options;
     }
-    
+
     /**
      * Handle associative type option arguments as
      * ["prefix=Hoge/", "contents=(hoge", "hoge", "hoge)"] => ["prefix"=>"hoge/", "contents"=>"(hoge,hoge,hoge)"]
@@ -1152,24 +1205,24 @@ class PluginLsxOptionParser
      */
     function associative_args($args, $options)
     {
-    	$qm = get_qm();
+        $qm = get_qm();
         $result = array();
         while (($arg = current($args)) !== false) {
             list($key, $val) = array_pad(explode("=", $arg, 2), 2, '');
             if (! isset($options[$key])) {
-            	$this->error = $qm->replace('plg_lsx.err_no_option', h($key));
+                $this->error = $qm->replace('plg_lsx.err_no_option', h($key));
                 return;
             }
             // paren support
-            if ($val[0] === '(' && ($options[$key][0] == 'number' || 
-                 $options[$key][0] == 'array' || $options[$key][0] == 'enumarray')) {
-                while(true) {
-                    if ($val[strlen($val)-1] === ')' && substr_count($val, '(') == substr_count($val, ')')) {
+            if ($val[0] === '(' && ($options[$key][0] == 'number' ||
+                $options[$key][0] == 'array' || $options[$key][0] == 'enumarray')) {
+                while (true) {
+                    if ($val[strlen($val) - 1] === ')' && substr_count($val, '(') == substr_count($val, ')')) {
                         break;
                     }
                     $arg = next($args);
                     if ($arg === false) {
-                    	$this->error = $qm->m['plg_lsx']['err_paren'];
+                        $this->error = $qm->m['plg_lsx']['err_paren'];
                         return;
                     }
                     $val .= ',' . $arg;
@@ -1195,7 +1248,7 @@ class PluginLsxOptionParser
                 if ($left == "" && $right == "") {
                     $left = $min;
                     $right = $max;
-                } elseif($left == "") {
+                } elseif ($left == "") {
                     $left = $min;
                 } elseif ($right == "") {
                     $right = $max;
@@ -1225,12 +1278,13 @@ class PluginLsxOptionParser
         return $result;
     }
 
-    function option_debug_print($options) {
+    function option_debug_print($options)
+    {
         foreach ($options as $key => $val) {
             $type = $val[0];
             $val = $val[1];
-            if(is_array($val)) {
-                $val=join(',', $val);
+            if (is_array($val)) {
+                $val = join(',', $val);
             }
             $body .= "$key=>($type, $val),";
         }
@@ -1238,7 +1292,7 @@ class PluginLsxOptionParser
     }
 
     // php extension
-    function is_associative_array($array) 
+    function is_associative_array($array)
     {
         if (!is_array($array) || empty($array))
             return false;
@@ -1264,15 +1318,15 @@ function plugin_lsx_common_init()
 
 function plugin_lsx_convert()
 {
-    global $plugin_lsx; plugin_lsx_common_init();
+    global $plugin_lsx;
+    plugin_lsx_common_init();
     $args = func_get_args();
     return call_user_func_array(array(&$plugin_lsx, 'convert'), $args);
 }
 
 function plugin_lsx_action()
 {
-    global $plugin_lsx; plugin_lsx_common_init();
+    global $plugin_lsx;
+    plugin_lsx_common_init();
     return call_user_func(array(&$plugin_lsx, 'action'));
 }
-
-?>

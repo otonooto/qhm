@@ -18,11 +18,11 @@ define('PLUGIN_LISTBOX_CONFIGPAGE', 'plugin/listbox');
 function plugin_listbox_init()
 {
 	$cfg = array(
-			'_listbox_cfg' => array (
-				'imgEdit'  => 'paraedit.png',
-				'imgRefer' => 'close-mini.png'
-				)
-			);
+		'_listbox_cfg' => array(
+			'imgEdit'  => 'paraedit.png',
+			'imgRefer' => 'close-mini.png'
+		)
+	);
 	set_plugin_messages($cfg);
 }
 
@@ -30,9 +30,9 @@ function plugin_listbox_action()
 {
 	global $script, $vars;
 
-	if( isset($vars['config']) ){
+	if (isset($vars['config'])) {
 		plugin_listbox_mkconfig();
-		header('Location: '.$script.'?'.rawurlencode(':config/'. PLUGIN_LISTBOX_CONFIGPAGE));
+		header('Location: ' . $script . '?' . rawurlencode(':config/' . PLUGIN_LISTBOX_CONFIGPAGE));
 		exit;
 	}
 
@@ -41,28 +41,29 @@ function plugin_listbox_action()
 	$number = 0;
 	$pagedata = '';
 	$pagedata_old  = get_source($vars['refer']);
-	foreach($pagedata_old as $line)
-	{
-		if( ! preg_match('/^(?:\/\/| )/', $line) &&
-			preg_match_all('/(?:&listbox\(([^\)]*)\))/',
-						   $line, $matches, PREG_SET_ORDER) )
-		{
+	foreach ($pagedata_old as $line) {
+		if (
+			! preg_match('/^(?:\/\/| )/', $line) &&
+			preg_match_all(
+				'/(?:&listbox\(([^\)]*)\))/',
+				$line,
+				$matches,
+				PREG_SET_ORDER
+			)
+		) {
 			$paddata = preg_split('/&listbox\([^\)]*\)/', $line);
 			$line = $paddata[0];
-			foreach($matches as $i => $match)
-			{
+			foreach ($matches as $i => $match) {
 				$opt = $match[1];
-				if($vars['number'] == $number++)
-				{
+				if ($vars['number'] == $number++) {
 					list($val, $fieldname) = explode(',', $opt, 2);
 					//リストからの物かどうか調べる
 					if (plugin_listbox_getOptions($selectval, PLUGIN_LISTBOX_CONFIGPAGE, $fieldname, true)) {
 						//ターゲットのプラグイン部分
 						$opt = "$selectval,$fieldname";
 					}
-					
 				}
-				$line .= "&listbox($opt)" . $paddata[$i+1];
+				$line .= "&listbox($opt)" . $paddata[$i + 1];
 			}
 		}
 		$pagedata .= $line;
@@ -81,13 +82,12 @@ function plugin_listbox_inline()
 	$number = plugin_listbox_getNumber();
 
 
-	if(func_num_args() > 1)
-	{
+	if (func_num_args() > 1) {
 		$options = func_get_args();
 		$value     = array_shift($options);
 		$template  = PLUGIN_LISTBOX_CONFIGPAGE;
 		$fieldname = array_shift($options);
-		
+
 		return plugin_listbox_getBody($number, $value, $template, $fieldname, true);
 	}
 	return FALSE;
@@ -98,14 +98,13 @@ function plugin_listbox_getNumber()
 {
 	global $vars;
 	static $numbers = array();
-	if( !array_key_exists($vars['page'],$numbers) )
-	{
-      $numbers[$vars['page']] = 0;
+	if (!array_key_exists($vars['page'], $numbers)) {
+		$numbers[$vars['page']] = 0;
 	}
 	return $numbers[$vars['page']]++;
 }
 
-function plugin_listbox_getBody($number, $value, $template, $fieldname, $inline=false)
+function plugin_listbox_getBody($number, $value, $template, $fieldname, $inline = false)
 {
 	global $script, $vars;
 	global $_listbox_cfg;
@@ -117,7 +116,7 @@ function plugin_listbox_getBody($number, $value, $template, $fieldname, $inline=
 	$options_html = str_replace("\"", "\\\"", $options_html);
 
 	//HTMLで出力するのはspanで囲ったvalue のみ
-	$body = '<span id="'. $lb_id. '" class="qhm_listbox">'.$value.'</span>';
+	$body = '<span id="' . $lb_id . '" class="qhm_listbox">' . $value . '</span>';
 
 	$imgPath  = IMAGE_DIR;
 	$imgEdit  = $_listbox_cfg['imgEdit'];
@@ -126,7 +125,7 @@ function plugin_listbox_getBody($number, $value, $template, $fieldname, $inline=
 	//number 固有のスクリプト
 	$optssetscript = '
 <script type="text/javascript">
-	qhmListboxConf["'. $lb_id .'"] = "'.$options_html.'";
+	qhmListboxConf["' . $lb_id . '"] = "' . $options_html . '";
 </script>';
 	//一度だけの準備スクリプト
 	$readyscript = '
@@ -141,7 +140,7 @@ function plugin_listbox_getBody($number, $value, $template, $fieldname, $inline=
 			select: $$.val(),
 			number: number,
 			plugin: "listbox",
-			refer: "'. $vars['page'] .'",
+			refer: "' . $vars['page'] . '",
 			set: true
 		};
 		$.post("index.php", data);
@@ -165,43 +164,42 @@ function plugin_listbox_getBody($number, $value, $template, $fieldname, $inline=
 		});
 		
 		//add link to config
-		$("#body").append("<p><a href=\"'. $script .'?cmd=listbox&config=link\">&gt;&gt;&gt; listbox config</a></p>");
+		$("#body").append("<p><a href=\"' . $script . '?cmd=listbox&config=link\">&gt;&gt;&gt; listbox config</a></p>");
 	});
 //-->
 </script>';
 
 	//編集ボタンを表示する
-	if ( LISTBOX3_APPLLY_MODECHANGE) {
+	if (LISTBOX3_APPLLY_MODECHANGE) {
 		$readyscript .= '
 <script type="text/javascript">
 	$(function(){
 		$("select.qhm_listbox_select").after("<img />")
 			.next()
 			.attr("name", "editTrigger")
-			.attr("src", "'. $imgPath. $imgEdit.'")
+			.attr("src", "' . $imgPath . $imgEdit . '")
 			.attr("alt", "edit/refer")
 			.css("margin-left", "3px")
 			.toggle(
 				function(){
 					$(this)
-					.attr("src", "'. $imgPath. $imgRefer.'")
+					.attr("src", "' . $imgPath . $imgRefer . '")
 						.prev().attr("disabled", false);
 				},
 				function(){
 					$(this)
-					.attr("src", "'. $imgPath. $imgEdit.'")
+					.attr("src", "' . $imgPath . $imgEdit . '")
 						.prev().attr("disabled", true);
 				}
 			);
 	});
 </script>';
-	
 	}
 	$qt->appendv_once('plugin_listbox', 'beforescript', $readyscript);
 	$qt->appendv('beforescript', $optssetscript);
 
-	$body = $inline ? $body: '<div>'. $body. '</div>';
-	
+	$body = $inline ? $body : '<div>' . $body . '</div>';
+
 	return $body;
 }
 
@@ -220,74 +218,66 @@ function plugin_listbox_getOptions($value, $config_name, $field_name, $retlist =
 	$options_html = '';
 
 	//config ファイルがなければ作る
- 	plugin_listbox_mkconfig();
- 	
+	plugin_listbox_mkconfig();
+
 	$config = new Config($config_name);
 
-	if( ! $config->read() )
-	{
-		return '<p>'. $qm->replace('plg_listbox.err_cfg_notfound', h($config_name)). '</p>';
+	if (! $config->read()) {
+		return '<p>' . $qm->replace('plg_listbox.err_cfg_notfound', h($config_name)) . '</p>';
 	}
-	
+
 	$config->name = $config_name;
 
 	$isSelect = 0;
-	
-	
+
+
 	$options = $config->get($field_name);
-	
+
 	// 2列で指定されていたら、範囲と見なす
-	if( is_array($options[0]) ){
-	
+	if (is_array($options[0])) {
+
 		$s = $options[0][0];
 		$e = $options[0][1];
-		
+
 		$options = array();
-		for($i=$s; $i<=$e; $i++)
+		for ($i = $s; $i <= $e; $i++)
 			$options[] = $i;
 	}
-	
-	if ($retlist) {
-		return in_array($value, $options)? $options: false;
-	}
-	
-	foreach($options as $option)
-	{
-	
-		if($option{0} == '~') continue;
 
-		if($value == $option)
-		{
+	if ($retlist) {
+		return in_array($value, $options) ? $options : false;
+	}
+
+	foreach ($options as $option) {
+
+		if ($option[0] == '~') continue;
+
+		if ($value == $option) {
 			$isSelect = 1;
 			$options_html .= "<option value='$option' style='' selected='selected'>$option</option>";
-		}
-		else
-		{
+		} else {
 			$options_html .= "<option value='$option' style='' >$option</option>";
 		}
 	}
-  
-	if( $isSelect == 0 )
-	{
+
+	if ($isSelect == 0) {
 		$options_html = "<option value='…' selected='selected'>…</option>" . $options_html;
 	}
-	
+
 	return $options_html;
 }
 
 function plugin_listbox_getStyle($s_format)
 {
-	if( $s_format == '') return '';
-  
+	if ($s_format == '') return '';
+
 	$format_enc = htmlspecialchars($s_format);
 	$format_enc = preg_replace("/\%s/", '', $format_enc);
-	
-	$opt_format='';
-	$matches=array();
-	while ( preg_match('/^(?:(BG)?COLOR\(([#\w]+)\)):(.*)$/', $format_enc, $matches) )
-	{
-		if ($matches[0])
-		{
+
+	$opt_format = '';
+	$matches = array();
+	while (preg_match('/^(?:(BG)?COLOR\(([#\w]+)\)):(.*)$/', $format_enc, $matches)) {
+		if ($matches[0]) {
 			$style_name = $matches[1] ? 'background-color' : 'color';
 			$opt_format .= $style_name . ':' . htmlspecialchars($matches[2]) . ';';
 			$format_enc = $matches[3];
@@ -296,22 +286,23 @@ function plugin_listbox_getStyle($s_format)
 	return $opt_format;
 }
 
-function plugin_listbox_mkconfig(){
-	$conffile = ':config/'. PLUGIN_LISTBOX_CONFIGPAGE;
-	if(! is_page( $conffile ) ){
+function plugin_listbox_mkconfig()
+{
+	$conffile = ':config/' . PLUGIN_LISTBOX_CONFIGPAGE;
+	if (! is_page($conffile)) {
 		$qm = get_qm();
 		$maxyear = date("Y") + 5;
 		$contents = '#close
 
 * listbox setting [#v69f5c78]
 
-'. $qm->m['plg_listbox']['cfg_desc']. '
+' . $qm->m['plg_listbox']['cfg_desc'] . '
 
-'. $qm->m['plg_listbox']['cfg_ex1']. '
+' . $qm->m['plg_listbox']['cfg_ex1'] . '
 
-'. $qm->m['plg_listbox']['cfg_ex2']. '
+' . $qm->m['plg_listbox']['cfg_ex2'] . '
 
-'. $qm->m['plg_listbox']['cfg_ntc']. '
+' . $qm->m['plg_listbox']['cfg_ntc'] . '
 
 
 * member [#j18e38d8]
@@ -322,7 +313,7 @@ function plugin_listbox_mkconfig(){
 |Michael|
 
 * year [#cad00f59]
-|1960|'. $maxyear. '|
+|1960|' . $maxyear . '|
 
 * mon [#c1ae4bb0]
 |1|12|
@@ -370,6 +361,4 @@ function plugin_listbox_mkconfig(){
 
 		page_write($conffile, $contents);
 	}
-
 }
-?>

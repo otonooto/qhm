@@ -3,41 +3,41 @@ class CAdmin extends CModel
 {
 	var $table			= "data/admin.txt";
 	var $validatefunc	= array(
-							"name" => "notempty",
-							"value" => "notempty"
-							);
+		"name" => "notempty",
+		"value" => "notempty"
+	);
 	var $validatemsg	= array(
-							"name" => "正しく情報を入力して下さい<br />",
-							"value" => "正しく情報を入力して下さい<br />"
-							);
+		"name" => "正しく情報を入力して下さい<br />",
+		"value" => "正しく情報を入力して下さい<br />"
+	);
 
-	function getConfig() {
+	function getConfig()
+	{
 		$config = array();
 		$array = $this->find("", "name ASC");
-		foreach($array as $key => $val) {
+		foreach ($array as $key => $val) {
 			$config[$val['name']] = $val['value'];
 		}
 		return $config;
 	}
 
 	/*list.phpで表示するページの個数を返す*/
-	function getListNum(){
+	function getListNum()
+	{
 		$res = $this->findone('$name==="list_num"');
 		return $res['value'];
 	}
 
-	function getListCols(){
-		if($res = $this->findone('$name=="list_cols"'))
-		{
+	function getListCols()
+	{
+		if ($res = $this->findone('$name=="list_cols"')) {
 			return $res['value'];
-		}
-		else
-		{
+		} else {
 			//add record
 			$res = array(
-				"name"=>'list_cols',
-				"jname"=>'一覧表示の列数',
-				"value"=>'3'
+				"name" => 'list_cols',
+				"jname" => '一覧表示の列数',
+				"value" => '3'
 			);
 			$this->insert($res);
 
@@ -58,9 +58,8 @@ class CAdmin extends CModel
 		$seedlen = strlen($seed);
 		$apikey = '';
 		$length = ($length > 0) ? $length : 40;
-		for ($i = 0; $i < $length; $i++)
-		{
-			$apikey .= $seed{rand(0, $seedlen-1)};
+		for ($i = 0; $i < $length; $i++) {
+			$apikey .= $seed[rand(0, $seedlen - 1)];
 		}
 
 		$timestamp = ($timestamp === FALSE) ? time() : $timestamp;
@@ -69,13 +68,10 @@ class CAdmin extends CModel
 
 		//save
 		$conf = $this->findoneby('name', 'apikey');
-		if ($conf)
-		{
+		if ($conf) {
 			$conf['value'] = $apikey;
 			$this->update($conf);
-		}
-		else
-		{
+		} else {
 			$data = array(
 				'name' => 'apikey',
 				'jname' => 'APIキー',
@@ -98,12 +94,9 @@ class CAdmin extends CModel
 	function getLabels()
 	{
 		$conf = $this->findoneby('name', 'labels');
-		if ($conf)
-		{
+		if ($conf) {
 			return explode($conf['value']);
-		}
-		else
-		{
+		} else {
 			return array();
 		}
 	}
@@ -111,13 +104,10 @@ class CAdmin extends CModel
 	function saveLabels($mode = 'insert', $labels = array())
 	{
 		$conf = $this->findoneby('name', 'labels');
-		if ($conf)
-		{
+		if ($conf) {
 			$conf['value'] = $value;
 			$action = 'update';
-		}
-		else
-		{
+		} else {
 			$conf = array(
 				'name' => 'labels',
 				'jname' => 'ラベル一覧',
@@ -127,33 +117,26 @@ class CAdmin extends CModel
 		}
 
 		//全て置き換える
-		if ($mode === 'replace')
-		{
+		if ($mode === 'replace') {
 			$labels = join(',', $labels);
-		}
-		else if ($mode === 'insert')
-		{
+		} else if ($mode === 'insert') {
 			$cur_labels = explode(',', $conf['value']);
 			$labels = array_merge($cur_labels, $labels);
 			$labels = array_unique($labels);
 			sort($labels);
 			$labels = join(',', $labels);
-		}
-		else
-		{
+		} else {
 			return FALSE;
 		}
 
 		//変更がなければ保存しない
-		if ($conf['value'] === $labels)
-		{
+		if ($conf['value'] === $labels) {
 			return FALSE;
 		}
 		$conf['value'] = $labels;
 
 		$result = $this->$action($conf);
 		return $result;
-
 	}
 }
 
