@@ -62,7 +62,7 @@ function is_page($page, $clearcache = FALSE)
 function is_editable($page)
 {
 	global $cantedit;
-	static $is_editable = array();
+	static $is_editable = [];
 
 	if (! isset($is_editable[$page])) {
 		$is_editable[$page] = (
@@ -78,9 +78,9 @@ function is_editable($page)
 function is_freeze($page, $clearcache = FALSE)
 {
 	global $function_freeze;
-	static $is_freeze = array();
+	static $is_freeze = [];
 
-	if ($clearcache === TRUE) $is_freeze = array();
+	if ($clearcache === TRUE) $is_freeze = [];
 	if (isset($is_freeze[$page])) return $is_freeze[$page];
 
 	if (! $function_freeze || ! is_page($page)) {
@@ -197,7 +197,7 @@ function auto_template($page)
 	if (! $auto_template_func) return '';
 
 	$body = '';
-	$matches = array();
+	$matches = [];
 	foreach ($auto_template_rules as $rule => $template) {
 		$rule_pattrn = '/' . $rule . '/';
 
@@ -224,7 +224,7 @@ function auto_template($page)
 }
 
 // Expand all search-words to regexes and push them into an array
-function get_search_words($words = array(), $do_escape = FALSE)
+function get_search_words($words = [], $do_escape = FALSE)
 {
 	static $init, $mb_convert_kana, $pre, $post, $quote = '/';
 
@@ -255,7 +255,7 @@ function get_search_words($words = array(), $do_escape = FALSE)
 	if (! is_array($words)) $words = array($words);
 
 	// Generate regex for the words
-	$regex = array();
+	$regex = [];
 	foreach ($words as $word) {
 		$word = trim($word);
 		if ($word == '') continue;
@@ -265,7 +265,7 @@ function get_search_words($words = array(), $do_escape = FALSE)
 		$nmlen   = mb_strlen($word_nm, SOURCE_ENCODING);
 
 		// Each chars may be served ...
-		$chars = array();
+		$chars = [];
 		for ($pos = 0; $pos < $nmlen; $pos++) {
 			$char = mb_substr($word_nm, $pos, 1, SOURCE_ENCODING);
 
@@ -301,7 +301,7 @@ function do_search($word, $type = 'AND', $non_format = FALSE, $base = '')
 	global $_msg_andresult, $_msg_orresult, $_msg_notfoundresult;
 	global $search_auth, $show_passage;
 
-	$retval = array();
+	$retval = [];
 
 	$b_type = ($type == 'AND'); // AND:TRUE OR:FALSE
 	$word = mb_convert_encoding($word, SOURCE_ENCODING, 'auto');
@@ -415,7 +415,7 @@ if (! function_exists('hex2bin')) {
 // Remove [[ ]] (brackets)
 function strip_bracket($str)
 {
-	$match = array();
+	$match = [];
 	if (preg_match('/^\[\[(.*)\]\]$/', $str, $match)) {
 		return $match[1];
 	} else {
@@ -441,7 +441,7 @@ function page_list($pages, $cmd = 'read', $withfilename = FALSE)
 		$readings = get_readings($pages);
 	}
 
-	$list = $matches = array();
+	$list = $matches = [];
 
 	// Shrink URI for read
 	if ($cmd == 'read') {
@@ -494,7 +494,7 @@ function page_list($pages, $cmd = 'read', $withfilename = FALSE)
 
 
 	$cnt = 0;
-	$arr_index = array();
+	$arr_index = [];
 	$retval .= '<ul>' . "\n";
 	foreach ($list as $head => $ppages) {
 		if (is_null($ppages)) {
@@ -523,7 +523,7 @@ function page_list($pages, $cmd = 'read', $withfilename = FALSE)
 	}
 	$retval .= '</ul>' . "\n";
 	if ($list_index && $cnt > 0) {
-		$top = array();
+		$top = [];
 		while (! empty($arr_index))
 			$top[] = join(' | ' . "\n", array_splice($arr_index, 0, 16)) . "\n";
 
@@ -767,7 +767,7 @@ function get_script_uri($init_uri = '')
 		if (! file_exists($script_directory_index))
 			die_message('Directory index file not found: ' .
 				htmlspecialchars($script_directory_index));
-		$matches = array();
+		$matches = [];
 		if (preg_match(
 			'#^(.+/)' . preg_quote($script_directory_index, '#') . '$#',
 			$script,
@@ -805,12 +805,12 @@ function sanitize($param)
 // Explode Comma-Separated Values to an array
 function csv_explode($separator, $string)
 {
-	$retval = $matches = array();
+	$retval = $matches = [];
 
 	$_separator = preg_quote($separator, '/');
 	if (! preg_match_all('/("[^"]*(?:""[^"]*)*"|[^' . $_separator . ']*)' .
 		$_separator . '/', $string . $separator, $matches))
-		return array();
+		return [];
 
 	foreach ($matches[1] as $str) {
 		$len = strlen($str);
@@ -825,7 +825,7 @@ function csv_explode($separator, $string)
 function csv_implode($glue, $pieces)
 {
 	$_glue = ($glue != '') ? '\\' . $glue[0] : '';
-	$arr = array();
+	$arr = [];
 	foreach ($pieces as $str) {
 		if (preg_match('/[' . '"' . "\n\r" . $_glue . ']/', $str))
 			$str = '"' . str_replace('"', '""', $str) . '"';
@@ -859,7 +859,7 @@ if (! function_exists('array_fill')) {
 
 	function array_fill($start_index, $num, $value)
 	{
-		$ret = array();
+		$ret = [];
 		while ($num-- > 0) $ret[$start_index++] = $value;
 		return $ret;
 	}
@@ -907,7 +907,7 @@ function strip_adcode($str)
 
 	$adcode[] = QHM_SESSION_NAME;
 
-	$match = array();
+	$match = [];
 	$match = explode("&", $str);
 	$str = $match[0];
 
@@ -1107,7 +1107,7 @@ function get_qblog_category($page, $lines = 10)
 function get_qblog_categories()
 {
 	$cat_list = explode("\n", file_get_contents(CACHEQBLOG_DIR . 'qblog_categories.dat'));
-	$categories = array();
+	$categories = [];
 	foreach ($cat_list as $cat_data) {
 		list($cat_name, $num) = explode("\t", $cat_data);
 		$categories[$cat_name] = $num;
@@ -1725,12 +1725,12 @@ if (! function_exists('hv')) {
 if (! function_exists('read_skin_config')) {
 	function read_skin_config($style_name)
 	{
-		static $saved_config = array();
+		static $saved_config = [];
 		if (isset($saved_config[$style_name])) {
 			return $saved_config[$style_name];
 		}
 
-		$config = array();
+		$config = [];
 		$skin_dir = SKIN_DIR . $style_name;
 		$config_path = $skin_dir . '/config.php';
 		if (is_dir($skin_dir) && file_exists($config_path)) {
@@ -1744,11 +1744,11 @@ if (! function_exists('read_skin_config')) {
 
 class QHM_SkinCustomVariables
 {
-	private static $saved_config = array();
+	private static $saved_config = [];
 
 	public static function load($style_name)
 	{
-		$skin_custom_vars = array();
+		$skin_custom_vars = [];
 
 		$style_config = read_skin_config($style_name);
 		foreach ($style_config['custom_options'] as $name => $value) {
@@ -1924,7 +1924,7 @@ if (!function_exists('str_getcsv')) {
 	function str_getcsv($input, $delimiter = ',', $enclosure = '"', $escape = '\\', $eol = '\n')
 	{
 		if (is_string($input) && !empty($input)) {
-			$output = array();
+			$output = [];
 			$tmp    = preg_split("/" . $eol . "/", $input);
 			if (is_array($tmp) && !empty($tmp)) {
 				foreach ($tmp as $line_num => $line) {
@@ -1984,7 +1984,7 @@ if (!function_exists('str_getcsv')) {
 
 function get_qhm_option($key = NULL)
 {
-	static $options = array();
+	static $options = [];
 	if (empty($options)) {
 		$option_statements = explode(';', QHM_OPTIONS);
 		foreach ($option_statements as $statement) {
@@ -2023,7 +2023,7 @@ function cancel_xss_protection()
  */
 function wrap_script_tag($js, $delimiter = "\n")
 {
-	$lines = array();
+	$lines = [];
 	$lines[] = '<script>';
 	$lines[] = $js;
 	$lines[] = '</script>';

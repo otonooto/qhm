@@ -27,8 +27,8 @@ function plugin_yetlist_action()
 	$script      = get_script_uri();
 	$refer_regex = '/' . $non_list . '|^' . preg_quote($whatsdeleted, '/') . '$/S';
 	asort($pages, SORT_STRING);
-	foreach ($pages as $file=>$page) {
-		$refer = array();
+	foreach ($pages as $file => $page) {
+		$refer = [];
 		foreach (file(CACHE_DIR . $file) as $line) {
 			list($_page) = explode("\t", rtrim($line));
 			$refer[] = $_page;
@@ -41,7 +41,7 @@ function plugin_yetlist_action()
 			sort($refer, SORT_STRING);
 
 			$r_refer = '';
-			$link_refs = array();
+			$link_refs = [];
 			foreach ($refer as $_refer) {
 				$r_refer = rawurlencode($_refer);
 				$link_refs[] = '<a href="' . $script . '?' . $r_refer . '">' .
@@ -74,4 +74,3 @@ function plugin_yetlist_action()
 
 	return $retval;
 }
-?>

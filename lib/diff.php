@@ -116,8 +116,8 @@ class line_diff
 	function set_str($key, $str1, $str2)
 	{
 		$this->key  = $key;
-		$this->arr1 = array();
-		$this->arr2 = array();
+		$this->arr1 = [];
+		$this->arr2 = [];
 		$str1 = str_replace("\r", '', $str1);
 		$str2 = str_replace("\r", '', $str2);
 		foreach (explode("\n", $str1) as $line) {
@@ -170,12 +170,12 @@ class line_diff
 
 		$delta = $this->n - $this->m; // Must be >=0;
 
-		$fp = array();
-		$this->path = array();
+		$fp = [];
+		$this->path = [];
 
 		for ($p = - ($this->m + 1); $p <= ($this->n + 1); $p++) {
 			$fp[$p] = -1;
-			$this->path[$p] = array();
+			$this->path[$p] = [];
 		}
 
 		for ($p = 0;; $p++) {
@@ -216,7 +216,7 @@ class line_diff
 
 	function toArray()
 	{
-		$arr = array();
+		$arr = [];
 		if ($this->reverse) { // 姑息な…
 			$_x = 'y';
 			$_y = 'x';
@@ -268,7 +268,7 @@ class DiffLine
 	function DiffLine($text)
 	{
 		$this->text   = $text . "\n";
-		$this->status = array();
+		$this->status = [];
 	}
 
 	function compare($obj)

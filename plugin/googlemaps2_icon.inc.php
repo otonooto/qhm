@@ -11,20 +11,21 @@
  * 2008-10-21 2.3.1 詳細はgooglemaps2.inc.php
  */
 
-define ('PLUGIN_GOOGLEMAPS2_ICON_IMAGE', 'http://www.google.com/mapfiles/marker.png');
-define ('PLUGIN_GOOGLEMAPS2_ICON_SHADOW','http://www.google.com/mapfiles/shadow50.png');
-define ('PLUGIN_GOOGLEMAPS2_ICON_IW', 20);
-define ('PLUGIN_GOOGLEMAPS2_ICON_IH', 34);
-define ('PLUGIN_GOOGLEMAPS2_ICON_SW', 37);
-define ('PLUGIN_GOOGLEMAPS2_ICON_SH', 34);
-define ('PLUGIN_GOOGLEMAPS2_ICON_IANCHORX', 10);
-define ('PLUGIN_GOOGLEMAPS2_ICON_IANCHORY', 34);
-define ('PLUGIN_GOOGLEMAPS2_ICON_SANCHORX', 10);
-define ('PLUGIN_GOOGLEMAPS2_ICON_SANCHORY', 0);
-define ('PLUGIN_GOOGLEMAPS2_ICON_TRANSPARENT', 'http://www.google.com/mapfiles/markerTransparent.png');
-define ('PLUGIN_GOOGLEMAPS2_ICON_AREA', '1 7 7 0 13 0 19 7 19 12 13 20 12 23 11 34 9 34 8 23 6 19 1 13 1 70');
+define('PLUGIN_GOOGLEMAPS2_ICON_IMAGE', 'http://www.google.com/mapfiles/marker.png');
+define('PLUGIN_GOOGLEMAPS2_ICON_SHADOW', 'http://www.google.com/mapfiles/shadow50.png');
+define('PLUGIN_GOOGLEMAPS2_ICON_IW', 20);
+define('PLUGIN_GOOGLEMAPS2_ICON_IH', 34);
+define('PLUGIN_GOOGLEMAPS2_ICON_SW', 37);
+define('PLUGIN_GOOGLEMAPS2_ICON_SH', 34);
+define('PLUGIN_GOOGLEMAPS2_ICON_IANCHORX', 10);
+define('PLUGIN_GOOGLEMAPS2_ICON_IANCHORY', 34);
+define('PLUGIN_GOOGLEMAPS2_ICON_SANCHORX', 10);
+define('PLUGIN_GOOGLEMAPS2_ICON_SANCHORY', 0);
+define('PLUGIN_GOOGLEMAPS2_ICON_TRANSPARENT', 'http://www.google.com/mapfiles/markerTransparent.png');
+define('PLUGIN_GOOGLEMAPS2_ICON_AREA', '1 7 7 0 13 0 19 7 19 12 13 20 12 23 11 34 9 34 8 23 6 19 1 13 1 70');
 
-function plugin_googlemaps2_icon_get_default () {
+function plugin_googlemaps2_icon_get_default()
+{
 	return array(
 		'image'       => PLUGIN_GOOGLEMAPS2_ICON_IMAGE,
 		'shadow'      => PLUGIN_GOOGLEMAPS2_ICON_SHADOW,
@@ -41,18 +42,21 @@ function plugin_googlemaps2_icon_get_default () {
 	);
 }
 
-function plugin_googlemaps2_icon_convert() {
+function plugin_googlemaps2_icon_convert()
+{
 	$args = func_get_args();
 	return plugin_googlemaps2_icon_output($args[0], array_slice($args, 1));
 }
 
-function plugin_googlemaps2_icon_inline() {
+function plugin_googlemaps2_icon_inline()
+{
 	$args = func_get_args();
 	array_pop($args);
 	return plugin_googlemaps2_icon_output($args[0], array_slice($args, 1));
 }
 
-function plugin_googlemaps2_icon_output($name, $params) {
+function plugin_googlemaps2_icon_output($name, $params)
+{
 	global $vars;
 	$qm = get_qm();
 
@@ -65,7 +69,7 @@ function plugin_googlemaps2_icon_output($name, $params) {
 
 	$defoptions = plugin_googlemaps2_icon_get_default();
 
-	$inoptions = array();
+	$inoptions = [];
 	foreach ($params as $param) {
 		list($index, $value) = preg_split('/=/', $param);
 		$index = trim($index);
@@ -78,7 +82,7 @@ function plugin_googlemaps2_icon_output($name, $params) {
 		return "";
 	}
 
-	$coptions = array();
+	$coptions = [];
 	if (array_key_exists('class', $inoptions)) {
 		$class = $inoptions['class'];
 		if (array_key_exists($class, $vars['googlemaps2_icon'])) {
@@ -88,29 +92,29 @@ function plugin_googlemaps2_icon_output($name, $params) {
 	$options = array_merge($defoptions, $coptions, $inoptions);
 	$image       = $options['image'];
 	$shadow      = $options['shadow'];
-	$iw          = (integer)$options['iw'];
-	$ih          = (integer)$options['ih'];
-	$sw          = (integer)$options['sw'];
-	$sh          = (integer)$options['sh'];
-	$ianchorx    = (integer)$options['ianchorx'];
-	$ianchory    = (integer)$options['ianchory'];
-	$sanchorx    = (integer)$options['sanchorx'];
-	$sanchory    = (integer)$options['sanchory'];
+	$iw          = (int)$options['iw'];
+	$ih          = (int)$options['ih'];
+	$sw          = (int)$options['sw'];
+	$sh          = (int)$options['sh'];
+	$ianchorx    = (int)$options['ianchorx'];
+	$ianchory    = (int)$options['ianchory'];
+	$sanchorx    = (int)$options['sanchorx'];
+	$sanchory    = (int)$options['sanchory'];
 	$transparent = $options['transparent'];
 	$area        = $options['area'];
 
-	$coords = array();
+	$coords = [];
 	if (isset($area)) {
 		$c = substr($area, 0, 1);
 		switch ($c) {
 			case "'":
 			case "[";
 			case "{";
-				$area = substr($area, 1, strlen($area)-2);
+				$area = substr($area, 1, strlen($area) - 2);
 				break;
 			case "&":
 				if (substr($area, 0, 6) == "&quot;") {
-					$area = substr($area, 6, strlen($area)-12);
+					$area = substr($area, 6, strlen($area) - 12);
 				}
 				break;
 		}
@@ -145,5 +149,3 @@ onloadfunc.push( function () {
 EOD;
 	return $output;
 }
-
-?>

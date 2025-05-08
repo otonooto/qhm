@@ -13,7 +13,7 @@ function plugin_links_action()
 
 	$msg = $body = '';
 	if (empty($vars['action']) || empty($post['adminpass']) || ! pkwk_login($post['adminpass'])) {
-		$msg   = & $qm->m['plg_links']['title_update'];
+		$msg   = &$qm->m['plg_links']['title_update'];
 		$body  = convert_html($qm->m['plg_links']['usage']);
 		$body .= <<<EOD
 <form method="POST" action="$script">
@@ -26,16 +26,14 @@ function plugin_links_action()
  </div>
 </form>
 EOD;
-
 	} else if ($vars['action'] == 'update') {
 		links_init();
-		$foot_explain = array(); // Exhaust footnotes
-		$msg  = & $qm->m['plg_links']['title_update'];
-		$body = & $qm->m['plg_links']['done'];
+		$foot_explain = []; // Exhaust footnotes
+		$msg  = &$qm->m['plg_links']['title_update'];
+		$body = &$qm->m['plg_links']['done'];
 	} else {
-		$msg  = & $qm->m['plg_links']['title_update'];
-		$body = & $qm->m['plg_links']['err_invalid' ];
+		$msg  = &$qm->m['plg_links']['title_update'];
+		$body = &$qm->m['plg_links']['err_invalid'];
 	}
-	return array('msg'=>$msg, 'body'=>$body);
+	return array('msg' => $msg, 'body' => $body);
 }
-?>

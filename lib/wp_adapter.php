@@ -98,7 +98,7 @@ function wp_get_page($page, $tag = 'li')
 	}
 
 	$lines = get_source($page);
-	$ms = array();
+	$ms = [];
 	foreach ($lines as $key => $line) {
 		if (preg_match('/^\*+(.*)\[#.*?\]/', $line, $ms)) //見出しを削除
 		{
@@ -440,7 +440,7 @@ function get_bloginfo($param)
 			return $page_title;
 			break;
 		case 'description':  //（「一般設定」管理画面で指定したブログの説明文）
-			$ms = array();
+			$ms = [];
 			preg_match('/<h1>(.*?)<\/h1>/', $qt->getv('head_copy_tag'), $ms);
 			return $ms[1];
 			break;

@@ -27,14 +27,14 @@ function plugin_commu_html_convert()
 
 	$args   = func_get_args();
 	$body   = array_pop($args);
-    $noskin = in_array("noskin", $args);
-	
-	$s = array();
-	$r = array();
+	$noskin = in_array("noskin", $args);
+
+	$s = [];
+	$r = [];
 	$cnt = 0;
 	if (isset($_SESSION['commu_user'])) {
 		foreach ($_SESSION['commu_user'] as $key => $val) {
-			$s[$cnt] = '/<%'.$key.'%>/';
+			$s[$cnt] = '/<%' . $key . '%>/';
 			$r[$cnt] = mb_convert_encoding($val, "UTF-8", "UTF-8,EUC-JP");
 			$cnt++;
 		}
@@ -63,7 +63,7 @@ function plugin_commu_html_is_edit_auth($page, $user = '')
 		$target_str = join('', get_source($page)); // Its contents
 	}
 
-	foreach($edit_auth_pages as $regexp => $users) {
+	foreach ($edit_auth_pages as $regexp => $users) {
 		if (preg_match($regexp, $target_str)) {
 			if ($user == '' || in_array($user, explode(',', $users))) {
 				return TRUE;
@@ -72,6 +72,3 @@ function plugin_commu_html_is_edit_auth($page, $user = '')
 	}
 	return FALSE;
 }
-
-
-?>

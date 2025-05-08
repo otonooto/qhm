@@ -676,7 +676,7 @@ if (file_exists($user_fname)) {
 // add Read and Edit auth
 $acc_fname = "qhm_access.ini.txt";
 if (file_exists($acc_fname)) {
-	$tmp_regex = array();
+	$tmp_regex = [];
 	$fp = fopen($acc_fname, "r");
 	while ($line = fgets($fp)) {
 		if ($line != "") {

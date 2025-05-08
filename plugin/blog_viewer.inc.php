@@ -8,13 +8,14 @@
 // Page title's date format
 //  * See PHP date() manual for detail
 //  * '$\w' = weeklabel defined in $_msg_week
-define('PLUGIN_BLOG_VIEWER_DATE_FORMAT',
+define(
+	'PLUGIN_BLOG_VIEWER_DATE_FORMAT',
 	//	FALSE         // 'pagename/2004-02-09' -- As is
 	//	'D, d M, Y'   // 'Mon, 09 Feb, 2004'
 	//	'F d, Y'      // 'February 09, 2004'
 	//	'[Y-m-d]'     // '[2004-02-09]'
-		'Y/n/j ($\w)' // '2004/2/9 (Mon)'
-	);
+	'Y/n/j ($\w)' // '2004/2/9 (Mon)'
+);
 
 /*
  ** pagename
@@ -43,14 +44,14 @@ define('PLUGIN_BLOG_VIEWER_DATE_FORMAT',
  *    #blog(pagename,this,past)
  */
 
-require_once(PLUGIN_DIR.'topicpath.inc.php');
+require_once(PLUGIN_DIR . 'topicpath.inc.php');
 
 function plugin_blog_viewer_convert()
 {
 	global $vars, $get, $post, $script, $weeklabels;
 	$qm = get_qm();
 
-	static $viewed = array();
+	static $viewed = [];
 
 	if (func_num_args() < 2)
 		return $qm->replace('fmt_err_cvt', 'blog_viewer', $qm->m['plg_blog_viewer']['err_usage']);
@@ -67,7 +68,7 @@ function plugin_blog_viewer_convert()
 	$date_sep    = '-';	// 日付のセパレータ calendar2なら '-', calendarなら ''
 
 	// Check $func_args[1]
-	$matches = array();
+	$matches = [];
 	if (preg_match('/[0-9]{4}' . $date_sep . '[0-9]{2}/', $func_args[1])) {
 		// 指定年月の一覧表示
 		$page_YM     = $func_args[1];
@@ -90,21 +91,18 @@ function plugin_blog_viewer_convert()
 	}
 
 	// $func_args[2]: Mode setting
-	if (isset($func_args[2]) && preg_match('/^(past|view|future)$/si', $func_args[2]))
-	{
+	if (isset($func_args[2]) && preg_match('/^(past|view|future)$/si', $func_args[2])) {
 		$mode = $func_args[2];
 	}
 
 	// $func_args[3]: Change default delimiter
-	if (isset($func_args[3]) && $func_args[3] != '')
-	{
+	if (isset($func_args[3]) && $func_args[3] != '') {
 		$date_sep = $func_args[3];
 	}
 
 	// $func_args[4]: Didplay Comment Link
-	if (isset($func_args[4]))
-	{
-		$disp_comment = ($func_args[4] == 'false')? FALSE: TRUE;
+	if (isset($func_args[4])) {
+		$disp_comment = ($func_args[4] == 'false') ? FALSE : TRUE;
 	}
 
 	// Avoid Loop etc.
@@ -130,11 +128,11 @@ function plugin_blog_viewer_convert()
 	}
 
 	// ページリストの取得
-	$pagelist = array();
+	$pagelist = [];
 	if ($dir = @opendir(DATA_DIR)) {
 		$_date = get_date('Y' . $date_sep . 'm' . $date_sep . 'd');
 		$page_date  = '';
-		while($file = readdir($dir)) {
+		while ($file = readdir($dir)) {
 			if ($file == '..' || $file == '.') continue;
 			if (substr($file, 0, $filepattern_len) != $filepattern) continue;
 
@@ -146,8 +144,9 @@ function plugin_blog_viewer_convert()
 			// Future-mode hates the past.
 			if ((plugin_blog_viewer_isValidDate($page_date, $date_sep) == FALSE) ||
 				($page_date > $_date && ($mode == 'past')) ||
-				($page_date < $_date && ($mode == 'future')))
-					continue;
+				($page_date < $_date && ($mode == 'future'))
+			)
+				continue;
 
 			$pagelist[] = $page;
 		}
@@ -175,42 +174,38 @@ function plugin_blog_viewer_convert()
 		// 現状で閲覧許可がある場合だけ表示する
 		if (check_readable($page, FALSE, FALSE)) {
 			$blog_pkwksource = get_source($page);
-			$blog_newsource = array();
+			$blog_newsource = [];
 			$blog_body = false;
 			$blog_comment = false;
 			$com_cnt = 0;
 
 			foreach ($blog_pkwksource as $blog_line) {
-				if (preg_match('/^#blog_body/', $blog_line) ) {
+				if (preg_match('/^#blog_body/', $blog_line)) {
 					$blog_body = true;
-				}
-				else if (preg_match('/^#blog_more/', $blog_line) ) {
-					$matches = array();
+				} else if (preg_match('/^#blog_more/', $blog_line)) {
+					$matches = [];
 					preg_match('/^#blog_more\((.*)\)/', $blog_line, $matches);
 					$more_args = explode(',', $matches[1]);
-					$more_msg = $more_args[0]?$more_args[0]: $qm->m['plg_blog_viewer']['more_label'];
+					$more_msg = $more_args[0] ? $more_args[0] : $qm->m['plg_blog_viewer']['more_label'];
 					//default on
-					$anchor = $more_args[1]=='off'?'':'#blog_more';
+					$anchor = $more_args[1] == 'off' ? '' : '#blog_more';
 
 					$blog_newsource[] = "[[{$more_msg}>$page{$anchor}]]";
 
 					$blog_body = false;
-				}
-				else if (preg_match('/^#blog_comment/', $blog_line) ) {
+				} else if (preg_match('/^#blog_comment/', $blog_line)) {
 					$blog_body = false;
 					$blog_comment = true;
-				}
-				else if ($blog_body) {
+				} else if ($blog_body) {
 					$blog_newsource[] = $blog_line;
-				}
-				else if ($blog_comment) {
+				} else if ($blog_comment) {
 					//#blog_commentから#comment までの箇条書きを計算
-					if (!preg_match('/^#comment/', $blog_line) && preg_match('/^-{1,3} /', $blog_line) ) {
+					if (!preg_match('/^#comment/', $blog_line) && preg_match('/^-{1,3} /', $blog_line)) {
 						$com_cnt++;
 					}
 					//#commentで処理終わり
-					else if (preg_match('/^#comment/', $blog_line) ) {
-						$com_msg = $com_cnt>0?"($com_cnt)":"";
+					else if (preg_match('/^#comment/', $blog_line)) {
+						$com_msg = $com_cnt > 0 ? "($com_cnt)" : "";
 						break;
 					}
 				}
@@ -218,7 +213,7 @@ function plugin_blog_viewer_convert()
 			//--- フッタ ----
 			$blog_newsource[] = "----\n";
 			$blog_newsource[] = $qm->replace('plg_blog_viewer.post_footer', $page) .
-								($disp_comment? $qm->replace('plg_blog_viewer.post_footer_comment', $page, $com_msg): ''). "\n";
+				($disp_comment ? $qm->replace('plg_blog_viewer.post_footer_comment', $page, $com_msg) : '') . "\n";
 			$body = convert_html($blog_newsource);
 		} else {
 			$body = $qm->replace('plg_blog_viewer.err_cannotread', $page);
@@ -233,10 +228,10 @@ function plugin_blog_viewer_convert()
 			} else {
 				$week   = $weeklabels[date('w', $time)];
 				$s_page = htmlspecialchars(str_replace(
-						array('$w' ),
-						array($week),
-						date(PLUGIN_BLOG_VIEWER_DATE_FORMAT, $time)
-					));
+					array('$w'),
+					array($week),
+					date(PLUGIN_BLOG_VIEWER_DATE_FORMAT, $time)
+				));
 			}
 		} else {
 			$s_page = htmlspecialchars($page);
@@ -306,7 +301,6 @@ function plugin_blog_viewer_convert()
 		} else {
 			$left_YM   = $limit_base - $limit_pitch . '*' . $limit_pitch;
 			$left_text = sprintf($qm->m['plg_calendar_viewer']['left'], $limit_pitch);
-
 		}
 		if ($limit_base + $limit_pitch >= count($pagelist)) {
 			$right_YM = ''; // 表示しない (それより後の項目はない)
@@ -332,7 +326,7 @@ function plugin_blog_viewer_convert()
 		$return_body .=
 			'<div class="calendar_viewer">' .
 			'<span class="calendar_viewer_left">'  . $left_link  . '</span>';
-		if ($left_link != '' ) $return_body .= ' | ';
+		if ($left_link != '') $return_body .= ' | ';
 		$return_body .=
 			'<span class="calendar_viewer_right">' . $right_link . '</span>' .
 			'</div>';
@@ -349,7 +343,7 @@ function plugin_blog_viewer_action()
 
 	$date_sep = '-';
 
-	$return_vars_array = array();
+	$return_vars_array = [];
 
 	$page = strip_bracket($vars['page']);
 	$vars['page'] = '*';
@@ -373,7 +367,7 @@ function plugin_blog_viewer_action()
 		$return_vars_array['msg'] .= htmlspecialchars($page_YM);
 	}
 
-	$vars['page'] = $vars['file'].'/'.$page_YM;
+	$vars['page'] = $vars['file'] . '/' . $page_YM;
 	$topic = call_user_func('plugin_topicpath_convert');
 	$return_vars_array['body'] = $topic . $return_vars_array['body'];
 
@@ -383,14 +377,13 @@ function plugin_blog_viewer_action()
 
 function plugin_blog_viewer_isValidDate($aStr, $aSepList = '-/ .')
 {
-	$matches = array();
+	$matches = [];
 	if ($aSepList == '') {
 		// yyymmddとしてチェック（手抜き(^^;）
 		return checkdate(substr($aStr, 4, 2), substr($aStr, 6, 2), substr($aStr, 0, 4));
-	} else if (preg_match("/^([0-9]{2,4})[$aSepList]([0-9]{1,2})[$aSepList]([0-9]{1,2})$/", $aStr, $matches) ) {
+	} else if (preg_match("/^([0-9]{2,4})[$aSepList]([0-9]{1,2})[$aSepList]([0-9]{1,2})$/", $aStr, $matches)) {
 		return checkdate($matches[2], $matches[3], $matches[1]);
 	} else {
 		return FALSE;
 	}
 }
-?>

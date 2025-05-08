@@ -10,20 +10,20 @@ class CController extends CObject
 	var $viewfile		= null;
 	var $viewpath		= "ctp";
 	var $viewfile_ext	= ".html";
-	var $variables		= array();
+	var $variables		= [];
 	var	$db;
 	var $sanitize;
 	var $s;
 	var	$validate;
 	var	$v;
 	//	Models Array
-	var $m				= array();
+	var $m				= [];
 	//	Components Array
-	var $c				= array();
-	var	$post			= array();
-	var	$get			= array();
-	var	$request		= array();
-	var	$data			= array();
+	var $c				= [];
+	var	$post			= [];
+	var	$get			= [];
+	var	$request		= [];
+	var	$data			= [];
 	var $debug			= false;
 
 

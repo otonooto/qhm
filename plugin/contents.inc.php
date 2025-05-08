@@ -1,4 +1,5 @@
 <?php
+
 /**
  *   Table of Contents
  *   -------------------------------------------
@@ -62,11 +63,9 @@ function plugin_contents_convert()
 
     $class_attr = 'plugin-contents';
 
-    foreach ($args as $arg)
-    {
+    foreach ($args as $arg) {
         $arg = trim($arg);
-        switch ($arg)
-        {
+        switch ($arg) {
             case 'flat':
                 $flat = TRUE;
                 break;
@@ -99,17 +98,13 @@ function plugin_contents_convert()
         }
     }
 
-    if ($custom_target)
-    {
+    if ($custom_target) {
         $targets = array($custom_target);
     }
 
-    if ($custom_selector)
-    {
+    if ($custom_selector) {
         $selector = $custom_selector;
-    }
-    else
-    {
+    } else {
         $selector = plugin_contents_create_selector($min_level, $max_level);
     }
 
@@ -138,20 +133,17 @@ function plugin_contents_convert()
       data-custom-class="{$custom_class}"></nav>
 </div>
 EOD;
-
 }
 
 function plugin_contents_create_selector($min_level, $max_level)
 {
-    if ($min_level > $max_level)
-    {
+    if ($min_level > $max_level) {
         list($min_level, $max_level) = array($max_level, $min_level);
     }
 
-    $selectors = array();
+    $selectors = [];
     $span = range($min_level, $max_level);
-    foreach ($span as $level)
-    {
+    foreach ($span as $level) {
         $selectors[] = 'h' . $level;
     }
     return join(',', $selectors);

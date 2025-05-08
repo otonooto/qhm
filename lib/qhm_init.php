@@ -231,10 +231,10 @@ EOD;
 	}
 
 	$tools = array(
-		'toplink'     => array('name' => $qm->m['qhm_init']['toplink_name'], 'link' => $script, 'style' => '', 'class' => '', 'visible' => true, 'sub' => array()),
-		'editboxlink' => array('name' => $qm->m['qhm_init']['editboxlink_name'], 'link' => '#msg', 'style' => '', 'class' => 'go_editbox', 'visible' => true, 'sub' => array()),
-		'editlink'    => array('name' => $qm->m['qhm_init']['editlink_name'], 'link' => $link_edit, 'style' => 'margin-top:1.1em;', 'class' => '', 'visible' => true, 'sub' => array()),
-		'reflink'     => array('name' => $qm->m['qhm_init']['reflink_name'], 'link' => $link_upload, 'style' => '', 'class' => 'swfu', 'visible' => true, 'sub' => array()),
+		'toplink'     => array('name' => $qm->m['qhm_init']['toplink_name'], 'link' => $script, 'style' => '', 'class' => '', 'visible' => true, 'sub' => []),
+		'editboxlink' => array('name' => $qm->m['qhm_init']['editboxlink_name'], 'link' => '#msg', 'style' => '', 'class' => 'go_editbox', 'visible' => true, 'sub' => []),
+		'editlink'    => array('name' => $qm->m['qhm_init']['editlink_name'], 'link' => $link_edit, 'style' => 'margin-top:1.1em;', 'class' => '', 'visible' => true, 'sub' => []),
+		'reflink'     => array('name' => $qm->m['qhm_init']['reflink_name'], 'link' => $link_upload, 'style' => '', 'class' => 'swfu', 'visible' => true, 'sub' => []),
 		'pagelink'    => array('name' => $qm->m['qhm_init']['pagelink_name'], 'link' => '', 'style' => 'margin-top:1.1em;', 'class' => '', 'visible' => true, 'sub' => array(
 			'difflink' => array('name' => $qm->m['qhm_init']['difflink_name'], 'link' => $link_diff, 'style' => '', 'class' => '', 'visible' => true,),
 			'backuplink' => array('name' => $qm->m['qhm_init']['backuplink_name'], 'link' => $link_backup, 'style' => '', 'class' => '', 'visible' => true,),
@@ -295,10 +295,10 @@ EOD;
 			'desktop4' => array('name' => 'FullHD', 'link' => '#', 'visible' => TRUE),
 		)),
 
-		'configlink' => array('name' => $qm->m['qhm_init']['configlink_name'], 'link' => $link_qhm_setting, 'style' => 'margin-top:1.1em;', 'visible' => true, 'sub' => array()),
-		'passwordlink'   => array('name' => $qm->m['qhm_init']['passwordlink_name'], 'link' => $link_password, 'style' => '', 'visible' => true, 'sub' => array()),
-		'logoutlink' => array('name' => $qm->m['qhm_init']['logoutlink_name'], 'link' => $link_qhm_logout, 'style' => 'margin-top:1.1em;', 'visible' => true, 'sub' => array()),
-		'updatelink' => array('name' => $qm->m['qhm_init']['updatelink_name'], 'link' => $link_qhm_update, 'style' => 'margin-top:1.1em;', 'visible' => true, 'sub' => array()),
+		'configlink' => array('name' => $qm->m['qhm_init']['configlink_name'], 'link' => $link_qhm_setting, 'style' => 'margin-top:1.1em;', 'visible' => true, 'sub' => []),
+		'passwordlink'   => array('name' => $qm->m['qhm_init']['passwordlink_name'], 'link' => $link_password, 'style' => '', 'visible' => true, 'sub' => []),
+		'logoutlink' => array('name' => $qm->m['qhm_init']['logoutlink_name'], 'link' => $link_qhm_logout, 'style' => 'margin-top:1.1em;', 'visible' => true, 'sub' => []),
+		'updatelink' => array('name' => $qm->m['qhm_init']['updatelink_name'], 'link' => $link_qhm_update, 'style' => 'margin-top:1.1em;', 'visible' => true, 'sub' => []),
 	);
 
 	$prevdiv = '';
@@ -683,7 +683,7 @@ HTML;
 	// other plugin
 	$op_html = '';
 	if (! is_bootstrap_skin()) {
-		$op_cat = array();
+		$op_cat = [];
 		$op_html  = '<div class="other_plugin">';
 		$op_html .= '<div class="other_plugin_box_title expand"><span>' . $qm->m['qhm_init']['ot_label'] . '</span>&nbsp;&nbsp;<span class="mark">ー</span></div>';
 		$op_html .= '<div class="other_plugin_box">';

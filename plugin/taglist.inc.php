@@ -1,4 +1,5 @@
 <?php
+
 /**
  *  List Tagged Pages Plugin
  *
@@ -15,13 +16,13 @@ class PluginTaglist
 {
     function PluginTaglist()
     {
-        static $default_options = array();
+        static $default_options = [];
         if (empty($default_options)) {
             $default_options['tag']       = '';
             $default_options['related']   = NULL;
         }
         // static
-        $this->default_options = & $default_options;
+        $this->default_options = &$default_options;
         // init
         $this->options = $default_options;
         global $plugin_tag_name;
@@ -44,9 +45,9 @@ class PluginTaglist
             $msg = htmlspecialchars($this->options['related']);
         } else {
             $msg = _('Taglist');
-        } 
+        }
         $body = $this->taglist($this->options['tag'], $this->options['related']);
-        return array('msg'=>$msg, 'body'=>$body);
+        return array('msg' => $msg, 'body' => $body);
     }
 
     function convert() // taglist
@@ -56,7 +57,8 @@ class PluginTaglist
         $fisrtIsOption = FALSE;
         foreach ($this->options as $key => $val) {
             if (!isset($args) && strpos($args[0], $key) === 0) {
-                $firstIsOption = TRUE; break;
+                $firstIsOption = TRUE;
+                break;
             }
         }
         if (func_num_args() >= 1 && ! $firstIsOption) {
@@ -133,18 +135,18 @@ class PluginTaglist
         */
         global $script;
         $html = '';
-        
+
         $ul = $pdepth = 0;
         foreach ($pages as $i => $page) {
             $exist    = is_page($page);
             $depth    = 1;
             $link     = make_pagelink_nopg($page);
-            
-            if(! preg_match('/=edit&page=/', $link) ){
-            	$title = get_page_title($page);
-				$link = "<a href=\"{$script}?{$page}\" title=\"{$title}\">{$title}</a>";
-			}
-            
+
+            if (! preg_match('/=edit&page=/', $link)) {
+                $title = get_page_title($page);
+                $link = "<a href=\"{$script}?{$page}\" title=\"{$title}\">{$title}</a>";
+            }
+
             $info     = null;
             if ($depth > $pdepth) {
                 $diff = $depth - $pdepth;
@@ -166,7 +168,7 @@ class PluginTaglist
             $pdepth = $depth;
 
             $html .= $link;
-            $html .= isset($info) ? $info: '';
+            $html .= isset($info) ? $info : '';
         }
         $html .= str_repeat('</li></ul>', $ul);
         return $html;
@@ -176,7 +178,7 @@ class PluginTaglist
 function plugin_taglist_init()
 {
     global $plugin_taglist_name;
-     
+
     if (class_exists('PluginTaglistUnitTest')) {
         $plugin_taglist_name = 'PluginTaglistUnitTest';
     } elseif (class_exists('PluginTaglistUser')) {
@@ -190,7 +192,7 @@ function plugin_taglist_init()
 function plugin_taglist_convert()
 {
     global $plugin_taglist, $plugin_taglist_name;
-     
+
     $plugin_taglist = new $plugin_taglist_name();
     $args = func_get_args();
     return call_user_func_array(array(&$plugin_taglist, 'convert'), $args);
@@ -202,5 +204,3 @@ function plugin_taglist_action()
     $plugin_taglist = new $plugin_taglist_name();
     return $plugin_taglist->action();
 }
-
-?>

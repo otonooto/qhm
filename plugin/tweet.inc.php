@@ -1,4 +1,5 @@
 <?php
+
 /**
  *   Tweet Plugin
  *   -------------------------------------------
@@ -18,22 +19,23 @@ define('PLUGIN_TWEET_FORMAT', 'RT @%username% %title% - %url%');
 define('PLUGIN_TWEET_DEFAULT_LABEL', 'このページをRTする');
 define('PLUGIN_TWEET_DEFAULT_STATUS', PLUGIN_TWEET_FORMAT);
 
-function plugin_tweet_inline() {
+function plugin_tweet_inline()
+{
 	global $script, $vars;
 	$page = $vars['page'];
 	$args = func_get_args();
 	$label = array_shift($args);
 	$status = array_shift($args);
-	
-	$label = $label? trim($label): PLUGIN_TWEET_DEFAULT_LABEL;
-	$status = $status? trim($status): PLUGIN_TWEET_DEFAULT_STATUS;
-	
+
+	$label = $label ? trim($label) : PLUGIN_TWEET_DEFAULT_LABEL;
+	$status = $status ? trim($status) : PLUGIN_TWEET_DEFAULT_STATUS;
+
 	if (preg_match('/^ICON:([mslt])([abc])([ops])?:(.*)$/', $label, $ms)) {
 		$isize = $ms[1];
 		$icolor = $ms[2];
 		$disp = $ms[3];
-		$label = $ms[4]? $ms[4]: PLUGIN_TWEET_DEFAULT_LABEL;
-		
+		$label = $ms[4] ? $ms[4] : PLUGIN_TWEET_DEFAULT_LABEL;
+
 		$icon = '';
 		$ic_w = $ic_h = 16;
 		switch ($isize) {
@@ -59,25 +61,25 @@ function plugin_tweet_inline() {
 		} else {
 			$icon .= 'a';
 		}
-		
+
 		$icon .= '.png';
-		$icon = '<img src="http://twitter-badges.s3.amazonaws.com/'. $icon. '" width="'.$ic_w.'" height="'.$ic_h.'" />';
-		
-		switch($disp) {
+		$icon = '<img src="http://twitter-badges.s3.amazonaws.com/' . $icon . '" width="' . $ic_w . '" height="' . $ic_h . '" />';
+
+		switch ($disp) {
 			case 'p': //前置
 				$icon .= $label;
 				break;
 			case 's': //後置
-				$icon = $label. $icon;
+				$icon = $label . $icon;
 				break;
 			default:
 		}
 	}
-	
+
 	$option = array(
 		'username' => '',
 		'title' => get_page_title($page),
-		'url' => $script. '?go='. get_tiny_code($page),
+		'url' => $script . '?go=' . get_tiny_code($page),
 	);
 	foreach ($args as $arg) {
 		if (strpos($arg, '=')) {
@@ -85,28 +87,25 @@ function plugin_tweet_inline() {
 			$option[$key] = $val;
 		}
 		//引数がhoge=piyo の形式でない場合、username と見なす
-		else if (trim($arg)){
+		else if (trim($arg)) {
 			$option['username'] = $arg;
 			break;
 		}
 	}
-	
+
 	$srcs = array_keys($option);
-	$rpls = array();
+	$rpls = [];
 	foreach ($srcs as $i => $key) {
-		$srcs[$i] = '%'. $key. '%';
+		$srcs[$i] = '%' . $key . '%';
 		$rpls[$i] = $option[$key];
 	}
-	
+
 	$status = str_replace($srcs, $rpls, $status);
 
 	$twurl = 'http://twitter.com/?status=';
 	$twurl .= rawurlencode($status);
-	
-	$ret = '<a href="'.$twurl.'" title="'.$label.'" target="_black">'.(isset($icon)? $icon: $label).'</a>';
-	
+
+	$ret = '<a href="' . $twurl . '" title="' . $label . '" target="_black">' . (isset($icon) ? $icon : $label) . '</a>';
+
 	return $ret;
-
 }
-
-?>

@@ -1,4 +1,5 @@
 <?php
+
 /***************************************************************************
  *                         QHM Plugin
  *                    ------------------------------
@@ -79,126 +80,128 @@ EOD;
 
 define('PLUGIN_PLAYVIDEO_CODE_FLVPLAYERLITE', $tmpjs);
 
-function plugin_playvideo_convert(){
-    global $vars, $script;
-    $qm = get_qm();
-	
+function plugin_playvideo_convert()
+{
+	global $vars, $script;
+	$qm = get_qm();
+
 	$qt = get_qt();
 
-	if(! isset($playvideo_code)){
-		$playvideo_code = array("flash"=>false, "mov"=>false, "ram"=>false, "wmv"=>false, "avi"=>false, "flv"=>false);
+	if (! isset($playvideo_code)) {
+		$playvideo_code = array("flash" => false, "mov" => false, "ram" => false, "wmv" => false, "avi" => false, "flv" => false);
 	}
-	
-    $args = func_get_args();
-    $args_num = count($args);
-    
-    //args check
-    if($args_num < 3){
-        return $qm->m['plg_playvideo']['err_usage'];
-     }
-    list($url, $width, $height, $img) = array_pad($args,4,'');
+
+	$args = func_get_args();
+	$args_num = count($args);
+
+	//args check
+	if ($args_num < 3) {
+		return $qm->m['plg_playvideo']['err_usage'];
+	}
+	list($url, $width, $height, $img) = array_pad($args, 4, '');
 
 	//parse url : 拡張子を取り出し
 	$path_parts = pathinfo($url);
 	$arr = explode('?', $path_parts['extension']);
 	$ext = strtolower($arr[0]);
-	
+
 
 	//videoファイルのチェック	
-	$file_exists = preg_match('/^(https?|ftp):\/\//', $url)? $fp = fopen($url, 'rb'): file_exists($url);
-	if(! $file_exists){
+	$file_exists = preg_match('/^(https?|ftp):\/\//', $url) ? $fp = fopen($url, 'rb') : file_exists($url);
+	if (! $file_exists) {
 		return $qm->replace('plg_playvideo.err_novideofile', $url);
 	}
 
-	
-    //no image file
-    $file_exists = preg_match('/^(https?|ftp):\/\//', $img)? $fp = fopen($img, 'rb'): file_exists($img);
-    if ( isset($fp) ) {fclose($fp);}
-    if( $img == '' || !$file_exists ){
-    	$matches = array();
-    	preg_match('/(.*)\.(.*)$/', $url, $matches);
-    	$bname = $matches[1];
-    	
-    	if(file_exists($bname.'.png') )
-    		$img = $bname.'.png';
-    	else if( file_exists($bname.'.jpg') )
-    		$img = $bname.'.jpg';
-    	else if( file_exists($bname.'.gif') )
-    		$img = $bname.'.gif';
+
+	//no image file
+	$file_exists = preg_match('/^(https?|ftp):\/\//', $img) ? $fp = fopen($img, 'rb') : file_exists($img);
+	if (isset($fp)) {
+		fclose($fp);
+	}
+	if ($img == '' || !$file_exists) {
+		$matches = [];
+		preg_match('/(.*)\.(.*)$/', $url, $matches);
+		$bname = $matches[1];
+
+		if (file_exists($bname . '.png'))
+			$img = $bname . '.png';
+		else if (file_exists($bname . '.jpg'))
+			$img = $bname . '.jpg';
+		else if (file_exists($bname . '.gif'))
+			$img = $bname . '.gif';
 		else
-	    	$img = 'image/vstart.png';
-    }
-    
+			$img = 'image/vstart.png';
+	}
 
 
-	switch($ext){
-	
-	case "swf" :
-		$qt->appendv_once('plugin_playvideo_swf', 'beforescript', PLUGIN_PLAYVIDEO_CODE_FLASH);
-		return plugin_playvideo_htmlcode("flash", $url, $width, $height, $img);		
-	break;
-	
-	case "mov" :
-		$qt->appendv_once('plugin_playvideo_mov', 'beforescript', PLUGIN_PLAYVIDEO_CODE_MOV);
-		return plugin_playvideo_htmlcode("mov", $url, $width, $height+16, $img);
-		
-		break;
 
-	case "ram" :
-		$qt->appendv_once('plugin_playvideo_ram', 'beforescript', PLUGIN_PLAYVIDEO_CODE_RAM);
-		return plugin_playvideo_htmlcode("ram", $url, $width, $height+16, $img);
-		break;
+	switch ($ext) {
 
-	case "wmv" :
-		$qt->appendv_once('plugin_playvideo_wmv', 'beforescript', PLUGIN_PLAYVIDEO_CODE_WMV);
-		return plugin_playvideo_htmlcode("wmv", $url, $width, $height+16, $img);
-	break;
+		case "swf":
+			$qt->appendv_once('plugin_playvideo_swf', 'beforescript', PLUGIN_PLAYVIDEO_CODE_FLASH);
+			return plugin_playvideo_htmlcode("flash", $url, $width, $height, $img);
+			break;
 
-	case "avi" :
-		$qt->appendv_once('plugin_playvideo_avi', 'beforescript', PLUGIN_PLAYVIDEO_CODE_AVI);
-		return plugin_playvideo_htmlcode("avi", $url, $width, $height+16, $img);
-		break;
+		case "mov":
+			$qt->appendv_once('plugin_playvideo_mov', 'beforescript', PLUGIN_PLAYVIDEO_CODE_MOV);
+			return plugin_playvideo_htmlcode("mov", $url, $width, $height + 16, $img);
 
-	case "flv" :
-		
-		$player_path = dirname($url).'/player.swf';
-		if( !file_exists( $player_path ) )
-		{
-			return $qm->m['plg_playvideo']['err_player'];
-		}
-		
-		$qt->appendv_once('plugin_playvideo_flv', 'beforescript', PLUGIN_PLAYVIDEO_CODE_FLV);
-		return plugin_playvideo_htmlcode("flv", $url, $width, $height, $img);
-		break;
-	
-	case "mp4" :
-		
-		$player_path = PLUGIN_DIR.'playvideo/swf/playerLite.swf';
-		if( !file_exists($player_path) ){
-			return $qm->m['plg_playvideo']['err_player'];		
-		}
-		
-		$qt->appendv_once('plugin_playvideo_flvplayerlite', 'beforescript', PLUGIN_PLAYVIDEO_CODE_FLVPLAYERLITE);
-		
-		static $flvplayerlite_id_cnt;
-		$flvplayerlite_id_cnt++;
-		
-		//flvplayerが、FQDNを要求するので、http(s),ftpから始まっていなければ$scriptでFQDNにする
-		if(! preg_match('/^(https?|ftp):\/\//', $url) ){
-			$url = dirname($script.'dummy').'/'.$url;
-		}
-		
-		//iPhone, iPad, Androidに対応（videoタグを出すだけだけど）
-		if(strpos(UA_NAME,'iPhone') !== FALSE || strpos(UA_NAME,'iPod') !== FALSE || strpos(UA_NAME,'Mobile Safari') !== FALSE){
-			return '<video width="'.$width.'" height="'.$height.'" src="'.$url.'" poster="'. h($img) .'" controls="controls"></video>';
-		}
-		
-		//flvplayerliteのみ、idが必要なのでムリヤリ挿入
-		return plugin_playvideo_htmlcode("flvplayerlite", $url, $width, $height.','.$flvplayerlite_id_cnt, $img);
-		break;
+			break;
 
-	default:
-		return $qm->replace('plg_playvideo.err_unsupported', $url);
+		case "ram":
+			$qt->appendv_once('plugin_playvideo_ram', 'beforescript', PLUGIN_PLAYVIDEO_CODE_RAM);
+			return plugin_playvideo_htmlcode("ram", $url, $width, $height + 16, $img);
+			break;
+
+		case "wmv":
+			$qt->appendv_once('plugin_playvideo_wmv', 'beforescript', PLUGIN_PLAYVIDEO_CODE_WMV);
+			return plugin_playvideo_htmlcode("wmv", $url, $width, $height + 16, $img);
+			break;
+
+		case "avi":
+			$qt->appendv_once('plugin_playvideo_avi', 'beforescript', PLUGIN_PLAYVIDEO_CODE_AVI);
+			return plugin_playvideo_htmlcode("avi", $url, $width, $height + 16, $img);
+			break;
+
+		case "flv":
+
+			$player_path = dirname($url) . '/player.swf';
+			if (!file_exists($player_path)) {
+				return $qm->m['plg_playvideo']['err_player'];
+			}
+
+			$qt->appendv_once('plugin_playvideo_flv', 'beforescript', PLUGIN_PLAYVIDEO_CODE_FLV);
+			return plugin_playvideo_htmlcode("flv", $url, $width, $height, $img);
+			break;
+
+		case "mp4":
+
+			$player_path = PLUGIN_DIR . 'playvideo/swf/playerLite.swf';
+			if (!file_exists($player_path)) {
+				return $qm->m['plg_playvideo']['err_player'];
+			}
+
+			$qt->appendv_once('plugin_playvideo_flvplayerlite', 'beforescript', PLUGIN_PLAYVIDEO_CODE_FLVPLAYERLITE);
+
+			static $flvplayerlite_id_cnt;
+			$flvplayerlite_id_cnt++;
+
+			//flvplayerが、FQDNを要求するので、http(s),ftpから始まっていなければ$scriptでFQDNにする
+			if (! preg_match('/^(https?|ftp):\/\//', $url)) {
+				$url = dirname($script . 'dummy') . '/' . $url;
+			}
+
+			//iPhone, iPad, Androidに対応（videoタグを出すだけだけど）
+			if (strpos(UA_NAME, 'iPhone') !== FALSE || strpos(UA_NAME, 'iPod') !== FALSE || strpos(UA_NAME, 'Mobile Safari') !== FALSE) {
+				return '<video width="' . $width . '" height="' . $height . '" src="' . $url . '" poster="' . h($img) . '" controls="controls"></video>';
+			}
+
+			//flvplayerliteのみ、idが必要なのでムリヤリ挿入
+			return plugin_playvideo_htmlcode("flvplayerlite", $url, $width, $height . ',' . $flvplayerlite_id_cnt, $img);
+			break;
+
+		default:
+			return $qm->replace('plg_playvideo.err_unsupported', $url);
 	}
 }
 
@@ -207,5 +210,3 @@ function plugin_playvideo_htmlcode($type, $url, $width, $height, $img)
 	$qm = get_qm();
 	return $qm->replace('plg_playvideo.img', $type, $url, $width, $height, $img);
 }
-
-?>

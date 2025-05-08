@@ -1,19 +1,20 @@
 <?php
+
 /**
-* QHM テーマアップローダー
-* Zip書庫形式のテーマファイルを受け取り、SKIN_DIR へ格納する
-*/
+ * QHM テーマアップローダー
+ * Zip書庫形式のテーマファイルを受け取り、SKIN_DIR へ格納する
+ */
 
 function plugin_theme_uploader_action()
 {
 	global $script, $vars;
 
 	//管理者チェック
-	if ( ! ss_admin_check()) {
+	if (! ss_admin_check()) {
 		redirect($script, 'この機能には、管理者のみアクセス可能です。');
 	}
 
-	if (($errmsg=plugin_theme_uploader_check()) !== '') {
+	if (($errmsg = plugin_theme_uploader_check()) !== '') {
 		redirect($script, $errmsg);
 	}
 
@@ -40,21 +41,17 @@ function plugin_theme_uploader_clean()
 
 function plugin_theme_uploader_rmdir($dir)
 {
-	if ( ! file_exists($dir)) return;
+	if (! file_exists($dir)) return;
 
 	$files = new RecursiveIteratorIterator(
 		new RecursiveDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS),
 		RecursiveIteratorIterator::CHILD_FIRST
 	);
 
-	foreach ($files as $file)
-	{
-		if ($file->isDir() === true)
-		{
+	foreach ($files as $file) {
+		if ($file->isDir() === true) {
 			rmdir($file->getPathname());
-		}
-		else
-		{
+		} else {
 			unlink($file->getPathname());
 		}
 	}
@@ -73,7 +70,7 @@ function plugin_theme_uploader_unzip_strategy()
 }
 function plugin_theme_uploader_unzip($zip_file, $extract_to)
 {
-	if ( ! file_exists($zip_file)) return;
+	if (! file_exists($zip_file)) return;
 
 	$strategy = plugin_theme_uploader_unzip_strategy();
 	if ($strategy === 'ZipArchive') {
@@ -90,8 +87,8 @@ function plugin_theme_uploader_unzip($zip_file, $extract_to)
 }
 
 /**
-* アップロード画面を表示する。
-*/
+ * アップロード画面を表示する。
+ */
 function plugin_theme_uploader_action_upload()
 {
 	plugin_theme_uploader_clean();
@@ -103,25 +100,26 @@ function plugin_theme_uploader_action_upload()
 }
 
 /**
-* 確認画面を表示する。
-* 存在するデザインであれば警告を表示する。
-*/
+ * 確認画面を表示する。
+ * 存在するデザインであれば警告を表示する。
+ */
 function plugin_theme_uploader_action_confirm()
 {
 	$errmsg = '';
 	$file = $_FILES['theme'];
 
-	if ($file['error'] === 0
-		&& preg_match('/\A(.+)\.zip\z/i', $file['name'], $mts))
-	{
+	if (
+		$file['error'] === 0
+		&& preg_match('/\A(.+)\.zip\z/i', $file['name'], $mts)
+	) {
 		$data['name'] = $mts[1];
 	} elseif ($file['error'] > 0) {
-		switch($file['error']) {
+		switch ($file['error']) {
 			case UPLOAD_ERR_INI_SIZE:
 				$errmsg = 'ファイル容量がアップロード上限を超えています';
 				break;
 			default:
-				$errmsg = 'アップロードエラー（code: '.$file['error'].'）が発生しました';
+				$errmsg = 'アップロードエラー（code: ' . $file['error'] . '）が発生しました';
 		}
 	} else {
 		$errmsg = 'Zip 形式のファイルではありません';
@@ -132,10 +130,9 @@ function plugin_theme_uploader_action_confirm()
 		$unzip_to = CACHEQHM_DIR . 'tmp_theme_file_' . md5(session_id());
 		plugin_theme_uploader_unzip($file['tmp_name'], $unzip_to);
 		if (is_dir($unzip_to) && $dh = opendir($unzip_to)) {
-			$files = array('dir'=>array(), 'file'=>array());
-			while (false !== ($entry = readdir($dh)))
-			{
-				if ( ! in_array($entry, array('.', '..'))) {
+			$files = array('dir' => [], 'file' => []);
+			while (false !== ($entry = readdir($dh))) {
+				if (! in_array($entry, array('.', '..'))) {
 					if (is_dir($unzip_to . '/' . $entry)) {
 						$key = 'dir';
 					} else {
@@ -185,25 +182,23 @@ function plugin_theme_uploader_action_confirm()
 		'msg'  => '確認',
 		'body' => $html,
 	);
-
 }
 
 /**
-* テーマファイルを設置し、完了画面を表示する。
-* 続けてアップロードできるようにする。
-*/
+ * テーマファイルを設置し、完了画面を表示する。
+ * 続けてアップロードできるようにする。
+ */
 function plugin_theme_uploader_action_complete()
 {
 	$errmsg = '';
-	$data = array();
+	$data = [];
 
-	if ( ! (isset($_SESSION['theme_uploader'])
-		&& $_SESSION['theme_uploader']['phase'] === 'complete'))
-	{
+	if (! (isset($_SESSION['theme_uploader'])
+		&& $_SESSION['theme_uploader']['phase'] === 'complete')) {
 		$errmsg = 'この操作は不正です。';
 	}
 
-	if ( ! is_dir($_SESSION['theme_uploader']['tmp_name'])) {
+	if (! is_dir($_SESSION['theme_uploader']['tmp_name'])) {
 		$errmsg = 'テーマファイルが存在しません。';
 	}
 
@@ -212,7 +207,8 @@ function plugin_theme_uploader_action_complete()
 		$theme_name = $_SESSION['theme_uploader']['theme_name'];
 		$errmsg = plugin_theme_uploader_move(
 			$_SESSION['theme_uploader']['tmp_name'] . '/' . $theme_name,
-			SKIN_DIR . $theme_name);
+			SKIN_DIR . $theme_name
+		);
 
 		$data['errmsg'] = $errmsg;
 		$data['name']   = $theme_name;
@@ -240,11 +236,10 @@ function plugin_theme_uploader_move($source, $dist)
 	if (file_exists($dist) && ! is_dir($dist)) {
 		return "アップロード先 {$dsit} がフォルダではありません。";
 	} else {
-		if ( ! file_exists($dist)) {
+		if (! file_exists($dist)) {
 			mkdir($dist);
 		}
-		foreach (glob("{$source}/*") as $file_path)
-		{
+		foreach (glob("{$source}/*") as $file_path) {
 			$new_name = "{$dist}/" . basename($file_path);
 			rename($file_path, $new_name);
 		}
@@ -253,7 +248,7 @@ function plugin_theme_uploader_move($source, $dist)
 	}
 }
 
-function plugin_theme_uploader_render($view, $data = array())
+function plugin_theme_uploader_render($view, $data = [])
 {
 	global $script;
 	$template_dir = PLUGIN_DIR . 'theme_uploader/';
@@ -272,7 +267,7 @@ function plugin_theme_uploader_render($view, $data = array())
 
 function plugin_theme_uploader_check()
 {
-	if ( ! is_writable(SKIN_DIR)) {
+	if (! is_writable(SKIN_DIR)) {
 		return SKIN_DIR . ' に書き込み権限がありません';
 	}
 	return '';

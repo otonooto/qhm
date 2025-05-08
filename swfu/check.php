@@ -10,8 +10,8 @@ function action(&$c)
 	$dir_obj = dir(SWFU_DATA_DIR);
 
 	//make image list (and del nofile data)
-	$log_del[] = array();
-	$imgs[] = array();
+	$log_del[] = [];
+	$imgs[] = [];
 	$tmp_imgs = $c->image->find();
 	foreach ($tmp_imgs as $k => $v) {
 		//存在しないファイルを削除
@@ -24,7 +24,7 @@ function action(&$c)
 	}
 	$c->set('log_del', $log_del);
 
-	$log[] = array();
+	$log[] = [];
 	while ($entry = $dir_obj->read()) {
 		if (!is_dir(SWFU_DATA_DIR . $entry) && $entry[0] != '.' && !isset($imgs[$entry])) {
 			$stat = stat(SWFU_DATA_DIR . $entry);

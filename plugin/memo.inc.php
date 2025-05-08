@@ -22,7 +22,7 @@ function plugin_memo_action()
 	$postdata_old  = get_source($vars['refer']);
 	$postdata = '';
 	$memo_no = 0;
-	foreach($postdata_old as $line) {
+	foreach ($postdata_old as $line) {
 		if (preg_match("/^#memo\(?.*\)?$/i", $line)) {
 			if ($memo_no == $vars['memo_no']) {
 				$postdata .= '#memo(' . $memo_body . ')' . "\n";
@@ -58,8 +58,8 @@ EOD;
 
 		$title = $qm->m['fmt_title_updated'];
 	}
-	$retvars['msg']  = & $title;
-	$retvars['body'] = & $body;
+	$retvars['msg']  = &$title;
+	$retvars['body'] = &$body;
 
 	$vars['page'] = $vars['refer'];
 
@@ -69,7 +69,7 @@ EOD;
 function plugin_memo_convert()
 {
 	global $script, $vars, $digest;
-	static $numbers = array();
+	static $numbers = [];
 	$qm = get_qm();
 
 	if (! isset($numbers[$vars['page']])) $numbers[$vars['page']] = 0;
@@ -83,9 +83,9 @@ function plugin_memo_convert()
 
 	if (PKWK_READONLY) {
 		$_script = '';
-		$_submit = '';	
+		$_submit = '';
 	} else {
-		$_script = & $script;
+		$_script = &$script;
 		$_submit = '<input type="submit" name="memo"    value="' . $qm->m['plg_memo']['btn_update'] . '" />';
 	}
 
@@ -108,4 +108,3 @@ EOD;
 
 	return $string;
 }
-?>

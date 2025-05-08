@@ -13,8 +13,9 @@ function plugin_list_action()
 	$filelist = (isset($vars['cmd']) && $vars['cmd'] == 'filelist');
 
 	return array(
-		'msg'=>$filelist ? $qm->m['plg_list']['title_filelist'] : $qm->m['plg_list']['title'],
-		'body'=>plugin_list_getlist($filelist));
+		'msg' => $filelist ? $qm->m['plg_list']['title_filelist'] : $qm->m['plg_list']['title'],
+		'body' => plugin_list_getlist($filelist)
+	);
 }
 
 // Get a list
@@ -26,14 +27,11 @@ function plugin_list_getlist($withfilename = FALSE)
 	if (! $withfilename)
 		$pages = array_diff($pages, preg_grep('/' . $non_list . '/S', $pages));
 	if (empty($pages)) return '';
-	
-	if (ss_admin_check())
-	{
+
+	if (ss_admin_check()) {
 		$style_name = '..';
 		return plugin_list_create_html(plugin_list_array($pages), $withfilename);
-	}
-	else
-	{
+	} else {
 		return page_list($pages, 'read', $withfilename);
 	}
 }
@@ -41,44 +39,40 @@ function plugin_list_getlist($withfilename = FALSE)
 function plugin_list_array($pages)
 {
 	$qm = get_qm();
-	
+
 	$symbol = ' ';
 	$other = 'zz';
-	$list = array();
+	$list = [];
 	$cnd = 0;
 	//並び替える
-	foreach ($pages as $file => $page)
-	{
-		$pgdata = array();
+	foreach ($pages as $file => $page) {
+		$pgdata = [];
 		$pgdata['urlencoded']  = rawurlencode($page);
 		$pgdata['sanitized']   = htmlspecialchars($page, ENT_QUOTES);
 		$pgdata['passage'] = get_pg_passage($page, FALSE);
 		$pgdata['mtime'] = date('Y年m月d日 H時i分s秒', filemtime(get_filename($page)));
 
 		$pgdata['title'] = get_page_title($page);
-		$pgdata['title'] = ($pgdata['title'] == $pgdata['sanitized']) ? '' : '（'.$pgdata['title']. '）';
+		$pgdata['title'] = ($pgdata['title'] == $pgdata['sanitized']) ? '' : '（' . $pgdata['title'] . '）';
 		$pgdata['filename'] = htmlspecialchars($file);
 
-		$head = (preg_match('/^([A-Za-z])/', $page, $matches)) ? $matches[1] :
-			(preg_match('/^([ -~])/', $page, $matches) ? $symbol : $other);
+		$head = (preg_match('/^([A-Za-z])/', $page, $matches)) ? $matches[1] : (preg_match('/^([ -~])/', $page, $matches) ? $symbol : $other);
 
 		$list[$head][$page] = $pgdata;
 		$cnt++;
 	}
 	ksort($list);
-	
-	$tmparr = isset($list[$symbol])? $list[$symbol]: null;
+
+	$tmparr = isset($list[$symbol]) ? $list[$symbol] : null;
 	unset($list[$symbol]);
 	$list[$symbol] = $tmparr;
-	
-	$retlist = array();
-	foreach ($list as $head => $pages)
-	{
-		if (is_null($pages))
-		{
+
+	$retlist = [];
+	foreach ($list as $head => $pages) {
+		if (is_null($pages)) {
 			continue;
 		}
-	
+
 		ksort($pages);
 
 		if ($head === $symbol) {
@@ -89,9 +83,8 @@ function plugin_list_array($pages)
 
 		$retlist[$head] = $pages;
 	}
-	
+
 	return $retlist;
-	
 }
 
 /**
@@ -109,71 +102,64 @@ function plugin_list_create_html($pages_data, $withfilename = FALSE)
 	$qt = get_qt();
 	$qt->setv('jquery_include', true);
 
-//echo '<pre>';var_dump($pages_data);exit;
+	//echo '<pre>';var_dump($pages_data);exit;
 	$head_cnt = 0;
-	$indexies = array();
-	foreach ($pages_data as $head => $pages)
-	{
-		if (is_null($pages) || count($pages) === 0)
-		{
+	$indexies = [];
+	foreach ($pages_data as $head => $pages) {
+		if (is_null($pages) || count($pages) === 0) {
 			continue;
 		}
-		
-		if ($list_index)
-		{
+
+		if ($list_index) {
 			$head_cnt++;
-			$indexies[] = '<a href="#head_'. $head_cnt. '" id="plugin_list_index_'. $head_cnt. '"><strong>'.
-				$head. '</strong></a>';
+			$indexies[] = '<a href="#head_' . $head_cnt . '" id="plugin_list_index_' . $head_cnt . '"><strong>' .
+				$head . '</strong></a>';
 			$html .= '
 	<tr class="plugin_list_navi">
 	<td  colspan=2>
-		<a href="#plugin_list_index_' . $head_cnt. '" id="head_' . $head_cnt . '"><strong>'. $head. '</strong></a>
+		<a href="#plugin_list_index_' . $head_cnt . '" id="head_' . $head_cnt . '"><strong>' . $head . '</strong></a>
 	</td>';
-		
 		}
-		
-		foreach ($pages as $page => $data)
-		{
+
+		foreach ($pages as $page => $data) {
 			$html .= '
 	<tr class="plugin_list_pagerow">
 	<td>
-		<div class="plugin_list_pagename"><a href="'. h($script. '?'. $data['urlencoded']). '">' . $data['sanitized'] . $data['title'] . '</a></div>
+		<div class="plugin_list_pagename"><a href="' . h($script . '?' . $data['urlencoded']) . '">' . $data['sanitized'] . $data['title'] . '</a></div>
 		<div class="plugin_list_commands">';
-		
-			$cmds = array();
-			foreach (plugin_list_get_commands($page) as $cmd => $cmddata)
-			{
+
+			$cmds = [];
+			foreach (plugin_list_get_commands($page) as $cmd => $cmddata) {
 				$fmt = $cmddata['format'];
 				$label = $cmddata['label'];
-				
+
 				$cmds[] = '
-			<a href="'. h(sprintf($fmt, $script, $data['urlencoded'])) .'" class="plugin_list_page_'. h($cmd) .'">'. h($label) .'</a>';
+			<a href="' . h(sprintf($fmt, $script, $data['urlencoded'])) . '" class="plugin_list_page_' . h($cmd) . '">' . h($label) . '</a>';
 			}
 			$html .= join(' | ', $cmds);
 
 			$html .= '
 		</div>
 		' . $data['passage'];
-			if ($withfilename)
-			{
+			if ($withfilename) {
 				$html .= '
-	    <div class="plugin_list_filename">ファイル名： '. h($data['filename']). '</div>   ';
+	    <div class="plugin_list_filename">ファイル名： ' . h($data['filename']) . '</div>   ';
 			}
 			$html .= '
 	</td>
 	<td class="plugin_list_mtime">
-		'. h($data['mtime']) .'
+		' . h($data['mtime']) . '
 	</td>
 	</tr>';
 		}
 	}
-	
+
 	$body = '
-<p><a href="'. $script. '">HAIKトップ</a> &gt; here</p>
+<p><a href="' . $script . '">HAIKトップ</a> &gt; here</p>
 <div class="plugin_list">
 	<h2>ページの一覧</h2>
 	<div id="plugin_list_index">
-	'. join(' | ', $indexies). '
+	' . join(' | ', $indexies) . '
 	</div>
 <table cellspacing=0 style="border: 1px solid #DFDFDF;">
 <thead>
@@ -183,7 +169,7 @@ function plugin_list_create_html($pages_data, $withfilename = FALSE)
 	</tr>
 </thead>
 <tbody>
-'. $html. '
+' . $html . '
 </tbody>
 </table>';
 
@@ -277,9 +263,9 @@ $(function(){
 	.focus().select();
 });
 </script>';
-	
+
 	$qt->appendv_once('plugin_list', 'beforescript', $beforescript);
-	
+
 	return $body;
 }
 
@@ -319,22 +305,17 @@ function plugin_list_get_commands($page)
 			'label' => '複製'
 		),
 	);
-	
-	if (PKWK_READONLY)
-	{
+
+	if (PKWK_READONLY) {
 		return array('read' => $retarr['read']);
 	}
 
-	if ( ! ss_admin_check())
-	{
+	if (! ss_admin_check()) {
 		unset($retarr['diff'], $retarr['backup'], $retarr['rename'], $retarr['map'], $retarr['template']);
-		if ( ! check_editable($page, FALSE, FALSE))
-		{
+		if (! check_editable($page, FALSE, FALSE)) {
 			unset($retarr['edit']);
 		}
 	}
-	
+
 	return $retarr;
 }
-
-?>

@@ -1,4 +1,5 @@
 <?php
+
 /**
  *   Facebook Plugins' Init File
  *   -------------------------------------------
@@ -21,15 +22,13 @@ function plugin_fb_root_init()
 	global $add_xmlns;
 	static $inited = FALSE;
 
-	if ($inited)
-	{
+	if ($inited) {
 		return;
 	}
 	$inited = TRUE;
 
 	$qt = get_qt();
 	$qt->setv('jquery_include', true);
-
 }
 
 /**
@@ -39,8 +38,7 @@ function plugin_fb_root_init()
 function plugin_fb_root_get_fb_app_id()
 {
 	global $fb_app_id;
-	if (isset($fb_app_id) && strlen(trim($fb_app_id)) > 0)
-	{
+	if (isset($fb_app_id) && strlen(trim($fb_app_id)) > 0) {
 		return $fb_app_id;
 	}
 	return FALSE;
@@ -122,8 +120,7 @@ function plugin_fb_root_set_page_js()
 	$qt = get_qt();
 
 	$appid = plugin_fb_root_get_fb_app_id();
-	if ($appid === FALSE)
-	{
+	if ($appid === FALSE) {
 		$appid = '0123456789';
 	}
 
@@ -134,7 +131,7 @@ function FB_init_callback() {
 	//link mod
 	$("#body a:not([href^=#])").attr("target", "_blank").attr("rel", "noopener")
 		.filter("[href*=\'facebook.com\']:not([href*=\'developers.facebook.com\'])").attr("target", "_parent");
-	$("form").append(\'<input type="hidden" name="signed_request" value="'.h($vars['signed_request']).'" /> \');
+	$("form").append(\'<input type="hidden" name="signed_request" value="' . h($vars['signed_request']) . '" /> \');
 }
 </script>
 ';
@@ -145,16 +142,14 @@ function plugin_fb_root_set_jsapi($xfbml = FALSE, $locale = 'ja_JP')
 {
 	$qt = get_qt();
 
-	$params = array();
+	$params = [];
 
 	$appid = plugin_fb_root_get_fb_app_id();
-	if ($appid !== FALSE)
-	{
+	if ($appid !== FALSE) {
 		$params['appId'] = $appid;
 	}
 
-	if ($xfbml !== FALSE)
-	{
+	if ($xfbml !== FALSE) {
 		$params['xfbml'] = true;
 	}
 
@@ -171,7 +166,7 @@ window.fbAsyncInit = function(){
 		fbRoot.id = "fb-root";
 		body.insertBefore(fbRoot, body.firstChild);
 	}
-	FB.init('. json_encode($params) .');
+	FB.init(' . json_encode($params) . ');
 
 	if (typeof FB_init_callback !== "undefined") {
 		FB_init_callback();
@@ -183,7 +178,7 @@ window.fbAsyncInit = function(){
 
 	js = d.createElement(s);
 	js.id = id;
-	js.src = "//connect.facebook.net/'. h($locale). '/sdk.js";
+	js.src = "//connect.facebook.net/' . h($locale) . '/sdk.js";
 	fjs.parentNode.insertBefore(js, fjs);
 })(document, "script", "facebook-jssdk");
 </script>
@@ -194,8 +189,7 @@ window.fbAsyncInit = function(){
 function plugin_fb_root_parse_request()
 {
 	global $vars;
-	if (isset($vars['signed_request']))
-	{
+	if (isset($vars['signed_request'])) {
 		$encoded_sig = null;
 		$payload = null;
 		list($encoded_sig, $payload) = explode('.', $vars['signed_request'], 2);
@@ -233,250 +227,185 @@ function plugin_fb_root_get_colorschemes()
  *
  * Scaffold: [{attr_name: DEFAULT_VALUE}, {attr_name: [DEFAULT_VALUE, DATA_SET]}, ...]
  */
-function plugin_fb_root_parse_args($args, $tmpl = array())
+function plugin_fb_root_parse_args($args, $tmpl = [])
 {
 	$ret = $tmpl;
 
 	$init_href = FALSE;
 
-	foreach ($args as $i => $arg)
-	{
+	foreach ($args as $i => $arg) {
 		$arg = trim($arg);
 
 		// href, site
-		if ( ! $init_url && is_url($arg))
-		{
-			if (isset($ret['href']))
-			{
+		if (! $init_url && is_url($arg)) {
+			if (isset($ret['href'])) {
 				$ret['href'] = $arg;
-			}
-			else if (isset($ret['site']))
-			{
+			} else if (isset($ret['site'])) {
 				$parsed_url = parse_url($arg);
 				$ret['site'] = $parsed_url['host'];
 			}
 			$init_url = TRUE;
 		}
 		// no send
-		else if ($arg == 'nosend' && isset($ret['send']))
-		{
+		else if ($arg == 'nosend' && isset($ret['send'])) {
 			$ret['send'] = 'false';
 		}
 		// no faces
-		else if ($arg == 'noface' && isset($ret['show-faces']))
-		{
+		else if ($arg == 'noface' && isset($ret['show-faces'])) {
 			$ret['show-faces'] = 'false';
 		}
 		// no header
-		else if ($arg == 'noheader' && isset($ret['header']))
-		{
+		else if ($arg == 'noheader' && isset($ret['header'])) {
 			$ret['header'] = 'false';
 		}
 		// no stream
-		else if ($arg == 'nostream' && isset($ret['stream']))
-		{
+		else if ($arg == 'nostream' && isset($ret['stream'])) {
 			$ret['stream'] = 'false';
 		}
 		// no share button
-		else if ($arg === 'noshare' && isset($ret['share']))
-		{
-    		$ret['share'] = 'false';
+		else if ($arg === 'noshare' && isset($ret['share'])) {
+			$ret['share'] = 'false';
 		}
 		// do not show border
-		else if ($arg === 'noborder' && isset($ret['show-border']))
-		{
-    		$ret['show-border'] = 'false';
-		}
-		else if ($arg === 'kids' && isset($ret['kid-directed-site']))
-		{
-    		$ret['kid-directed-site'] = 'true';
-		}
-		else if ($arg === 'mobile' && isset($ret['mobile']))
-		{
-    		$ret['mobile'] = 'true';
+		else if ($arg === 'noborder' && isset($ret['show-border'])) {
+			$ret['show-border'] = 'false';
+		} else if ($arg === 'kids' && isset($ret['kid-directed-site'])) {
+			$ret['kid-directed-site'] = 'true';
+		} else if ($arg === 'mobile' && isset($ret['mobile'])) {
+			$ret['mobile'] = 'true';
 		}
 		// force wall
-		else if ($arg == 'force_wall' && isset($ret['force-wall']))
-		{
+		else if ($arg == 'force_wall' && isset($ret['force-wall'])) {
 			$ret['force-wall'] = 'true';
-		}
-		else if ($arg == 'hide_cover' && isset($ret['hide-cover']))
-		{
+		} else if ($arg == 'hide_cover' && isset($ret['hide-cover'])) {
 			$ret['hide-cover'] = 'true';
-		}
-		else if ($arg == 'hide_facepile' && isset($ret['show-facepile']))
-		{
+		} else if ($arg == 'hide_facepile' && isset($ret['show-facepile'])) {
 			$ret['show-facepile'] = 'false';
-		}
-		else if ($arg == 'show_posts' && isset($ret['show-posts']))
-		{
+		} else if ($arg == 'show_posts' && isset($ret['show-posts'])) {
 			$ret['show-posts'] = 'true';
-		}
-		else if ($arg == 'hide_cta' && isset($ret['hide-cta']))
-		{
+		} else if ($arg == 'hide_cta' && isset($ret['hide-cta'])) {
 			$ret['hide-cta'] = 'true';
 		}
 		// layouts
-		else if (strpos($arg, 'layout=') === 0 && isset($ret['layout']))
-		{
+		else if (strpos($arg, 'layout=') === 0 && isset($ret['layout'])) {
 			list($key, $val) = explode('=', $arg, 2);
-			if (is_array($ret[$key]))
-			{
+			if (is_array($ret[$key])) {
 				$default = $ret[$key][0];
 				$opts = $ret[$key][1];
-			}
-			else
-			{
+			} else {
 				$opts = $ret[$key];
 			}
-			if (in_array($val, $opts))
-			{
+			if (in_array($val, $opts)) {
 				$ret[$key] = $val;
 			}
 		}
 		// fonts
-		else if (strpos($arg, 'font=') === 0 && isset($ret['font']))
-		{
+		else if (strpos($arg, 'font=') === 0 && isset($ret['font'])) {
 			list($key, $val) = explode('=', $arg, 2);
-			if (in_array($val, plugin_fb_root_get_fonts()))
-			{
+			if (in_array($val, plugin_fb_root_get_fonts())) {
 				$ret[$key] = $val;
 			}
 		}
 		// Orders
-		else if (strpos($arg, 'order=') === 0 && isset($ret['order-by']))
-		{
+		else if (strpos($arg, 'order=') === 0 && isset($ret['order-by'])) {
 			list($key, $val) = explode('=', $arg, 2);
 			$key = 'order-by';
-			if (is_array($ret[$key]))
-			{
+			if (is_array($ret[$key])) {
 				$default = $ret[$key][0];
 				$opts = $ret[$key][1];
-			}
-			else
-			{
+			} else {
 				$opts = $ret[$key];
 			}
-			if (in_array($val, $opts))
-			{
+			if (in_array($val, $opts)) {
 				$ret[$key] = $val;
 			}
 		}
 		// border color
-		else if (strpos($arg, 'border_color=') === 0 && isset($ret['border_color']))
-		{
+		else if (strpos($arg, 'border_color=') === 0 && isset($ret['border_color'])) {
 			list($key, $val) = explode('=', $arg, 2);
 			$ret[$key] = $val;
 		}
 		// color schemes
-		else if (strpos($arg, 'colorscheme=') === 0 && isset($ret['colorscheme']))
-		{
+		else if (strpos($arg, 'colorscheme=') === 0 && isset($ret['colorscheme'])) {
 			list($key, $val) = explode('=', $arg, 2);
-			if (in_array($val, plugin_fb_root_get_colorschemes()))
-			{
+			if (in_array($val, plugin_fb_root_get_colorschemes())) {
 				$ret[$key] = $val;
 			}
 		}
 		// fb_likebutton:actions
-		else if (strpos($arg, 'action=') === 0 && isset($ret['action']))
-		{
+		else if (strpos($arg, 'action=') === 0 && isset($ret['action'])) {
 			list($key, $val) = explode('=', $arg, 2);
-			if (is_array($ret[$key]))
-			{
+			if (is_array($ret[$key])) {
 				$opts = $ret[$key][1];
-			}
-			else
-			{
+			} else {
 				$opts = $ret[$key];
 			}
-			if (in_array($val, $opts))
-			{
+			if (in_array($val, $opts)) {
 				$ret[$key] = $val;
 			}
 		}
 		// fb_recommends:actions
-		else if (strpos($arg, 'actions=') === 0 && isset($ret['action']))
-		{
+		else if (strpos($arg, 'actions=') === 0 && isset($ret['action'])) {
 			list($key, $val) = explode('=', $arg, 2);
 			$ret['action'] = trim(str_replace(' ', ',', $val));
 		}
 		// app id
-		else if (strpos($arg, 'app_id=') === 0 && isset($ret['app-id']))
-		{
+		else if (strpos($arg, 'app_id=') === 0 && isset($ret['app-id'])) {
 			list($key, $val) = explode('=', $arg, 2);
 			$ret['app-id'] = trim($val);
 		}
 		// link target
-		else if (strpos($arg, 'linktarget=') === 0 && isset($ret['linktarget']))
-		{
+		else if (strpos($arg, 'linktarget=') === 0 && isset($ret['linktarget'])) {
 			list($key, $val) = explode('=', $arg, 2);
 			$ret[$key] = trim($val);
 		}
 		// Max age
-		else if (strpos($arg, 'age=') === 0 && isset($ret['max-age']))
-		{
+		else if (strpos($arg, 'age=') === 0 && isset($ret['max-age'])) {
 			list($key, $val) = explode('=', $arg, 2);
 			$val = intval($val);
-			if ($val >= 1 && 180 >= $val)
-			{
-    			$ret['max-age'] = $val;
+			if ($val >= 1 && 180 >= $val) {
+				$ret['max-age'] = $val;
 			}
 		}
 		// ref
-		else if (strpos($arg, 'ref=') === 0 && isset($ret['ref']))
-		{
+		else if (strpos($arg, 'ref=') === 0 && isset($ret['ref'])) {
 			list($key, $val) = explode('=', $arg, 2);
-			if (preg_match('/^[a-zA-Z0-9+\/=.:_-]+$/', $val))
-			{
+			if (preg_match('/^[a-zA-Z0-9+\/=.:_-]+$/', $val)) {
 				$ret[$key] = $val;
 			}
 		}
 		// width
-		else if (strpos($arg, 'width=') === 0 && isset($ret['width']))
-		{
+		else if (strpos($arg, 'width=') === 0 && isset($ret['width'])) {
 			list($key, $val) = explode('=', $arg, 2);
-			if (preg_match('/^\d+$/', trim($val)))
-			{
+			if (preg_match('/^\d+$/', trim($val))) {
 				$ret[$key] = $val;
 			}
 		}
 		// height
-		else if (strpos($arg, 'height=') === 0 && isset($ret['height']))
-		{
+		else if (strpos($arg, 'height=') === 0 && isset($ret['height'])) {
 			list($key, $val) = explode('=', $arg, 2);
-			if (preg_match('/^\d+$/', trim($val)))
-			{
+			if (preg_match('/^\d+$/', trim($val))) {
 				$ret[$key] = $val;
 			}
 		}
 		// numposts(num)
-		else if (strpos($arg, 'num=') === 0 && isset($ret['numposts']))
-		{
+		else if (strpos($arg, 'num=') === 0 && isset($ret['numposts'])) {
 			list($key, $val) = explode('=', $arg, 2);
-			if (preg_match('/^\d+$/', trim($val)))
-			{
+			if (preg_match('/^\d+$/', trim($val))) {
 				$ret['numposts'] = $val;
 			}
 		}
-
 	}
 
 
-	foreach ($ret as $key => $val)
-	{
-		if (is_array($val))
-		{
-			if ($val[0] !== FALSE)
-			{
+	foreach ($ret as $key => $val) {
+		if (is_array($val)) {
+			if ($val[0] !== FALSE) {
 				$ret[$key] = $val[0];
-			}
-			else
-			{
+			} else {
 				unset($ret[$key]);
 			}
-		}
-		else if ($val === FALSE)
-		{
+		} else if ($val === FALSE) {
 			unset($ret[$key]);
 		}
 	}
@@ -485,47 +414,40 @@ function plugin_fb_root_parse_args($args, $tmpl = array())
 }
 
 
-function plugin_fb_root_create_tag($social_plugin_type, $attrs = array())
+function plugin_fb_root_create_tag($social_plugin_type, $attrs = [])
 {
 	$fmt = "<div class=\"{$social_plugin_type}\"%s></div>";
 	$tag = '';
-	if (is_array($attrs))
-	{
-		$attr_strs = array();
-		foreach ($attrs as $attr => $val)
-		{
-			$attr_strs[] = 'data-' . $attr. '="'. h($val). '"';
+	if (is_array($attrs)) {
+		$attr_strs = [];
+		foreach ($attrs as $attr => $val) {
+			$attr_strs[] = 'data-' . $attr . '="' . h($val) . '"';
 		}
-		if (count($attr_strs))
-		{
-			$tag = sprintf($fmt, ' '. join(' ', $attr_strs));
+		if (count($attr_strs)) {
+			$tag = sprintf($fmt, ' ' . join(' ', $attr_strs));
 		}
-	}
-	else
-	{
-		$tag = sprintf($fmt, ' '. trim($attrs));
+	} else {
+		$tag = sprintf($fmt, ' ' . trim($attrs));
 	}
 	return $tag;
 }
 
 /**
-* Determine Facebook social plugin is deprecated
-*
-* @param string $fb_plugin_name Facebook Social Plugin Name
-* @return false|callable when enable alt plugin
-*/
+ * Determine Facebook social plugin is deprecated
+ *
+ * @param string $fb_plugin_name Facebook Social Plugin Name
+ * @return false|callable when enable alt plugin
+ */
 function plugin_fb_root_is_deprecated($fb_plugin_name)
 {
 	$expired = (strtotime('2015-06-23') < time());
-	if ( ! $expired)
-	{
+	if (! $expired) {
 		return FALSE;
 	}
 
 	$show_deprecated = 'plugin_fb_root_deprecated';
 
-	switch ($fb_plugin_name)
-	{
+	switch ($fb_plugin_name) {
 		case 'likebox':
 			if (exist_plugin('fb_pagebox'))
 				return 'plugin_fb_pagebox_convert';
@@ -540,8 +462,7 @@ function plugin_fb_root_is_deprecated($fb_plugin_name)
 function plugin_fb_root_deprecated()
 {
 	global $vars;
-	if ( ! edit_auth($vars['page'], FALSE, FALSE))
-	{
+	if (! edit_auth($vars['page'], FALSE, FALSE)) {
 		return '';
 	}
 	$backtrace = debug_backtrace();

@@ -1,4 +1,5 @@
 <?php
+
 /**
  *   Progress Bar Plugin
  *   -------------------------------------------
@@ -21,9 +22,8 @@ function plugin_progress_bar_convert()
 {
     $args = func_get_args();
     $body = end($args);
-    $progresses = array();
-    if (strpos($body, "\r") !== FALSE)
-    {
+    $progresses = [];
+    if (strpos($body, "\r") !== FALSE) {
         array_pop($args);
         $progresses = explode("\r", $body);
     }
@@ -33,11 +33,9 @@ function plugin_progress_bar_convert()
     $latency = 0;
 
     // Parse wrapper params
-    $a_progress_params = array();
-    while ($arg = trim(array_shift($args)))
-    {
-        switch ($arg)
-        {
+    $a_progress_params = [];
+    while ($arg = trim(array_shift($args))) {
+        switch ($arg) {
             case is_numeric($arg) ? true : false:
                 $a_progress_params[0] = $arg;
                 break;
@@ -66,38 +64,30 @@ function plugin_progress_bar_convert()
 
     $progress_bar = new QHM_Plugin_ProgressBar($striped, $animated);
 
-    if (count($progresses) === 0)
-    {
+    if (count($progresses) === 0) {
         $progresses[] = $a_progress_params;
     }
 
-    foreach ($progresses as $progress_params_str)
-    {
+    foreach ($progresses as $progress_params_str) {
         if (trim($progress_params_str) === '') continue;
-        if (is_array($progress_params_str))
-        {
-            $value = & $progress_params_str[0];
-            $type = & $progress_params_str[1];
-            $label = & $progress_params_str[2];
-        }
-        else
-        {
+        if (is_array($progress_params_str)) {
+            $value = &$progress_params_str[0];
+            $type = &$progress_params_str[1];
+            $label = &$progress_params_str[2];
+        } else {
             list($value, $type, $label) = array_pad(explode(',', $progress_params_str, 3), 3, NULL);
         }
         $progress = new QHM_Plugin_ProgressBar_Progress($value, $type, $label);
-        if ($label !== '' && $label !== NULL)
-        {
+        if ($label !== '' && $label !== NULL) {
             $progress->revealLabel();
         }
-        if ($latency)
-        {
+        if ($latency) {
             $progress->setTransitionLatency($latency);
         }
         $progress_bar->addProgress($progress);
     }
 
-    if ($latency)
-    {
+    if ($latency) {
         $addjs = '
 <script>
 $(window).load(function(){
@@ -118,7 +108,8 @@ $(window).load(function(){
     return $progress_bar->render();
 }
 
-class QHM_Plugin_ProgressBar {
+class QHM_Plugin_ProgressBar
+{
 
     protected $progresses;
 
@@ -127,7 +118,7 @@ class QHM_Plugin_ProgressBar {
 
     public function __construct($striped = FALSE, $animated = FALSE)
     {
-        $this->progresses = array();
+        $this->progresses = [];
         $this->striped = $striped;
         $this->animated = $animated;
     }
@@ -139,20 +130,20 @@ class QHM_Plugin_ProgressBar {
 
     public function render()
     {
-        $progresses = array();
-        foreach ($this->progresses as $progress)
-        {
+        $progresses = [];
+        foreach ($this->progresses as $progress) {
             $progresses[] = $progress->render();
         }
 
         $class_attr = 'progress';
         if ($this->striped) $class_attr .= ' progress-striped';
         if ($this->animated) $class_attr .= ' active';
-        return '<div class="'.$class_attr.'">'. join("\n", $progresses) .'</div>' . "\n";
+        return '<div class="' . $class_attr . '">' . join("\n", $progresses) . '</div>' . "\n";
     }
 }
 
-class QHM_Plugin_ProgressBar_Progress {
+class QHM_Plugin_ProgressBar_Progress
+{
 
     protected $value;
 
@@ -171,8 +162,7 @@ class QHM_Plugin_ProgressBar_Progress {
         $this->labelVisible = FALSE;
         $this->transitionLatency = 0;
 
-        if ($this->label === '' OR $this->label === NULL)
-        {
+        if ($this->label === '' or $this->label === NULL) {
             $this->setAutoLabel();
         }
     }
@@ -189,8 +179,7 @@ class QHM_Plugin_ProgressBar_Progress {
 
     public function setTransitionLatency($latency)
     {
-        if ($latency > 0)
-        {
+        if ($latency > 0) {
             $this->transitionLatency = $latency;
         }
     }
@@ -198,19 +187,16 @@ class QHM_Plugin_ProgressBar_Progress {
     public function render()
     {
         $label = $this->label;
-        if ( ! $this->labelVisible)
-        {
-            $label = '<span class="sr-only">'.$label.'</span>';
+        if (! $this->labelVisible) {
+            $label = '<span class="sr-only">' . $label . '</span>';
         }
         $class_attr = 'progress-bar';
-        if ($this->type)
-        {
+        if ($this->type) {
             $class_attr .= ' progress-bar-' . $this->type;
         }
         $transition_attr = '';
-        if ($this->transitionLatency)
-        {
-            $transition_attr = ' data-latency="'.$this->transitionLatency.'" data-value="'.$this->value.'"';
+        if ($this->transitionLatency) {
+            $transition_attr = ' data-latency="' . $this->transitionLatency . '" data-value="' . $this->value . '"';
             $this->value = 0;
         }
         return <<< EOD

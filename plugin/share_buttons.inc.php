@@ -1,4 +1,5 @@
 <?php
+
 /**
  *   ソーシャルボタンの表示
  *   -------------------------------------------
@@ -38,21 +39,18 @@ function plugin_share_buttons_convert()
 		),
 	);
 
-	if (exist_plugin('icon'))
-	{
-    	plugin_icon_set_font_awesome();
+	if (exist_plugin('icon')) {
+		plugin_icon_set_font_awesome();
 	}
 
 
-	$buttons = array();
+	$buttons = [];
 	$align = 'left';
 	$nav = false;
 	$args = func_get_args();
-	foreach ($args as $arg)
-	{
+	foreach ($args as $arg) {
 		$arg = strtolower($arg);
-		switch ($arg)
-		{
+		switch ($arg) {
 			case 'fb':
 			case 'facebook':
 				$buttons['facebook'] = $buttons_options['facebook'];
@@ -66,17 +64,16 @@ function plugin_share_buttons_convert()
 			case 'center':
 				$align = $arg;
 				break;
-            case 'nav':
-                $nav = true;
-                break;
+			case 'nav':
+				$nav = true;
+				break;
 		}
 	}
 	//無指定の場合、全部
-	if (count($buttons) === 0)
-	{
+	if (count($buttons) === 0) {
 		$buttons = $buttons_options;
 	}
-	$url = $script. '?' .rawurlencode($vars['page']);
+	$url = $script . '?' . rawurlencode($vars['page']);
 	$enc_url = rawurlencode($url);
 	$page_title = get_page_title($vars['page']);
 	$full_title = ($vars['page'] === $defaultpage) ? $page_title : ($page_title . $site_title_delim . $site_title);
@@ -84,14 +81,12 @@ function plugin_share_buttons_convert()
 
 	$share_buttons = array_keys($buttons);
 
-    $navclass = $nav ? ' share_buttons_nav navbar-text' : '';
-	$html = '<div class="share_buttons '.$align.$navclass.'"><ul class="nav nav-pills">';
-	foreach ($share_buttons as $btn)
-	{
+	$navclass = $nav ? ' share_buttons_nav navbar-text' : '';
+	$html = '<div class="share_buttons ' . $align . $navclass . '"><ul class="nav nav-pills">';
+	foreach ($share_buttons as $btn) {
 		$defname = 'PLUGIN_SHARE_BUTTONS_' . strtoupper($btn);
 		$title = $buttons[$btn]['title'];
-		if (defined($defname))
-		{
+		if (defined($defname)) {
 			$html .= '<li>' . sprintf(constant($defname), h($url), h($full_title), h($enc_url), h($enc_full_title), h($title)) . '</li>';
 		}
 	}

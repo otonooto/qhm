@@ -34,7 +34,7 @@ function make_link($string, $page = '')
 // Converters of inline element
 class InlineConverter
 {
-	var $converters; // as array()
+	var $converters; // as []
 	var $pattern;
 	var $pos;
 	var $result;
@@ -47,7 +47,7 @@ class InlineConverter
 
 	function __clone()
 	{
-		$converters = array();
+		$converters = [];
 		foreach ($this->converters as $key => $converter) {
 			$converters[$key] = $this->get_clone($converter);
 		}
@@ -74,7 +74,7 @@ class InlineConverter
 		if ($excludes !== NULL)
 			$converters = array_diff($converters, $excludes);
 
-		$this->converters = $patterns = array();
+		$this->converters = $patterns = [];
 		$start = 1;
 
 		foreach ($converters as $name) {
@@ -94,7 +94,7 @@ class InlineConverter
 	function convert($string, $page)
 	{
 		$this->page   = $page;
-		$this->result = array();
+		$this->result = [];
 
 		$string = preg_replace_callback(
 			'/' . $this->pattern . '/x',
@@ -122,7 +122,7 @@ class InlineConverter
 
 	function get_objects($string, $page)
 	{
-		$matches = $arr = array();
+		$matches = $arr = [];
 		preg_match_all('/' . $this->pattern . '/x', $string, $matches, PREG_SET_ORDER);
 		foreach ($matches as $match) {
 			$obj = $this->get_converter($match);
@@ -174,7 +174,7 @@ class Link
 
 	function toString() {}
 
-	// Private: Get needed parts from a matched array()
+	// Private: Get needed parts from a matched []
 	function splice($arr)
 	{
 		$count = $this->get_count() + 1;
@@ -272,7 +272,7 @@ EOD;
 		list($all, $this->plain, $name, $this->param, $body) = $this->splice($arr);
 
 		// Re-get true plugin name and patameters (for PHP 4.1.2)
-		$matches = array();
+		$matches = [];
 		if (
 			preg_match('/^' . $this->pattern . '/x', $all, $matches)
 			&& $matches[1] != $this->plain
@@ -544,7 +544,7 @@ EOD;
 
 		list(, $alias,, $name, $this->param) = $this->splice($arr);
 
-		$matches = array();
+		$matches = [];
 		if (preg_match('/^([^#]+)(#[A-Za-z][\w-]*)$/', $this->param, $matches))
 			list(, $this->param, $this->anchor) = $matches;
 
@@ -673,7 +673,7 @@ class Link_wikiname extends Link
 // AutoLinks
 class Link_autolink extends Link
 {
-	var $forceignorepages = array();
+	var $forceignorepages = [];
 	var $auto;
 	var $auto_a; // alphabet only
 
@@ -828,7 +828,7 @@ function get_interwiki_url($name, $param)
 	static $encode_aliases = array('sjis' => 'SJIS', 'euc' => 'EUC-JP', 'utf8' => 'UTF-8');
 
 	if (! isset($interwikinames)) {
-		$interwikinames = $matches = array();
+		$interwikinames = $matches = [];
 		foreach (get_source($interwiki) as $line)
 			if (preg_match(
 				'/\[(' . '(?:(?:https?|ftp|news):\/\/|\.\.?\/)' .

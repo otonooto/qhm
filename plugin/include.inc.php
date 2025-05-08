@@ -50,12 +50,12 @@ define('PLUGIN_INCLUDE_MAX', 4);
 function plugin_include_convert()
 {
 	global $script, $vars, $get, $post, $menubar;
-	static $included = array();
+	static $included = [];
 	static $count = 1;
 	$qm = get_qm();
 	$qt = get_qt();
 
-	if (func_num_args() == 0) return $qm->m['plg_include']['err_usage']. "\n";;
+	if (func_num_args() == 0) return $qm->m['plg_include']['err_usage'] . "\n";;
 
 	// $menubar will already be shown via menu plugin
 	if (! isset($included[$menubar])) $included[$menubar] = TRUE;
@@ -68,16 +68,20 @@ function plugin_include_convert()
 	$args = func_get_args();
 	// strip_bracket() is not necessary but compatible
 	$page = isset($args[0]) ? get_fullname(strip_bracket(array_shift($args)), $root) : '';
-	
+
 	//キャッシュのために、追加
-	if(!in_array($page, $qt->get_rel_pages()))
+	if (!in_array($page, $qt->get_rel_pages()))
 		$qt->set_rel_page($page);
-	
+
 	$with_title = PLUGIN_INCLUDE_WITH_TITLE;
 	if (isset($args[0])) {
-		switch(strtolower(array_shift($args))) {
-		case 'title'  : $with_title = TRUE;  break;
-		case 'notitle': $with_title = FALSE; break;
+		switch (strtolower(array_shift($args))) {
+			case 'title':
+				$with_title = TRUE;
+				break;
+			case 'notitle':
+				$with_title = FALSE;
+				break;
 		}
 	}
 
@@ -88,9 +92,11 @@ function plugin_include_convert()
 	// I'm stuffed
 	if (isset($included[$page])) {
 		return $qm->replace('plg_include.err_already_include', $link) . "\n";
-	} if (! is_page($page)) {
+	}
+	if (! is_page($page)) {
 		return $qm->replace('plg_include.err_no_page', $s_page) . "\n";
-	} if ($count > PLUGIN_INCLUDE_MAX) {
+	}
+	if ($count > PLUGIN_INCLUDE_MAX) {
 		return $qm->replace('plg_include.err_limit', $link) . "\n";
 	} else {
 		++$count;
@@ -121,7 +127,7 @@ function plugin_include_convert()
 	}
 
 	//編集状態の場合、hover でメッセージを表示
-	if( check_editable($vars['page'], false, false) ){
+	if (check_editable($vars['page'], false, false)) {
 		$goto_page = $qm->replace('plg_include.goto_include_page', $s_page);
 		$addscript = '
 <style type="text/css">
@@ -185,12 +191,11 @@ function plugin_include_convert()
 	});
 </script>
 ';
-		$qt->appendv_once('plugin_include', 'beforescript', $addscript);	
-		$body = '<div class="qhm_include_wrapper" title="'. $goto_page. '"><div class="qhm_include">
-	<span class="qhm_include_page" style="display:none;">'. $script.'?'.$r_page.'</span>'. $body. '</div></div>';
-			return $body;
+		$qt->appendv_once('plugin_include', 'beforescript', $addscript);
+		$body = '<div class="qhm_include_wrapper" title="' . $goto_page . '"><div class="qhm_include">
+	<span class="qhm_include_page" style="display:none;">' . $script . '?' . $r_page . '</span>' . $body . '</div></div>';
+		return $body;
 	}
 
 	return $body;
 }
-?>

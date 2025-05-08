@@ -62,37 +62,37 @@ define('PLUGIN_GMAPFUN_TYPE2_BOOTSTRAP', '
 function plugin_gmapfun_action()
 {
 	global $vars;
-	
+
 	$page = $vars['page'];
 	$body = '';
-	
+
 	if (is_page($page)) {
 		$body = convert_html(get_source($page));
 		$qt = get_qt();
 		$before = $qt->getv('beforescript');
 	}
-    pkwk_common_headers();
-    print $before.$body;
+	pkwk_common_headers();
+	print $before . $body;
 
-    exit;
+	exit;
 }
 
 function plugin_gmapfun_convert()
 {
 	static $s_gmapfun_cnt = 0;
-	global $script,$googlemaps_apikey;
+	global $script, $googlemaps_apikey;
 	global $vars;
-	
+
 	$qt = get_qt();
 	$qt->setv('jquery_include', true);
 
-    $args = func_get_args();
-    $last = func_num_args() - 1;
-    $datalist = '';
-    if (strpos($args[$last], ',') !== FALSE) {
-        $datalist = array_pop($args);
-    }
-	list($type, $w, $h, $zoom, $addr, $lat, $lng) = array_pad($args,7,'');
+	$args = func_get_args();
+	$last = func_num_args() - 1;
+	$datalist = '';
+	if (strpos($args[$last], ',') !== FALSE) {
+		$datalist = array_pop($args);
+	}
+	list($type, $w, $h, $zoom, $addr, $lat, $lng) = array_pad($args, 7, '');
 
 	$type = ($type == '') ? 'default'    : $type;
 	$addr = (trim($addr) == '') ? ''           : trim($addr);
@@ -100,10 +100,10 @@ function plugin_gmapfun_convert()
 	$lng  = ($lng == '')  ? '139.745525' : $lng;
 	$zoom = ($zoom == '') ? '15'         : $zoom;
 
-	$w = preg_match('/^[0-9]+$/', $w) ?  $w.'px' : $w;
-	$h = preg_match('/^[0-9]+$/', $h) ?  $h.'px' : $h;
+	$w = preg_match('/^[0-9]+$/', $w) ?  $w . 'px' : $w;
+	$h = preg_match('/^[0-9]+$/', $h) ?  $h . 'px' : $h;
 
-	switch($type) {
+	switch ($type) {
 		case 'top':
 			$gmap_width  = ($w == '') ? '' : $w;
 			$gmap_height = ($h == '') ? '300px' : $h;
@@ -111,13 +111,10 @@ function plugin_gmapfun_convert()
 			break;
 		case 'side':
 			$gmap_height = ($h == '') ? '450px' : $h;
-			if (is_bootstrap_skin())
-			{
+			if (is_bootstrap_skin()) {
 				$gmap_width  = '100%';
 				$gmap_disp = PLUGIN_GMAPFUN_TYPE2_BOOTSTRAP;
-			}
-			else
-			{
+			} else {
 				$gmap_width  = ($w == '') ? '220px' : $w;
 				$gmap_disp = PLUGIN_GMAPFUN_TYPE2;
 			}
@@ -128,24 +125,22 @@ function plugin_gmapfun_convert()
 			$gmap_disp = PLUGIN_GMAPFUN_DEFAULT;
 	}
 
-	if ($addr != '')
-	{
+	if ($addr != '') {
 		$geoobj = plugin_gmapfun_getGeocoding($addr);
-		if ($geoobj)
-		{
+		if ($geoobj) {
 			$lng = $geoobj['lng'];
 			$lat = $geoobj['lat'];
 		}
 	}
 
-    if (isset($datalist)) {
+	if (isset($datalist)) {
 		$flist = plugin_gmapfun_makelist($datalist);
 	}
-	
+
 	$addscript = '';
 	if ($s_gmapfun_cnt == 0) {
-		list($icon_width, $icon_height) = getimagesize(PLUGIN_GMAPFUN_ICON_PATH.'pin.png');
-		list($icon_sh_width, $icon_sh_height) = getimagesize(PLUGIN_GMAPFUN_ICON_PATH.'pin_shadow.png');
+		list($icon_width, $icon_height) = getimagesize(PLUGIN_GMAPFUN_ICON_PATH . 'pin.png');
+		list($icon_sh_width, $icon_sh_height) = getimagesize(PLUGIN_GMAPFUN_ICON_PATH . 'pin_shadow.png');
 		$addscript = '
 <script type="text/javascript" src="//maps.google.com/maps/api/js?sensor=false"></script>
 <script src="js/infobox.js" type="text/javascript"></script>
@@ -188,8 +183,8 @@ function gmap_initialize(){
 	}
 	else {
 		firstData.push("");
-		firstData.push('.$lat.');
-		firstData.push('.$lng.');
+		firstData.push(' . $lat . ');
+		firstData.push(' . $lng . ');
 	}
 
 	var latlng = new google.maps.LatLng(parseFloat(firstData[1]),parseFloat(firstData[2]));
@@ -197,7 +192,7 @@ function gmap_initialize(){
     var gmap_opts = {
     	backgroundColor:"#fff",
     	noCler: true,
-        zoom:'.$zoom.',
+        zoom:' . $zoom . ',
     	center:latlng,
     	mapTypeId:google.maps.MapTypeId.ROADMAP
     };
@@ -207,16 +202,16 @@ function gmap_initialize(){
         gmap.setCenter(latlng);
     }
 
-	var flgSize = new google.maps.Size('.$icon_width.', '.$icon_height.');
+	var flgSize = new google.maps.Size(' . $icon_width . ', ' . $icon_height . ');
 	var flgOrigin = new google.maps.Point(0, 0);
-	var flgAnchor = new google.maps.Point(0, '.$icon_height.');
-	var flgImage = "'.PLUGIN_GMAPFUN_ICON_PATH.'pin.png";
+	var flgAnchor = new google.maps.Point(0, ' . $icon_height . ');
+	var flgImage = "' . PLUGIN_GMAPFUN_ICON_PATH . 'pin.png";
 	var flgIcon = new google.maps.MarkerImage(flgImage, flgSize, flgOrigin, flgAnchor);
 
-	var flgShadowSize = new google.maps.Size('.$icon_sh_width.', '.$icon_sh_height.');
+	var flgShadowSize = new google.maps.Size(' . $icon_sh_width . ', ' . $icon_sh_height . ');
 	var flgShadowOrigin = new google.maps.Point(0, 0);
-	var flgShadowAnchor = new google.maps.Point(0, '.$icon_sh_height.');
-	var flgShadowImage = "'.PLUGIN_GMAPFUN_ICON_PATH.'pin_shadow.png";
+	var flgShadowAnchor = new google.maps.Point(0, ' . $icon_sh_height . ');
+	var flgShadowImage = "' . PLUGIN_GMAPFUN_ICON_PATH . 'pin_shadow.png";
 	var flgShadowIcon = new google.maps.MarkerImage(flgShadowImage, flgShadowSize, flgShadowOrigin, flgShadowAnchor);
 
 	var markeropts = {
@@ -275,8 +270,8 @@ function focus_listitem(obj)
 {
 	if (obj.hasClass("gmap_mklist_fm"))
 	{
-		$("div.gmap_mklist_fm").css("background-image", "url('.PLUGIN_GMAPFUN_ICON_PATH.'listframebg.png)");
-		obj.css("background-image", "url('.PLUGIN_GMAPFUN_ICON_PATH.'listframebg_h.png)");
+		$("div.gmap_mklist_fm").css("background-image", "url(' . PLUGIN_GMAPFUN_ICON_PATH . 'listframebg.png)");
+		obj.css("background-image", "url(' . PLUGIN_GMAPFUN_ICON_PATH . 'listframebg_h.png)");
 	}
 }
 
@@ -359,13 +354,13 @@ background:transparent;
 padding-left:15px;
 }
 div.gmap_box_right{
-background:transparent url('.PLUGIN_GMAPFUN_ICON_PATH.'vline.png) no-repeat 0 0;
+background:transparent url(' . PLUGIN_GMAPFUN_ICON_PATH . 'vline.png) no-repeat 0 0;
 float:right;
 }
 
 div#gmap{
-width:'.$gmap_width.';
-height:'.$gmap_height.';
+width:' . $gmap_width . ';
+height:' . $gmap_height . ';
 background:transparent url(image/loading.gif) 50% 50% no-repeat;
 }
 
@@ -382,12 +377,12 @@ float:left;
 position:relative;
 }
 div.marker_list, div.marker_list_left{
-background:transparent url('.PLUGIN_GMAPFUN_ICON_PATH.'hline.png) repeat-x 0 100%;
+background:transparent url(' . PLUGIN_GMAPFUN_ICON_PATH . 'hline.png) repeat-x 0 100%;
 padding-top:10px;
 padding-bottom:10px;
 }
 div.marker_list_left{
-background:transparent url('.PLUGIN_GMAPFUN_ICON_PATH.'hline.png) repeat-x 0 0;
+background:transparent url(' . PLUGIN_GMAPFUN_ICON_PATH . 'hline.png) repeat-x 0 0;
 }
 
 div.marker_info_left{
@@ -401,11 +396,11 @@ margin-bottom:10px;
 }
 
 div.marker_info_balloon {
-background:transparent url('.PLUGIN_GMAPFUN_ICON_PATH.'sankaku.png) no-repeat;
+background:transparent url(' . PLUGIN_GMAPFUN_ICON_PATH . 'sankaku.png) no-repeat;
 width:10px;
 height:10px;
 top:-10px;
-left:'.(95 + $icon_width/2).'px;
+left:' . (95 + $icon_width / 2) . 'px;
 position:absolute;
 }
 
@@ -416,9 +411,9 @@ div.mapmk{
 color:#333;
 margin:10px 0 0 0;
 font-weight:bold;
-background:url('.PLUGIN_GMAPFUN_ICON_PATH.'pin.png) no-repeat 0 0;
-padding-left:'.($icon_width+5).'px;
-line-height:'.$icon_height.'px;
+background:url(' . PLUGIN_GMAPFUN_ICON_PATH . 'pin.png) no-repeat 0 0;
+padding-left:' . ($icon_width + 5) . 'px;
+line-height:' . $icon_height . 'px;
 cursor:pointer;
 }
 
@@ -426,7 +421,7 @@ div.gmap_mklist_fm {
 width:94px;
 height:114px;
 float:left;
-background:transparent url('.PLUGIN_GMAPFUN_ICON_PATH.'listframebg.png) no-repeat;
+background:transparent url(' . PLUGIN_GMAPFUN_ICON_PATH . 'listframebg.png) no-repeat;
 position:relative;
 cursor:pointer;
 padding-left:0;
@@ -492,57 +487,52 @@ color:#0066CC;
 	$s_gmapfun_cnt++;
 
 	$list_str = '';
-	foreach($flist as $f){
+	foreach ($flist as $f) {
 		if ($f != '') {
-			if (trim($f['address']) != '')
-			{
+			if (trim($f['address']) != '') {
 				$geoobj = plugin_gmapfun_getGeocoding(trim($f['address']));
-				if ($geoobj)
-				{
+				if ($geoobj) {
 					$f['lng'] = $geoobj['lng'];
 					$f['lat'] = $geoobj['lat'];
 				}
 			}
 			$f['lat'] = ($f['lat'] == '') ? '35.658613'  : $f['lat'];
 			$f['lng'] = ($f['lng'] == '') ? '139.745525' : $f['lng'];
-		
-			if ($type == 'default')
-			{
+
+			if ($type == 'default') {
 				$list_str .= '<div class="gmap_mklist_dump">';
-				$list_str .= '<div class="mapmk" longdesc="'.$f['link'].','.$f['lat'].','.$f['lng'].'" title="'.$f['title'].'">'.$f['title'].'</div>
+				$list_str .= '<div class="mapmk" longdesc="' . $f['link'] . ',' . $f['lat'] . ',' . $f['lng'] . '" title="' . $f['title'] . '">' . $f['title'] . '</div>
 </div>';
-			}
-			else {
-				$list_str .= '<div class="gmap_mklist_fm mapmk" longdesc="'.$f['link'].','.$f['lat'].','.$f['lng'].'" title="'.$f['title'].'">';
+			} else {
+				$list_str .= '<div class="gmap_mklist_fm mapmk" longdesc="' . $f['link'] . ',' . $f['lat'] . ',' . $f['lng'] . '" title="' . $f['title'] . '">';
 				if ($f['img'] != '') {
 					$size = "";
 					$position = "";
-	 				list($width, $height) = getimagesize($f['img']);
-	 				$sz = PLUGIN_GMAPFUN_MARK_IMAGE_SIZE;
-	 				if ($width > $height) {
-	 					$size = ' width="'.PLUGIN_GMAPFUN_MARK_IMAGE_SIZE.'"';
-	 					if (PLUGIN_GMAPFUN_MARK_IMAGE_SIZE > $width) {
-	 						$size = ' width="'.$width.'"';
-	 					}
-		 				$position = 'top:'.(7+(PLUGIN_GMAPFUN_MARK_IMAGE_SIZE - ($height *  (PLUGIN_GMAPFUN_MARK_IMAGE_SIZE / $width))) / 2) .'px;';
-	 				}
-	 				else {
-	 					$size = ' height="'.PLUGIN_GMAPFUN_MARK_IMAGE_SIZE.'"';
-	 					if (PLUGIN_GMAPFUN_MARK_IMAGE_SIZE > $height) {
-		 					$size = ' height="'.$height.'"';
-	 					}
-	 					$position = 'left:'.(7+(PLUGIN_GMAPFUN_MARK_IMAGE_SIZE - ($width *  (PLUGIN_GMAPFUN_MARK_IMAGE_SIZE / $height))) / 2) .'px;';
-	 				}
-					$list_str .= '<img src="'.$f['img'].'" class="mapmk" '.$size.' style="'.$position.'" />';
+					list($width, $height) = getimagesize($f['img']);
+					$sz = PLUGIN_GMAPFUN_MARK_IMAGE_SIZE;
+					if ($width > $height) {
+						$size = ' width="' . PLUGIN_GMAPFUN_MARK_IMAGE_SIZE . '"';
+						if (PLUGIN_GMAPFUN_MARK_IMAGE_SIZE > $width) {
+							$size = ' width="' . $width . '"';
+						}
+						$position = 'top:' . (7 + (PLUGIN_GMAPFUN_MARK_IMAGE_SIZE - ($height *  (PLUGIN_GMAPFUN_MARK_IMAGE_SIZE / $width))) / 2) . 'px;';
+					} else {
+						$size = ' height="' . PLUGIN_GMAPFUN_MARK_IMAGE_SIZE . '"';
+						if (PLUGIN_GMAPFUN_MARK_IMAGE_SIZE > $height) {
+							$size = ' height="' . $height . '"';
+						}
+						$position = 'left:' . (7 + (PLUGIN_GMAPFUN_MARK_IMAGE_SIZE - ($width *  (PLUGIN_GMAPFUN_MARK_IMAGE_SIZE / $height))) / 2) . 'px;';
+					}
+					$list_str .= '<img src="' . $f['img'] . '" class="mapmk" ' . $size . ' style="' . $position . '" />';
 				}
-				$list_str .= '<div class="pola_title">'.$f['title'].'</div></div>';
+				$list_str .= '<div class="pola_title">' . $f['title'] . '</div></div>';
 			}
 		}
 	}
 	$list_str .= '<div style="clear:both;"></div>';
-	$body = str_replace('<%markerlist%>',$list_str, $gmap_disp);
+	$body = str_replace('<%markerlist%>', $list_str, $gmap_disp);
 
-	if (check_editable($vars['page'], false, false) ){
+	if (check_editable($vars['page'], false, false)) {
 		$addscript .= '
 <style type="text/css">
 .gmap_edit_page
@@ -602,7 +592,7 @@ cursor:pointer;
 ';
 	}
 
-	$qt->appendv_once('plugin_gmapfun'+$s_gmapfun_cnt, 'beforescript', $addscript);
+	$qt->appendv_once('plugin_gmapfun' + $s_gmapfun_cnt, 'beforescript', $addscript);
 
 
 	return $body;
@@ -612,59 +602,56 @@ function plugin_gmapfun_makelist($datalist)
 {
 	global $script;
 
-    $datalist = str_replace("\r", "\n", str_replace("\r\n", "\n", $datalist));
-    $lines = explode("\n", $datalist);
-    $flist = array();
-    foreach ($lines as $l) {
-    	if ($l != '') {
-	    	list($addr,$title,$link,$img,$lat,$lng) = array_pad(explode(',', $l), 6, '');
-	    	
+	$datalist = str_replace("\r", "\n", str_replace("\r\n", "\n", $datalist));
+	$lines = explode("\n", $datalist);
+	$flist = [];
+	foreach ($lines as $l) {
+		if ($l != '') {
+			list($addr, $title, $link, $img, $lat, $lng) = array_pad(explode(',', $l), 6, '');
+
 			//画像ファイル
 			if (!preg_match(PLUGIN_GMAPFUN_IMAGE, $img)) {
 				$img = "";
-			}
-			else {
-				if( !is_file($img) ){			
-					$img = SWFU_IMAGE_DIR.$img;
-					if( !is_file($img) ){
+			} else {
+				if (!is_file($img)) {
+					$img = SWFU_IMAGE_DIR . $img;
+					if (!is_file($img)) {
 						$img = '';
 					}
 				}
 			}
-			
+
 			// リンク先
 			if (!is_url($link)) {
 				if (is_page($link)) {
-					$link = $script.'?plugin=gmapfun&page='.rawurlencode($link);
-				}
-				else {
+					$link = $script . '?plugin=gmapfun&page=' . rawurlencode($link);
+				} else {
 					$link = '';
 				}
 			}
-	    	
-	    	$flist[] = array('lat'=>$lat, 'lng'=>$lng, 'img'=>$img, 'link'=>$link, 'title'=>$title, 'address'=>$addr);
+
+			$flist[] = array('lat' => $lat, 'lng' => $lng, 'img' => $img, 'link' => $link, 'title' => $title, 'address' => $addr);
 		}
 	}
-	
+
 	return $flist;
 }
 
 
 function plugin_gmapfun_getGeocoding($address)
-{ 
-    // 引数が空の場合、空の配列を返す
-    if (empty($address)) {
-        return FALSE;
-    }
+{
+	// 引数が空の場合、空の配列を返す
+	if (empty($address)) {
+		return FALSE;
+	}
 
-    $schema = is_https() ? 'https:' : 'http:';
-    $address = rawurlencode($address);
+	$schema = is_https() ? 'https:' : 'http:';
+	$address = rawurlencode($address);
 
-    // Google Map Api から Json形式で緯度・経度等のデータを取得
-//    $geo_url = "//maps.google.com/maps/api/geocode/json?address={$address}&sensor=false&language=ja";
-    $geo_url = $schema . "//maps.googleapis.com/maps/api/geocode/json?address={$address}&language=ja&sensor=false";
-    $geostr = file_get_contents($geo_url);
-    $json = json_decode($geostr,true);
+	// Google Map Api から Json形式で緯度・経度等のデータを取得
+	//    $geo_url = "//maps.google.com/maps/api/geocode/json?address={$address}&sensor=false&language=ja";
+	$geo_url = $schema . "//maps.googleapis.com/maps/api/geocode/json?address={$address}&language=ja&sensor=false";
+	$geostr = file_get_contents($geo_url);
+	$json = json_decode($geostr, true);
 	return $json['results'][0]['geometry']['location'];
 }
-?>

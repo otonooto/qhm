@@ -11,21 +11,26 @@
  * 2008-10-21 2.3.1 詳細はgooglemaps2.inc.php
  */
 
-define ('PLUGIN_GOOGLEMAPS2_INSERTMARKER_DIRECTION', 'down'); //追加していく方向(up, down)
-define ('PLUGIN_GOOGLEMAPS2_INSERTMARKER_TITLE_MAXLEN', 40); //タイトルの最長の長さ
-define ('PLUGIN_GOOGLEMAPS2_INSERTMARKER_CAPTION_MAXLEN', 400); //キャプションの最長の長さ
-define ('PLUGIN_GOOGLEMAPS2_INSERTMARKER_URL_MAXLEN', 1024); //URLの最長の長さ
+define('PLUGIN_GOOGLEMAPS2_INSERTMARKER_DIRECTION', 'down'); //追加していく方向(up, down)
+define('PLUGIN_GOOGLEMAPS2_INSERTMARKER_TITLE_MAXLEN', 40); //タイトルの最長の長さ
+define('PLUGIN_GOOGLEMAPS2_INSERTMARKER_CAPTION_MAXLEN', 400); //キャプションの最長の長さ
+define('PLUGIN_GOOGLEMAPS2_INSERTMARKER_URL_MAXLEN', 1024); //URLの最長の長さ
 
-function plugin_googlemaps2_insertmarker_action() {
+function plugin_googlemaps2_insertmarker_action()
+{
 	global $script, $vars, $now;
 	$qm = get_qm();
 
 	if (PKWK_READONLY) die_message($qm->m['fmt_err_pkwk_readonly']);
-	
-	if(is_numeric($vars['lat'])) $lat = $vars['lat']; else return;
-	if(is_numeric($vars['lng'])) $lng = $vars['lng']; else return;
-	if(is_numeric($vars['zoom'])) $zoom = $vars['zoom']; else return;
-	if(is_numeric($vars['mtype'])) $mtype = $vars['mtype']; else return;
+
+	if (is_numeric($vars['lat'])) $lat = $vars['lat'];
+	else return;
+	if (is_numeric($vars['lng'])) $lng = $vars['lng'];
+	else return;
+	if (is_numeric($vars['zoom'])) $zoom = $vars['zoom'];
+	else return;
+	if (is_numeric($vars['mtype'])) $mtype = $vars['mtype'];
+	else return;
 
 	$map    = htmlspecialchars(trim($vars['map']));
 	$icon   = htmlspecialchars($vars['icon']);
@@ -43,15 +48,15 @@ function plugin_googlemaps2_insertmarker_action() {
 	$maxurl  = htmlspecialchars($maxurl);
 
 	if ($map == '') return;
-	$marker = '-&googlemaps2_mark('.$lat.', '.$lng.', map='.$map.', title='.$title;
-	if ($caption != '') $marker .= ', caption='.$caption;
-	if ($icon != '')    $marker .= ', icon='.$icon;
-	if ($image != '')   $marker .= ', image='.$image;
-	if ($maxurl != '')  $marker .= ', maxurl='.$maxurl;
-	if ($minzoom != '')  $marker .= ', minzoom='.$minzoom;
-	if ($maxzoom != '')  $marker .= ', maxzoom='.$maxzoom;
+	$marker = '-&googlemaps2_mark(' . $lat . ', ' . $lng . ', map=' . $map . ', title=' . $title;
+	if ($caption != '') $marker .= ', caption=' . $caption;
+	if ($icon != '')    $marker .= ', icon=' . $icon;
+	if ($image != '')   $marker .= ', image=' . $image;
+	if ($maxurl != '')  $marker .= ', maxurl=' . $maxurl;
+	if ($minzoom != '')  $marker .= ', minzoom=' . $minzoom;
+	if ($maxzoom != '')  $marker .= ', maxzoom=' . $maxzoom;
 	$marker .= ');';
-	
+
 	$no       = 0;
 	$postdata = '';
 	$above    = ($vars['direction'] == 'up');
@@ -81,14 +86,15 @@ function plugin_googlemaps2_insertmarker_action() {
 	$vars['page'] = $vars['refer'];
 
 	//表示していたポジションを返すcookieを追加
-	$cookieval = 'lat|'.$lat.'|lng|'.$lng.'|zoom|'.$zoom.'|mtype|'.$mtype;
-	if ($minzoom) $cookieval .= '|minzoom|'.$minzoom;
-	if ($maxzoom) $cookieval .= '|maxzoom|'.$maxzoom;
-	setcookie('pukiwkigooglemaps2insertmarker'.$vars['no'], $cookieval);
+	$cookieval = 'lat|' . $lat . '|lng|' . $lng . '|zoom|' . $zoom . '|mtype|' . $mtype;
+	if ($minzoom) $cookieval .= '|minzoom|' . $minzoom;
+	if ($maxzoom) $cookieval .= '|maxzoom|' . $maxzoom;
+	setcookie('pukiwkigooglemaps2insertmarker' . $vars['no'], $cookieval);
 	return $retvars;
 }
 
-function plugin_googlemaps2_insertmarker_get_default() {
+function plugin_googlemaps2_insertmarker_get_default()
+{
 	global $vars;
 	return array(
 		'map'       => PLUGIN_GOOGLEMAPS2_DEF_MAPNAME,
@@ -96,13 +102,15 @@ function plugin_googlemaps2_insertmarker_get_default() {
 	);
 }
 //inline型はテキストのパースがめんどくさそうなのでとりあえず放置。
-function plugin_googlemaps2_insertmarker_inline() {
+function plugin_googlemaps2_insertmarker_inline()
+{
 	$qm = get_qm();
 	return "<div>{$qm->m['plg_googlemaps2_insertmarker']['err_not_impl_inline']}</div>\n";
 }
-function plugin_googlemaps2_insertmarker_convert() {
+function plugin_googlemaps2_insertmarker_convert()
+{
 	global $vars, $digest, $script;
-	static $numbers = array();
+	static $numbers = [];
 	$qm = get_qm();
 
 	if (!defined('PLUGIN_GOOGLEMAPS2_DEF_KEY')) {
@@ -113,18 +121,18 @@ function plugin_googlemaps2_insertmarker_convert() {
 	}
 
 	if (PKWK_READONLY) {
-		return $qm->m['fmt_err_pkwk_readonly']. "<br>";
+		return $qm->m['fmt_err_pkwk_readonly'] . "<br>";
 	}
 
 	//オプション
-	
+
 	$defoptions = plugin_googlemaps2_insertmarker_get_default();
-	$inoptions = array();
+	$inoptions = [];
 	foreach (func_get_args() as $param) {
 		$pos = strpos($param, '=');
 		if ($pos == false) continue;
 		$index = trim(substr($param, 0, $pos));
-		$value = htmlspecialchars(trim(substr($param, $pos+1)));
+		$value = htmlspecialchars(trim(substr($param, $pos + 1)));
 		$inoptions[$index] = $value;
 	}
 
@@ -133,7 +141,7 @@ function plugin_googlemaps2_insertmarker_convert() {
 		return '';
 	}
 
-	$coptions = array();
+	$coptions = [];
 	if (array_key_exists('class', $inoptions)) {
 		$class = $inoptions['class'];
 		if (array_key_exists($class, $vars['googlemaps2_insertmarker'])) {
@@ -142,7 +150,7 @@ function plugin_googlemaps2_insertmarker_convert() {
 	}
 	$options = array_merge($defoptions, $coptions, $inoptions);
 	$map       = plugin_googlemaps2_addprefix($vars['page'], $options['map']);
-	$mapname   = $options['map'];//ユーザーに表示させるだけのマップ名（prefix除いた名前）
+	$mapname   = $options['map']; //ユーザーに表示させるだけのマップ名（prefix除いた名前）
 	$direction = $options['direction'];
 	$script    = get_script_uri();
 	$s_page    = $vars['page'];
@@ -151,7 +159,7 @@ function plugin_googlemaps2_insertmarker_convert() {
 		$numbers[$s_page] = 0;
 	$no = $numbers[$s_page]++;
 
-	$imprefix = "_p_googlemaps2_insertmarker_".$s_page."_".$no;
+	$imprefix = "_p_googlemaps2_insertmarker_" . $s_page . "_" . $no;
 	$err_map_not_found = $qm->replace('plg_googlemaps2_insertmarker.err_map_not_found', $mapname);
 	$output = <<<EOD
 <form action="$script" id="${imprefix}_form" method="post">
@@ -326,6 +334,3 @@ EOD;
 
 	return $output;
 }
-
-
-?>

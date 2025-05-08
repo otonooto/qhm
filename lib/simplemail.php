@@ -34,7 +34,7 @@ class SimpleMail
 	var $to = array('name' => '', 'email' => '');
 	var $subject = '';
 	var $host_path = '';
-	var $attaches = array();
+	var $attaches = [];
 	var $boundary = '__QFORM_BOUNDARY__';
 
 	// メール送信時に、エンコードした名前を付けないオプション
@@ -302,7 +302,7 @@ Content-Transfer-Encoding: ' . $encoding . '
 	{
 		if (count($search) == count($replace)) {
 
-			$newserach = array();
+			$newserach = [];
 			$cnt = 0;
 			foreach ($search as $value) {
 				$newsearch[$cnt] = '/' . $value . '/';
@@ -321,7 +321,7 @@ Content-Transfer-Encoding: ' . $encoding . '
 	 */
 	function replace_demo($body, $color = "red")
 	{
-		$replace = array();
+		$replace = [];
 		foreach ($this->searchkey_name as $value) {
 			$replace[] = '<span style="color:' . $color . '">' . $value . '</span>';
 		}
@@ -338,7 +338,7 @@ Content-Transfer-Encoding: ' . $encoding . '
 	 */
 	function mksearch($user)
 	{
-		$ret = array();
+		$ret = [];
 		foreach ($user as $key => $val) {
 			if (!is_array($val)) {
 				$ret[] = "<%$key%>";
@@ -355,7 +355,7 @@ Content-Transfer-Encoding: ' . $encoding . '
 	 */
 	function mkreplace($user)
 	{
-		$ret = array();
+		$ret = [];
 		foreach ($user as $key => $val) {
 			if (!is_array($val)) {
 				//有効期限は、日付をセット（保存されているのがタイムスタンプのため）

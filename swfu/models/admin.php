@@ -13,7 +13,7 @@ class CAdmin extends CModel
 
 	function getConfig()
 	{
-		$config = array();
+		$config = [];
 		$array = $this->find("", "name ASC");
 		foreach ($array as $key => $val) {
 			$config[$val['name']] = $val['value'];
@@ -97,11 +97,11 @@ class CAdmin extends CModel
 		if ($conf) {
 			return explode($conf['value']);
 		} else {
-			return array();
+			return [];
 		}
 	}
 
-	function saveLabels($mode = 'insert', $labels = array())
+	function saveLabels($mode = 'insert', $labels = [])
 	{
 		$conf = $this->findoneby('name', 'labels');
 		if ($conf) {

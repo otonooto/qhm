@@ -12,7 +12,7 @@ function plugin_rename_action()
 {
 	global $whatsnew;
 	$qm = get_qm();
-	
+
 	if (PKWK_READONLY) die_message($qm->m['fmt_err_pkwk_readonly']);
 
 	$method = plugin_rename_getvar('method');
@@ -32,7 +32,6 @@ function plugin_rename_action()
 				return plugin_rename_phase1('notvalid');
 
 		return plugin_rename_regex($arr0, $arr1);
-
 	} else {
 		// $method == 'page'
 		$page  = plugin_rename_getvar('page');
@@ -40,19 +39,14 @@ function plugin_rename_action()
 
 		if ($refer == '') {
 			return plugin_rename_phase1();
-
 		} else if (! is_page($refer)) {
 			return plugin_rename_phase1('notpage', $refer);
-
 		} else if ($refer == $whatsnew) {
 			return plugin_rename_phase1('norename', $refer);
-
 		} else if ($page == '' || $page == $refer) {
 			return plugin_rename_phase2();
-
 		} else if (! is_pagename($page)) {
 			return plugin_rename_phase2('notvalid');
-
 		} else {
 			return plugin_rename_refer();
 		}
@@ -70,7 +64,7 @@ function plugin_rename_getvar($key)
 function plugin_rename_err($err, $page = '')
 {
 	$qm = get_qm();
-	
+
 	if ($err == '') return '';
 
 	$body = '';
@@ -79,7 +73,7 @@ function plugin_rename_err($err, $page = '')
 		foreach ($page as $_page) $tmp .= '<br />' . $_page;
 		$page = $tmp;
 	}
-	if ($page != '') $body = $qm->replace('plg_rename.err_'. $err, h($page));
+	if ($page != '') $body = $qm->replace('plg_rename.err_' . $err, h($page));
 
 	$msg = $qm->replace('plg_rename.err', $body);
 	return $msg;
@@ -106,7 +100,7 @@ function plugin_rename_phase1($err = '', $page = '')
 	$s_src = htmlspecialchars(plugin_rename_getvar('src'));
 	$s_dst = htmlspecialchars(plugin_rename_getvar('dst'));
 
-	$ret = array();
+	$ret = [];
 	$ret['msg']  = $qm->m['plg_rename']['title'];
 	$ret['body'] = <<<EOD
 $warn
@@ -142,8 +136,7 @@ function plugin_rename_phase2($err = '')
 
 	//ブログの場合、名称変更は非推奨
 	$warn = '';
-	if (is_qblog($refer) OR $refer === $qblog_menubar)
-	{
+	if (is_qblog($refer) or $refer === $qblog_menubar) {
 		$warn = '
 <p style="color:red;font-weight:bold;">【警告】ブログ関連ページの名称変更を行うと、ブログの動作が不安定になる恐れがあります。</p>
 ';
@@ -155,13 +148,13 @@ function plugin_rename_phase2($err = '')
 	$related = plugin_rename_getrelated($refer);
 	if (! empty($related))
 		$msg_related = '<label for="_p_rename_related">' . $qm->m['plg_rename']['do_related'] . '</label>' .
-		'<input type="checkbox" name="related" id="_p_rename_related" value="1" checked="checked" /><br />';
+			'<input type="checkbox" name="related" id="_p_rename_related" value="1" checked="checked" /><br />';
 
 	$msg_rename = sprintf($qm->m['plg_rename']['rename'], make_pagelink($refer));
 	$s_page  = htmlspecialchars($page);
 	$s_refer = htmlspecialchars($refer);
 
-	$ret = array();
+	$ret = [];
 	$ret['msg']  = $qm->m['plg_rename']['title'];
 	$ret['body'] = <<<EOD
 $warn
@@ -208,7 +201,7 @@ function plugin_rename_refer()
 //正規表現でページを置換
 function plugin_rename_regex($arr_from, $arr_to)
 {
-	$exists = array();
+	$exists = [];
 	foreach ($arr_to as $page)
 		if (is_page($page))
 			$exists[] = $page;
@@ -216,7 +209,7 @@ function plugin_rename_regex($arr_from, $arr_to)
 	if (! empty($exists)) {
 		return plugin_rename_phase1('already', $exists);
 	} else {
-		$pages = array();
+		$pages = [];
 		foreach ($arr_from as $refer)
 			$pages[encode($refer)] = encode(array_shift($arr_to));
 		return plugin_rename_phase3($pages);
@@ -231,9 +224,9 @@ function plugin_rename_phase3($pages)
 	$msg = $input = '';
 	$files = plugin_rename_get_files($pages);
 
-	$exists = array();
-	foreach ($files as $_page=>$arr)
-		foreach ($arr as $old=>$new)
+	$exists = [];
+	foreach ($files as $_page => $arr)
+		foreach ($arr as $old => $new)
 			if (file_exists($new))
 				$exists[$_page][$old] = $new;
 
@@ -265,15 +258,15 @@ function plugin_rename_phase3($pages)
 
 	if (! empty($exists)) {
 		$msg .= $qm->m['plg_rename']['err_already_below'] . '<ul>';
-		foreach ($exists as $page=>$arr) {
+		foreach ($exists as $page => $arr) {
 			$msg .= '<li>' . make_pagelink(decode($page));
 			$msg .= $qm->m['plg_rename']['arrow'];
 			$msg .= htmlspecialchars(decode($pages[$page]));
 			if (! empty($arr)) {
 				$msg .= '<ul>' . "\n";
-				foreach ($arr as $ofile=>$nfile)
+				foreach ($arr as $ofile => $nfile)
 					$msg .= '<li>' . $ofile .
-					$qm->m['plg_rename']['arrow'] . $nfile . '</li>' . "\n";
+						$qm->m['plg_rename']['arrow'] . $nfile . '</li>' . "\n";
 				$msg .= '</ul>';
 			}
 			$msg .= '</li>' . "\n";
@@ -286,7 +279,7 @@ function plugin_rename_phase3($pages)
 			$qm->m['plg_rename']['exist_overwrite'] . '<br />';
 	}
 
-	$ret = array();
+	$ret = [];
 	$ret['msg'] = $qm->m['plg_rename']['title'];
 	$ret['body'] = <<<EOD
 <p>$msg</p>
@@ -304,7 +297,7 @@ EOD;
 
 	ksort($pages);
 	$ret['body'] .= '<ul>' . "\n";
-	foreach ($pages as $old=>$new)
+	foreach ($pages as $old => $new)
 		$ret['body'] .= '<li>' .  make_pagelink(decode($old)) .
 			$qm->m['plg_rename']['arrow'] .
 			htmlspecialchars(decode($new)) .  '</li>' . "\n";
@@ -314,7 +307,7 @@ EOD;
 
 function plugin_rename_get_files($pages)
 {
-	$files = array();
+	$files = [];
 	$dirs  = array(BACKUP_DIR, DIFF_DIR, DATA_DIR);
 	if (exist_plugin_convert('attach'))  $dirs[] = UPLOAD_DIR;
 	if (exist_plugin_convert('counter')) $dirs[] = COUNTER_DIR;
@@ -322,7 +315,7 @@ function plugin_rename_get_files($pages)
 
 	// and more ...
 
-	$matches = array();
+	$matches = [];
 	foreach ($dirs as $path) {
 		$dir = opendir($path);
 		if (! $dir) continue;
@@ -330,7 +323,7 @@ function plugin_rename_get_files($pages)
 		while ($file = readdir($dir)) {
 			if ($file == '.' || $file == '..') continue;
 
-			foreach ($pages as $from=>$to) {
+			foreach ($pages as $from => $to) {
 				$pattern = '/^' . str_replace('/', '\/', $from) . '([._].+)$/';
 				if (! preg_match($pattern, $file, $matches))
 					continue;
@@ -343,18 +336,18 @@ function plugin_rename_get_files($pages)
 	return $files;
 }
 
-function plugin_rename_proceed($pages, $files, $exists, $redirect=TRUE)
+function plugin_rename_proceed($pages, $files, $exists, $redirect = TRUE)
 {
 	global $now;
 	$qm = get_qm();
 
 	if (plugin_rename_getvar('exist') == '')
-		foreach ($exists as $key=>$arr)
+		foreach ($exists as $key => $arr)
 			unset($files[$key]);
 
 	set_time_limit(0);
-	foreach ($files as $page=>$arr) {
-		foreach ($arr as $old=>$new) {
+	foreach ($files as $page => $arr) {
+		foreach ($arr as $old => $new) {
 			if (isset($exists[$page][$old]) && $exists[$page][$old]) {
 				unlink($new);
 			}
@@ -380,17 +373,17 @@ function plugin_rename_proceed($pages, $files, $exists, $redirect=TRUE)
 
 	if (! empty($exists)) {
 		$postdata[] = "\n" . $qm->m['plg_rename']['result'] . "\n";
-		foreach ($exists as $page=>$arr) {
+		foreach ($exists as $page => $arr) {
 			$postdata[] = '-' . decode($page) .
 				$qm->m['plg_rename']['arrow'] . decode($pages[$page]) . "\n";
-			foreach ($arr as $ofile=>$nfile)
+			foreach ($arr as $ofile => $nfile)
 				$postdata[] = '--' . $ofile .
 					$qm->m['plg_rename']['arrow'] . $nfile . "\n";
 		}
 		$postdata[] = '----' . "\n";
 	}
 
-	foreach ($pages as $old=>$new) {
+	foreach ($pages as $old => $new) {
 		$postdata[] = '-' . decode($old) .
 			$qm->m['plg_rename']['arrow'] . decode($new) . "\n";
 
@@ -407,8 +400,7 @@ function plugin_rename_proceed($pages, $files, $exists, $redirect=TRUE)
 	$page = plugin_rename_getvar('page');
 	if ($page == '') $page = PLUGIN_RENAME_LOGPAGE;
 
-	if ($redirect)
-	{
+	if ($redirect) {
 		pkwk_headers_sent();
 		header('Location: ' . get_script_uri() . '?' . rawurlencode($page));
 		exit;
@@ -417,7 +409,7 @@ function plugin_rename_proceed($pages, $files, $exists, $redirect=TRUE)
 
 function plugin_rename_getrelated($page)
 {
-	$related = array();
+	$related = [];
 	$pages = get_existpages();
 	$pattern = '/(?:^|\/)' . preg_quote(strip_bracket($page), '/') . '(?:\/|$)/';
 	foreach ($pages as $name) {
@@ -431,7 +423,7 @@ function plugin_rename_getselecttag($page)
 {
 	global $whatsnew;
 
-	$pages = array();
+	$pages = [];
 	foreach (get_existpages() as $_page) {
 		if ($_page == $whatsnew) continue;
 
@@ -449,6 +441,4 @@ function plugin_rename_getselecttag($page)
  $list
 </select>
 EOD;
-
 }
-?>

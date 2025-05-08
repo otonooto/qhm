@@ -22,7 +22,7 @@ function set_plugin_messages($messages)
 // Get plugin prefix with namespace
 function get_plugin_prefix($name)
 {
-	static $prefixes = array();
+	static $prefixes = [];
 	if (isset($prefixes[$name])) {
 		return $prefixes[$name];
 	}
@@ -44,7 +44,7 @@ function get_plugin_prefix($name)
 function exist_plugin($name)
 {
 	global $vars;
-	static $exist = array(), $count = array();
+	static $exist = [], $count = [];
 
 	$name = strtolower($name);
 	if (isset($exist[$name])) {
@@ -105,7 +105,7 @@ function exist_plugin_inline($name)
 // Do init the plugin
 function do_plugin_init($name)
 {
-	static $checked = array();
+	static $checked = [];
 
 	if (isset($checked[$name])) return $checked[$name];
 
@@ -123,7 +123,7 @@ function do_plugin_init($name)
 // Call API 'action' of the plugin
 function do_plugin_action($name)
 {
-	if (! exist_plugin_action($name)) return array();
+	if (! exist_plugin_action($name)) return [];
 
 	if (do_plugin_init($name) === FALSE)
 		die_message('Plugin init failed: ' . $name);
@@ -157,7 +157,7 @@ function do_plugin_convert($name, $args = '')
 	}
 
 	if ($args === '') {
-		$aryargs = array();                 // #plugin()
+		$aryargs = [];                 // #plugin()
 	} else {
 		$aryargs = csv_explode(',', $args); // #plugin(A,B,C,D)
 	}
@@ -193,7 +193,7 @@ function do_plugin_inline($name, $args, &$body)
 	if ($args !== '') {
 		$aryargs = csv_explode(',', $args);
 	} else {
-		$aryargs = array();
+		$aryargs = [];
 	}
 
 	// NOTE: A reference of $body is always the last argument

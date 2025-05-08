@@ -78,11 +78,11 @@ class QHM_Template
 
 	private function __construct()
 	{
-		$this->values = array();
-		$this->appended = array();
-		$this->dplugins = array();
+		$this->values = [];
+		$this->appended = [];
+		$this->dplugins = [];
 		$this->encode = false;
-		$this->cache_rel_pages = array();
+		$this->cache_rel_pages = [];
 	}
 
 	function set_page($page = '')
@@ -142,7 +142,7 @@ class QHM_Template
 		}
 
 		$QHM = $this->getv('QHM');
-		if ($QHM === FALSE) $QHM = array();
+		if ($QHM === FALSE) $QHM = [];
 		$QHM = array_merge($QHM, $data);
 		$this->setv('QHM', $QHM);
 	}
@@ -399,7 +399,7 @@ QHM = ' . json_encode($this->getv('QHM')) . ';
 	{
 		global $pkwk_dtd;
 
-		$tmpr = array();
+		$tmpr = [];
 		//キャッシュ更新に関係するページ名を出力[line: 0]
 		$tmpr[] = join(',', $this->cache_rel_pages);
 
@@ -437,11 +437,11 @@ QHM = ' . json_encode($this->getv('QHM')) . ';
 
 		$lines = explode("\n", file_get_contents($this->tmprfile));
 
-		$ret_arr = array();
+		$ret_arr = [];
 
 		$ret_arr['pages'] = $lines[0];
 		$ret_arr['funcs'] = $lines[1];
-		$dplgarr = trim($ret_arr['funcs']) ? explode('##SEP##', $ret_arr['funcs']) : array();
+		$dplgarr = trim($ret_arr['funcs']) ? explode('##SEP##', $ret_arr['funcs']) : [];
 		$len = count($dplgarr);
 		for ($i = 0; $i < $len; $i += 2) {
 			$this->dplugins[] = array(
@@ -509,7 +509,7 @@ QHM = ' . json_encode($this->getv('QHM')) . ';
 
 	function get_dynamic_plugin_list()
 	{
-		$ret_arr = array();
+		$ret_arr = [];
 		foreach ($this->dplugins as $f) {
 			$ret_arr[] = $f['plg'];
 			$ret_arr[] = $f['func'];
@@ -532,9 +532,9 @@ QHM = ' . json_encode($this->getv('QHM')) . ';
 	function replace_dynamic_plugin($body)
 	{
 
-		$rel_funcs = array();
-		$srcs = array();
-		$rpls = array();
+		$rel_funcs = [];
+		$srcs = [];
+		$rpls = [];
 
 		//pluginの呼び出しが２回されてしまうので、無駄に２度のデータが入っている
 		//そのことを吸収しつつ、プラグインを１度だけ実行するように気を付けるために、ややこしい
@@ -550,7 +550,7 @@ QHM = ' . json_encode($this->getv('QHM')) . ';
 			$fnc_name = $arr[$i + 1];
 
 			if (! isset($rel_funcs[$plg_name])) {
-				$rel_funcs[$plg_name] = array();
+				$rel_funcs[$plg_name] = [];
 				require_once(PLUGIN_DIR . $plg_name . '.inc.php');
 			}
 

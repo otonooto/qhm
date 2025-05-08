@@ -1,4 +1,5 @@
 <?php
+
 /**
  *   Bootstrap Accordion
  *   -------------------------------------------
@@ -42,22 +43,16 @@ function plugin_bs_accordion_convert()
     $panel_color = 'panel-default';
 
     $open_index = 0;
-    if (count($args) > 0)
-    {
-        foreach ($args as $arg)
-        {
+    if (count($args) > 0) {
+        foreach ($args as $arg) {
             // 開いておくタブ指定
-            if (is_numeric(trim($arg)))
-            {
+            if (is_numeric(trim($arg))) {
                 $open_index = trim($arg);
             }
             // パネルを利用しない
-            else if ($arg === 'nostyle')
-            {
+            else if ($arg === 'nostyle') {
                 $nostyle = TRUE;
-            }
-            else
-            {
+            } else {
                 $panel_color = get_bs_style($arg, 'panel');
             }
         }
@@ -66,17 +61,14 @@ function plugin_bs_accordion_convert()
     $blocks = explode('====', $body);
     $header = array_shift($blocks);
     $headnum = 1;
-    $headers = array();
-    foreach (explode("\n", $header) as $line)
-    {
-        if (preg_match("/^\-\s?(.*)$/",$line,$matches))
-        {
+    $headers = [];
+    foreach (explode("\n", $header) as $line) {
+        if (preg_match("/^\-\s?(.*)$/", $line, $matches)) {
             $tmp = convert_html($matches[1], TRUE);
 
             $link = "#acc{$s_accordion_cnt}_collapse{$headnum}";
             $head = $tmp;
-            if (preg_match("/^<a href=\"([^\"]*)\".*?>(.*?)<\/a>/",$tmp, $matches2))
-            {
+            if (preg_match("/^<a href=\"([^\"]*)\".*?>(.*?)<\/a>/", $tmp, $matches2)) {
                 $link = $matches2[1];
                 $head = $matches2[2];
             }
@@ -88,24 +80,21 @@ function plugin_bs_accordion_convert()
         }
     }
 
-    $data_parent = 'accordion'.$s_accordion_cnt;
+    $data_parent = 'accordion' . $s_accordion_cnt;
     $accordion_body = '';
 
     $accordion_collase_class = $nostyle ? "accordion-collapse" : "panel-collapse";
     $accordion_body_class = $nostyle ? "accordion-body qhm-block" : "panel-body qhm-bs-block";
 
 
-    for ($i=0; $i < count($headers); $i++)
-    {
-        $collapse_id = 'acc'.$s_accordion_cnt.'_collapse'.($i+1);
+    for ($i = 0; $i < count($headers); $i++) {
+        $collapse_id = 'acc' . $s_accordion_cnt . '_collapse' . ($i + 1);
         $block_body = '';
-        if (isset($blocks[$i]) && trim($blocks[$i]) != '')
-        {
+        if (isset($blocks[$i]) && trim($blocks[$i]) != '') {
             $add_class = '';
 
             // あらかじめ開いておくインデックスの指定
-            if ($open_index == ($i+1))
-            {
+            if ($open_index == ($i + 1)) {
                 $add_class = ' in';
             }
 
@@ -119,12 +108,11 @@ EOD;
 
         // リンクが設定されている場合は、そのURLヘ移動するため、アコーディオンの設定をオフに
         $data_toggle = 'collapse';
-        if ($headers[$i]['link'] != '#'.$collapse_id)
-        {
+        if ($headers[$i]['link'] != '#' . $collapse_id) {
             $data_toggle = '';
         }
 
-        $accordion_group_class   = $nostyle ? "accordion-panel" : "panel ".$panel_color;
+        $accordion_group_class   = $nostyle ? "accordion-panel" : "panel " . $panel_color;
         $accordion_heading_class = $nostyle ? "accordion-heading" : "panel-heading";
         $accordion_title_start   = $nostyle ? "" : '<h4 class="panel-title no-toc">';
         $accordion_title_end     = $nostyle ? "" : '</h4>';

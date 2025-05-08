@@ -1,4 +1,5 @@
 <?php
+
 /**
  *  TagCloud Plugin
  *
@@ -17,14 +18,14 @@ class PluginTagcloud
 
     function PluginTagcloud()
     {
-        static $default_options = array();
+        static $default_options = [];
         if (empty($default_options)) {
             $default_options['limit']   = NULL;
             $default_options['related'] = NULL;
             $default_options['cloud']   = TRUE;
         }
         // static
-        $this->default_options = & $default_options;
+        $this->default_options = &$default_options;
         // init
         $this->options = $default_options;
         global $plugin_tag_name;
@@ -38,8 +39,10 @@ class PluginTagcloud
         if ($this->options['limit'] === "0") {
             $this->options['limit'] = NULL;
         }
-        if ($this->options['cloud'] === 'off' ||
-            $this->options['cloud'] === 'false' ) {
+        if (
+            $this->options['cloud'] === 'off' ||
+            $this->options['cloud'] === 'false'
+        ) {
             $this->options['cloud'] = FALSE;
         }
         //print_r($this->options);
@@ -72,4 +75,3 @@ function plugin_tagcloud_convert()
     $args = func_get_args();
     return call_user_func_array(array(&$plugin_tagcloud, 'convert'), $args);
 }
-?>

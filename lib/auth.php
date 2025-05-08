@@ -57,7 +57,7 @@ function pkwk_hash_compute($phrase = '', $scheme = '{x-php-md5}', $prefix = TRUE
 		die('pkwk_hash_compute(): malicious message length');
 
 	// With a {scheme}salt or not
-	$matches = array();
+	$matches = [];
 	if (preg_match('/^(\{.+\})(.*)$/', $scheme, $matches)) {
 		$scheme = &$matches[1];
 		$salt   = &$matches[2];
@@ -220,7 +220,7 @@ function basic_auth($page, $auth_flag, $exit_flag, $auth_pages, $title_cannot)
 		$target_str = join('', get_source($page)); // Its contents
 	}
 
-	$user_list = array();
+	$user_list = [];
 	foreach ($auth_pages as $key => $val)
 		if (preg_match($key, $target_str))
 			$user_list = array_merge($user_list, explode(',', $val));
@@ -238,7 +238,7 @@ function basic_auth($page, $auth_flag, $exit_flag, $auth_pages, $title_cannot)
 
 	$fg = FALSE;
 	if ($auth_flag) {
-		$arr_temp = array();
+		$arr_temp = [];
 		foreach ($user_list as $val) {
 			foreach ($auth_users as $user => $pass) {
 				if ($val == $user) {

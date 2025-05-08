@@ -17,9 +17,9 @@ function plugin_tabbox_convert()
 	//jquery ライブラリの読み込み
 	$qt = get_qt();
 	$qt->setv('jquery_include', true);
-	
-    $args = func_get_args();
-    $last = func_num_args() - 1;
+
+	$args = func_get_args();
+	$last = func_num_args() - 1;
 
 	$body = '';
 	$ret = $head = '';
@@ -44,66 +44,63 @@ function plugin_tabbox_convert()
 		}
 		$options['conf'] = 'conf';
 		$s_tab_confnum++;
-	}
-	else {
-	    if ($s_tab_cnt == 0) {
+	} else {
+		if ($s_tab_cnt == 0) {
 			$s_tab_confnum++;
-	    }
+		}
 
 		$body = array_pop($args);
-	    foreach ($args as $arg) {
-	        list($key, $val) = explode('=', $arg, 2);
-	        $options[$key] = htmlspecialchars($val);
-	    }
-	    $options['tab'] = isset($options['tab']) ? $options['tab'] : PLUGIN_TABBOX_DEF_TAB;
-	    $options['selected'] = isset($options['selected']) ? $options['selected'] : PLUGIN_TABBOX_DEF_SELECTED;
-	    $options['hover'] = isset($options['hover']) ? $options['hover'] : PLUGIN_TABBOX_DEF_HOVER;
-	    $options['box']   = isset($options['box'])   ? $options['box']   : PLUGIN_TABBOX_DEF_BOX;
-	    $options['default']  = isset($options['default'])  ? $options['default']  : PLUGIN_TABBOX_DEF_DEFAULT;
-	    $options['height']  = isset($options['height'])  ? $options['height']  : PLUGIN_TABBOX_DEF_HEIGHT;
+		foreach ($args as $arg) {
+			list($key, $val) = explode('=', $arg, 2);
+			$options[$key] = htmlspecialchars($val);
+		}
+		$options['tab'] = isset($options['tab']) ? $options['tab'] : PLUGIN_TABBOX_DEF_TAB;
+		$options['selected'] = isset($options['selected']) ? $options['selected'] : PLUGIN_TABBOX_DEF_SELECTED;
+		$options['hover'] = isset($options['hover']) ? $options['hover'] : PLUGIN_TABBOX_DEF_HOVER;
+		$options['box']   = isset($options['box'])   ? $options['box']   : PLUGIN_TABBOX_DEF_BOX;
+		$options['default']  = isset($options['default'])  ? $options['default']  : PLUGIN_TABBOX_DEF_DEFAULT;
+		$options['height']  = isset($options['height'])  ? $options['height']  : PLUGIN_TABBOX_DEF_HEIGHT;
 	}
-    $body = str_replace("\r", "\n", str_replace("\r\n", "\n", $body));
-    
-    // confが指定された場合
-   	if (isset($options['conf'])) {
-   		$tmp = explode("\n", $body);
-	    foreach ($tmp as $buff) {
+	$body = str_replace("\r", "\n", str_replace("\r\n", "\n", $body));
+
+	// confが指定された場合
+	if (isset($options['conf'])) {
+		$tmp = explode("\n", $body);
+		foreach ($tmp as $buff) {
 			list($key, $val) = explode('=', $buff, 2);
 			$options[$key] = htmlspecialchars($val);
-	    }
-	    // confに指定がない場合、デフォルトを設定
-	    $options['tab'] = isset($options['tab']) ? $options['tab'] : PLUGIN_TABBOX_DEF_TAB;
-	    $options['selected'] = isset($options['selected']) ? $options['selected'] : PLUGIN_TABBOX_DEF_TAB;
-	    $options['hover'] = isset($options['hover']) ? $options['hover'] : PLUGIN_TABBOX_DEF_HOVER;
-	    $options['box']   = isset($options['box'])   ? $options['box']   : PLUGIN_TABBOX_DEF_BOX;
-	    $options['default'] = isset($options['default'])   ? $options['default']  : PLUGIN_TABBOX_DEF_DEFAULT;
-	    $options['height'] = isset($options['default'])   ? $options['default']  : PLUGIN_TABBOX_DEF_HEIGHT;
-   	}
-   	else {
-        $lines = explode("\n", $body);
-        $buff = "";
-        $box = array();
-   		$title = array();
-   		$link = array();
-	    foreach ($lines as $l) {
-			if (preg_match("/^\*\s?(.*)$/",$l,$matches)) {
+		}
+		// confに指定がない場合、デフォルトを設定
+		$options['tab'] = isset($options['tab']) ? $options['tab'] : PLUGIN_TABBOX_DEF_TAB;
+		$options['selected'] = isset($options['selected']) ? $options['selected'] : PLUGIN_TABBOX_DEF_TAB;
+		$options['hover'] = isset($options['hover']) ? $options['hover'] : PLUGIN_TABBOX_DEF_HOVER;
+		$options['box']   = isset($options['box'])   ? $options['box']   : PLUGIN_TABBOX_DEF_BOX;
+		$options['default'] = isset($options['default'])   ? $options['default']  : PLUGIN_TABBOX_DEF_DEFAULT;
+		$options['height'] = isset($options['default'])   ? $options['default']  : PLUGIN_TABBOX_DEF_HEIGHT;
+	} else {
+		$lines = explode("\n", $body);
+		$buff = "";
+		$box = [];
+		$title = [];
+		$link = [];
+		foreach ($lines as $l) {
+			if (preg_match("/^\*\s?(.*)$/", $l, $matches)) {
 				if (count($title) > 0) {
 					$box[] = $buff;
 				}
 				$tmp = strip_htmltag(substr(convert_html($matches[1]), 3, -5), FALSE);
 				$title[] = $tmp;
 				$buff = '';
-    		}
-    		else {
-    			$buff .= "{$l}\n";
-    		}
-	    }
-	    if (count($title) > 0) {
+			} else {
+				$buff .= "{$l}\n";
+			}
+		}
+		if (count($title) > 0) {
 			$box[] = $buff;
-	    }
-   	}
+		}
+	}
 
-    // はじめての定義の場合、javascriptを出力
+	// はじめての定義の場合、javascriptを出力
 	if ($s_tab_cnt == 0) {
 		$head = '
 <script type="text/javascript">
@@ -213,47 +210,46 @@ z-index:1;
 	if (isset($options['conf']) || $s_tab_cnt == 1) {
 		$head .= '
 <style type="text/css">
-div.'.$dclass.' ul.tablist a {
-'.$options['tab'].'
+div.' . $dclass . ' ul.tablist a {
+' . $options['tab'] . '
 }
 
-div.'.$dclass.' ul.tablist a:hover {
-'.$options['hover'].'
+div.' . $dclass . ' ul.tablist a:hover {
+' . $options['hover'] . '
 }
 
-div.'.$dclass.' ul.tablist a.selected {
+div.' . $dclass . ' ul.tablist a.selected {
 cursor:default;
 text-decoration:none;
 z-index:5;
-'.$options['selected'].'
+' . $options['selected'] . '
 }
 
-div.'.$dclass.' div.tabbox {
-'.$options['box'].'
+div.' . $dclass . ' div.tabbox {
+' . $options['box'] . '
 }
 </style>
 ';
 	}
 	if (!isset($options['conf'])) {
-		$ret .= '<div class="tabpanel '.$dclass.' '.$options['height'].'">';
+		$ret .= '<div class="tabpanel ' . $dclass . ' ' . $options['height'] . '">';
 		$ret .= '<ul class="tablist">';
-		$tabid = 'tab'.$s_tab_cnt;
-		for ($i=0; $i<count($title); $i++) {
-			$tabcnt = $i+1;
+		$tabid = 'tab' . $s_tab_cnt;
+		for ($i = 0; $i < count($title); $i++) {
+			$tabcnt = $i + 1;
 			$selclass = ($options['default'] == $tabcnt) ? ' class="selected"' : '';
-		    $ret .= '<li><a '.$selclass.' href="#'.$tabid.'-'.$tabcnt.'">'.$title[$i].'</a></li>';
+			$ret .= '<li><a ' . $selclass . ' href="#' . $tabid . '-' . $tabcnt . '">' . $title[$i] . '</a></li>';
 		}
 		$ret .= '</ul>';
 
-		for ($i=0; $i<count($box); $i++) {
-			$tabcnt = $i+1;
-		    $ret .= '<div id="'.$tabid.'-'.$tabcnt.'" class="tabbox">'. convert_html($box[$i]) . '</div>';
+		for ($i = 0; $i < count($box); $i++) {
+			$tabcnt = $i + 1;
+			$ret .= '<div id="' . $tabid . '-' . $tabcnt . '" class="tabbox">' . convert_html($box[$i]) . '</div>';
 		}
 		$ret .= '</div>';
 	}
 
-	$qt->appendv_once('plugin_tabbox'.$s_tab_confnum, 'beforescript', $head);
+	$qt->appendv_once('plugin_tabbox' . $s_tab_confnum, 'beforescript', $head);
 
-    return $ret;
+	return $ret;
 }
-?>

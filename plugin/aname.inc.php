@@ -26,7 +26,7 @@ define('PLUGIN_ANAME_ID_REGEX', '/^[A-Za-z][\w\-]*$/');
 function plugin_aname_usage($convert = TRUE, $message = '')
 {
 	$qm = get_qm();
-	
+
 	if ($convert) {
 		if ($message == '') {
 			return $qm->replace('fmt_err_cvt', 'aname', $qm->m['plg_aname']['err_usage_cvt']);
@@ -69,10 +69,10 @@ function plugin_aname_inline()
 }
 
 // Aname plugin itself
-function plugin_aname_tag($args = array(), $convert = TRUE)
+function plugin_aname_tag($args = [], $convert = TRUE)
 {
 	global $vars;
-	static $_id = array();
+	static $_id = [];
 	$qm = get_qm();
 
 	if (empty($args) || $args[0] == '') return plugin_aname_usage($convert);
@@ -103,7 +103,7 @@ function plugin_aname_tag($args = array(), $convert = TRUE)
 	if ($convert) $body = htmlspecialchars($body);
 	$id = htmlspecialchars($id); // Insurance
 	$class   = $f_super ? 'anchor_super' : 'anchor';
-	$attr_id = $f_noid  ? '' : ' id="' . $id . '" name="' .$id. '"';
+	$attr_id = $f_noid  ? '' : ' id="' . $id . '" name="' . $id . '"';
 	$url     = $f_full  ? get_script_uri() . '?' . rawurlencode($vars['page']) : '';
 	if ($body != '') {
 		$href  = ' href="' . $url . '#' . $id . '"';
@@ -115,4 +115,3 @@ function plugin_aname_tag($args = array(), $convert = TRUE)
 	return '<a class="' . $class . '"' . $attr_id . $href . $title . '>' .
 		$body . '</a>';
 }
-?>

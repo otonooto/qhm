@@ -67,7 +67,7 @@ class SimpleUnzip
      *  @see    ReadFile()
      *  @since  1.0
      */
-    var $Entries = array();
+    var $Entries = [];
 
     /**
      *  Name of the ZIP file
@@ -237,7 +237,7 @@ class SimpleUnzip
      */
     function ReadFile($in_FileName)
     {
-        $this->Entries = array();
+        $this->Entries = [];
 
         // Get file parameters
         $this->Name = $in_FileName;
@@ -276,7 +276,7 @@ class SimpleUnzip
 
         // Loop through the entries
         foreach ($aE as $vZ) {
-            $aI = array();
+            $aI = [];
             $aI['E']  = 0;
             $aI['EM'] = '';
             // Retrieving local file header information

@@ -22,14 +22,14 @@ function http_request(
 	$url,
 	$method = 'GET',
 	$headers = '',
-	$post = array(),
+	$post = [],
 	$redirect_max = PKWK_HTTP_REQUEST_URL_REDIRECT_MAX,
 	$content_charset = ''
 ) {
 	global $use_proxy, $no_proxy, $proxy_host, $proxy_port;
 	global $need_proxy_auth, $proxy_auth_user, $proxy_auth_pass;
 
-	$rc  = array();
+	$rc  = [];
 	$arr = parse_url($url);
 
 	$via_proxy = $use_proxy ? ! in_the_net($no_proxy, $arr['host']) : FALSE;
@@ -61,7 +61,7 @@ function http_request(
 
 	if (strtoupper($method) == 'POST') {
 		// 'application/x-www-form-urlencoded', especially for TrackBack ping
-		$POST = array();
+		$POST = [];
 		foreach ($post as $name => $val) $POST[] = $name . '=' . urlencode($val);
 		$data = join('&', $POST);
 
@@ -115,7 +115,7 @@ function http_request(
 	switch ($rc) {
 		case 301: // Moved Permanently
 		case 302: // Moved Temporarily
-			$matches = array();
+			$matches = [];
 			if (
 				preg_match('/^Location: (.+)$/m', $resp[0], $matches)
 				&& --$redirect_max > 0
@@ -143,12 +143,12 @@ function http_request(
 define('PKWK_CIDR_NETWORK_REGEX', '/^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(?:\/([0-9.]+))?$/');
 
 // Check if the $host is in the specified network(s)
-function in_the_net($networks = array(), $host = '')
+function in_the_net($networks = [], $host = '')
 {
 	if (empty($networks) || $host == '') return FALSE;
 	if (! is_array($networks)) $networks = array($networks);
 
-	$matches = array();
+	$matches = [];
 
 	if (preg_match(PKWK_CIDR_NETWORK_REGEX, $host, $matches)) {
 		$ip = $matches[1];

@@ -75,7 +75,7 @@ class Element
 
 	function toString()
 	{
-		$ret = array();
+		$ret = [];
 		foreach (array_keys($this->elements) as $key)
 			$ret[] = $this->elements[$key]->toString();
 		return join("\n", $ret);
@@ -137,7 +137,7 @@ function &Factory_YTable(&$root, $text)
 
 function &Factory_Div(&$root, $text)
 {
-	$matches = array();
+	$matches = [];
 
 	// Seems block plugin?
 	if (PKWKEXP_DISABLE_MULTILINE_PLUGIN_HACK) {
@@ -155,7 +155,7 @@ function &Factory_Div(&$root, $text)
 			exist_plugin_convert($matches[1])
 		) {
 			$len  = strlen($matches[3]);
-			$body = array();
+			$body = [];
 			if ($len == 0) {
 				return new Div($matches); // Seems legacy block plugin
 			} else if (preg_match('/\{{' . $len . '}\s*\r(.*)\r\}{' . $len . '}/', $text, $body)) {
@@ -513,7 +513,7 @@ class TableCell extends Element
 	function __construct($text, $is_template = FALSE)
 	{
 		parent::__construct();
-		$this->style = $matches = array();
+		$this->style = $matches = [];
 
 		while (preg_match('/^(?:(LEFT|CENTER|RIGHT)|(BG)?COLOR\(([#\w]+)\)|SIZE\((\d+)\)):(.*)$/', $text, $matches)) {
 			if ($matches[1]) {
@@ -600,7 +600,7 @@ class Table extends Element
 
 			$params = explode(',', trim($ms[1], ", \t\n\r"));
 
-			$style = array();
+			$style = [];
 			foreach ($params as $p) {
 
 				$pp = explode('=', $p);
@@ -691,7 +691,7 @@ EOS;
 			$this->type  = strtolower($out[2]);
 			$this->types = array($this->type);
 			$is_template = ($this->type == 'c');
-			$row = array();
+			$row = [];
 			foreach ($cells as $cell)
 				$row[] = new TableCell($cell, $is_template);
 			$this->elements[] = $row;
@@ -796,7 +796,7 @@ class YTable extends Element
 	{
 		parent::__construct();
 
-		$align = $value = $matches = array();
+		$align = $value = $matches = [];
 		foreach ($_value as $val) {
 			if (preg_match('/^(\s+)?(.+?)(\s+)?$/', $val, $matches)) {
 				$align[] = ($matches[1] != '') ?
@@ -811,7 +811,7 @@ class YTable extends Element
 			}
 		}
 		$this->col = count($value);
-		$colspan = array();
+		$colspan = [];
 		foreach ($value as $val)
 			$colspan[] = ($val == '==') ? 0 : 1;
 		$str = '';
@@ -960,7 +960,7 @@ class Body extends Element
 	function parse(&$lines)
 	{
 		$this->last = &$this;
-		$matches = array();
+		$matches = [];
 
 		while (! empty($lines)) {
 			$line = array_shift($lines);
@@ -1087,7 +1087,7 @@ class Body extends Element
 			if (preg_match('/^(KILLERPAGE2):(.*)$/', $line, $matches)) {
 				global $autolink, $killer_page2;
 				$autolink = 0;
-				$killer_page2 = array();
+				$killer_page2 = [];
 				$tmpstr = htmlspecialchars($matches[2]);
 				list($fg, $bg, $width, $padding, $bg_body, $fg_body)
 					= array_pad(preg_split('/,/', $tmpstr), 6, '');

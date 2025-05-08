@@ -37,7 +37,7 @@ class PluginLsx
             'prefix'    => array('string', ''),
             'contents'  => array('array', ''),
             'include'   => array('array', ''),
-            'info'      => array('enumarray', array(), array('date', 'new')),
+            'info'      => array('enumarray', [], array('date', 'new')),
             'date'      => array('bool', false), // will be obsolete
             'new'       => array('bool', false),
             'tag'       => array('string', ''),
@@ -779,7 +779,7 @@ class PluginLsx
                     if (! isset($tagged_readings[$page])) unset($readings[$page]);
                 }
             }
-            $metapages = array();
+            $metapages = [];
             foreach ($readings as $page => $reading) {
                 unset($readings[$page]);
                 $metapages[] = array('reading' => $reading, 'page' => $page, 'exist' => true, 'depth' => 1, 'listdepth' => 1, 'timestamp' => 1, 'date' => '');
@@ -795,7 +795,7 @@ class PluginLsx
                     $this->error = $qm->replace('plg_lsx.err_invalid_tag', h($this->options['tag'][1]));
                 }
             }
-            $metapages = array();
+            $metapages = [];
             foreach ($pages as $i => $page) {
                 unset($pages[$i]);
                 $metapages[] = array('page' => $page, 'exist' => true, 'depth' => 1, 'listdepth' => 1, 'timestamp' => 1, 'date' => '');
@@ -809,7 +809,7 @@ class PluginLsx
         if ($this->options['depth'][1] === '') {
             return;
         }
-        $metapages = array();
+        $metapages = [];
         foreach ($this->metapages as $i => $metapage) {
             unset($this->metapages[$i]);
             if (in_array($metapage['depth'], $this->options['depth'][1])) {
@@ -825,7 +825,7 @@ class PluginLsx
         if ($this->options['num'][1] === '') {
             return;
         }
-        $metapages = array();
+        $metapages = [];
         // $num < count($this->metapages) is assured. 
         foreach ($this->options['num'][1] as $num) {
             $metapages[] = $this->metapages[$num - 1];
@@ -843,7 +843,7 @@ class PluginLsx
         } elseif ($this->options['newpage'][1] == 'except') {
             $new = false;
         }
-        $metapages = array();
+        $metapages = [];
         foreach ($this->metapages as $i => $metapage) {
             unset($this->metapages[$i]);
             if ($new == $this->is_newpage($metapage['page'])) {
@@ -858,7 +858,7 @@ class PluginLsx
         if ($this->options['prefix'][1] === "") {
             return;
         }
-        $metapages = array();
+        $metapages = [];
         foreach ($this->metapages as $i => $metapage) {
             unset($this->metapages[$i]);
             if (strpos($metapage['page'], $this->options['prefix'][1]) !== 0) {
@@ -875,7 +875,7 @@ class PluginLsx
             return;
         }
         global $non_list;
-        $metapages = array();
+        $metapages = [];
         foreach ($this->metapages as $i => $metapage) {
             unset($this->metapages[$i]);
             if (preg_match("/$non_list/", $metapage['page'])) {
@@ -891,7 +891,7 @@ class PluginLsx
         if ($this->options['except'][1] === "") {
             return;
         }
-        $metapages = array();
+        $metapages = [];
         foreach ($this->metapages as $i => $metapage) {
             unset($this->metapages[$i]);
             if (call_user_func($this->ereg, $this->options['except'][1], $metapage['relative'])) {
@@ -907,7 +907,7 @@ class PluginLsx
         if ($this->options['filter'][1] === "") {
             return;
         }
-        $metapages = array();
+        $metapages = [];
         foreach ($this->metapages as $i => $metapage) {
             unset($this->metapages[$i]);
             if (! call_user_func($this->ereg, $this->options['filter'][1], $metapage['relative'])) {
@@ -1043,7 +1043,7 @@ class PluginLsx
     # sort arrays by a specific field without maintaining key association
     function sort_by(&$array,  $fieldname = null, $sort, $sortflag = SORT_REGULAR)
     {
-        $field_array = $inarray = array();
+        $field_array = $inarray = [];
         # store the keyvalues in a seperate array
         foreach ($array as $i => $befree) {
             $field_array[$i] = $array[$i][$fieldname];
@@ -1066,7 +1066,7 @@ class PluginLsx
                 break;
         }
         # rebuild the array
-        $outarray = array();
+        $outarray = [];
         foreach ($field_array as $i => $befree) {
             $outarray[] = $array[$i];
             unset($array[$i]);
@@ -1076,7 +1076,7 @@ class PluginLsx
 
     function max_by($array, $fieldname = null)
     {
-        $field_array = $inarray = array();
+        $field_array = $inarray = [];
         # store the keyvalues in a seperate array
         foreach ($array as $i => $befree) {
             $field_array[$i] = $array[$i][$fieldname];
@@ -1159,7 +1159,7 @@ class PluginLsxOptionParser
                     break;
                 case 'array':
                     if ($val == '') {
-                        $options[$key][1] = array();
+                        $options[$key][1] = [];
                         break;
                     }
                     if ($val[0] === '(' && $val[strlen($val) - 1] == ')') {
@@ -1206,7 +1206,7 @@ class PluginLsxOptionParser
     function associative_args($args, $options)
     {
         $qm = get_qm();
-        $result = array();
+        $result = [];
         while (($arg = current($args)) !== false) {
             list($key, $val) = array_pad(explode("=", $arg, 2), 2, '');
             if (! isset($options[$key])) {
@@ -1239,7 +1239,7 @@ class PluginLsxOptionParser
         if ($optionval === '') {
             return '';
         }
-        $result = array();
+        $result = [];
         foreach (explode(",", $optionval) as $range) {
             if (preg_match('/^-?\d+$/', $range)) {
                 $left = $right = $range;

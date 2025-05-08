@@ -10,7 +10,7 @@ function plugin_style_convert()
     } else {
         $body = array_pop($args);
     }
-    $options = array();
+    $options = [];
     foreach ($args as $arg) {
         list($key, $val) = explode('=', $arg, 2);
         $options[$key] = htmlspecialchars($val);
@@ -47,7 +47,7 @@ function plugin_style_convert()
 //半分、下位互換。CSSの記述を減らす役割も
 function plugin_style_getStyle($name)
 {
-    $ms = array();
+    $ms = [];
     $class_name = 'style_plugin';
     $class = 'class="qhm-plugin-style qhm-block ';
     if (preg_match('/(.*)box[0-5]$/', $name)) {

@@ -5,39 +5,40 @@
 // Originated as tarfile.inc.php by teanan / Interfair Laboratory 2004.
 
 //zip.lib.php を読み込む
-require_once(LIB_DIR. 'zip.lib.php');
+require_once(LIB_DIR . 'zip.lib.php');
 
 //zip.lib.php を拡張する
-class zipfile2 extends zipfile{
+class zipfile2 extends zipfile
+{
 
-	function addDir($dir, $filter = false, $namedecode = false) {
+	function addDir($dir, $filter = false, $namedecode = false)
+	{
 		//最後のスラッシュを削除
 		$dir = rtrim($dir, '/');
-//		$dir = ($dir{strlen($dir)-1}=='/') ? substr($dir, 0, strlen($dir)-1) : $dir;
-		
+		//		$dir = ($dir{strlen($dir)-1}=='/') ? substr($dir, 0, strlen($dir)-1) : $dir;
+
 		if (!file_exists($dir) || !is_dir($dir)) {
 			return;
 		}
-		
+
 		$count = 0;
 		$dhandle = opendir($dir);
 		if ($dhandle) {
 			while (false !== ($fname = readdir($dhandle))) {
-		
-				if (is_dir( $dir.'/'.$fname )) {
+
+				if (is_dir($dir . '/' . $fname)) {
 					if (substr($fname, 0, 1) != '.')
 						$count += $this->addDir("$dir/$fname", $filter);
 				} else {
-					if((!$filter || preg_match("/$filter/", $fname)) && $fname != '.' && $fname != '..')
-					{
-						$filename = $dir. '/'. $fname;
-						$handle = fopen($dir.'/'.$fname, "rb");
+					if ((!$filter || preg_match("/$filter/", $fname)) && $fname != '.' && $fname != '..') {
+						$filename = $dir . '/' . $fname;
+						$handle = fopen($dir . '/' . $fname, "rb");
 						$targetFile = fread($handle, filesize($filename));
 						fclose($handle);
 						if ($namedecode) {
 							$filename = plugin_dump_decodename($filename);
 						}
-						$this->addFile($targetFile, './'.$filename);
+						$this->addFile($targetFile, './' . $filename);
 						$count++;
 					}
 				}
@@ -45,10 +46,10 @@ class zipfile2 extends zipfile{
 			closedir($dhandle);
 		}
 		return $count;
-	
 	}
-	
-	function download($filename) {
+
+	function download($filename)
+	{
 		header("Content-Type: application/octet-stream");
 		header("Content-Disposition: attachment; filename={$filename}");
 		echo $this->file();
@@ -121,7 +122,7 @@ function plugin_dump_action()
 	global $style_name, $script;
 	$qm = get_qm();
 	$qt = get_qt();
-	
+
 	$include_bs = '
 <link rel="stylesheet" href="skin/bootstrap/css/bootstrap.min.css" />
 <script type="text/javascript" src="skin/bootstrap/js/bootstrap.min.js"></script>';
@@ -133,12 +134,12 @@ function plugin_dump_action()
 body {background-color: #E7E7E7;}
 </style>';
 	$qt->appendv('beforescript', $head);
-	
-	$style_name = '..';
-	$back_url = '<p><a href="'.$script.'">'. $qm->m['frontpage']. '</a> &gt; <a href="'.$script.'?cmd=qhmsetting">'. $qm->m['preferences']. '</a> &gt; '. $qm->m['here']. '</p>';
 
-    $editable = ss_admin_check();
-	if(!$editable){
+	$style_name = '..';
+	$back_url = '<p><a href="' . $script . '">' . $qm->m['frontpage'] . '</a> &gt; <a href="' . $script . '?cmd=qhmsetting">' . $qm->m['preferences'] . '</a> &gt; ' . $qm->m['here'] . '</p>';
+
+	$editable = ss_admin_check();
+	if (!$editable) {
 		return array('msg' => $qm->m['plg_dump']['title'], 'body' => $qm->m['fmt_err_page_only_for_admin']);
 	}
 
@@ -155,19 +156,19 @@ body {background-color: #E7E7E7;}
 		if (! pkwk_login($pass)) {
 			$body = "<p class=\"alert alert-danger\">{$qm->m['fmt_err_invalidpass']}</strong></p>\n";
 		} else {
-			switch($act){
-			case PLUGIN_DUMP_DUMP:
-				$body = plugin_dump_download();
-				break;
-			case PLUGIN_DUMP_RESTORE:
-				$retcode = plugin_dump_upload();
-				$msg = $retcode['code']? $qm->m['plg_dump']['restore_success']: $qm->m['plg_dump']['restore_failed'];
-				$body .= $retcode['msg'];
-				return array('msg' => $msg, 'body' => $back_url.$body);
-				break;
-			case PLUGIN_DUMP_FULL:
-				$body = plugin_dump_download_full();
-				break;
+			switch ($act) {
+				case PLUGIN_DUMP_DUMP:
+					$body = plugin_dump_download();
+					break;
+				case PLUGIN_DUMP_RESTORE:
+					$retcode = plugin_dump_upload();
+					$msg = $retcode['code'] ? $qm->m['plg_dump']['restore_success'] : $qm->m['plg_dump']['restore_failed'];
+					$body .= $retcode['msg'];
+					return array('msg' => $msg, 'body' => $back_url . $body);
+					break;
+				case PLUGIN_DUMP_FULL:
+					$body = plugin_dump_download_full();
+					break;
 			}
 		}
 	}
@@ -182,11 +183,12 @@ body {background-color: #E7E7E7;}
 		$msg = $qm->m['plg_dump']['title_bk'];
 	}
 
-	return array('msg' => $msg, 'body' => $back_url.$body);
+	return array('msg' => $msg, 'body' => $back_url . $body);
 }
 
 
-function plugin_dump_decodename($name) {
+function plugin_dump_decodename($name)
+{
 
 	$dirname  = dirname(trim($name)) . '/';
 	$filename = basename(trim($name));
@@ -231,44 +233,44 @@ function plugin_dump_download()
 	$bk_attach = isset($vars['bk_attach']) ? TRUE : FALSE;
 	$bk_backup = isset($vars['bk_backup']) ? TRUE : FALSE;
 	$bk_swfu   = isset($vars['bk_swfu'])   ? TRUE : FALSE;
-	$bk_swfudata = isset($vars['bk_swfudata']) ? TRUE: FALSE;
-	$bk_fwd3data = isset($vars['bk_fwd3data']) ? TRUE: FALSE;
-	
+	$bk_swfudata = isset($vars['bk_swfudata']) ? TRUE : FALSE;
+	$bk_fwd3data = isset($vars['bk_fwd3data']) ? TRUE : FALSE;
+
 	//ロゴ画像
-	$bk_qhmlogo = isset($vars['bk_qhmlogo']) ? TRUE: FALSE;
-	
+	$bk_qhmlogo = isset($vars['bk_qhmlogo']) ? TRUE : FALSE;
+
 	//設定ファイル
-	$bk_qhmini    = isset($vars['bk_qhmini'])    ? TRUE: FALSE;
-	$bk_qhmaccess = isset($vars['bk_qhmaccess']) ? TRUE: FALSE;
-	$bk_qhmusers  = isset($vars['bk_qhmusers'])  ? TRUE: FALSE;
+	$bk_qhmini    = isset($vars['bk_qhmini'])    ? TRUE : FALSE;
+	$bk_qhmaccess = isset($vars['bk_qhmaccess']) ? TRUE : FALSE;
+	$bk_qhmusers  = isset($vars['bk_qhmusers'])  ? TRUE : FALSE;
 
 	$filecount = 0;
 	$zip = new zipfile2();
-	$zipfile = 'qhmbk_'.date("Ymd"). '.zip';
+	$zipfile = 'qhmbk_' . date("Ymd") . '.zip';
 
 	//dirs
 	if ($bk_wiki)     $filecount += $zip->addDir(DATA_DIR,        $_STORAGE['DATA_DIR']['add_filter'],     $namedecode);
 	if ($bk_attach)   $filecount += $zip->addDir(UPLOAD_DIR,      $_STORAGE['UPLOAD_DIR']['add_filter'],   $namedecode);
 	if ($bk_backup)   $filecount += $zip->addDir(BACKUP_DIR,      $_STORAGE['BACKUP_DIR']['add_filter'],   $namedecode);
-	if ($bk_swfu)     $filecount += $zip->addDir('swfu/d',        $_STORAGE['SWFU_DIR']['add_filter']                 );
-	if ($bk_swfudata) $filecount += $zip->addDir('swfu/data',     $_STORAGE['SWFUDATA_DIR']['add_filter']             );
-	if ($bk_fwd3data) $filecount += $zip->addDir('fwd3/sys/data', $_STORAGE['FWD3DATA_DIR']['add_filter']             );
+	if ($bk_swfu)     $filecount += $zip->addDir('swfu/d',        $_STORAGE['SWFU_DIR']['add_filter']);
+	if ($bk_swfudata) $filecount += $zip->addDir('swfu/data',     $_STORAGE['SWFUDATA_DIR']['add_filter']);
+	if ($bk_fwd3data) $filecount += $zip->addDir('fwd3/sys/data', $_STORAGE['FWD3DATA_DIR']['add_filter']);
 	//logo image
-	if ($bk_qhmlogo)  $filecount += $zip->addDir(CACHE_DIR,       $_STORAGE['CACHE_DIR']['add_filter']                );
-	
+	if ($bk_qhmlogo)  $filecount += $zip->addDir(CACHE_DIR,       $_STORAGE['CACHE_DIR']['add_filter']);
+
 	//ini files
-	$inifilters = array();
+	$inifilters = [];
 	if ($bk_qhmini) $inifilters[] = 'qhm\.ini\.php';
 	if ($bk_qhmaccess) $inifilters[] = 'qhm_access\.ini\.txt';
 	if ($bk_qhmusers) $inifilters[] = 'qhm_users\.ini\.txt';
-	
+
 	if (count($inifilters) > 0) {
-		$inifilter = '(?:'. join('|', $inifilters). ')';
+		$inifilter = '(?:' . join('|', $inifilters) . ')';
 		$filecount += $zip->addDir('.', $inifilter);
 	}
 
 	if ($filecount === 0) {
-		return '<p class="alert alert-error">'. $qm->m['plg_dump']['err_no_files'].'</strong></p>';
+		return '<p class="alert alert-error">' . $qm->m['plg_dump']['err_no_files'] . '</strong></p>';
 	} else {
 		// ダウンロード
 		$zip->download($zipfile);
@@ -282,17 +284,15 @@ function plugin_dump_download_full()
 {
 
 	error_reporting(E_ERROR | E_PARSE);
-	
+
 	global $vars;
 	$qm = get_qm();
 
-	if( isset($vars['_p_dump_memlimit']) ){
-		
-		if( is_numeric($vars['_p_dump_memlimit_value']) )
-		{
-				ini_set("memory_limit", $vars['_p_dump_memlimit_value']."M");
-		}
-		else{
+	if (isset($vars['_p_dump_memlimit'])) {
+
+		if (is_numeric($vars['_p_dump_memlimit_value'])) {
+			ini_set("memory_limit", $vars['_p_dump_memlimit_value'] . "M");
+		} else {
 			return $qm->m['plg_dump']['err_invalid_memory'];
 		}
 	}
@@ -300,39 +300,54 @@ function plugin_dump_download_full()
 
 	// バックアップディレクトリ
 	$bk_dirs = array(
-		UPLOAD_DIR, COUNTER_DIR, CACHE_DIR, CACHEQHM_DIR, CACHEQBLOG_DIR, DIFF_DIR, 
-		IMAGE_DIR, BACKUP_DIR, LIB_DIR, PLUGIN_DIR, 
-		DATA_DIR, 'js/', 'swfu/', 'fwd3/', 'fwd/', 'fwd2/', 'skin/', 'trackback/'
+		UPLOAD_DIR,
+		COUNTER_DIR,
+		CACHE_DIR,
+		CACHEQHM_DIR,
+		CACHEQBLOG_DIR,
+		DIFF_DIR,
+		IMAGE_DIR,
+		BACKUP_DIR,
+		LIB_DIR,
+		PLUGIN_DIR,
+		DATA_DIR,
+		'js/',
+		'swfu/',
+		'fwd3/',
+		'fwd/',
+		'fwd2/',
+		'skin/',
+		'trackback/'
 	);
-	
+
 	// バックアップファイル (.txt, .phpすべて)
-	$bk_files = array();
+	$bk_files = [];
 	$hd = opendir('./');
-	while($f = readdir($hd)){
-		if( preg_match('/.*\.(php|txt)/', $f) )
+	while ($f = readdir($hd)) {
+		if (preg_match('/.*\.(php|txt)/', $f))
 			$bk_files[] = $f;
 	}
-	
-	$bk_fname = 'qhmbk_'.date("Ymd").'.zip';
+
+	$bk_fname = 'qhmbk_' . date("Ymd") . '.zip';
 
 	//zipファイルの作成　(メモリーオーバーをする危険あり)
 	$zip = new zipfile2();
-	foreach($bk_dirs as $dir){
+	foreach ($bk_dirs as $dir) {
 		$zip->addDir($dir);
 		//zip_add_dir($dir, $zipFile, 'qhmbk_');
 	}
-	
-	foreach($bk_files as $file){
-		if( file_exists($file) )
+
+	foreach ($bk_files as $file) {
+		if (file_exists($file))
 			$zip->addFile(file_get_contents($file), $file);
 	}
-	
+
 	$dump_buffer = $zip->file();
-	
+
 	header("Content-Type: application/octet-stream");
 	header("Content-Disposition: attachment; filename={$bk_fname}");
 	echo $dump_buffer;
-	
+
 	exit;
 }
 
@@ -346,12 +361,12 @@ function plugin_dump_upload()
 	$qm = get_qm();
 
 	if (! PLUGIN_DUMP_ALLOW_RESTORE)
-		return array('code' => FALSE , 'msg' => $qm->m['plg_dump']['err_prohibit_restore']);
+		return array('code' => FALSE, 'msg' => $qm->m['plg_dump']['err_prohibit_restore']);
 
 	$filename = $_FILES['upload_file']['name'];
-	$matches  = array();
+	$matches  = [];
 	$arc_kind = FALSE;
-	if(!preg_match('/\.zip$/', $filename, $matches)){
+	if (!preg_match('/\.zip$/', $filename, $matches)) {
 		die_message($qm->m['plg_dump']['err_invalid_filetype']);
 	}
 
@@ -359,18 +374,18 @@ function plugin_dump_upload()
 		die_message($qm->replace('plg_dump.err_size_over', PLUGIN_DUMP_MAX_FILESIZE));
 
 	//require unzip
-	require_once(LIB_DIR. 'unzip.lib.php');
-	
+	require_once(LIB_DIR . 'unzip.lib.php');
+
 	// Create a temporary tar file
 	$uploadfile = tempnam(realpath(CACHEQHM_DIR), 'zip_uploaded_');
-	
+
 	if (!move_uploaded_file($_FILES['upload_file']['tmp_name'], $uploadfile)) {
 		@unlink($uploadfile);
 		die_message($qm->m['plg_dump']['err_upload_failed']);
 	}
 	$unzip = new SimpleUnzip($uploadfile);
-	
-	$files = array();
+
+	$files = [];
 	$len = $unzip->Count();
 	for ($i = 0; $i < $len; $i++) {
 		$name = $unzip->GetName($i);
@@ -379,7 +394,7 @@ function plugin_dump_upload()
 		$dir = basename($path);
 		//swfu/d
 		if ($dir == 'd') {
-			$dir = strpos($path, 'swfu/d') !== FALSE? 'swfu/d': '';
+			$dir = strpos($path, 'swfu/d') !== FALSE ? 'swfu/d' : '';
 		}
 		if ($dir == 'data') {
 			//swfu/data
@@ -394,8 +409,8 @@ function plugin_dump_upload()
 		if (strpos($path, './.') !== FALSE) {
 			$path = str_replace('./.', '.', $path);
 		}
-		
-		switch($dir) {
+
+		switch ($dir) {
 			case 'wiki':
 				$stokey = 'DATA_DIR';
 				break;
@@ -420,10 +435,10 @@ function plugin_dump_upload()
 			default:
 				$stokey = 'HOME_DIR';
 		}
-		
-		$filter = isset($_STORAGE[$stokey]['extract_filter'])? $_STORAGE[$stokey]['extract_filter']: '';
+
+		$filter = isset($_STORAGE[$stokey]['extract_filter']) ? $_STORAGE[$stokey]['extract_filter'] : '';
 		if ($filter && preg_match("/$filter/", $name)) {
-			$uzfile = $path. '/'. $name;
+			$uzfile = $path . '/' . $name;
 
 			$files[] = $uzfile;
 
@@ -445,14 +460,14 @@ function plugin_dump_upload()
 		return array('code' => FALSE, 'msg' => $qm->m['plg_dump']['err_upload_empty']);
 	}
 
-	$msg  = '<p><strong>'. $qm->m['plg_dump']['restore_header']. '</strong><ul>';
-	foreach($files as $name) {
+	$msg  = '<p><strong>' . $qm->m['plg_dump']['restore_header'] . '</strong><ul>';
+	foreach ($files as $name) {
 		$msg .= "<li>$name</li>\n";
 	}
 	$msg .= '</ul></p>';
 	$msg .= '
 <p>
-	<a href="'. h($script) .'?cmd=qhmsetting">設定一覧へ戻る</a>
+	<a href="' . h($script) . '?cmd=qhmsetting">設定一覧へ戻る</a>
 </p>
 ';
 
@@ -473,14 +488,14 @@ function plugin_dump_disp_form()
 	$act_up   = PLUGIN_DUMP_RESTORE;
 	$maxsize  = PLUGIN_DUMP_MAX_FILESIZE;
 	$act_full = PLUGIN_DUMP_FULL;
-	
+
 	//ロゴ画像があるかないか
 	$logocheck = '';
 	if (file_exists($logo_image)) {
 		$logocheck = '<label for="_p_dump_d_qhmlogo">
-		<input type="checkbox" name="bk_qhmlogo" id="_p_dump_d_qhmlogo" />'. $logo_image .'<span style="color:#999">&nbsp;&nbsp;&nbsp;&nbsp; --- '. $qm->m['plg_dump']['desc_qhmlogo']. '</span></label>';
+		<input type="checkbox" name="bk_qhmlogo" id="_p_dump_d_qhmlogo" />' . $logo_image . '<span style="color:#999">&nbsp;&nbsp;&nbsp;&nbsp; --- ' . $qm->m['plg_dump']['desc_qhmlogo'] . '</span></label>';
 	}
-	
+
 
 
 	$data = <<<EOD
@@ -586,7 +601,7 @@ function plugin_dump_disp_form()
 </form>
 EOD;
 
-	if(PLUGIN_DUMP_ALLOW_RESTORE) {
+	if (PLUGIN_DUMP_ALLOW_RESTORE) {
 		$frm_rstr_ntc_maxsize = $qm->replace('plg_dump.frm_rstr_ntc_maxsize', $maxsize);
 		$dump2link = $qm->replace('plg_dump.frm_rstr_ntc', $script);
 		$data .= <<<EOD
@@ -617,5 +632,3 @@ EOD;
 
 	return $data;
 }
-
-

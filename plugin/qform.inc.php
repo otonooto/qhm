@@ -1,40 +1,42 @@
 <?php
-/**
-* qform.inc.php
-*
-* 引数 : $title, $style, $save, $labelConfirm, $labelSubmit, $labelBack
-*
-*
-* Modified:
-*  2009 11/9 確認画面で、複数選択項目が表示されない問題を解決
-*
-*/
 
-define('PLUGIN_QFORM_UNLINK_TIME', 60*60); //1時間前
+/**
+ * qform.inc.php
+ *
+ * 引数 : $title, $style, $save, $labelConfirm, $labelSubmit, $labelBack
+ *
+ *
+ * Modified:
+ *  2009 11/9 確認画面で、複数選択項目が表示されない問題を解決
+ *
+ */
+
+define('PLUGIN_QFORM_UNLINK_TIME', 60 * 60); //1時間前
 define('QFORM_DEFAULT_ATTACHE_SIZE', 4);   //添付ファイルのデフォルト制限
 
-require_once(LIB_DIR.'simplemail.php');
-if( file_exists('lib/qdmail.php') ){
+require_once(LIB_DIR . 'simplemail.php');
+if (file_exists('lib/qdmail.php')) {
 	require_once('lib/qdmail.php');
 }
-if( file_exists('lib/qdsmtp.php') ){
+if (file_exists('lib/qdsmtp.php')) {
 	require_once('lib/qdsmtp.php');
 }
 
-if( file_exists('lib/qdmail.php') ){
+if (file_exists('lib/qdmail.php')) {
 	require_once('lib/qdmail.php');
 }
-if( file_exists('lib/qdsmtp.php') ){
+if (file_exists('lib/qdsmtp.php')) {
 	require_once('lib/qdsmtp.php');
 }
 
-function plugin_qform_parse_csv($line, $delimiter=','){
+function plugin_qform_parse_csv($line, $delimiter = ',')
+{
 
-    $expr="/$delimiter(?=(?:[^\"]*\"[^\"]*\")*(?![^\"]*\"))/";
-    $fields = preg_split($expr,trim($line)); // added
-    $fields = preg_replace("/^\"(.*)\"$/s","$1",$fields); //added
- 
-    return $fields;
+	$expr = "/$delimiter(?=(?:[^\"]*\"[^\"]*\")*(?![^\"]*\"))/";
+	$fields = preg_split($expr, trim($line)); // added
+	$fields = preg_replace("/^\"(.*)\"$/s", "$1", $fields); //added
+
+	return $fields;
 }
 
 /**
@@ -52,7 +54,7 @@ function plugin_qform_convert()
 
 	global $vars, $script, $editable;
 	$page = $vars['page'];
-    $editable = edit_auth($page, FALSE, FALSE);
+	$editable = edit_auth($page, FALSE, FALSE);
 
 	$args = func_get_args();
 	$pstr = array_pop($args);
@@ -66,12 +68,10 @@ function plugin_qform_convert()
 
 	$hor_aliases = array('bootstrap', 'table');
 	if (is_bootstrap_skin()) $hor_aliases[] = 'default';
-	if (in_array($style, $hor_aliases))
-	{
+	if (in_array($style, $hor_aliases)) {
 		$style = 'horizontal';
 	}
-	if ( ! in_array($style, array('default', 'horizontal', 'vertical')))
-	{
+	if (! in_array($style, array('default', 'horizontal', 'vertical'))) {
 		$style = 'vertical';
 	}
 
@@ -84,23 +84,19 @@ function plugin_qform_convert()
 
 	$params = plugin_qform_parse($pstr);
 
-	if (isset($vars['qform_condition']))
-	{
+	if (isset($vars['qform_condition'])) {
 
 		//
 		// send mail & ...
 		//
-		if (isset($vars['qform']['qform_finish']))
-		{
-			if ( ! isset($_SESSION['qform']))
-			{
-				header("Location: ".$script.'?'.urlencode($page) );
+		if (isset($vars['qform']['qform_finish'])) {
+			if (! isset($_SESSION['qform'])) {
+				header("Location: " . $script . '?' . urlencode($page));
 				exit;
 			}
 
 			//転送する、postする、完了を出すなどなど
-			if ($save === 'true')
-			{
+			if ($save === 'true') {
 				plugin_qform_save_log($params, $page, $title);
 			}
 			return plugin_qform_do_finish($params, $url_sanitize);
@@ -110,15 +106,14 @@ function plugin_qform_convert()
 		//
 		// 戻る
 		//
-		if (isset($vars['qform']['qform_back']))
-		{
+		if (isset($vars['qform']['qform_back'])) {
 			$_SESSION['qform']['enable_session_check'] = time();  //セッション有効チェック用
 			plugin_qform_unlink_attaches(); //添付ファイル削除(あれば)
 
 			force_output_message(
-					$qm->replace('plg_qform.title_confirm', $title),
-					$page,
-					'<h2>'.$title.'</h2>'.plugin_qform_mkform($params, $style)
+				$qm->replace('plg_qform.title_confirm', $title),
+				$page,
+				'<h2>' . $title . '</h2>' . plugin_qform_mkform($params, $style)
 			);
 		}
 
@@ -126,12 +121,11 @@ function plugin_qform_convert()
 		//
 		// 確認
 		//
-		if ($vars['qform_condition']==='confirm')
-		{
+		if ($vars['qform_condition'] === 'confirm') {
 			//sessionチェック
-			if(! isset($_SESSION['qform']['enable_session_check']) ){
-				$ss_error .= "<br />".$qm->m['plg_qform']['err_enable_session']."\n";
-			}else{
+			if (! isset($_SESSION['qform']['enable_session_check'])) {
+				$ss_error .= "<br />" . $qm->m['plg_qform']['err_enable_session'] . "\n";
+			} else {
 				$ss_error = '';
 			}
 
@@ -140,26 +134,22 @@ function plugin_qform_convert()
 			$error .= $ss_error;
 
 
-			if ($error==='')
-			{
+			if ($error === '') {
 				$body = plugin_qform_confirm($params, $style, $title);
 				force_output_message($qm->m['plg_qform']['title_confirm2'], $page, $body);
-			}
-			else
-			{
+			} else {
 				$_SESSION['qform']['enable_session_check'] = time();  //セッション有効チェック用
 
 				force_output_message(
 					$qm->replace('plg_qform.title_confirm', $title),
 					$page,
-					'<h2>'.$title.'</h2><p class="' .
+					'<h2>' . $title . '</h2><p class="' .
 						(is_bootstrap_skin() ? 'text-danger' : 'qform-danger') .
-						'">'.$error.'</p>' . plugin_qform_mkform($params, $style)
+						'">' . $error . '</p>' . plugin_qform_mkform($params, $style)
 				);
 			}
 		}
-	}
-	else{
+	} else {
 
 		//デフォルトの動作(フォームの表示)
 		plugin_qform_unlink_attaches(); //添付ファイル削除
@@ -172,34 +162,43 @@ function plugin_qform_convert()
 		$body = plugin_qform_mkform($params, $style);
 		$error = plugin_qform_conf_check($params);
 
-		$conf_page = ':config/plugin/qform/'.$page;
+		$conf_page = ':config/plugin/qform/' . $page;
 
 		$tail = '';
-		if($editable && is_page(':config/plugin/qform/'.$page) )
-			$tail = "\n".'<p style="text-align:right"><a href="'.$script.'?'.rawurlencode($conf_page).'" target="new">'. $qm->m['plg_qform']['link_log_chk'].'</a></p>'."\n";
+		if ($editable && is_page(':config/plugin/qform/' . $page))
+			$tail = "\n" . '<p style="text-align:right"><a href="' . $script . '?' . rawurlencode($conf_page) . '" target="new">' . $qm->m['plg_qform']['link_log_chk'] . '</a></p>' . "\n";
 
-		return $error.$body.$tail;
+		return $error . $body . $tail;
 	}
 }
 
-function plugin_qform_action(){
+function plugin_qform_action()
+{
 	global $vars, $script;
 
 	$id = $vars['id'];
 	$path = $_SESSION['qform']['_FILES'][$id]['path'];
 	$name = $_SESSION['qform']['_FILES'][$id]['name'];
 
-	if($path != '' && file_exists($path) ){
+	if ($path != '' && file_exists($path)) {
 
 		$got = @getimagesize($path);
 		if (! isset($got[2])) $got[2] = FALSE;
 		switch ($got[2]) {
-		case 1: $type = 'image/gif' ; break;
-		case 2: $type = 'image/jpeg'; break;
-		case 3: $type = 'image/png' ; break;
-		case 4: $type = 'application/x-shockwave-flash'; break;
-		default:
-			$type = get_mimetype($name);
+			case 1:
+				$type = 'image/gif';
+				break;
+			case 2:
+				$type = 'image/jpeg';
+				break;
+			case 3:
+				$type = 'image/png';
+				break;
+			case 4:
+				$type = 'application/x-shockwave-flash';
+				break;
+			default:
+				$type = get_mimetype($name);
 		}
 
 		$file = htmlspecialchars($name);
@@ -210,9 +209,7 @@ function plugin_qform_action(){
 		header('Content-Length: ' . $size);
 		header('Content-Type: '   . $type);
 		@readfile($path);
-
-	}
-	else{
+	} else {
 		echo 'No data';
 	}
 
@@ -229,31 +226,27 @@ function plugin_qform_parse($str)
 
 	$lines = preg_split("/\n|\r/", $str);
 
-	$ret = array('element'=>array(), 'conf'=>array());
+	$ret = array('element' => [], 'conf' => []);
 
 	$multi = false;
 
 	$end = count($lines);
-	for( $index=0; $index<$end; $index++ ){
+	for ($index = 0; $index < $end; $index++) {
 
 		$line = $lines[$index];
 
-		if (preg_match('/^(.+?)=(.*)/', $line, $ms))
-		{
+		if (preg_match('/^(.+?)=(.*)/', $line, $ms)) {
 			$cmd    = $ms[1];
 			$params = $ms[2];
 			$arr = plugin_qform_parse_csv($params);
-		}
-		else
-		{
+		} else {
 			$cmd = '';
 			$arr = null;
 		}
 
-		switch ($cmd)
-		{
+		switch ($cmd) {
 			// form要素
-			case 'text' :  //テキスト入力ボックス
+			case 'text':  //テキスト入力ボックス
 				list($id, $label, $default, $exp, $validation, $size) = array_pad($arr, 6, '');
 				$el = array(
 					'type'       => 'text',
@@ -268,19 +261,17 @@ function plugin_qform_parse($str)
 				$ret['element'][$id] = $el;
 				break;
 
-			case 'check' :
-			case 'radio' :
+			case 'check':
+			case 'radio':
 				// Determine display type inline or block
 				$inline = true;
-				foreach ($arr as $i => $v)
-				{
-					if ($v === 'show:block')
-					{
+				foreach ($arr as $i => $v) {
+					if ($v === 'show:block') {
 						$inline = false;
 						break;
 					}
 				}
-				if ( ! $inline) array_splice($arr, $i, 1);
+				if (! $inline) array_splice($arr, $i, 1);
 
 				list($id, $label, $default, $exp) = array_pad($arr, 4, '');
 
@@ -296,7 +287,7 @@ function plugin_qform_parse($str)
 				);
 				break;
 
-			case 'attach' :
+			case 'attach':
 				list($id, $label, $exp, $validation, $size) = array_pad($arr, 5, '');
 				$size = is_numeric($size) ? $size : QFORM_DEFAULT_ATTACHE_SIZE;
 
@@ -312,7 +303,7 @@ function plugin_qform_parse($str)
 				$ret['element'][$id] = $el;
 				break;
 
-			case 'select' :
+			case 'select':
 				list($id, $label, $default, $exp) = array_pad($arr, 4, '');
 				$el = array(
 					'type'    => $cmd,
@@ -326,7 +317,7 @@ function plugin_qform_parse($str)
 				$ret['element'][$id] = $el;
 				break;
 
-			case 'memo' :
+			case 'memo':
 				list($id, $label, $default, $exp, $validation, $rows) = array_pad($arr, 6, '');
 
 				$rows = $rows ? $rows : 10;
@@ -343,14 +334,14 @@ function plugin_qform_parse($str)
 				$ret['element'][$id] = $el;
 				break;
 
-			case 'address' :
+			case 'address':
 				list($label, $exp, $validation, $defaultstate) = array_pad($arr, 4, '');
 
-				$vv = array('zip'=>'', 'state'=>'', 'city'=>'', 'street'=>'');
-				if($validation=='') $validation = 4;
+				$vv = array('zip' => '', 'state' => '', 'city' => '', 'street' => '');
+				if ($validation == '') $validation = 4;
 				$cnt = 1;
-				foreach($vv as $k=>$v){
-					if($validation < $cnt)
+				foreach ($vv as $k => $v) {
+					if ($validation < $cnt)
 						break;
 
 					$vv[$k] = 'need';
@@ -396,21 +387,16 @@ function plugin_qform_parse($str)
 
 				break;
 
-			case 'name' :
-				list($label, $exp, $validation) = array_pad($arr, 3, '' );
+			case 'name':
+				list($label, $exp, $validation) = array_pad($arr, 3, '');
 
-				if ($validation=='lname')
-				{
+				if ($validation == 'lname') {
 					$vl = 'need';
 					$vf = '';
-				}
-				else if ($validation=='fname')
-				{
+				} else if ($validation == 'fname') {
 					$vl = '';
 					$vf = 'need';
-				}
-				else
-				{
+				} else {
 					$vl = 'need';
 					$vf = 'need';
 				}
@@ -432,26 +418,19 @@ function plugin_qform_parse($str)
 				);
 				break;
 
-			case 'name_kana' :
+			case 'name_kana':
 				list($label, $exp, $validation) = array_pad($arr, 3, '');
 
-				if ($validation == 'lname_kana')
-				{
+				if ($validation == 'lname_kana') {
 					$vl = 'need';
 					$vf = '';
-				}
-				else if ($validation=='fname_kana')
-				{
+				} else if ($validation == 'fname_kana') {
 					$vl = '';
 					$vf = 'need';
-				}
-				else if ($validation=='need')
-				{
+				} else if ($validation == 'need') {
 					$vl = 'need';
 					$vf = 'need';
-				}
-				else
-				{
+				} else {
 					$vl = '';
 					$vf = '';
 				}
@@ -473,12 +452,12 @@ function plugin_qform_parse($str)
 				);
 				break;
 
-			case 'email' :
+			case 'email':
 				$email_match = '/^([a-z0-9_]|\-|\.|\+)+@(([a-z0-9_]|\-)+\.)+[a-z]{2,6}$/i';
 				list($label, $exp, $confirm, $email2_msg) = array_pad($arr, 2, '');
 
 				//メッセージ書き換え
-				$qm->m['plg_qform']['msg_email2'] = trim($email2_msg) ? $email2_msg: $qm->m['plg_qform']['msg_email2'];
+				$qm->m['plg_qform']['msg_email2'] = trim($email2_msg) ? $email2_msg : $qm->m['plg_qform']['msg_email2'];
 
 				$id = 'email';
 
@@ -492,7 +471,7 @@ function plugin_qform_parse($str)
 				);
 				break;
 
-			case 'state' :
+			case 'state':
 				list($label, $exp, $default) = array_pad($arr, 3, '');
 				$ret['element']['state'] = array(
 					'type'       => 'state',
@@ -521,17 +500,14 @@ function plugin_qform_parse($str)
 				$options = 'btn';
 				$options_arr = array('primary');
 				$customized_options = false;
-				foreach ($arr as $i => $v)
-				{
-					if (preg_match('/^(?:color|options):([\w\s]+)$/', $v, $mts))
-					{
+				foreach ($arr as $i => $v) {
+					if (preg_match('/^(?:color|options):([\w\s]+)$/', $v, $mts)) {
 						$customized_options = true;
 						$options_arr = preg_split('/\s+/', trim($mts[1]));
 						break;
 					}
 				}
-				foreach ($options_arr as $option)
-				{
+				foreach ($options_arr as $option) {
 					$options .= ' btn-' . $option;
 				}
 
@@ -541,9 +517,9 @@ function plugin_qform_parse($str)
 				list($confirm, $back, $submit) = array_pad($arr, 3, '');
 				$ret['element']['buttons'] = array(
 					'type'    => 'buttons',
-					'confirm' => trim($confirm)? $confirm: $qm->m['plg_qform']['btn_confirm'],
-					'back'    => trim($back)? $back: $qm->m['plg_qform']['btn_back'],
-					'submit'  => trim($submit)? $submit: $qm->m['plg_qform']['btn_submit'],
+					'confirm' => trim($confirm) ? $confirm : $qm->m['plg_qform']['btn_confirm'],
+					'back'    => trim($back) ? $back : $qm->m['plg_qform']['btn_back'],
+					'submit'  => trim($submit) ? $submit : $qm->m['plg_qform']['btn_submit'],
 					'options' => $options
 				);
 				break;
@@ -572,26 +548,23 @@ function plugin_qform_parse($str)
 				break;
 
 			// param phase
-			case 'finish_url' :
+			case 'finish_url':
 				$url = '';
-				if (is_page($arr[0]))
-				{
+				if (is_page($arr[0])) {
 					$url = $script . '?' . rawurlencode($arr[0]);
-				}
-				else if (is_url($arr[0]))
-				{
+				} else if (is_url($arr[0])) {
 					$url = $arr[0];
 				}
 				$ret['conf']['finish_url'] = $url;
 
 				break;
 
-			case 'finish_post' :
+			case 'finish_post':
 				list($url, $encode) = array_pad($arr, 2, '');
 
-				$data = array();
-				for($i=2; $i<count($arr); $i+=2){
-					$data[ $arr[$i] ] = $arr[$i+1];
+				$data = [];
+				for ($i = 2; $i < count($arr); $i += 2) {
+					$data[$arr[$i]] = $arr[$i + 1];
 				}
 				$ret['conf']['finish_post'] = array(
 					'url'    => $url,
@@ -602,40 +575,34 @@ function plugin_qform_parse($str)
 				break;
 
 			// 完了メッセージ
-			case 'finish_msg' :
+			case 'finish_msg':
 				$body = '';
-				for( $index++ ; $index<$end; $index++){
+				for ($index++; $index < $end; $index++) {
 					$l = $lines[$index];
 					if (trim($l) == "''") break;
-					$body .= $l."\n";
+					$body .= $l . "\n";
 				}
 
 				$ret['conf']['finish_msg'] = $body;
 				break;
 
 			// 返信メール
-			case 'finish_mail' :
+			case 'finish_mail':
 				$body    = '';
 				$subject = null;
 				$from    = null;
 
-				for ($index++ ; $index<$end; $index++)
-				{
+				for ($index++; $index < $end; $index++) {
 					$l = $lines[$index];
 
 					if (trim($l) == "''") break;
 
-					if (preg_match('/^::From::(.*?),(.*)$/', $l, $ms))
-					{
+					if (preg_match('/^::From::(.*?),(.*)$/', $l, $ms)) {
 						$from = array('name' => $ms[1], 'email' => $ms[2]);
-					}
-					else if (preg_match('/^::Subject::(.*)$/', $l, $ms))
-					{
+					} else if (preg_match('/^::Subject::(.*)$/', $l, $ms)) {
 						$subject = $ms[1];
-					}
-					else
-					{
-						$body .= $l."\n";
+					} else {
+						$body .= $l . "\n";
 					}
 				}
 
@@ -648,29 +615,23 @@ function plugin_qform_parse($str)
 				break;
 
 			// 返信メール
-			case 'notice_mail' :
+			case 'notice_mail':
 				$body    = '';
 				$subject = null;
 				$from    = null;
 				$to      = null;
 
-				for ($index++ ; $index<$end; $index++)
-				{
+				for ($index++; $index < $end; $index++) {
 					$l = $lines[$index];
 
-					if (trim($l)=="''") break;
+					if (trim($l) == "''") break;
 
-					if (preg_match('/^::Subject::(.*)$/', $l, $ms))
-					{
+					if (preg_match('/^::Subject::(.*)$/', $l, $ms)) {
 						$subject = $ms[1];
-					}
-					else if (preg_match('/^::To::(.*?)$/', $l, $ms))
-					{
-						$to = array('name'=>'', 'email'=>$ms[1]);
-					}
-					else
-					{
-						$body .= $l."\n";
+					} else if (preg_match('/^::To::(.*?)$/', $l, $ms)) {
+						$to = array('name' => '', 'email' => $ms[1]);
+					} else {
+						$body .= $l . "\n";
 					}
 				}
 
@@ -691,8 +652,8 @@ function plugin_qform_parse($str)
 }
 
 /**
-* パラメータのチェック
-*/
+ * パラメータのチェック
+ */
 function plugin_qform_conf_check(&$params)
 {
 	$qm = get_qm();
@@ -701,42 +662,39 @@ function plugin_qform_conf_check(&$params)
 
 	//elementのチェック
 	$els = $params['element'];
-	if(! isset($els['email']) ){
-		$error .= $qm->m['plg_qform']['err_no_email']. '<br />';
+	if (! isset($els['email'])) {
+		$error .= $qm->m['plg_qform']['err_no_email'] . '<br />';
 	}
 
 	//confのチェック
 	$conf = $params['conf'];
-	if(! isset($conf['notice_mail'])){
-		$error .= $qm->m['plg_qform']['err_nm_conf'].'<br />';
-	}
-	else{
+	if (! isset($conf['notice_mail'])) {
+		$error .= $qm->m['plg_qform']['err_nm_conf'] . '<br />';
+	} else {
 		//メールアドレスチェックなど
-		if(! isset($conf['notice_mail']['to']) || !preg_match('/.*@.*/', $conf['notice_mail']['to']['email']) )
-			$error .= $qm->m['plg_qform']['err_nm_email']. '<br />';
-		if(! isset($conf['notice_mail']['body']))
-			$error .= $qm->m['plg_qform']['err_nm_body'].'<br />';
+		if (! isset($conf['notice_mail']['to']) || !preg_match('/.*@.*/', $conf['notice_mail']['to']['email']))
+			$error .= $qm->m['plg_qform']['err_nm_email'] . '<br />';
+		if (! isset($conf['notice_mail']['body']))
+			$error .= $qm->m['plg_qform']['err_nm_body'] . '<br />';
 	}
 
-	if(! isset($conf['finish_mail'])){
-		$error .= $qm->m['plg_qform']['err_fm_conf']. '<br />';
-	}
-	else{
+	if (! isset($conf['finish_mail'])) {
+		$error .= $qm->m['plg_qform']['err_fm_conf'] . '<br />';
+	} else {
 		//メールアドレスチェックなど
-		if(! isset($conf['finish_mail']['from']))
-			$error .= $qm->m['plg_qform']['err_fm_email']. '<br />';
-		if(! isset($conf['finish_mail']['body']))
-			$error .= $qm->m['plg_qform']['err_fm_body'].'<br />';
+		if (! isset($conf['finish_mail']['from']))
+			$error .= $qm->m['plg_qform']['err_fm_email'] . '<br />';
+		if (! isset($conf['finish_mail']['body']))
+			$error .= $qm->m['plg_qform']['err_fm_body'] . '<br />';
 	}
 
-	return '<p class="'.(is_bootstrap_skin() ? 'text-danger' : 'qform-danger').'">'.$error.'</p>';
-
+	return '<p class="' . (is_bootstrap_skin() ? 'text-danger' : 'qform-danger') . '">' . $error . '</p>';
 }
 
 /*
 * フォームを生成
 */
-function plugin_qform_mkform($data, $style='table')
+function plugin_qform_mkform($data, $style = 'table')
 {
 	global $vars, $script;
 	$qm = get_qm();
@@ -746,60 +704,56 @@ function plugin_qform_mkform($data, $style='table')
 	$posted = isset($_SESSION['qform']) ? $_SESSION['qform'] : false;
 
 	$els = $data['element'];
-	$data_set = array();
+	$data_set = [];
 	$enctype = '';
 	$button_options = 'btn btn-primary';
 
-	foreach ($els as $key => $el)
-	{
+	foreach ($els as $key => $el) {
 		$template_path = dirname(__FILE__) . '/qform/' . $el['type'] . '.html';
 
-		switch($el['type']){
+		switch ($el['type']) {
 			// !input[type=text]
-			case 'text' :
-				$str = isset($posted[ $el['id'] ]) ? $posted[ $el['id'] ] : $el['default'];
-				$valid = $el['validation']=='' ? false : true;
+			case 'text':
+				$str = isset($posted[$el['id']]) ? $posted[$el['id']] : $el['default'];
+				$valid = $el['validation'] == '' ? false : true;
 				break;
 
 			// !input[type=checkbox]
-			case 'check' :
+			case 'check':
 				$checked_values = isset($posted[$el['id']]) ? $posted[$el['id']] : array($el['default']);
-				$valid = $el['validation']=='' ? false : true;
+				$valid = $el['validation'] == '' ? false : true;
 				break;
 
 			// !select
-			case 'select' :
+			case 'select':
 				$selected_value = isset($posted[$el['id']]) ? $posted[$el['id']] : $el['default'];
 				$valid = false;
 				break;
 
 			// !input[type=radio]
-			case 'radio' :
+			case 'radio':
 				$checked_value = isset($posted[$el['id']]) ? $posted[$el['id']] : $el['default'];
 				$valid = false;
 				break;
 
 			// !textarea(memo)
-			case 'memo' :
-				if (isset($posted[$el['id']]))
-				{
+			case 'memo':
+				if (isset($posted[$el['id']])) {
 					$memo_value = $posted[$el['id']];
-				}
-				else
-				{
+				} else {
 					$memo_value = str_replace('&br;', "\n", $el['default']);
 				}
-				$valid = $el['validation']=='' ? false : true;
+				$valid = $el['validation'] == '' ? false : true;
 				break;
 
 			// !input[name='qform[email]']
-			case 'email' :
+			case 'email':
 				$str = isset($posted['email']) ? $posted['email'] : '';
-				$valid = $el['validation']=='' ? false : true;
+				$valid = $el['validation'] == '' ? false : true;
 				break;
 
 			// !input[type='qform[name']
-			case 'lname' :
+			case 'lname':
 				$fname_el = $els['fname'];
 				$lname = isset($posted['lname']) ? $posted['lname'] : '';
 				$fname = isset($posted['fname']) ? $posted['fname'] : '';
@@ -807,7 +761,7 @@ function plugin_qform_mkform($data, $style='table')
 				break;
 
 			// !input[type='qform[name_kana]']
-			case 'lname_kana' :
+			case 'lname_kana':
 				$fname_kana_el = $els['fname_kana'];
 				$lname_kana = isset($posted['lname_kana']) ? $posted['lname_kana'] : '';
 				$fname_kana = isset($posted['fname_kana']) ? $posted['fname_kana'] : '';
@@ -815,62 +769,55 @@ function plugin_qform_mkform($data, $style='table')
 				break;
 
 			// !address
-			case 'address_zip' :
+			case 'address_zip':
 				$zip_el    = $els['address_zip'];
 				$city_el   = $els['address_city'];
 				$street_el = $els['address_street'];
 
 				$states         = plugin_qform_parse_csv($qm->m['plg_qform']['states']);
-				$selected_state = isset($posted['address_state']) ? $posted['address_state'] :
-					( ($els['address_state']['default'] != '') ? $els['address_state']['default'] : '東京都' );
+				$selected_state = isset($posted['address_state']) ? $posted['address_state'] : (($els['address_state']['default'] != '') ? $els['address_state']['default'] : '東京都');
 
-				$arr = array();
-				foreach(array('zip', 'city', 'street') as $n)
-				{
-					$arr[$n] = isset($posted['address_'.$n]) ? $posted['address_'.$n] : '';
+				$arr = [];
+				foreach (array('zip', 'city', 'street') as $n) {
+					$arr[$n] = isset($posted['address_' . $n]) ? $posted['address_' . $n] : '';
 				}
 
 				$arr['zip']    = $arr['zip'];
 				$arr['city']   = $arr['city'];
 				$arr['street'] = $arr['street'];
 
-				$valid = $el['validation']=='' ? false : true;
+				$valid = $el['validation'] == '' ? false : true;
 				break;
 
 			// !states
-			case 'state' :
+			case 'state':
 				$states         = plugin_qform_parse_csv($qm->m['plg_qform']['states']);
-				$selected_state = isset($posted['state']) ? $posted['state'] :
-					( ($els['state']['default'] != '') ? $els['state']['default'] : '東京都' );
+				$selected_state = isset($posted['state']) ? $posted['state'] : (($els['state']['default'] != '') ? $els['state']['default'] : '東京都');
 
-				$valid = $el['validation']=='' ? false : true;
+				$valid = $el['validation'] == '' ? false : true;
 				break;
 
 			// !contract
-			case 'contract' :
+			case 'contract':
 				// Err: self include
-				if ($vars['page'] == $el['pagename'])
-				{
+				if ($vars['page'] == $el['pagename']) {
 					$err = $qm->m['plg_qform']['err_looppage'];
 				}
 				// Err: page not found
-				else if ( ! is_page($el['pagename']))
-				{
+				else if (! is_page($el['pagename'])) {
 					$err = $qm->m['fmt_err_notfoundpage_title'];
-				}
-				else
-				{
+				} else {
 					$contract = convert_html(get_source($el['pagename']));
 				}
-				$cblabel = strlen($el['cblabel'])? $el['cblabel'] : $qm->m['plg_qform']['lbl_agree'];
+				$cblabel = strlen($el['cblabel']) ? $el['cblabel'] : $qm->m['plg_qform']['lbl_agree'];
 
 				$valid = true;
 				break;
 
 			// !添付ファイル
-			case 'attach' :
+			case 'attach':
 				$enctype = ' enctype="multipart/form-data" ';
-				$valid   = $el['validation']=='' ? false : true;
+				$valid   = $el['validation'] == '' ? false : true;
 				break;
 
 			// !buttons setting
@@ -881,37 +828,31 @@ function plugin_qform_mkform($data, $style='table')
 
 				$button_options = $el['options'];
 				$content = '';
-			break;
+				break;
 
 			default:
 				$content = '';
 		}
 
-		if (file_exists($template_path))
-		{
+		if (file_exists($template_path)) {
 			ob_start();
 			include $template_path;
 			$content = ob_get_clean();
 		}
 
-		if ($content !== '')
-		{
+		if ($content !== '') {
 			$data_set[] = array('label' => $el['label'], 'content' => $content, 'exp' => $el['exp'], 'valid' => $valid);
 		}
 	}
 
 	$form_class = "qform_form clearfix qform-style-{$style}";
 
-	if ($style == 'horizontal')
-	{
+	if ($style == 'horizontal') {
 		$form_class .= ' form-horizontal';
 	}
-	if (is_bootstrap_skin())
-	{
+	if (is_bootstrap_skin()) {
 		$form_class .= ' qform-on-bootstrap';
-	}
-	else
-	{
+	} else {
 		$form_class .= ' qform-on-default';
 	}
 
@@ -923,30 +864,24 @@ function plugin_qform_mkform($data, $style='table')
 	$form = ob_get_clean();
 
 	return $form;
-
 }
 
 function plugin_qform_format($data_set, $style)
 {
-	$astar = '<span class="'.(is_bootstrap_skin() ? 'text-danger' : 'qform-danger').'">*</span>';
-	if ($style=='default')
-	{
+	$astar = '<span class="' . (is_bootstrap_skin() ? 'text-danger' : 'qform-danger') . '">*</span>';
+	if ($style == 'default') {
 		$str = '<table class="style_table" colspan="0" style="width:90%">';
-		foreach($data_set as $d){
+		foreach ($data_set as $d) {
 			$astr = isset($d['valid']) && $d['valid'] ? $astar : '';
-			$str .= '<tr><th class="style_th">'.$d['label'].$astr.'</th><td class="style_td">'.$d['content'].'<br /><span style="font-size:small">'.$d['exp'].'</span></td></tr>';
+			$str .= '<tr><th class="style_th">' . $d['label'] . $astr . '</th><td class="style_td">' . $d['content'] . '<br /><span style="font-size:small">' . $d['exp'] . '</span></td></tr>';
 		}
 		$str .= '</table>';
-	}
-	else if ($style === 'horizontal')
-	{
+	} else if ($style === 'horizontal') {
 		$template_path = dirname(__FILE__) . '/qform/horizontal.html';
 		ob_start();
 		include $template_path;
 		$str .= ob_get_clean();
-	}
-	else
-	{
+	} else {
 		$template_path = dirname(__FILE__) . '/qform/vertical.html';
 		ob_start();
 		include $template_path;
@@ -958,126 +893,118 @@ function plugin_qform_format($data_set, $style)
 
 
 /**
-* フォームのバリデーション
-*/
-function plugin_qform_check(& $params)
+ * フォームのバリデーション
+ */
+function plugin_qform_check(&$params)
 {
 	global $vars;
 	$qm = get_qm();
 
 	$els = $params['element'];
 	$error = '';
-	foreach($els as $k=>$el)
-	{
-		if( isset($el['validation']) && $el['validation']!=='') //何らかのvalidationがあるなら
+	foreach ($els as $k => $el) {
+		if (isset($el['validation']) && $el['validation'] !== '') //何らかのvalidationがあるなら
 		{
 			$ptrn = $el['validation'];
 			$chk_ptrn = '';
-			if( $ptrn === 'need' ){ //何かは必要
+			if ($ptrn === 'need') { //何かは必要
 				$chk_ptrn = '/^(.+)$/s';
-			}
-			else if( $ptrn === 'num'){ //numberのみ
+			} else if ($ptrn === 'num') { //numberのみ
 				$chk_ptrn = '/^[0-9]+$/s';
-			}
-			else if( $ptrn === 'en'){ //半角英数のみ
+			} else if ($ptrn === 'en') { //半角英数のみ
 				$chk_ptrn = '/^[0-9a-zA-Z]+$/s';
-			}
-			else{ //正規表現なら
+			} else { //正規表現なら
 				$chk_ptrn = $ptrn;
 			}
 
 			//checkboxes
 			if ($el['type'] === 'check' || $el['type'] === 'contract') {
 				if (!isset($vars['qform'][$el['id']]))
-					$error .= $qm->replace('plg_qform.err_no_check', $el['label']). '<br />';
+					$error .= $qm->replace('plg_qform.err_no_check', $el['label']) . '<br />';
 			}
 			//confirm email
 			else if ($el['type'] === 'email' && trim($el['confirm']) && $vars['qform'][$el['id']] != $vars['qform']['email2']) {
-				$error .= $qm->m['plg_qform']['err_invalid_email2']. '<br />';
+				$error .= $qm->m['plg_qform']['err_invalid_email2'] . '<br />';
 			}
 			//添付ファイル
-			else if ($el['type'] === 'attach'){
-				$size = $el['size']*1000*1000;
+			else if ($el['type'] === 'attach') {
+				$size = $el['size'] * 1000 * 1000;
 				$id = $el['id'];
 				$name = $_FILES['qform']['name'][$id];
 
-				if(! preg_match($chk_ptrn, $name) ){
-					$error .= $qm->replace('plg_qform.err_invalid_ptn_file', $el['label'].'('.$name.')'). '<br />';
-				}
-				else if( $name == '' ){
-					$error .= $qm->replace('plg_qform.err_invalid_ptn', $el['label']). '<br />';
-				}
-				else{
-					if( $_FILES['qform']['size'][$id] > $size ){ //file size over check
-						$error .= $qm->replace('plg_qform.err_oversize', $el['label'].'('.$name.')'). '<br />';
-					}
-					else if( $_FILES['qform']['error'][$id] ){ //error check
-						$error .= $qm->replace('plg_qform.err_upload', $el['label'].$_FILES['qform']['error'][$id]). '<br />';
-					}
-					else{ //move upload file
+				if (! preg_match($chk_ptrn, $name)) {
+					$error .= $qm->replace('plg_qform.err_invalid_ptn_file', $el['label'] . '(' . $name . ')') . '<br />';
+				} else if ($name == '') {
+					$error .= $qm->replace('plg_qform.err_invalid_ptn', $el['label']) . '<br />';
+				} else {
+					if ($_FILES['qform']['size'][$id] > $size) { //file size over check
+						$error .= $qm->replace('plg_qform.err_oversize', $el['label'] . '(' . $name . ')') . '<br />';
+					} else if ($_FILES['qform']['error'][$id]) { //error check
+						$error .= $qm->replace('plg_qform.err_upload', $el['label'] . $_FILES['qform']['error'][$id]) . '<br />';
+					} else { //move upload file
 
-						$tmpname = tempnam(CACHEQHM_DIR,'qform_');
+						$tmpname = tempnam(CACHEQHM_DIR, 'qform_');
 
-						if( move_uploaded_file($_FILES['qform']['tmp_name'][$id], $tmpname ) ){
+						if (move_uploaded_file($_FILES['qform']['tmp_name'][$id], $tmpname)) {
 
 							$_SESSION['qform'][$id] = $name;
-							$_SESSION['qform']['_FILES'][$id] = array('name'=>$name, 'path'=>$tmpname);
-
+							$_SESSION['qform']['_FILES'][$id] = array('name' => $name, 'path' => $tmpname);
+						} else {
+							$error .= $qm->replace('plg_qform.err_upload', $el['label'] . '(' . $_FILES['qform']['error'][$id] . ')') . '<br />';
 						}
-						else{
-							$error .= $qm->replace('plg_qform.err_upload', $el['label'].'('.$_FILES['qform']['error'][$id].')'). '<br />';
-						}
-
 					}
 				}
-
-			}
-			else if(! preg_match($chk_ptrn, $vars['qform'][ $el['id'] ] ) ){
+			} else if (! preg_match($chk_ptrn, $vars['qform'][$el['id']])) {
 				//特別処理
-				if($k==='lname'){ $add = $qm->replace('plg_qform.fmt_paren', $qm->m['plg_qform']['lname']); }
-				else if($k==='fname'){ $add = $qm->replace('plg_qform.fmt_paren', $qm->m['plg_qform']['fname']); }
-				else if($k==='lname_kana'){ $add = $qm->replace('plg_qform.fmt_paren', '姓'); }// TODO
-				else if($k==='fname_kana'){ $add = $qm->replace('plg_qform.fmt_paren', '名'); }// TODO
-				else if($k==='address_zip'){ $add = $qm->replace('plg_qform.fmt_paren', $qm->m['plg_qform']['zipcode']); }
-				else if($k==='address_city'){ $add = $qm->replace('plg_qform.fmt_paren', $qm->m['plg_qform']['city']); }
-				else if($k==='address_street'){ $add = $qm->replace('plg_qform.fmt_paren', $qm->m['plg_qform']['street']); }
-				else{ $add = ''; }
+				if ($k === 'lname') {
+					$add = $qm->replace('plg_qform.fmt_paren', $qm->m['plg_qform']['lname']);
+				} else if ($k === 'fname') {
+					$add = $qm->replace('plg_qform.fmt_paren', $qm->m['plg_qform']['fname']);
+				} else if ($k === 'lname_kana') {
+					$add = $qm->replace('plg_qform.fmt_paren', '姓');
+				} // TODO
+				else if ($k === 'fname_kana') {
+					$add = $qm->replace('plg_qform.fmt_paren', '名');
+				} // TODO
+				else if ($k === 'address_zip') {
+					$add = $qm->replace('plg_qform.fmt_paren', $qm->m['plg_qform']['zipcode']);
+				} else if ($k === 'address_city') {
+					$add = $qm->replace('plg_qform.fmt_paren', $qm->m['plg_qform']['city']);
+				} else if ($k === 'address_street') {
+					$add = $qm->replace('plg_qform.fmt_paren', $qm->m['plg_qform']['street']);
+				} else {
+					$add = '';
+				}
 
-				$error .= $qm->replace('plg_qform.err_invalid_ptn', $el['label']. $add). '<br />';
+				$error .= $qm->replace('plg_qform.err_invalid_ptn', $el['label'] . $add) . '<br />';
 			}
-		}
-		else{
+		} else {
 
 			//添付ファイル対応
-			if( $el['type'] === 'attach' ){
-				$size = $el['size']*1000*1000;
+			if ($el['type'] === 'attach') {
+				$size = $el['size'] * 1000 * 1000;
 				$id = $el['id'];
 				$name = $_FILES['qform']['name'][$id];
 
-				if($name != ''){ //何かアップロードしているなら
+				if ($name != '') { //何かアップロードしているなら
 
-					if( $_FILES['qform']['size'][$id] > $size ){ //ファイルサイズチェック
-						$error .= $qm->replace('plg_qform.err_oversize', $el['label'].'('.$name.')'). '<br />';
-					}
-					else if( $_FILES['qform']['error'][$id] ){ //その他のエラー
-						$error .= $qm->replace('plg_qform.err_upload', $el['label'].$_FILES['qform']['error'][$id]). '<br />';
-					}
-					else { //移動
-						$tmpname = tempnam(CACHEQHM_DIR,'qform_');
+					if ($_FILES['qform']['size'][$id] > $size) { //ファイルサイズチェック
+						$error .= $qm->replace('plg_qform.err_oversize', $el['label'] . '(' . $name . ')') . '<br />';
+					} else if ($_FILES['qform']['error'][$id]) { //その他のエラー
+						$error .= $qm->replace('plg_qform.err_upload', $el['label'] . $_FILES['qform']['error'][$id]) . '<br />';
+					} else { //移動
+						$tmpname = tempnam(CACHEQHM_DIR, 'qform_');
 
-						if( move_uploaded_file($_FILES['qform']['tmp_name'][$id], $tmpname ) ){
+						if (move_uploaded_file($_FILES['qform']['tmp_name'][$id], $tmpname)) {
 
 							$_SESSION['qform'][$id] = $name;
-							$_SESSION['qform']['_FILES'][$id] = array('name'=>$name, 'path'=>$tmpname);
-
-						}
-						else{
-							$error .= $qm->replace('plg_qform.err_upload', $el['label'].$_FILES['qform']['error'][$id]). '<br />';
+							$_SESSION['qform']['_FILES'][$id] = array('name' => $name, 'path' => $tmpname);
+						} else {
+							$error .= $qm->replace('plg_qform.err_upload', $el['label'] . $_FILES['qform']['error'][$id]) . '<br />';
 						}
 					}
 				}
 			}
-
 		}
 	}
 
@@ -1087,8 +1014,7 @@ function plugin_qform_check(& $params)
 function plugin_qform_sanitize_url($str, $sanitize_level)
 {
 	//リンク、ドメインから始まるURIを全角にする
-	if ($sanitize_level === '1' OR $sanitize_level === 'true')
-	{
+	if ($sanitize_level === '1' or $sanitize_level === 'true') {
 		$ptns = array(
 			'/(?:https?|ftp)(?::\/\/[-_.!~*\'()a-zA-Z0-9;\/?:\@&=+\$,%#]+)/e',
 			'/((?:[a-zA-Z0-9-]+\.)+[a-zA-Z0-9]{2,3})([^a-zA-Z0-9])/e',
@@ -1104,9 +1030,9 @@ function plugin_qform_sanitize_url($str, $sanitize_level)
 }
 
 /**
-* 確認画面を作り出す
-*/
-function plugin_qform_confirm(& $params, $style, $title)
+ * 確認画面を作り出す
+ */
+function plugin_qform_confirm(&$params, $style, $title)
 {
 	global $vars, $script;
 	$qm = get_qm();
@@ -1119,66 +1045,63 @@ function plugin_qform_confirm(& $params, $style, $title)
 	$lclass = 'class="qform_label"';
 	$pclass = 'class="qform_form_p"';
 
-	$data_set = array();
-	foreach($els as $k=>$v)
-	{
+	$data_set = [];
+	foreach ($els as $k => $v) {
 
 		$label = $v['label'];
 
-		if( is_array( $_SESSION['qform'][$k] ) ){
+		if (is_array($_SESSION['qform'][$k])) {
 			$value = '';
-			foreach( $_SESSION['qform'][$k] as $vv ){
+			foreach ($_SESSION['qform'][$k] as $vv) {
 				$value .= $vv . "\n";
 			}
-		}
-		else{
+		} else {
 			$value = $_SESSION['qform'][$k];
 		}
 
-		$value = nl2br( h($value) );
-		if($value === '')
+		$value = nl2br(h($value));
+		if ($value === '')
 			$value = '--';
 
 		//名前フィールドだけ特別扱い
-		if($k=='lname'){
-			$value = h($_SESSION['qform']['lname'].' '.$_SESSION['qform']['fname']);
+		if ($k == 'lname') {
+			$value = h($_SESSION['qform']['lname'] . ' ' . $_SESSION['qform']['fname']);
 		}
 		//名前（カナ）フィールドだけ特別扱い
-		if($k=='lname_kana'){
-			$value = h($_SESSION['qform']['lname_kana'].' '.$_SESSION['qform']['fname_kana']);
+		if ($k == 'lname_kana') {
+			$value = h($_SESSION['qform']['lname_kana'] . ' ' . $_SESSION['qform']['fname_kana']);
 		}
 		//住所だけ、特別扱い
-		else if($k==='address_zip'){
+		else if ($k === 'address_zip') {
 			$k = 'dummy_address'; //下で無視するロジックを回避
-			$value = h($_SESSION['qform']['address_zip']).'<br />'
-					.h($_SESSION['qform']['address_state']).'<br />'
-					.h($_SESSION['qform']['address_city']).'<br />'
-					.h($_SESSION['qform']['address_street']);
+			$value = h($_SESSION['qform']['address_zip']) . '<br />'
+				. h($_SESSION['qform']['address_state']) . '<br />'
+				. h($_SESSION['qform']['address_city']) . '<br />'
+				. h($_SESSION['qform']['address_street']);
 		}
 
 		//無視
-		if($k=='fname' || $k == 'fname_kana' || preg_match('/^address_/', $k)){
+		if ($k == 'fname' || $k == 'fname_kana' || preg_match('/^address_/', $k)) {
 			continue;
 		}
 
-		if($v['type'] == 'contract'){
+		if ($v['type'] == 'contract') {
 			continue;
 		}
 
 		//添付ファイル
-		if( $v['type']=='attach' ){
+		if ($v['type'] == 'attach') {
 			$path = $_SESSION['qform']['_FILES'][$k]['path'];
-			if($path != ''){
-				$ref_url = $script.'?plugin=qform&id='.rawurldecode($v['id']);
+			if ($path != '') {
+				$ref_url = $script . '?plugin=qform&id=' . rawurldecode($v['id']);
 
-				if(preg_match('/\.(gif|png|jpe?g)$/i', $value)){
-					$reconfirm = '<img src="'.$ref_url.'" style="width:100px;" />';
-				}
-				else{
+				if (preg_match('/\.(gif|png|jpe?g)$/i', $value)) {
+					$reconfirm = '<img src="' . $ref_url . '" style="width:100px;" />';
+				} else {
 					$reconfirm = $qm->m['plg_qform']['reconfirm'];
 				}
 
-				$value = '<a href="'.$ref_url.'" target="new">'.$value.' '.$reconfirm.'</a>';
+				$value = '<a href="' . $ref_url . '" target="new">' . $value . ' ' . $reconfirm . '</a>';
 			}
 		}
 
@@ -1197,26 +1120,25 @@ function plugin_qform_confirm(& $params, $style, $title)
 	}
 
 	$keitai = '';
-	if (UA_PROFILE=='keitai') {
+	if (UA_PROFILE == 'keitai') {
 		$keitai = '<input type="hidden" name="mobssid" value="yes" />
-<input type="hidden" name="'.session_name().'" value="'.session_id().'" />
+<input type="hidden" name="' . session_name() . '" value="' . session_id() . '" />
 ';
 	}
 
-	$body = '<h2>'.$qm->replace('plg_qform.title_confirm', $title).'</h2>';
+	$body = '<h2>' . $qm->replace('plg_qform.title_confirm', $title) . '</h2>';
 	$body .= plugin_qform_format($data_set, $style);
 
 	$body .= '
-<form method="post" action="'.h($script . '?' . rawurlencode($vars['page'])).'">
-<div style="text-align:center;" class="form-group"><input type="submit" name="qform[qform_back]" value="'.$qm->m['plg_qform']['btn_back'].'" class="btn btn-link" /> <input type="submit" name="qform[qform_finish]" value="'.$qm->m['plg_qform']['btn_submit'].'" class="'. h($button_options) .'" />
+<form method="post" action="' . h($script . '?' . rawurlencode($vars['page'])) . '">
+<div style="text-align:center;" class="form-group"><input type="submit" name="qform[qform_back]" value="' . $qm->m['plg_qform']['btn_back'] . '" class="btn btn-link" /> <input type="submit" name="qform[qform_finish]" value="' . $qm->m['plg_qform']['btn_submit'] . '" class="' . h($button_options) . '" />
 <input type="hidden" name="cmd" value="read" />
-<input type="hidden" name="page" value="'.h($vars['page']).'" />
+<input type="hidden" name="page" value="' . h($vars['page']) . '" />
 <input type="hidden" name="qform_condition" value="hogehoge" />
-'.$keitai.'</div>
+' . $keitai . '</div>
 </form>
 ';
 	return $body;
-
 }
 
 function plugin_qform_do_finish($params, $url_sanitize = '0')
@@ -1229,8 +1151,8 @@ function plugin_qform_do_finish($params, $url_sanitize = '0')
 	$conf = $params['conf'];
 
 	$els = $params['element'];
-	$search = array();
-	$udata = array();
+	$search = [];
+	$udata = [];
 
 	//mk data
 	$all = '';
@@ -1238,53 +1160,51 @@ function plugin_qform_do_finish($params, $url_sanitize = '0')
 		'email',
 	));
 
-	foreach($els as $id=>$v)
-	{
+	foreach ($els as $id => $v) {
 		$tmp = isset($_SESSION['qform'][$id]) ? $_SESSION['qform'][$id] : '';
 
 		//住所だけ、特別扱い
-		if($id==='address_zip'){
+		if ($id === 'address_zip') {
 			$tmp = '';
 			foreach (array('address_zip', 'address_state', 'address_city', 'address_street') as $addname) {
 				$udata[$addname] = (isset($_SESSION['qform'][$addname])) ? $_SESSION['qform'][$addname] : '';
-				$search[$addname] = '<%'.$addname.'%>';
-				$tmp .= $_SESSION['qform'][$addname]."\n";
+				$search[$addname] = '<%' . $addname . '%>';
+				$tmp .= $_SESSION['qform'][$addname] . "\n";
 			}
 			$tmp = substr($tmp, 0, -1);
 			$id = 'address';
-		}
-		else if(preg_match('/^address_/', $id)){
+		} else if (preg_match('/^address_/', $id)) {
 			continue;
 		}
 
 		$data = is_array($tmp) ? implode(", ", $tmp) : $tmp;
 		$udata[$id]  = array_key_exists($id, $excludes) ? $data : plugin_qform_sanitize_url($data, $url_sanitize);
-		$search[$id] = '<%'.$id.'%>';
+		$search[$id] = '<%' . $id . '%>';
 
 		//lname, fnameのとき用
-		if($id == 'lname'){
-			$all .= $v['label'].'  :  ';
-			$all .= $udata['lname'].' '.$_SESSION['qform']['fname']."\n";
+		if ($id == 'lname') {
+			$all .= $v['label'] . '  :  ';
+			$all .= $udata['lname'] . ' ' . $_SESSION['qform']['fname'] . "\n";
 		}
 		//lname_kana, fname_kanaのとき用
-		if($id == 'lname_kana'){
-			$all .= $v['label'].'  :  ';
-			$all .= $udata['lname_kana'].' '.$_SESSION['qform']['fname_kana']."\n";
+		if ($id == 'lname_kana') {
+			$all .= $v['label'] . '  :  ';
+			$all .= $udata['lname_kana'] . ' ' . $_SESSION['qform']['fname_kana'] . "\n";
 		}
-		if($id != 'fname' && $id != 'lname' && $id != 'fname_kana' && $id != 'lname_kana'){
-			$all .= $v['label'].'  :  ';
+		if ($id != 'fname' && $id != 'lname' && $id != 'fname_kana' && $id != 'lname_kana') {
+			$all .= $v['label'] . '  :  ';
 			//addressの時だけ、ラベルの後に改行を入れる
-			if($id == 'address') {
+			if ($id == 'address') {
 				$all .= "\n";
 			}
-			$all .= $udata[$id]."\n";
+			$all .= $udata[$id] . "\n";
 		}
 	}
 
 	$search['all_post_data'] = '<%all_post_data%>';
 	$udata['all_post_data']  = $all;
 	$search['form_url'] = '<%form_url%>';
-	$udata['form_url']  = $script.'?'.rawurlencode($page);
+	$udata['form_url']  = $script . '?' . rawurlencode($page);
 
 
 	//mail送信
@@ -1293,25 +1213,24 @@ function plugin_qform_do_finish($params, $url_sanitize = '0')
 	// --------------------------------
 	// Auto Reply Mail (finish mail)
 	// --------------------------------
-	if( isset($conf['finish_mail']) )
-	{
+	if (isset($conf['finish_mail'])) {
 
 		$subject = str_replace($search, $udata, $conf['finish_mail']['subject']);
 		$mailbody = str_replace($search, $udata, $conf['finish_mail']['body']);
 
 		//Google Appsを使って、更に自分宛の場合
-		if( $google_apps && preg_match('/.*@'.$google_apps_domain.'$/', $udata['email']) ){
+		if ($google_apps && preg_match('/.*@' . $google_apps_domain . '$/', $udata['email'])) {
 
 			$mail = new Qdmail();
 			$mail->smtp(true);
 
 			$param = array(
-				'host'=>'ASPMX.L.GOOGLE.com',
-				'port'=> 25,
-				'from'=>$conf['finish_mail']['from']['email'],
-				'protocol'=>'SMTP',
-				'user'=>'root@'.$google_apps_domain, //SMTPサーバーのユーザーID
-				'pass' =>$passwd, //SMTPサーバーの認証パスワード
+				'host' => 'ASPMX.L.GOOGLE.com',
+				'port' => 25,
+				'from' => $conf['finish_mail']['from']['email'],
+				'protocol' => 'SMTP',
+				'user' => 'root@' . $google_apps_domain, //SMTPサーバーのユーザーID
+				'pass' => $passwd, //SMTPサーバーの認証パスワード
 			);
 			$mail->smtpServer($param);
 
@@ -1321,13 +1240,12 @@ function plugin_qform_do_finish($params, $url_sanitize = '0')
 			$mail->text($mailbody);
 
 			$retval = $mail->send();
-		}
-		else{ // 通常の送信
+		} else { // 通常の送信
 			$smail->set_params($conf['finish_mail']['from']['name'], $conf['finish_mail']['from']['email']);
 			$smail->subject = $subject;
-			$smail->to = array('name'=>'', 'email'=>$udata['email']);
+			$smail->to = array('name' => '', 'email' => $udata['email']);
 
-            $smail->send($mailbody);
+			$smail->send($mailbody);
 		}
 	}
 
@@ -1336,39 +1254,38 @@ function plugin_qform_do_finish($params, $url_sanitize = '0')
 	// -------------------------------
 	// notice mail
 	// -------------------------------
-	if( isset($conf['notice_mail']) )
-	{
+	if (isset($conf['notice_mail'])) {
 
-		$subject = str_replace( $search, $udata, $conf['notice_mail']['subject'] );
-		$mailbody = str_replace( $search, $udata, $conf['notice_mail']['body'] );
+		$subject = str_replace($search, $udata, $conf['notice_mail']['subject']);
+		$mailbody = str_replace($search, $udata, $conf['notice_mail']['body']);
 
-// commu		if (isset($_SESSION['commu_user'])) {
-// commu			$domain = ini_get('session.cookie_domain');
-// commu			$path = ini_get('session.cookie_path');
-// commu			$url  = (SERVER_PORT == 443) ? 'https://' : 'http://';
-// commu			$url .= $domain;
-// commu			$url .= (SERVER_PORT == 80) ? '' : ':'.SERVER_PORT;
-// commu			$url .= $path.'commu/admin_user_view.php?cid='.$_SESSION['commu_user']['id'];
-// commu			$mailbody .= "\n\n----------------------------\n";
-// commu			$mailbody .= "ユーザーの詳細\n".$url."\n";
-// commu		}
+		// commu		if (isset($_SESSION['commu_user'])) {
+		// commu			$domain = ini_get('session.cookie_domain');
+		// commu			$path = ini_get('session.cookie_path');
+		// commu			$url  = (SERVER_PORT == 443) ? 'https://' : 'http://';
+		// commu			$url .= $domain;
+		// commu			$url .= (SERVER_PORT == 80) ? '' : ':'.SERVER_PORT;
+		// commu			$url .= $path.'commu/admin_user_view.php?cid='.$_SESSION['commu_user']['id'];
+		// commu			$mailbody .= "\n\n----------------------------\n";
+		// commu			$mailbody .= "ユーザーの詳細\n".$url."\n";
+		// commu		}
 
 		$to_name = $conf['notice_mail']['to']['name'];
 		$to_email = $conf['notice_mail']['to']['email'];
 
 		//Google Appsを使って、更に自分宛の場合
-		if( $google_apps && preg_match('/.*@'.$google_apps_domain.'$/', $to_email) ){
+		if ($google_apps && preg_match('/.*@' . $google_apps_domain . '$/', $to_email)) {
 
 			$mail = new Qdmail();
 			$mail->smtp(true);
 
 			$param = array(
-				'host'=>'ASPMX.L.GOOGLE.com',
-				'port'=> 25,
-				'from'=>$udata['email'],
-				'protocol'=>'SMTP',
-				'user'=>'root@'.$google_apps_domain, //SMTPサーバーのユーザーID
-				'pass' =>$passwd, //SMTPサーバーの認証パスワード
+				'host' => 'ASPMX.L.GOOGLE.com',
+				'port' => 25,
+				'from' => $udata['email'],
+				'protocol' => 'SMTP',
+				'user' => 'root@' . $google_apps_domain, //SMTPサーバーのユーザーID
+				'pass' => $passwd, //SMTPサーバーの認証パスワード
 			);
 			$mail->smtpServer($param);
 
@@ -1378,25 +1295,24 @@ function plugin_qform_do_finish($params, $url_sanitize = '0')
 			$mail->text($mailbody);
 
 			//添付ファイル
-			foreach($_SESSION['qform']['_FILES'] as $f){
-				if( file_exists($f['path']) ){
-					$mail->attach( array($f['path'], $f['name']) , true );
+			foreach ($_SESSION['qform']['_FILES'] as $f) {
+				if (file_exists($f['path'])) {
+					$mail->attach(array($f['path'], $f['name']), true);
 				}
 			}
 
 			$retval = $mail->send();
-		}
-		else{
-			$name = isset( $udata['lname']) ? $udata['lname'] : '';
-			$name .= isset( $udata['fname'] ) ? $udata['fname'] : '';
+		} else {
+			$name = isset($udata['lname']) ? $udata['lname'] : '';
+			$name .= isset($udata['fname']) ? $udata['fname'] : '';
 
 			$smail->set_params($name, $udata['email']);
 			$smail->subject = $subject;
-			$smail->to = array('name'=>$to_name, 'email'=>$to_email);
+			$smail->to = array('name' => $to_name, 'email' => $to_email);
 
 			//添付ファイル
-			foreach($_SESSION['qform']['_FILES'] as $f){
-				if( file_exists($f['path']) ){
+			foreach ($_SESSION['qform']['_FILES'] as $f) {
+				if (file_exists($f['path'])) {
 					$smail->add_attaches($f['name'], $f['path']);
 				}
 			}
@@ -1416,13 +1332,12 @@ function plugin_qform_do_finish($params, $url_sanitize = '0')
 	// -------------------------------
 	// post
 	// -------------------------------
-	if( isset($conf['finish_post']) ){
+	if (isset($conf['finish_post'])) {
 		$dat = $conf['finish_post']['data'];
 		$to_enc = $conf['finish_post']['encode'];
 		$url = $conf['finish_post']['url'];
 
-		foreach($dat as $key=>$val)
-		{
+		foreach ($dat as $key => $val) {
 			$val = str_replace($search, $udata, $val);
 			$dat[$key] = mb_convert_encoding($val, $to_enc, 'UTF-8');
 		}
@@ -1435,8 +1350,8 @@ function plugin_qform_do_finish($params, $url_sanitize = '0')
 	// --------------------------------
 	// redirect
 	// --------------------------------
-	if( isset($conf['finish_url']) && is_url($conf['finish_url']) ){
-		header('Location: '.$conf['finish_url']);
+	if (isset($conf['finish_url']) && is_url($conf['finish_url'])) {
+		header('Location: ' . $conf['finish_url']);
 		exit;
 	}
 
@@ -1444,22 +1359,21 @@ function plugin_qform_do_finish($params, $url_sanitize = '0')
 	// ---------------------------------
 	// 完了ページの表示
 	// ---------------------------------
-	if( isset($conf['finish_msg']) ){
+	if (isset($conf['finish_msg'])) {
 		$body = str_replace($search, $udata, $conf['finish_msg']);
 		force_output_message($qm->m['plg_qform']['title_finished'], $page, convert_html($body));
-	}
-	else{
+	} else {
 		force_output_message($qm->m['plg_qform']['title_finished'], $page, $qm->m['plg_qform']['finished']);
 	}
 }
 
 /**
-* ログを保存する
-*/
+ * ログを保存する
+ */
 function plugin_qform_save_log($params, $page, $title)
 {
 	$qm = get_qm();
-	$write_page = ':config/plugin/qform/'.$page;
+	$write_page = ':config/plugin/qform/' . $page;
 
 	$els = $params['element'];
 	//送信日時をセット
@@ -1469,61 +1383,59 @@ function plugin_qform_save_log($params, $page, $title)
 	$arr2 = array(
 		date("Y-m-d H:i:s")
 	);
-	foreach($els as $k=>$v){
-		$arr1[] = $v['label'].'('.$k.')';
+	foreach ($els as $k => $v) {
+		$arr1[] = $v['label'] . '(' . $k . ')';
 		$d = is_array($_SESSION['qform'][$k]) ?
-			implode(',',$_SESSION['qform'][$k]) : $_SESSION['qform'][$k];
+			implode(',', $_SESSION['qform'][$k]) : $_SESSION['qform'][$k];
 
-		$arr2[] = str_replace("\n", '<br>',  str_replace("\r",'', $d) );
+		$arr2[] = str_replace("\n", '<br>',  str_replace("\r", '', $d));
 	}
 
-	if(is_page($write_page)){
+	if (is_page($write_page)) {
 		$lines = get_source($write_page);
 
 		$str = '';
-		foreach($lines as $l){
-			if(trim($l)==='}}'){ // }}の直前に、データを書き入れる
-				$str .= '"'.implode('","', $arr2).'"'."\n";
+		foreach ($lines as $l) {
+			if (trim($l) === '}}') { // }}の直前に、データを書き入れる
+				$str .= '"' . implode('","', $arr2) . '"' . "\n";
 			}
 
 			$str .= $l;
 		}
 
 		page_write($write_page, $str);
-
-	}
-	else{
+	} else {
 		//make header
-		$str = '#close'."\n";
-		$str .= $qm->replace("plg_qform.title_form_log", $page)."\n\n";
-		$str .= '* '.$title."\n\n";
-		$str .= '#qform_view(){{'."\n";
-		$str .= '"'.implode('","', $arr1).'"'."\n";
-		$str .= '"'.implode('","', $arr2).'"'."\n";
+		$str = '#close' . "\n";
+		$str .= $qm->replace("plg_qform.title_form_log", $page) . "\n\n";
+		$str .= '* ' . $title . "\n\n";
+		$str .= '#qform_view(){{' . "\n";
+		$str .= '"' . implode('","', $arr1) . '"' . "\n";
+		$str .= '"' . implode('","', $arr2) . '"' . "\n";
 		$str .= '}}';
 
 		//新規保存
 		page_write($write_page, $str);
-
 	}
 }
 
 /**
-* 不要な添付ファイルを削除する
-*/
-function plugin_qform_unlink_attaches(){
+ * 不要な添付ファイルを削除する
+ */
+function plugin_qform_unlink_attaches()
+{
 
 	//現在、セッションにセットされているファイル
-	foreach($_SESSION['qform']['_FILES'] as $f){
-		if( file_exists($f['path']) ){
+	foreach ($_SESSION['qform']['_FILES'] as $f) {
+		if (file_exists($f['path'])) {
 			unlink($f['path']);
 		}
 	}
 
-	$limit = time()-PLUGIN_QFORM_UNLINK_TIME;
+	$limit = time() - PLUGIN_QFORM_UNLINK_TIME;
 	chdir(CACHEQHM_DIR);
-	foreach( glob('qform_*') as $file ){
-		if( filemtime($file) < $limit ){
+	foreach (glob('qform_*') as $file) {
+		if (filemtime($file) < $limit) {
 			unlink($file);
 		}
 	}
@@ -1533,12 +1445,13 @@ function plugin_qform_unlink_attaches(){
 
 function do_post_request($url, $data, $optional_headers = null)
 {
-	if(function_exists('stream_get_contents')){
-		$params = array('http' => array(
-							'method' => 'POST',
-							'content' => $data
-							)
-					);
+	if (function_exists('stream_get_contents')) {
+		$params = array(
+			'http' => array(
+				'method' => 'POST',
+				'content' => $data
+			)
+		);
 
 		if ($optional_headers !== null) {
 			$params['http']['header'] = $optional_headers;
@@ -1548,31 +1461,29 @@ function do_post_request($url, $data, $optional_headers = null)
 		$fp = @fopen($url, 'rb', false, $ctx);
 
 		if (!$fp) {
-//			echo "Problem with $url, $php_errormsg";
+			//			echo "Problem with $url, $php_errormsg";
 		}
 
 		$response = @stream_get_contents($fp);
-//		echo '<br />';
+		//		echo '<br />';
 		if ($response === false) {
-//			echo "Problem reading data from $url, $php_errormsg";
+			//			echo "Problem reading data from $url, $php_errormsg";
 		}
 		return $response;
-	}
-
-	elseif(!function_exists('stream_get_contents')){
+	} elseif (!function_exists('stream_get_contents')) {
 
 		$url_parse = parse_url($url);
 		$port = "80";
 
 		if ($fp = fsockopen($url_parse['host'], $port)) {
-			fputs ($fp, "POST ".$url_parse['path']." HTTP/1.1\r\n");
-			fputs ($fp, "User-Agent:PHP/".phpversion()."\r\n");
-			fputs ($fp, "Host: ".$_SERVER["HTTP_HOST"]."\r\n");
-			fputs ($fp, "Content-Type: application/x-www-form-urlencoded\r\n");
-			fputs ($fp, "Content-Length: ".strlen($data)."\r\n\r\n");
-			fputs ($fp, $data);
+			fputs($fp, "POST " . $url_parse['path'] . " HTTP/1.1\r\n");
+			fputs($fp, "User-Agent:PHP/" . phpversion() . "\r\n");
+			fputs($fp, "Host: " . $_SERVER["HTTP_HOST"] . "\r\n");
+			fputs($fp, "Content-Type: application/x-www-form-urlencoded\r\n");
+			fputs($fp, "Content-Length: " . strlen($data) . "\r\n\r\n");
+			fputs($fp, $data);
 			while (!feof($fp)) {
-				$response .= fgets($fp,4096);
+				$response .= fgets($fp, 4096);
 			}
 			fclose($fp);
 		}
@@ -1583,6 +1494,6 @@ function do_post_request($url, $data, $optional_headers = null)
 function plugin_qform_set_css()
 {
 	$qt = get_qt();
-	$addstyle= "<style>\n" . file_get_contents(dirname(__FILE__) . '/qform/qform.css') . "</style>\n";
+	$addstyle = "<style>\n" . file_get_contents(dirname(__FILE__) . '/qform/qform.css') . "</style>\n";
 	$qt->appendv_once('plugin_qform', 'lastscript', $addstyle);
 }

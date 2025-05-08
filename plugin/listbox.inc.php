@@ -97,7 +97,7 @@ function plugin_listbox_inline()
 function plugin_listbox_getNumber()
 {
 	global $vars;
-	static $numbers = array();
+	static $numbers = [];
 	if (!array_key_exists($vars['page'], $numbers)) {
 		$numbers[$vars['page']] = 0;
 	}
@@ -239,7 +239,7 @@ function plugin_listbox_getOptions($value, $config_name, $field_name, $retlist =
 		$s = $options[0][0];
 		$e = $options[0][1];
 
-		$options = array();
+		$options = [];
 		for ($i = $s; $i <= $e; $i++)
 			$options[] = $i;
 	}
@@ -275,7 +275,7 @@ function plugin_listbox_getStyle($s_format)
 	$format_enc = preg_replace("/\%s/", '', $format_enc);
 
 	$opt_format = '';
-	$matches = array();
+	$matches = [];
 	while (preg_match('/^(?:(BG)?COLOR\(([#\w]+)\)):(.*)$/', $format_enc, $matches)) {
 		if ($matches[0]) {
 			$style_name = $matches[1] ? 'background-color' : 'color';

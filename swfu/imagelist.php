@@ -9,13 +9,13 @@ function action(&$c)
 
 	$imgs = $c->image->find();
 
-	$images = array();
+	$images = [];
 	foreach ($imgs as $k => $v) {
 		$fname = $v['name'];
 		$head = $fname[0];
 
 		if (! isset($images[$head]))
-			$images[$head] = array();
+			$images[$head] = [];
 
 		$images[$head][] = $v;
 	}

@@ -26,12 +26,11 @@ function plugin_backup_action()
 	if (!$do_backup) return;
 
 	$page = isset($vars['page']) ? $vars['page']  : '';
-	if ($page == '') return array('msg'=>$qm->m['plg_backup']['title_backuplist'], 'body'=>plugin_backup_get_list_all());
+	if ($page == '') return array('msg' => $qm->m['plg_backup']['title_backuplist'], 'body' => plugin_backup_get_list_all());
 
 	//レイアウト部品の場合、スタイルを変更する
 	$is_layout = FALSE;
-	if (isset($layout_pages) && isset($layout_pages[$page]))
-	{
+	if (isset($layout_pages) && isset($layout_pages[$page])) {
 		$style_name = '..';
 		$is_layout = TRUE;
 	}
@@ -50,19 +49,17 @@ function plugin_backup_action()
 	}
 
 	$s_age  = (isset($vars['age']) && is_numeric($vars['age'])) ? $vars['age'] : 0;
-	if ($s_age <= 0)
-	{
-		$title = $is_layout ? (h($layout_pages[$page]).'のバックアップ一覧') : $qm->m['plg_backup']['title_pagebackuplist'];
-		return array( 'msg'=> $title, 'body'=>plugin_backup_get_list($page));
+	if ($s_age <= 0) {
+		$title = $is_layout ? (h($layout_pages[$page]) . 'のバックアップ一覧') : $qm->m['plg_backup']['title_pagebackuplist'];
+		return array('msg' => $title, 'body' => plugin_backup_get_list($page));
 	}
 
 
 	$script = get_script_uri();
 
 	$body  = '<ul>' . "\n";
-	if (!$is_layout)
-	{
-		$body .= ' <li><a href="' . $script . '?cmd=backup">' . $qm->m['plg_backup']['backuplist'] . '</a></li>' ."\n";
+	if (!$is_layout) {
+		$body .= ' <li><a href="' . $script . '?cmd=backup">' . $qm->m['plg_backup']['backuplist'] . '</a></li>' . "\n";
 	}
 
 	$href    = $script . '?cmd=backup&amp;page=' . $r_page . '&amp;age=' . $s_age;
@@ -70,36 +67,48 @@ function plugin_backup_action()
 
 	if ($is_page && $action != 'diff') {
 		exist_plugin('diff') && plugin_diff_set_css();
-		$body .= ' <li>' . str_replace('$1', '<a href="' . $href .
-			'&amp;action=diff">' . $qm->m['plg_backup']['diff'] . '</a>',
-			$qm->m['plg_backup']['view']) . '</li>' . "\n";
+		$body .= ' <li>' . str_replace(
+			'$1',
+			'<a href="' . $href .
+				'&amp;action=diff">' . $qm->m['plg_backup']['diff'] . '</a>',
+			$qm->m['plg_backup']['view']
+		) . '</li>' . "\n";
 	}
 
 	if ($is_page && $action != 'nowdiff') {
 		exist_plugin('diff') && plugin_diff_set_css();
-		$body .= ' <li>' . str_replace('$1', '<a href="' . $href .
-			'&amp;action=nowdiff">' . $qm->m['plg_backup']['nowdiff'] . '</a>',
-			$qm->m['plg_backup']['view']) . '</li>' . "\n";
+		$body .= ' <li>' . str_replace(
+			'$1',
+			'<a href="' . $href .
+				'&amp;action=nowdiff">' . $qm->m['plg_backup']['nowdiff'] . '</a>',
+			$qm->m['plg_backup']['view']
+		) . '</li>' . "\n";
 	}
 
 	if ($action != 'source')
-		$body .= ' <li>' . str_replace('$1', '<a href="' . $href .
-			'&amp;action=source">' . $qm->m['plg_backup']['source'] . '</a>',
-			$qm->m['plg_backup']['view']) . '</li>' . "\n";
+		$body .= ' <li>' . str_replace(
+			'$1',
+			'<a href="' . $href .
+				'&amp;action=source">' . $qm->m['plg_backup']['source'] . '</a>',
+			$qm->m['plg_backup']['view']
+		) . '</li>' . "\n";
 
 	if (!PLUGIN_BACKUP_DISABLE_BACKUP_RENDERING && $action)
-		$body .= ' <li>' . str_replace('$1', '<a href="' . $href .
-			'">' . $qm->m['plg_backup']['backup'] . '</a>',
-			$qm->m['plg_backup']['view']) . '</li>' . "\n";
+		$body .= ' <li>' . str_replace(
+			'$1',
+			'<a href="' . $href .
+				'">' . $qm->m['plg_backup']['backup'] . '</a>',
+			$qm->m['plg_backup']['view']
+		) . '</li>' . "\n";
 
-	if ($is_page && $is_layout)
-	{
+	if ($is_page && $is_layout) {
 		$body .= ' <li><a href="' . $script . '?cmd=edit&amp;page=' . $r_page . '">' . h($layout_pages[$page]) . 'を編集する</a>';
-	}
-	else if ($is_page) {
-		$body .= ' <li>' . str_replace('$1',
+	} else if ($is_page) {
+		$body .= ' <li>' . str_replace(
+			'$1',
 			'<a href="' . $script . '?' . $r_page . '">' . $s_page . '</a>',
-			$qm->m['fmt_msg_goto']) . "\n";
+			$qm->m['fmt_msg_goto']
+		) . "\n";
 	} else {
 		$body .= ' <li>' . str_replace('$1', $s_page, $qm->m['plg_backup']['deleted']) . "\n";
 	}
@@ -110,7 +119,7 @@ function plugin_backup_action()
 
 	if ($backups_count > 0) {
 		$body .= '  <ul>' . "\n";
-		foreach($backups as $age => $val) {
+		foreach ($backups as $age => $val) {
 			$date = format_date($val['time'], TRUE);
 			$body .= ($age == $s_age) ?
 				'   <li><em>' . $age . ' ' . $date . '</em></li>' . "\n" :
@@ -124,30 +133,30 @@ function plugin_backup_action()
 	$body .= '</ul>'  . "\n";
 
 	if ($action == 'diff') {
-		$title = $is_layout ? h($layout_pages[$page]) .' のバックアップ差分(No.$2)' : $qm->m['plg_backup']['title_backupdiff'];
+		$title = $is_layout ? h($layout_pages[$page]) . ' のバックアップ差分(No.$2)' : $qm->m['plg_backup']['title_backupdiff'];
 		$old = ($s_age > 1) ? join('', $backups[$s_age - 1]['data']) : '';
 		$cur = join('', $backups[$s_age]['data']);
 		$body .= plugin_backup_diff(do_diff($old, $cur));
 	} else if ($s_action == 'nowdiff') {
-		$title = $is_layout ? h($layout_pages[$page]).' のバックアップの現在との差分(No.$2)' : $qm->m['plg_backup']['title_backupnowdiff'];
+		$title = $is_layout ? h($layout_pages[$page]) . ' のバックアップの現在との差分(No.$2)' : $qm->m['plg_backup']['title_backupnowdiff'];
 		$old = join('', $backups[$s_age]['data']);
 		$cur = join('', get_source($page));
 		$body .= plugin_backup_diff(do_diff($old, $cur));
 	} else if ($s_action == 'source') {
-		$title = $is_layout ? h($layout_pages[$page]) .' のバックアップソース(No.$2)' : $qm->m['plg_backup']['title_backupsource'];
+		$title = $is_layout ? h($layout_pages[$page]) . ' のバックアップソース(No.$2)' : $qm->m['plg_backup']['title_backupsource'];
 		$body .= '<pre>' . htmlspecialchars(join('', $backups[$s_age]['data'])) .
 			'</pre>' . "\n";
 	} else {
 		if (PLUGIN_BACKUP_DISABLE_BACKUP_RENDERING) {
 			die_message($qm->m['fmt_err_prohibited']);
 		} else {
-			$title = $is_layout ? h($layout_pages[$page]).' のバックアップ(No.$2)' :  $qm->m['plg_backup']['title_backup'];
+			$title = $is_layout ? h($layout_pages[$page]) . ' のバックアップ(No.$2)' :  $qm->m['plg_backup']['title_backup'];
 			$body .= $hr . "\n" .
 				drop_submit(convert_html($backups[$s_age]['data']));
 		}
 	}
 
-	return array('msg'=>str_replace('$2', $s_age, $title), 'body'=>$body);
+	return array('msg' => str_replace('$2', $s_age, $title), 'body' => $body);
 }
 
 // Delete backup
@@ -156,24 +165,23 @@ function plugin_backup_delete($page)
 	global $vars, $layout_pages;
 
 	$is_layout = FALSE;
-	if (isset($layout_pages) && isset($layout_pages[$page]))
-	{
+	if (isset($layout_pages) && isset($layout_pages[$page])) {
 		$is_layout = TRUE;
 	}
 
 	$qm = get_qm();
 
 	if (!_backup_file_exists($page))
-		return array('msg'=>$qm->m['plg_backup']['title_pagebackuplist'], 'body'=>plugin_backup_get_list($page)); // Say "is not found"
+		return array('msg' => $qm->m['plg_backup']['title_pagebackuplist'], 'body' => plugin_backup_get_list($page)); // Say "is not found"
 
 	$body = '';
 	if (isset($vars['pass'])) {
 		if (pkwk_login($vars['pass'])) {
 			_backup_delete($page);
 			$pagelink = $is_layout ? h($layout_pages[$page]) : make_pagelink($page);
-			$addlink = $is_layout ? "\n" . '<p><a href="'. h($script).'?cmd=edit&amp;page='. rawurlencode($page) .'">戻る</a></p>' : '';
+			$addlink = $is_layout ? "\n" . '<p><a href="' . h($script) . '?cmd=edit&amp;page=' . rawurlencode($page) . '">戻る</a></p>' : '';
 			return array(
-				'msg'  => $is_layout ? h($layout_pages[$page]). ' のバックアップを削除' : $qm->m['plg_backup']['title_backup_delete'],
+				'msg'  => $is_layout ? h($layout_pages[$page]) . ' のバックアップを削除' : $qm->m['plg_backup']['title_backup_delete'],
 				'body' => str_replace('$1', $pagelink, $qm->m['plg_backup']['backup_deleted']) . $addlink
 			);
 		} else {
@@ -196,8 +204,8 @@ function plugin_backup_delete($page)
 </form>
 EOD;
 
-	$title = $is_layout ? h($layout_pages[$page]). ' のバックアップを削除' : $qm->m['plg_backup']['title_backup_delete'];
-	return	array('msg'=>$title, 'body'=>$body);
+	$title = $is_layout ? h($layout_pages[$page]) . ' のバックアップを削除' : $qm->m['plg_backup']['title_backup_delete'];
+	return	array('msg' => $title, 'body' => $body);
 }
 
 function plugin_backup_diff($str)
@@ -221,8 +229,7 @@ function plugin_backup_get_list($page)
 
 	//レイアウト部品の場合、スタイルを変更する
 	$is_layout = FALSE;
-	if (isset($layout_pages) && isset($layout_pages[$page]))
-	{
+	if (isset($layout_pages) && isset($layout_pages[$page])) {
 		$is_layout = TRUE;
 	}
 
@@ -236,14 +243,13 @@ function plugin_backup_get_list($page)
 	//レイアウト部品の場合、編集リンクを表示する
 
 	$backuplist_link = $is_layout ?
-		('<a href="'.h($script).'?cmd=edit&amp;page='.$r_page.'">' .h($layout_pages[$page]). 'を編集する</a>') :
-		('<a href="'.h($script).'?cmd=backup">'.$qm->m['plg_backup']['backuplist'].'</a>');
+		('<a href="' . h($script) . '?cmd=edit&amp;page=' . $r_page . '">' . h($layout_pages[$page]) . 'を編集する</a>') : ('<a href="' . h($script) . '?cmd=backup">' . $qm->m['plg_backup']['backuplist'] . '</a>');
 
-	$retval = array();
+	$retval = [];
 	$retval[0] = '
 <ul>
   <li>
-	' .$backuplist_link. '
+	' . $backuplist_link . '
 	<ul>
 ';
 	$retval[1] = "\n";
@@ -253,7 +259,7 @@ function plugin_backup_get_list($page)
 </ul>
 EOD;
 
-	$backups = _backup_file_exists($page) ? get_backup($page) : array();
+	$backups = _backup_file_exists($page) ? get_backup($page) : [];
 	if (empty($backups)) {
 		$pagelink = $is_layout ? h($layout_pages[$page]) : make_pagelink($page);
 		$msg = str_replace('$1', $pagelink, $qm->m['plg_backup']['nobackup']);
@@ -270,7 +276,7 @@ EOD;
 
 	$href = $script . '?cmd=backup&amp;page=' . $r_page . '&amp;age=';
 	$_anchor_from = $_anchor_to   = '';
-	foreach ($backups as $age=>$data) {
+	foreach ($backups as $age => $data) {
 		if (!PLUGIN_BACKUP_DISABLE_BACKUP_RENDERING) {
 			$_anchor_from = '<a href="' . $href . $age . '">';
 			$_anchor_to   = '</a>';
@@ -302,4 +308,3 @@ function plugin_backup_get_list_all($withfilename = FALSE)
 		return page_list($pages, 'backup', $withfilename);
 	}
 }
-?>

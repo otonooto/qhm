@@ -11,11 +11,11 @@
 // PukiWiki version / Copyright / Licence
 
 define('S_VERSION', '1.4.7');
-define('QHM_VERSION', '7.6.4');  //絶対に編集しないで下さい
+define('QHM_VERSION', '8.0.0');  // version
 define('QHM_OPTIONS', 'update=download; support=false; banner=true');
 define(
 	'S_COPYRIGHT',
-	'powered by <strong><a href="https://haik-cms.jp/">HAIK</a> ' . QHM_VERSION . '</strong><br />' .
+	'powered by <strong><a href="https://github.com/otonooto/qhm">HAIK</a> ' . QHM_VERSION . '</strong><br />' .
 		' based on <a href="http://pukiwiki.sourceforge.jp/">PukiWiki</a> ' . S_VERSION . ' ' .
 		' License is <a href="http://www.gnu.org/licenses/gpl.html">GPL</a>.'
 );
@@ -27,7 +27,7 @@ define('SWFU_IMAGEDB_PATH', SWFU_DIR . 'data/image.txt');
 define('SWFU_IMAGE_DIR', SWFU_DIR . 'd/');
 
 // URLs
-define('QHM_HOME', 'https://haik-cms.jp/');
+define('QHM_HOME', 'https://github.com/otonooto/qhm');
 
 /////////////////////////////////////////////////
 // Init server variables
@@ -48,11 +48,11 @@ foreach (
 }
 
 /////////////////////////////////////////////////
-// Init grobal variables
+// Init global variables
 
-$foot_explain = array();	// Footnotes
-$related      = array();	// Related pages
-$head_tags    = array();	// XHTML tags in <head></head>
+$foot_explain = [];	// Footnotes
+$related      = [];	// Related pages
+$head_tags    = [];	// XHTML tags in <head></head>
 
 /////////////////////////////////////////////////
 // Time settings
@@ -153,7 +153,7 @@ $init_scripts = array('normal' => $script, 'ssl' => $script_ssl);
 // INI_FILE: $agents:  UserAgentの識別
 
 $ua = 'HTTP_USER_AGENT';
-$user_agent = $matches = array();
+$user_agent = $matches = [];
 
 $user_agent['agent'] = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
 if (isset(${$ua})) unset(${$ua});
@@ -328,7 +328,7 @@ $arg = $arg[0];
 // QUERY_STRINGを分解してコード変換し、$_GET に上書き
 
 // URI を urlencode せずに入力した場合に対処する
-$matches = array();
+$matches = [];
 foreach (explode('&', $arg) as $key_and_value) {
 	if (
 		preg_match('/^([^=]+)=(.+)/', $key_and_value, $matches) &&

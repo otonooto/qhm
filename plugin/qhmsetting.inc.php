@@ -1,19 +1,19 @@
 <?php
 
-define('PLUGIN_QHMSETTING_LOGO_PATH', CACHE_DIR.'qhm_logo.');
-define('PLUGIN_QHMSETTING_LOGO_PREV_PATH', CACHE_DIR.'qhm_logo_preview.');
+define('PLUGIN_QHMSETTING_LOGO_PATH', CACHE_DIR . 'qhm_logo.');
+define('PLUGIN_QHMSETTING_LOGO_PREV_PATH', CACHE_DIR . 'qhm_logo_preview.');
 define('PLUGIN_QHMSETTING_USER_INI_FILE', 'qhm_users.ini.txt');
 define('PLUGIN_QHMSETTING_ACCESS_INI_FILE', 'qhm_access.ini.txt');
 define('PLUGIN_QHMSETTING_ALLOW_PASSWD_PATTERN', "/^[!-~]+$/");
 
 /**
-* qhmsettingが動作するメインの関数
-*/
+ * qhmsettingが動作するメインの関数
+ */
 function plugin_qhmsetting_action()
 {
 	global $vars, $username, $style_name, $script;
 	$qt = get_qt();
-	$qt->setv('no_menus', TRUE);//メニューやナビ等をconvertしない
+	$qt->setv('no_menus', TRUE); //メニューやナビ等をconvertしない
 
 	// XSS-Protection を無効化
 	cancel_xss_protection();
@@ -31,45 +31,40 @@ body {background-color: #E7E7E7;}
 	$qt->appendv('beforescript', $head);
 
 	//check admin, setting
-	if($username != $_SESSION['usr'] && $vars['phase']!='user2' && $vars['phase'] != 'script' && $vars['phase'] != 'sssavepath'){
-		return array('msg'=>'アクセスできません', 'body'=>'<h2>アクセス制限</h2><p>このページは、管理者のみアクセスできます</p>');
+	if ($username != $_SESSION['usr'] && $vars['phase'] != 'user2' && $vars['phase'] != 'script' && $vars['phase'] != 'sssavepath') {
+		return array('msg' => 'アクセスできません', 'body' => '<h2>アクセス制限</h2><p>このページは、管理者のみアクセスできます</p>');
 	}
 
-	if( !is_writable('qhm.ini.php') ){
-		return array('msg'=>'設定ファイルエラー', 'body'=>'<h2>エラー</h2><p>設定ファイル qhm.ini.php に書き込めません。qhm.ini.phpに書き込み権限(666)を設定して下さい。');
+	if (!is_writable('qhm.ini.php')) {
+		return array('msg' => '設定ファイルエラー', 'body' => '<h2>エラー</h2><p>設定ファイル qhm.ini.php に書き込めません。qhm.ini.phpに書き込み権限(666)を設定して下さい。');
 	}
 
 	//POSTされている場合
 	$phase = isset($vars['phase']) ? $vars['phase'] : 'default';
 	$mode = isset($vars['mode']) ? $vars['mode'] : '';
 
-	$func = 'plugin_qhmsetting_'.$phase.'_'.$mode;
+	$func = 'plugin_qhmsetting_' . $phase . '_' . $mode;
 
-	if( function_exists($func) ){
-		$ret = '<div class="admin"><p><a href="'.$script.'">HAIKトップ</a> &gt; <a href="'.$script.'?cmd=qhmsetting">設定一覧</a> &gt; here</p>'
-			.plugin_qhmsetting_phpversion_block()
-			.$func() . '</div>';
-	}
-	else{
+	if (function_exists($func)) {
+		$ret = '<div class="admin"><p><a href="' . $script . '">HAIKトップ</a> &gt; <a href="' . $script . '?cmd=qhmsetting">設定一覧</a> &gt; here</p>'
+			. plugin_qhmsetting_phpversion_block()
+			. $func() . '</div>';
+	} else {
 
 		$title = '
-<p><a href="'.$script.'">HAIKトップ</a> &gt; here</p>'
-.plugin_qhmsetting_phpversion_block()
-.'<h2>HAIK v'. QHM_VERSION. ' 設定</h2>';
-		$ret = $title.plugin_qhmsetting_default();
+<p><a href="' . $script . '">HAIKトップ</a> &gt; here</p>'
+			. plugin_qhmsetting_phpversion_block()
+			. '<h2>HAIK v' . QHM_VERSION . ' 設定</h2>';
+		$ret = $title . plugin_qhmsetting_default();
 	}
 
-	if (isset($_SESSION['flash_msg']))
-	{
-		if (FALSE && strpos($_SESSION['flash_msg'], '<') !== FALSE)
-		{
+	if (isset($_SESSION['flash_msg'])) {
+		if (FALSE && strpos($_SESSION['flash_msg'], '<') !== FALSE) {
 			$ret = $_SESSION['flash_msg'] . $ret;
-		}
-		else
-		{
+		} else {
 			$ret = '
 <div style="background-color:#fee;border:1px solid #c99;padding: 10px;">
-	'. $_SESSION['flash_msg'].'
+	' . $_SESSION['flash_msg'] . '
 </div>
 ' . $ret;
 		}
@@ -79,7 +74,7 @@ body {background-color: #E7E7E7;}
 
 
 	$style_name = '..';
-	return array('msg'=>"HAIKサイト情報設定", 'body'=>$ret);
+	return array('msg' => "HAIKサイト情報設定", 'body' => $ret);
 }
 
 function plugin_qhmsetting_default()
@@ -93,24 +88,24 @@ function plugin_qhmsetting_default()
 	$setlist = array(
 		'design'    => array(
 			'help' => 'ChangeDesign',
-			'url'  => $scrt. 'design',
-			'img'  => IMAGE_DIR. 'settings_design.png',
+			'url'  => $scrt . 'design',
+			'img'  => IMAGE_DIR . 'settings_design.png',
 			'title' => 'デザインの変更',
 			'subtitle' => 'ロゴ画像の設定、ロゴ部分の文字、テンプレートの設定を行います。',
 			'limited' => false,
 		),
 		'info'      => array(
 			'help' => 'SiteConfig',
-			'url'  => $scrt. 'info',
-			'img'  => IMAGE_DIR. 'settings_site.png',
+			'url'  => $scrt . 'info',
+			'img'  => IMAGE_DIR . 'settings_site.png',
 			'title' => 'サイト情報の設定',
 			'subtitle' => 'キーワード、サイト説明、ヘッダー、フッター、アクセス解析タグなどの設定を行います。',
 			'limited' => false,
 		),
 		'admin'     => array(
 			'help' => 'SetPassword',
-			'url'  => $scrt. 'admin',
-			'img'  => IMAGE_DIR. 'settings_user.png',
+			'url'  => $scrt . 'admin',
+			'img'  => IMAGE_DIR . 'settings_user.png',
 			'title' => 'ユーザー名、パスワードの変更',
 			'subtitle' => '編集用のユーザー名、パスワードの設定を行います。',
 			'limited' => false,
@@ -118,76 +113,76 @@ function plugin_qhmsetting_default()
 		'qblog' => array(
 			'help' => 'HAIKBlogSetting',
 			'url' => $script . '?cmd=qblog',
-			'img' => IMAGE_DIR. 'settings_blog.png',
+			'img' => IMAGE_DIR . 'settings_blog.png',
 			'title' => 'ブログ設定',
 			'subtitle' => 'HAIKブログの設定を行います。',
 			'limited' => false,
 		),
 		'useradmin' => array(
 			'help' => 'UserAuthSetting',
-			'url'  => $scrt. 'user',
-			'img'  => IMAGE_DIR. 'settings_access.png',
+			'url'  => $scrt . 'user',
+			'img'  => IMAGE_DIR . 'settings_access.png',
 			'title' => 'アクセス権限設定',
 			'subtitle' => '特定のページにアクセス権限を設定し、アクセスできるユーザーを追加設定できます。',
 			'limited' => true,
 		),
 		'clear'     => array(
 			'help' => 'SettingCache',
-			'url'  => $scrt. 'clear',
-			'img'  => IMAGE_DIR. 'settings_cache.png',
+			'url'  => $scrt . 'clear',
+			'img'  => IMAGE_DIR . 'settings_cache.png',
 			'title' => '高速化設定、キャッシュの初期化',
 			'subtitle' => '表示を高速化するためのキャッシュ機能を設定、キャッシュの初期化、テンプレートを初期化を行います。',
 			'limited' => false,
 		),
 		'back'      => array(
 			'help' => 'EasyBackup',
-			'url'  => $script. '?cmd=dump',
-			'img'  => IMAGE_DIR. 'settings_backup.png',
+			'url'  => $script . '?cmd=dump',
+			'img'  => IMAGE_DIR . 'settings_backup.png',
 			'title' => 'バックアップ',
 			'subtitle' => 'HAIKのバックアップをダウンロードできます。フルバックアップ、重要ファイルのみのバックアップなど可能です。',
 			'limited' => true,
 		),
 		'counter'   => array(
 			'help' => 'Counter',
-			'url'  => $scrt. 'counter',
-			'img'  => IMAGE_DIR. 'settings_counter.png',
+			'url'  => $scrt . 'counter',
+			'img'  => IMAGE_DIR . 'settings_counter.png',
 			'title' => 'アクセスカウンター',
 			'subtitle' => 'アクセスカウンターをリセットします。',
 			'limited' => false,
 		),
 		'chmod'     => array(
 			'help' => 'UserAuthSetting',
-			'url'  => $scrt. 'chmod',
-			'img'  => IMAGE_DIR. 'settings_file.png',
+			'url'  => $scrt . 'chmod',
+			'img'  => IMAGE_DIR . 'settings_file.png',
 			'title' => 'ファイル権限設定',
 			'subtitle' => '削除できない、FTPエラーが起こる原因である「ファイル権限」を設定、チェックします。',
 			'limited' => true,
 		),
 		'mail'      => array(
 			'help' => 'MailSetting',
-			'url'  => $scrt. 'mail',
-			'img'  => IMAGE_DIR. 'settings_mail.png',
+			'url'  => $scrt . 'mail',
+			'img'  => IMAGE_DIR . 'settings_mail.png',
 			'title' => 'メール送信設定',
 			'subtitle' => '送信メールサーバーを設定できます（SMTP送信、GoogleAppsなどの場合）',
 			'limited' => true,
 		),
 		'close'     => array(
 			'help' => 'SettingCloseSite',
-			'url'  => $scrt. 'close',
-			'img'  => IMAGE_DIR. 'settings_close.png',
+			'url'  => $scrt . 'close',
+			'img'  => IMAGE_DIR . 'settings_close.png',
 			'title' => 'サイトの閉鎖／公開',
 			'subtitle' => 'HAIKで作成された全ページを閉鎖します。閉鎖後は、管理者権限でログインすることで編集、閲覧が可能です。',
 			'limited' => true,
 		),
 		'mobile'    => array(
 			'help' => 'RedirectMobile',
-			'url'  => $scrt. 'mobile',
-			'img'  => IMAGE_DIR. 'settings_mobile.png',
+			'url'  => $scrt . 'mobile',
+			'img'  => IMAGE_DIR . 'settings_mobile.png',
 			'title' => '携帯アクセス転送',
 			'subtitle' => '携帯端末からのアクセスを携帯専用サイトなどに転送します。',
 			'limited' => false,
 		),
-/*
+		/*
 		'gmap'      => array(
 			'help' => 'GoogleMapsKey',
 			'url'  => $scrt. 'gmap',
@@ -199,16 +194,16 @@ function plugin_qhmsetting_default()
 */
 		'sns'       => array(
 			'help' => 'SettingOGP',
-			'url'  => $scrt. 'sns',
-			'img'  => IMAGE_DIR. 'settings_sns.png',
+			'url'  => $scrt . 'sns',
+			'img'  => IMAGE_DIR . 'settings_sns.png',
 			'title' => 'ソーシャル連携',
 			'subtitle' => 'HAIKとSNSの連携設定をします。',
 			'limited' => true,
 		),
 		'update'       => array(
 			'help' => 'HowToUseUpdatePlugin',
-			'url'  => $script. '?cmd=system_updater',
-			'img'  => IMAGE_DIR. 'settings_update.png',
+			'url'  => $script . '?cmd=system_updater',
+			'img'  => IMAGE_DIR . 'settings_update.png',
 			'title' => 'アップデート',
 			'subtitle' => 'HAIKのアップデートを行います。',
 			'limited' => true,
@@ -218,14 +213,14 @@ function plugin_qhmsetting_default()
 
 	foreach ($setlist as $setname => $set) {
 		$setlist[$setname]['help'] = '';
-//--<LimitedSetting>--
+		//--<LimitedSetting>--
 		if ($set['limited']) {
 			$setlist[$setname]['limited'] = false;
 		}
-//--</LimitedSetting>--
+		//--</LimitedSetting>--
 	}
-//--<UnlimitBackup>--
-//--</UnlimitBackup>--
+	//--<UnlimitBackup>--
+	//--</UnlimitBackup>--
 
 	$html = '';
 
@@ -233,12 +228,12 @@ function plugin_qhmsetting_default()
 	// v2.5 未満の場合、SWFUなどが正常に動かないと警告を出す
 
 	$idx_php = file_get_contents('index.php');
-	if (preg_match_all('/require/', $idx_php, $mts) > 1)
-	{
-		if (file_exists('commu/config.php')
+	if (preg_match_all('/require/', $idx_php, $mts) > 1) {
+		if (
+			file_exists('commu/config.php')
 			&& preg_match("/COMMU_VERSION[\"'], '(.*?)'/", file_get_contents('commu/config.php'), $mts)
-			&& $mts[1] < 2.5)
-		{
+			&& $mts[1] < 2.5
+		) {
 			$html .= <<<EOD
 <p class="warning" style="background:#fff6bf;color:#514721;border-color:#ffd324;">
 	SWFUなどが正常に動作しない場合は、
@@ -249,7 +244,7 @@ EOD;
 	}
 
 	$update_showcase = '';
-/*
+	/*
 	if (get_qhm_option('banner'))
 	{
 		$update_list_url = h('//ensmall.net/update/index.php?cmd=hkn_upinfo&cat=openqhm');
@@ -279,7 +274,7 @@ EOD;
 		$qt->setv('fb_init', $fb_init);
 	}
 */
-// HTML生成
+	// HTML生成
 	$html .= <<<EOD
 <p>HAIKの設定を行います。<br />
 以下の項目から、変更したいものをクリックしてください。</p>
@@ -299,18 +294,18 @@ EOD;
 		if ($set['limited']) {
 			$html .= '
 		<td style="background-color:#e0e0e0;"><p>
-			<img src="'.$set['img'].'" alt="'.$set['title'].'" title="'.$set['title'].'" style="vertical-align:top;" />
-			<span style="font-weight:bold;color:#666;">'. $set['title']. '</span>
-		</p><span style="color:#888;">'.$set['subtitle'].'</span></td>';
+			<img src="' . $set['img'] . '" alt="' . $set['title'] . '" title="' . $set['title'] . '" style="vertical-align:top;" />
+			<span style="font-weight:bold;color:#666;">' . $set['title'] . '</span>
+		</p><span style="color:#888;">' . $set['subtitle'] . '</span></td>';
 		} else {
 			$html .= '
 		<td><p>
-			<img src="'.$set['img'].'" alt="'.$set['title'].'" title="'.$set['title'].'" style="vertical-align:top;" />
-			<a href="'.$set['url'].'" style="font-weight:bold;">'.$set['title'].'</a>'.$set['help'].'
-		</p>'.$set['subtitle'].'</td>';
+			<img src="' . $set['img'] . '" alt="' . $set['title'] . '" title="' . $set['title'] . '" style="vertical-align:top;" />
+			<a href="' . $set['url'] . '" style="font-weight:bold;">' . $set['title'] . '</a>' . $set['help'] . '
+		</p>' . $set['subtitle'] . '</td>';
 		}
 
-		if ($scnt %2 == 1) {
+		if ($scnt % 2 == 1) {
 			$html .= '
 	</tr>';
 		}
@@ -324,16 +319,16 @@ EOD;
 ';
 
 	return $html;
-
 }
 
 /**
  *   PHPバージョンを判定し、4の場合警告を出す
  */
-function plugin_qhmsetting_phpversion_block() {
+function plugin_qhmsetting_phpversion_block()
+{
 	$msg = '';
 	$ver = phpversion();
-	if (version_compare($ver, '5', '<')) {//TODO:
+	if (version_compare($ver, '5', '<')) { //TODO:
 
 		$wkstr = '
 #style(class=box_red_dsm){{
@@ -346,12 +341,11 @@ HAIKではPHP4をサポートしておりません。
 		$msg = convert_html($wkstr);
 	}
 	return $msg;
-
 }
 
 /**
-* デザインの設定（フォームを表示）
-*/
+ * デザインの設定（フォームを表示）
+ */
 function plugin_qhmsetting_design_form($error = '')
 {
 	global $logo_image, $script, $vars, $style_name;
@@ -382,56 +376,49 @@ input[name="qhmsetting[style_name]"], input[name="qhmsetting[smart_name]"],
 	$params = plugin_qhmsetting_getparams();
 
 	//現在の状態を格納
-	if(isset($_SESSION['temp_design']) || isset($vars['design']))
-	{
+	if (isset($_SESSION['temp_design']) || isset($vars['design'])) {
 		if (isset($vars['preview'])) {
 			$hash = '';
-			if ($vars['preview'])
-			{
+			if ($vars['preview']) {
 				$_SESSION['temp_design'] = $vars['design'];
-				$_SESSION['temp_enable_wp'] = $vars['enable_wp_theme']=='1' ? 1 : 0;
+				$_SESSION['temp_enable_wp'] = $vars['enable_wp_theme'] == '1' ? 1 : 0;
 				$_SESSION['wp_add_css'] = $vars['wp_add_css'];
 				$_SESSION['temp_design_customizer'] = $vars['customizer'] == '1' ? 1 : 0;
 			}
 			//プレビュー解除
-			else
-			{
-				if (isset($_SESSION['temp_skin']))
-				{
+			else {
+				if (isset($_SESSION['temp_skin'])) {
 					$hash = '#qhmDesignGetter';
-				}
-				else
-				{
+				} else {
 					$hash = '#qhmdesign';
 				}
 				unset(
 					$_SESSION['temp_design'],
-					$_SESSION['temp_enable_wp'], $_SESSION['wp_add_css'],
-					$_SESSION['temp_skin'], $_SESSION['temp_css'],
-					$_SESSION['temp_style_type'], $_SESSION['temp_style_path']
+					$_SESSION['temp_enable_wp'],
+					$_SESSION['wp_add_css'],
+					$_SESSION['temp_skin'],
+					$_SESSION['temp_css'],
+					$_SESSION['temp_style_type'],
+					$_SESSION['temp_style_path']
 				);
 			}
 
-			if (isset($vars['redirect']))
-			{
-  				$_SESSION['flash_msg'] = 'プレビューを解除しました。';
-  				$redirect = $script;
+			if (isset($vars['redirect'])) {
+				$_SESSION['flash_msg'] = 'プレビューを解除しました。';
+				$redirect = $script;
 
-  			  if (is_url($vars['redirect']))
-  			  {
-      				$redirect = $vars['redirect'];
-  			  }
-  			  else if ($vars['redirect'] == 0)
-  			  {
-      				$redirect = $script. '?cmd=qhmsetting&mode=form&phase=design'. $hash;
-  			  }
+				if (is_url($vars['redirect'])) {
+					$redirect = $vars['redirect'];
+				} else if ($vars['redirect'] == 0) {
+					$redirect = $script . '?cmd=qhmsetting&mode=form&phase=design' . $hash;
+				}
 			}
-      redirect($redirect);
+			redirect($redirect);
 			exit;
 		}
 		$tmp_design_name = isset($vars['design']) ? $vars['design'] : $_SESSION['temp_design'];
-		$wp_or_qhm = ( isset($vars['enable_wp_theme']) ? $vars['enable_wp_theme'] : $_SESSION['temp_enable_wp'] )
-				 ? 'WordPressテーマ' : 'HAIK専用';
+		$wp_or_qhm = (isset($vars['enable_wp_theme']) ? $vars['enable_wp_theme'] : $_SESSION['temp_enable_wp'])
+			? 'WordPressテーマ' : 'HAIK専用';
 
 		$body_msg = <<<EOD
 <div style="color:#c00;border:1px solid #c00;background-color:#fcc;width:80%;margin:0 auto;padding:0 1em;text-align:center;">
@@ -439,8 +426,7 @@ input[name="qhmsetting[style_name]"], input[name="qhmsetting[smart_name]"],
 <a href="{$script}?cmd=qhmsetting&mode=form&phase=design&preview=0&redirect=0">[解除]</a>
 </div>
 EOD;
-	}
-	else{
+	} else {
 		$wp_or_qhm = $enable_wp_theme ? 'WordPressテーマ' : 'HAIK専用';
 		$design_name = $enable_wp_theme ? $enable_wp_theme_name : $style_name;
 		$body_msg = <<<EOD
@@ -448,16 +434,13 @@ EOD;
 <b>{$wp_or_qhm}の「{$design_name}」デザインを利用中です</b>
 </div>
 EOD;
-
 	}
 
 	//WordPressテーマのスキャン
 	$hd = opendir('skin/wordpress/');
-	$wp_dirs = array();
-	while( $entry = readdir($hd) )
-	{
-		if(is_dir('skin/wordpress/'.$entry) && ($entry!='.') && ($entry!='..') && (file_exists('skin/wordpress/'.$entry.'/index.php')))
-		{
+	$wp_dirs = [];
+	while ($entry = readdir($hd)) {
+		if (is_dir('skin/wordpress/' . $entry) && ($entry != '.') && ($entry != '..') && (file_exists('skin/wordpress/' . $entry . '/index.php'))) {
 			$wp_dirs[] = $entry;
 		}
 	}
@@ -467,11 +450,9 @@ EOD;
 	//スマートフォンデザインのスキャン
 
 	$hd = opendir(SMART_DIR);
-	$smart_dirs = array();
-	while( $entry = readdir($hd) )
-	{
-		if(is_dir(SMART_DIR.$entry) && ($entry!='.') && ($entry!='..') && (file_exists(SMART_DIR.$entry.'/smart.css')))
-		{
+	$smart_dirs = [];
+	while ($entry = readdir($hd)) {
+		if (is_dir(SMART_DIR . $entry) && ($entry != '.') && ($entry != '..') && (file_exists(SMART_DIR . $entry . '/smart.css'))) {
 			$smart_dirs[] = $entry;
 		}
 	}
@@ -481,7 +462,7 @@ EOD;
 
 	//ここから
 	$body = $body_msg;
-	$body .= '<h2>デザインの設定'.$hlp_design.'</h2>';
+	$body .= '<h2>デザインの設定' . $hlp_design . '</h2>';
 
 
 	//======================================================
@@ -501,9 +482,9 @@ EOD;
 </ul>
 EOD;
 	$body .= '<br />';
-	$body .= ($error!='') ? '<p style="color:red">'.$error.'</p>' : '';
+	$body .= ($error != '') ? '<p style="color:red">' . $error . '</p>' : '';
 
-/*
+	/*
 	$body .= '<h2 id="qhmdesign">QHM専用デザインの設定</h2>
 <div style="border:2px solid #ccc;padding:1em;background-color:#fafafa">
 ';
@@ -514,15 +495,12 @@ EOD;
 
 
 	//デザインタイプの指定
-	if( $params['style_type'] == 'text' )
-	{
+	if ($params['style_type'] == 'text') {
 		$logotype_msg = 'テキストを使う設定';
 		$img_tag = 'ロゴ画像なし';
-	}
-	else
-	{
+	} else {
 		$logotype_msg = '画像を使う設定';
-		$img_tag = '<img src="'.$logo_image.'" style="width:450px" />';
+		$img_tag = '<img src="' . $logo_image . '" style="width:450px" />';
 	}
 
 	$body .= <<<EOD
@@ -553,31 +531,23 @@ EOD;
 
 	//デザインテンプレートの指定
 	$obj = dir(SKIN_DIR);
-	$dirs = $dsgndirs = array();
+	$dirs = $dsgndirs = [];
 
-	while( $entry = $obj->read() )
-	{
-		if(is_dir(SKIN_DIR.$entry) && ($entry!='.') && ($entry!='..') && (file_exists(SKIN_DIR.$entry.'/main.css')))
-		{
+	while ($entry = $obj->read()) {
+		if (is_dir(SKIN_DIR . $entry) && ($entry != '.') && ($entry != '..') && (file_exists(SKIN_DIR . $entry . '/main.css'))) {
 			if (preg_match('/^(haik_).*$/', $entry)) {
 				$dsgndirs['1'][] = $entry;
-			}
-			else if (preg_match('/^(i_).*$/', $entry)) {
+			} else if (preg_match('/^(i_).*$/', $entry)) {
 				$dsgndirs['2'][] = $entry;
-			}
-			else if (preg_match('/^(qd_).*$/', $entry)) {
+			} else if (preg_match('/^(qd_).*$/', $entry)) {
 				$dsgndirs['3'][] = $entry;
-			}
-			else if (preg_match('/^(org_).*$/', $entry)) {
+			} else if (preg_match('/^(org_).*$/', $entry)) {
 				$dsgndirs['4'][] = $entry;
-			}
-			else if (preg_match('/^(qrs_).*$/', $entry)) {
+			} else if (preg_match('/^(qrs_).*$/', $entry)) {
 				$dsgndirs['5'][] = $entry;
-			}
-			else if (preg_match('/^(g_).*$/', $entry)) {
+			} else if (preg_match('/^(g_).*$/', $entry)) {
 				$dsgndirs['6'][] = $entry;
-			}
-			else {
+			} else {
 				$dsgndirs['7'][] = $entry;
 			}
 		}
@@ -585,7 +555,7 @@ EOD;
 	ksort($dsgndirs);
 	foreach ($dsgndirs as $row) {
 		sort($row);
-		$dirs = array_merge($dirs,$row);
+		$dirs = array_merge($dirs, $row);
 	}
 	unset($dsgndirs);
 
@@ -594,13 +564,13 @@ EOD;
 	//======================================================
 
 
-	$prev_link_format = '<a href="'. $script. '?cmd=qhmsetting&phase=design&mode=msg&from=design_form&enable_wp_theme=0&qhmsetting[style_name]=%s">[適用]</a>&nbsp;&nbsp;';
+	$prev_link_format = '<a href="' . $script . '?cmd=qhmsetting&phase=design&mode=msg&from=design_form&enable_wp_theme=0&qhmsetting[style_name]=%s">[適用]</a>&nbsp;&nbsp;';
 	$del_link_format = '';
-//--<RemoveQHMDesign>--
-	$del_link_format = '<a href="'. $script. '?cmd=qhmsetting&phase=design&mode=remove&from=design_form&option=confirm&qhmsetting[style_name]=%s">[削除]</a>';
-//--</RemoveQHMDesign>--
+	//--<RemoveQHMDesign>--
+	$del_link_format = '<a href="' . $script . '?cmd=qhmsetting&phase=design&mode=remove&from=design_form&option=confirm&qhmsetting[style_name]=%s">[削除]</a>';
+	//--</RemoveQHMDesign>--
 
-	$body .= '<div id="qhmdesignStatus"></div>'. "\n";
+	$body .= '<div id="qhmdesignStatus"></div>' . "\n";
 	$body .= '<p>サムネイルをクリックするとプレビューできます。</p>';
 	$body .= '
 <script type="text/javascript">
@@ -622,8 +592,8 @@ $(function(){
 
 	if (typeof QhmSetting == "undefined") {
 		QhmSetting = {
-			prev_link_format: "'. addcslashes($prev_link_format, '"') .'",
-			del_link_format: "'. addcslashes($del_link_format, '"') .'"
+			prev_link_format: "' . addcslashes($prev_link_format, '"') . '",
+			del_link_format: "' . addcslashes($del_link_format, '"') . '"
 		};
 	}
 });
@@ -632,9 +602,9 @@ $(function(){
 
 	$body .= '<table id="designList">';
 
-	$preview_style = isset($_SESSION['temp_design'])? $_SESSION['temp_design']: '';
+	$preview_style = isset($_SESSION['temp_design']) ? $_SESSION['temp_design'] : '';
 
-	$cell_cnt = count($dirs) + (3- count($dirs) % 3);
+	$cell_cnt = count($dirs) + (3 - count($dirs) % 3);
 
 	for ($i = 0; $i < $cell_cnt; $i++) {
 		if ($i % 3 == 0) {
@@ -642,22 +612,20 @@ $(function(){
 		}
 		if (isset($dirs[$i])) {
 			$dir = $dirs[$i];
-			$thumb = file_exists(SKIN_DIR . $dir . '/thumbnail.png')? SKIN_DIR . $dir . '/thumbnail.png': SKIN_DIR . $dir . '/thumbnail.jpg';
-			$ckd = ( $dir == $params['style_name'] ) ? ' checked="checked" class="currentStyle"' : '';
-			$ckd_msg = $ckd=='' ? '' : ' (現在の設定)';
-			$links = $ckd=='' ? '%s%s': '';
-			$prev_link = $preview_style == $dir? '': sprintf($prev_link_format, $dir);
-			$del_link = $preview_style == $dir? '': sprintf($del_link_format, $dir);
+			$thumb = file_exists(SKIN_DIR . $dir . '/thumbnail.png') ? SKIN_DIR . $dir . '/thumbnail.png' : SKIN_DIR . $dir . '/thumbnail.jpg';
+			$ckd = ($dir == $params['style_name']) ? ' checked="checked" class="currentStyle"' : '';
+			$ckd_msg = $ckd == '' ? '' : ' (現在の設定)';
+			$links = $ckd == '' ? '%s%s' : '';
+			$prev_link = $preview_style == $dir ? '' : sprintf($prev_link_format, $dir);
+			$del_link = $preview_style == $dir ? '' : sprintf($del_link_format, $dir);
 			$links = sprintf($links, $prev_link, $del_link);
 			$body .= '<td width="33%" style="vertical-align:top;"><label>
-	<img src="'.$thumb.'" alt="'.$dir.'サムネール" width="180" height="200" /><br />
-	<input type="radio" name="design" value="'.$dir.'"'.$ckd.' style="margin-right:5px;" />'.$dir.$ckd_msg.'
-	</label>'. $links .'
+	<img src="' . $thumb . '" alt="' . $dir . 'サムネール" width="180" height="200" /><br />
+	<input type="radio" name="design" value="' . $dir . '"' . $ckd . ' style="margin-right:5px;" />' . $dir . $ckd_msg . '
+	</label>' . $links . '
 </td>
 ';
-		}
-		else
-		{
+		} else {
 			$body .= '<td></td>';
 		}
 
@@ -667,14 +635,14 @@ $(function(){
 	}
 	$body .= '</table>';
 
-//--<GetQHMDesign>--
+	//--<GetQHMDesign>--
 	//======================================================
 	//  !デザイン取得
 	//======================================================
 	if (is_writable(SKIN_DIR)) {
 		$body .= '
 <p>
-  <a href="'.h($script).'?cmd=theme_uploader" class="btn btn-link">
+  <a href="' . h($script) . '?cmd=theme_uploader" class="btn btn-link">
     <i class="glyphicon glyphicon-upload"></i> テーマファイルをアップロードする</a>
 </p>
 <!-- Modal -->
@@ -747,7 +715,7 @@ $(function(){
 </div>
 ';
 	}
-//--</GetQHMDesign>--
+	//--</GetQHMDesign>--
 
 	$body .= '
 <input type="hidden" name="phase" value="design" />
@@ -761,7 +729,7 @@ $(function(){
 ';
 
 
-//--<FTPAccess>--
+	//--<FTPAccess>--
 	//======================================================
 	//  !FTP接続フォーム
 	//======================================================
@@ -805,16 +773,16 @@ $(function(){
   </div>
 </div>
 ';
-//--</FTPAccess>--
+	//--</FTPAccess>--
 
-$body .= "</div>";
+	$body .= "</div>";
 
 	//======================================================
 	//  WordPressデザイン設定フォーム
 	//======================================================
-	if(count($wp_dirs)){
-		$wp_add_css = isset($_SESSION['wp_add_css'])? $_SESSION['wp_add_css']: $wp_add_css;
-		$body .= '<br /><br /><br /><h2 id="wordpress">WordPressテーマを利用する</h2>'."\n";
+	if (count($wp_dirs)) {
+		$wp_add_css = isset($_SESSION['wp_add_css']) ? $_SESSION['wp_add_css'] : $wp_add_css;
+		$body .= '<br /><br /><br /><h2 id="wordpress">WordPressテーマを利用する</h2>' . "\n";
 		$body .= <<<EOD
 <div class="well">
 	<p>以下から、WordPressのテーマを選択して下さい。</p>
@@ -822,9 +790,9 @@ $body .= "</div>";
 EOD;
 
 		$body .= '<select name="qhmsetting[enable_wp_theme_name]">';
-		foreach($wp_dirs as $dir){
-			$ckd = ( $dir == $params['enable_wp_theme_name'] ) ? 'selected="selected"' : '';
-			$body .= '<option value="'.$dir.'" '.$ckd.'>'.$dir.'</option>';
+		foreach ($wp_dirs as $dir) {
+			$ckd = ($dir == $params['enable_wp_theme_name']) ? 'selected="selected"' : '';
+			$body .= '<option value="' . $dir . '" ' . $ckd . '>' . $dir . '</option>';
 		}
 		$body .= '</select>';
 
@@ -832,8 +800,8 @@ EOD;
 ※ロゴ画像は、選べません<br /><br />
 <b>追加スタイル</b><br />
 <textarea name="qhmsetting[wp_add_css]" rows="5" style="width:80%">'
-.$wp_add_css.
-'</textarea>
+			. $wp_add_css .
+			'</textarea>
 <input type="hidden" name="phase" value="design" />
 <input type="hidden" name="mode" value="confirm" />
 <input type="hidden" name="from" value="design_form" />
@@ -853,14 +821,13 @@ EOD;
 </ul>
 </div>
 ';
-
 	}
 
 	//======================================================
 	// !スマートフォン デザイン設定
 	//======================================================
-	if(count($smart_dirs)){
-		$body .= '<br /><br /><br /><h2 id="smartdesign">スマートフォンのデザイン設定</h2>'."\n";
+	if (count($smart_dirs)) {
+		$body .= '<br /><br /><br /><h2 id="smartdesign">スマートフォンのデザイン設定</h2>' . "\n";
 		$body .= <<<EOD
 <div class="well">
 	<script type="text/javascript">
@@ -917,7 +884,7 @@ EOD;
 		$checked = ($params['enable_smart_style'] == '1') ? ' checked="checked"' : '';
 		$body .= '
 	<p><input type="hidden" name="qhmsetting[enable_smart_style]" value="0" />
-<label><input type="checkbox" name="qhmsetting[enable_smart_style]" value="1"'.$checked.' />スマートフォンデザインを利用する</label></p>
+<label><input type="checkbox" name="qhmsetting[enable_smart_style]" value="1"' . $checked . ' />スマートフォンデザインを利用する</label></p>
 ';
 		$body .= '<div><table id="smartDesignList">';
 		$smart_cnt = ceil(count($smart_dirs) / 3) * 3;
@@ -927,12 +894,12 @@ EOD;
 			}
 			if (isset($smart_dirs[$i])) {
 				$dir = $smart_dirs[$i];
-				$thumb = file_exists(SMART_DIR . $dir . '/thumbnail.png')? SMART_DIR . $dir . '/thumbnail.png': SMART_DIR . $dir . '/thumbnail.jpg';
-				$ckd = ( $dir == $params['smart_name'] ) ? ' checked="checked" class="currentStyle"' : '';
-				$ckd_msg = $ckd=='' ? '' : ' (現在の設定)';
+				$thumb = file_exists(SMART_DIR . $dir . '/thumbnail.png') ? SMART_DIR . $dir . '/thumbnail.png' : SMART_DIR . $dir . '/thumbnail.jpg';
+				$ckd = ($dir == $params['smart_name']) ? ' checked="checked" class="currentStyle"' : '';
+				$ckd_msg = $ckd == '' ? '' : ' (現在の設定)';
 				$body .= '<td width="33%"><label>
-		<img src="'.$thumb.'" alt="'.$dir.'サムネール" width="153" height="200" /><br />
-		<input type="radio" name="qhmsetting[smart_name]" value="'.$dir.'"'.$ckd.' />'.$dir.$ckd_msg.'
+		<img src="' . $thumb . '" alt="' . $dir . 'サムネール" width="153" height="200" /><br />
+		<input type="radio" name="qhmsetting[smart_name]" value="' . $dir . '"' . $ckd . ' />' . $dir . $ckd_msg . '
 	</label></td>
 	';
 			}
@@ -964,8 +931,7 @@ function plugin_qhmsetting_design_confirm()
 
 	// --------------------------------------------
 	// 直接のアクセスを拒否する
-	if( !isset($vars['from']) || $vars['from']!='design_form' )
-	{
+	if (!isset($vars['from']) || $vars['from'] != 'design_form') {
 		return 'このページへの直接アクセスは、無効です。';
 	}
 
@@ -975,8 +941,7 @@ function plugin_qhmsetting_design_confirm()
 	// ---------------------------------------------
 
 	//postからのデータを格納
-	foreach( $vars['qhmsetting'] as $key=>$val)
-	{
+	foreach ($vars['qhmsetting'] as $key => $val) {
 		$_SESSION['qhmsetting'][$key]
 			= $vars['qhmsetting'][$key]
 			= htmlspecialchars($val);
@@ -986,20 +951,19 @@ function plugin_qhmsetting_design_confirm()
 	//
 	// WordPressデザイン設定
 	//
-	if( $vars['enable_wp_theme']=='1')
-	{
+	if ($vars['enable_wp_theme'] == '1') {
 		$style_name = $vars['qhmsetting']['enable_wp_theme_name'];
 		//search thumnail image file
-		$style_thumb = 'skin/wordpress/'.$style_name.'/screenshot';
+		$style_thumb = 'skin/wordpress/' . $style_name . '/screenshot';
 		$style_img = '';
-		if( file_exists($style_thumb.'.jpg') )
-			$style_img = $style_thumb.'.jpg';
-		else if( file_exists($style_thumb.'.png') )
-			$style_img = $style_thumb.'.png';
-		else if( file_exists($style_thumb.'.gif') )
-			$style_img = $style_thumb.'.gif';
+		if (file_exists($style_thumb . '.jpg'))
+			$style_img = $style_thumb . '.jpg';
+		else if (file_exists($style_thumb . '.png'))
+			$style_img = $style_thumb . '.png';
+		else if (file_exists($style_thumb . '.gif'))
+			$style_img = $style_thumb . '.gif';
 
-		$style_img = ($style_img != '') ? '<img src="'.$style_img.'" title="Thumbnail" />' : '';
+		$style_img = ($style_img != '') ? '<img src="' . $style_img . '" title="Thumbnail" />' : '';
 
 		$wp_add_css = htmlspecialchars($vars['qhmsetting']['wp_add_css']);
 		// ---------------------------------------------
@@ -1025,8 +989,6 @@ function plugin_qhmsetting_design_confirm()
 	<input type="hidden" name="qhmsetting[enable_wp_theme]" value="1" />
 	</form>
 EOD;
-
-
 	}
 	///////////////////////////////////////////////////////////////////
 	//
@@ -1035,22 +997,22 @@ EOD;
 	else if (isset($vars['qhmsetting']['smart_name']) && $vars['qhmsetting']['smart_name'] != '') {
 
 		$enable_smart_style = $vars['qhmsetting']['enable_smart_style'];
-		$use_smart = 'スマートフォンデザイン：'. (($enable_smart_style == '1') ? '利用する' : '利用しない');
+		$use_smart = 'スマートフォンデザイン：' . (($enable_smart_style == '1') ? '利用する' : '利用しない');
 
 		//design template setting
 		$smart_name = $vars['qhmsetting']['smart_name'];
 
 		//search thumnail image file
-		$style_thumb = SMART_DIR.$smart_name.'/thumbnail';
+		$style_thumb = SMART_DIR . $smart_name . '/thumbnail';
 		$style_img = '';
-		if( file_exists($style_thumb.'.jpg') )
-			$style_img = $style_thumb.'.jpg';
-		else if( file_exists($style_thumb.'.png') )
-			$style_img = $style_thumb.'.png';
-		else if( file_exists($style_thumb.'.gif') )
-			$style_img = $style_thumb.'.gif';
+		if (file_exists($style_thumb . '.jpg'))
+			$style_img = $style_thumb . '.jpg';
+		else if (file_exists($style_thumb . '.png'))
+			$style_img = $style_thumb . '.png';
+		else if (file_exists($style_thumb . '.gif'))
+			$style_img = $style_thumb . '.gif';
 
-		$style_img = ($style_img != '') ? '<img src="'.$style_img.'" title="Thumbnail" />' : '';
+		$style_img = ($style_img != '') ? '<img src="' . $style_img . '" title="Thumbnail" />' : '';
 
 		$vars['from'] = 'design_form';
 		$vars['smart_name_setting'] = 1;
@@ -1061,40 +1023,36 @@ EOD;
 		// Output confirmation contents
 		//
 		$body = '<h2>スマートフォンデザイン設定の確認</h2>';
-		$body .= '<p>'.$use_smart.'</p>';
+		$body .= '<p>' . $use_smart . '</p>';
 		if ($enable_smart_style == '1') {
-			$body .= '<p><b>テンプレート</b><br />'.$smart_name.'<br />'.$style_img.'</p>';
+			$body .= '<p><b>テンプレート</b><br />' . $smart_name . '<br />' . $style_img . '</p>';
 		}
 		$body .= '
-	<form method="post" action="'.$script.'">
+	<form method="post" action="' . $script . '">
 	<p style="text-align:center"><input type="submit" value="設定する" class="btn btn-primary" /></p>
 	<input type="hidden" name="phase" value="design" />
 	<input type="hidden" name="mode" value="msg" />
 	<input type="hidden" name="plugin" value="qhmsetting" />
 	<input type="hidden" name="from" value="design_form" />
-	<input type="hidden" name="qhmsetting[enable_smart_style]" value="'.$enable_smart_style.'" />
-	<input type="hidden" name="qhmsetting[smart_name]" value="'.$smart_name.'" />
+	<input type="hidden" name="qhmsetting[enable_smart_style]" value="' . $enable_smart_style . '" />
+	<input type="hidden" name="qhmsetting[smart_name]" value="' . $smart_name . '" />
 	</form>
 ';
-
-
 	}
 	///////////////////////////////////////////////////////////////////
 	//
 	// HAIK専用デザイン設定
 	//
-	else{
+	else {
 		//WordPress をオフ
 		$_SESSION['qhmsetting']['enable_wp_theme'] = 0;
 
 		//imageを選んだ場合、page_titleをデフォルトで上書き
-		if($vars['qhmsetting']['style_type']==='image')
-		{
+		if ($vars['qhmsetting']['style_type'] === 'image') {
 			$_SESSION['qhmsetting']['page_title'] = $vars['qhmsetting']['page_title'] = $page_title;
 		}
 		//変更しないを選んだ場合
-		if($vars['qhmsetting']['style_type']==='none')
-		{
+		if ($vars['qhmsetting']['style_type'] === 'none') {
 			$_SESSION['qhmsetting']['page_title'] = $vars['qhmsetting']['page_title'] = $page_title;
 			unset($_SESSION['qhmsetting']['style_type']);
 		}
@@ -1105,45 +1063,42 @@ EOD;
 		$error = '';
 
 		//画像を使う場合の処理
-		if( $vars['qhmsetting']['style_type']=='image')
-		{
+		if ($vars['qhmsetting']['style_type'] == 'image') {
 			// ファイルエラーチェック
 			switch ($_FILES["imagefile"]["error"]) {
-			case UPLOAD_ERR_INI_SIZE:
-			case UPLOAD_ERR_FORM_SIZE:
-				$error .= "ロゴ画像のサイズが大きすぎます。<br />";
-				break;
-			case UPLOAD_ERR_PARTIAL;
-			case UPLOAD_ERR_NO_FILE;
-				$error .= "ロゴ画像をアップロードできません。";
+				case UPLOAD_ERR_INI_SIZE:
+				case UPLOAD_ERR_FORM_SIZE:
+					$error .= "ロゴ画像のサイズが大きすぎます。<br />";
+					break;
+				case UPLOAD_ERR_PARTIAL;
+				case UPLOAD_ERR_NO_FILE;
+					$error .= "ロゴ画像をアップロードできません。";
 			}
 
 			// ファイルサイズをもう一度チェック
-			if($_FILES["imagefile"]["size"] > 1024 * 1024){
+			if ($_FILES["imagefile"]["size"] > 1024 * 1024) {
 				$error .= "ロゴ画像が、1MB以上でサイズオーバーしています。";
 			}
 
 			// png, jpg, gif以外のファイルを拒否
-			if(!preg_match("/^image\/.*(jpeg|png|gif)$/i", $_FILES["imagefile"]["type"]) AND !preg_match('/\.(jpe?g|png|gif)$/', $_FILES['imagefile']['name'])) {
-				$error .= "ロゴ画像は、jpeg, png, gif形式で、作成して下さい。:".$_FILES["imagefile"]["type"];
+			if (!preg_match("/^image\/.*(jpeg|png|gif)$/i", $_FILES["imagefile"]["type"]) and !preg_match('/\.(jpe?g|png|gif)$/', $_FILES['imagefile']['name'])) {
+				$error .= "ロゴ画像は、jpeg, png, gif形式で、作成して下さい。:" . $_FILES["imagefile"]["type"];
 			}
 
 			//特定の文字以外の文字を使用したファイルを拒否
-			if(preg_match("/[^\w\d\-\.]/", $_FILES["imagefile"]["name"])){
-				$error .= "ロゴ画像は、英数半角のみでファイル名を付けて下さい。（".$_FILES["file"]["name"]."）";
+			if (preg_match("/[^\w\d\-\.]/", $_FILES["imagefile"]["name"])) {
+				$error .= "ロゴ画像は、英数半角のみでファイル名を付けて下さい。（" . $_FILES["file"]["name"] . "）";
 			}
 
-			$logoname = CACHE_DIR.$_FILES['imagefile']['name'];
-			if( file_exists($logoname) && !is_writable($logoname)  )
-			{
+			$logoname = CACHE_DIR . $_FILES['imagefile']['name'];
+			if (file_exists($logoname) && !is_writable($logoname)) {
 				$error .= "ロゴ画像を上書きできません。ロゴ画像の書き込み権限を有効にするか、アップするファイル名を変更してください。";
 			}
 		}
 
-		if($error != ""){
+		if ($error != "") {
 			unset($_SESSION['qhmsetting']);
 			return plugin_qhmsetting_design_form($error);
-
 		}
 
 
@@ -1154,33 +1109,27 @@ EOD;
 		$style_type = $vars['qhmsetting']['style_type'];
 		$logo_img = '';
 
-		if( $style_type==='none' )
-		{
+		if ($style_type === 'none') {
 			$logo_type = '変更しない ';
-		}
-		else if( $style_type=='text')
-		{
+		} else if ($style_type == 'text') {
 			$logo_type = 'テキスト';
-			$logo_img = '『 '.$vars['qhmsetting']['page_title'].' 』';
-		}
-		else //画像の場合の処理
+			$logo_img = '『 ' . $vars['qhmsetting']['page_title'] . ' 』';
+		} else //画像の場合の処理
 		{
 			//var_dump($_FILES);
 			$logo_type = '画像';
 			$tmparray = explode('.', $_FILES['imagefile']['name']);
-			$type = $tmparray[ count($tmparray)-1 ];
-			$prev_file = PLUGIN_QHMSETTING_LOGO_PREV_PATH.$type;
-			if(move_uploaded_file($_FILES['imagefile']['tmp_name'], $prev_file))
-			{
+			$type = $tmparray[count($tmparray) - 1];
+			$prev_file = PLUGIN_QHMSETTING_LOGO_PREV_PATH . $type;
+			if (move_uploaded_file($_FILES['imagefile']['tmp_name'], $prev_file)) {
 
 				chmod($prev_file, 0666);
-				$logo_img = '<img src="'.$prev_file.'" style="width:450px;" /><br />'
-					.'ページタイトル: '.$_SESSION['qhmsetting']['page_title'];
+				$logo_img = '<img src="' . $prev_file . '" style="width:450px;" /><br />'
+					. 'ページタイトル: ' . $_SESSION['qhmsetting']['page_title'];
 
 				$_SESSION['qhmsetting_logo_prev_file'] = $prev_file;
-				$_SESSION['qhmsetting_logo_file'] = PLUGIN_QHMSETTING_LOGO_PATH.$type;
-			}
-			else{
+				$_SESSION['qhmsetting_logo_file'] = PLUGIN_QHMSETTING_LOGO_PATH . $type;
+			} else {
 				//error handling
 				return plugin_qhmsetting_design_form('ロゴ画像をセットできませんでした。');
 			}
@@ -1191,16 +1140,16 @@ EOD;
 		$style_name = $vars['qhmsetting']['style_name'];
 
 		//search thumnail image file
-		$style_thumb = SKIN_DIR.$style_name.'/thumbnail';
+		$style_thumb = SKIN_DIR . $style_name . '/thumbnail';
 		$style_img = '';
-		if( file_exists($style_thumb.'.jpg') )
-			$style_img = $style_thumb.'.jpg';
-		else if( file_exists($style_thumb.'.png') )
-			$style_img = $style_thumb.'.png';
-		else if( file_exists($style_thumb.'.gif') )
-			$style_img = $style_thumb.'.gif';
+		if (file_exists($style_thumb . '.jpg'))
+			$style_img = $style_thumb . '.jpg';
+		else if (file_exists($style_thumb . '.png'))
+			$style_img = $style_thumb . '.png';
+		else if (file_exists($style_thumb . '.gif'))
+			$style_img = $style_thumb . '.gif';
 
-		$style_img = ($style_img != '') ? '<img src="'.$style_img.'" title="Thumbnail" />' : '';
+		$style_img = ($style_img != '') ? '<img src="' . $style_img . '" title="Thumbnail" />' : '';
 
 
 		// ---------------------------------------------
@@ -1242,33 +1191,28 @@ function plugin_qhmsetting_design_msg()
 
 	// --------------------------------------------
 	// 直接のアクセスを拒否する
-	if( !isset($vars['from']) || $vars['from']!='design_form' )
-	{
+	if (!isset($vars['from']) || $vars['from'] != 'design_form') {
 		return 'このページへの直接アクセスは、無効です。';
 	}
 
 	// ---------------------------------------------
 	// sessionにデータを格納 & フィルタ
-	foreach( $vars['qhmsetting'] as $key=>$val)
-	{
+	foreach ($vars['qhmsetting'] as $key => $val) {
 		$_SESSION['qhmsetting'][$key]
 			= $vars['qhmsetting'][$key]
 			= htmlspecialchars($val);
 	}
 
 	//imageの場合、ロゴ画像の位置を変更し、設定に加える
-	if( ! isset($_SESSION['qhmsetting']['enable_wp_theme']) OR $_SESSION['qhmsetting']['enable_wp_theme'] == '0')
-	{
-		if($_SESSION['qhmsetting']['style_type']=='image')
-		{
+	if (! isset($_SESSION['qhmsetting']['enable_wp_theme']) or $_SESSION['qhmsetting']['enable_wp_theme'] == '0') {
+		if ($_SESSION['qhmsetting']['style_type'] == 'image') {
 			rename($_SESSION['qhmsetting_logo_prev_file'], $_SESSION['qhmsetting_logo_file']);
 			$_SESSION['qhmsetting']['logo_image'] = $_SESSION['qhmsetting_logo_file'];
 		}
 	}
 
 	//noneの場合、変更しない
-	if($_SESSION['qhmsetting']['style_type']==='none')
-	{
+	if ($_SESSION['qhmsetting']['style_type'] === 'none') {
 		unset($_SESSION['qhmsetting']['style_type']);
 	}
 
@@ -1276,19 +1220,19 @@ function plugin_qhmsetting_design_msg()
 
 	unset(
 		$_SESSION['temp_design'],
-		$_SESSION['temp_enable_wp'], $_SESSION['wp_add_css'],
-		$_SESSION['temp_skin'], $_SESSION['temp_css'],
-		$_SESSION['temp_style_type'], $_SESSION['temp_style_path']
+		$_SESSION['temp_enable_wp'],
+		$_SESSION['wp_add_css'],
+		$_SESSION['temp_skin'],
+		$_SESSION['temp_css'],
+		$_SESSION['temp_style_type'],
+		$_SESSION['temp_style_path']
 	);
 
-	if (isset($vars['smart_name_setting']))
-	{
+	if (isset($vars['smart_name_setting'])) {
 		$to = $script . '?cmd=qhmsetting&mode=form&phase=design';
 		$_SESSION['flash_msg'] = 'スマートフォンのデザイン設定を変更しました';
 		$msg = '';
-	}
-	else
-	{
+	} else {
 		$to = '';
 		$msg = 'デザインの変更を完了しました';
 	}
@@ -1308,8 +1252,7 @@ function plugin_qhmsetting_design_remove()
 
 	// --------------------------------------------
 	// 直接のアクセスを拒否する
-	if( !isset($vars['from']) || $vars['from']!='design_form' )
-	{
+	if (!isset($vars['from']) || $vars['from'] != 'design_form') {
 		return 'このページへの直接アクセスは、無効です。';
 	}
 
@@ -1319,7 +1262,7 @@ function plugin_qhmsetting_design_remove()
 	$d_rem = trim($vars['qhmsetting']['style_name']);
 	$dir = SKIN_DIR . $d_rem;
 	$thumb = $dir . '/thumbnail.jpg';
-	$thumb = file_exists($thumb)? $thumb: $dir . '/thumbnail.png';
+	$thumb = file_exists($thumb) ? $thumb : $dir . '/thumbnail.png';
 
 	$body = '';
 	//SKIN DIR が書き込み権限なし
@@ -1333,8 +1276,8 @@ function plugin_qhmsetting_design_remove()
 	//デザイン削除可能
 	else if (file_exists($dir)) {
 		if ($vars['option'] == 'confirm') {
-		//確認画面を表示
-		$body .= <<<EOD
+			//確認画面を表示
+			$body .= <<<EOD
 	<h2>HAIK専用デザイン削除の確認</h2>
 	<p><b>デザイン名 : </b>{$d_rem}<br />
 	<img src="{$thumb}" width="180" height="200" alt="{$d_rem}"/></p>
@@ -1351,7 +1294,6 @@ function plugin_qhmsetting_design_remove()
 	<input type="hidden" name="qhmsetting[enable_wp_theme]" value="1" />
 	</form>
 EOD;
-
 		}
 		//デザインを削除
 		else if ($vars['option'] == 'complete') {
@@ -1363,16 +1305,15 @@ EOD;
 	//デザインが存在しない
 	else {
 		return plugin_qhmsetting_design_form("存在しないデザイン：$d_rem が指定されました");
-
 	}
 
 	return $body;
-
 }
 
 //--</RemoveQHMDesign>--
 
-function plugin_qhmsetting_remove_dir($dir, $remain_dir = false) {
+function plugin_qhmsetting_remove_dir($dir, $remain_dir = false)
+{
 	if ($handle = opendir("$dir")) {
 		while (false !== ($item = readdir($handle))) {
 			if ($item != "." && $item != "..") {
@@ -1397,8 +1338,8 @@ function plugin_qhmsetting_remove_dir($dir, $remain_dir = false) {
 
 
 /**
-* サイト情報
-*/
+ * サイト情報
+ */
 function plugin_qhmsetting_info_getVals($params)
 {
 	global $script, $script_ssl;
@@ -1449,9 +1390,9 @@ function plugin_qhmsetting_info_getVals($params)
 			'option' => 'textarea',
 		),
 		'ga_tracking_id' => array(
-		    'title' => 'GAトラッキングID',
-		    'msg'   => 'Googleのユニバーサルアナリティクスを利用する場合、トラッキングIDを入力します。トラッキングコードは<code>&lt;head&gt;</code>タグの終了直前に出力されます。管理者モードでは解析されません',
-		    'default' => $params['ga_tracking_id'],
+			'title' => 'GAトラッキングID',
+			'msg'   => 'Googleのユニバーサルアナリティクスを利用する場合、トラッキングIDを入力します。トラッキングコードは<code>&lt;head&gt;</code>タグの終了直前に出力されます。管理者モードでは解析されません',
+			'default' => $params['ga_tracking_id'],
 		),
 		'modifier' => array(
 			'title' => 'サイト管理者',
@@ -1497,7 +1438,7 @@ function plugin_qhmsetting_info_getVals($params)
 				1 => "非表示（非推奨・QHMAdminページからログイン）",
 			),
 		),
-/*		'qhm_access_key' => array(
+		/*		'qhm_access_key' => array(
 			'title' => 'ショートカット',
 			'msg' => '編集時に、ショートカットキーを使うか設定ができます。<br />',
 			'default' => $params['qhm_access_key'],
@@ -1518,10 +1459,10 @@ function plugin_qhmsetting_info_getVals($params)
 		'dummy_script' => array(
 			'title' => 'リンク設定',
 			'msg'   => 'リンク設定 : ' . $script . '<br />SSLリンク設定：' . $script_ssl
-//--<SSLScript>--
-				. '<br /><a href="'.$script.'?cmd=qhmsetting&mode=form&phase=script">変更するには、ここをクリック</a>'
-//--</SSLScript>--
-				,
+				//--<SSLScript>--
+				. '<br /><a href="' . $script . '?cmd=qhmsetting&mode=form&phase=script">変更するには、ここをクリック</a>'
+			//--</SSLScript>--
+			,
 			'default' => '',
 			'option' => 'none'
 
@@ -1565,7 +1506,6 @@ function plugin_qhmsetting_info_getVals($params)
 			)
 		),
 	);
-
 }
 
 function plugin_qhmsetting_info_form($error = '')
@@ -1574,12 +1514,12 @@ function plugin_qhmsetting_info_form($error = '')
 	global $other_plugins;
 	$hlp_info = '';
 
-	$error_msg = ($error!='') ? '<p style="color:red">'.$error.'</p>' : '';
+	$error_msg = ($error != '') ? '<p style="color:red">' . $error . '</p>' : '';
 
 	$params = plugin_qhmsetting_getparams();
 	$values = plugin_qhmsetting_info_getVals($params);
 
-	$body = '<h2>HAIK v'. QHM_VERSION. ' 設定'.$hlp_info.'</h2>';
+	$body = '<h2>HAIK v' . QHM_VERSION . ' 設定' . $hlp_info . '</h2>';
 	$body .= $error_msg;
 	$body .= <<<EOD
 <p>サイト情報の設定では、titleタグ、ヘッドコピー、フッターの情報、アクセス解析タグなどの設定を行います。</p>
@@ -1589,44 +1529,35 @@ function plugin_qhmsetting_info_form($error = '')
 EOD;
 
 	$input = '';
-	foreach($values as $key=>$value)
-	{
+	foreach ($values as $key => $value) {
 
-		if( isset($value['option'] ) )
-		{
+		if (isset($value['option'])) {
 
-			if( is_array($value['option']) )
-			{
-				$input = '<select name="qhmsetting['.$key.']" class="form-control">'."\n";
-				foreach($value['option'] as $okey=>$oval )
-				{
-					$selected = ($value['default']==$okey) ? 'selected="selected"' : '';
-					$input .= '<option value="'.$okey.'" '.$selected.'>'.$oval.'</option>'."\n";
+			if (is_array($value['option'])) {
+				$input = '<select name="qhmsetting[' . $key . ']" class="form-control">' . "\n";
+				foreach ($value['option'] as $okey => $oval) {
+					$selected = ($value['default'] == $okey) ? 'selected="selected"' : '';
+					$input .= '<option value="' . $okey . '" ' . $selected . '>' . $oval . '</option>' . "\n";
 				}
 				$input .= '</select>';
-			}
-			else if( $value['option']=='textarea' )
-			{
-				$input = '<textarea name="qhmsetting['.$key.']" rows="5" cols="55" class="form-control">'.h( $value['default'] ).'</textarea>';
-			}
-			else if( $value['option']=='none'){
+			} else if ($value['option'] == 'textarea') {
+				$input = '<textarea name="qhmsetting[' . $key . ']" rows="5" cols="55" class="form-control">' . h($value['default']) . '</textarea>';
+			} else if ($value['option'] == 'none') {
 				$input = '';
 			}
-		}
-		else
-		{
-			if ( $key == 'modifierlink' && $value['default'] == 'http://www.example.co.jp/') {
-				$value['default'] = dirname($script). '/';
+		} else {
+			if ($key == 'modifierlink' && $value['default'] == 'http://www.example.co.jp/') {
+				$value['default'] = dirname($script) . '/';
 			}
-			$input = '<input type="text" size="50" name="qhmsetting['.$key.']" value="'.h( $value['default'] ).'"  class="form-control" />';
+			$input = '<input type="text" size="50" name="qhmsetting[' . $key . ']" value="' . h($value['default']) . '"  class="form-control" />';
 		}
 
 		$body .= '
 <div class="form-group">
-  <label for="" class="control-label col-sm-3">'.$value['title'].'</label>
+  <label for="" class="control-label col-sm-3">' . $value['title'] . '</label>
 	<div class=" col-sm-9">
-	  '.$input.'
-  	<span class="help-block">'.$value['msg'].'</span>
+	  ' . $input . '
+  	<span class="help-block">' . $value['msg'] . '</span>
 	</div>
 </div>
 ';
@@ -1655,8 +1586,7 @@ function plugin_qhmsetting_info_confirm()
 
 	// --------------------------------------------
 	// 直接のアクセスを拒否する
-	if( !isset($vars['from']) || $vars['from']!='info_form' )
-	{
+	if (!isset($vars['from']) || $vars['from'] != 'info_form') {
 		return 'このページへの直接アクセスは、無効です。';
 	}
 
@@ -1666,7 +1596,7 @@ function plugin_qhmsetting_info_confirm()
 	// -----------------------------------
 	$error = '';
 
-	if($error != '')
+	if ($error != '')
 		return plugin_qhmsetting_admin_form($error);
 
 
@@ -1676,7 +1606,7 @@ function plugin_qhmsetting_info_confirm()
 	$params = plugin_qhmsetting_getparams();
 	$values = plugin_qhmsetting_info_getVals($params);
 
-	$body = '<h2>HAIK v'. QHM_VERSION. ' 設定</h2>';
+	$body = '<h2>HAIK v' . QHM_VERSION . ' 設定</h2>';
 	$body .= '
 <p>以下の内容でよければ、ページ下部の「設定する」をクリックしてください</p>
 <table class="table table-bordered">
@@ -1684,20 +1614,16 @@ function plugin_qhmsetting_info_confirm()
 ';
 
 	$qsv = $vars['qhmsetting'];
-	foreach($values as $key=>$value)
-	{
-		if( isset($value['option']) && is_array($value['option']) )
-		{
-			$data = $value['option'][ $qsv[$key] ];
-		}
-		else
-		{
+	foreach ($values as $key => $value) {
+		if (isset($value['option']) && is_array($value['option'])) {
+			$data = $value['option'][$qsv[$key]];
+		} else {
 			$data = $qsv[$key];
 		}
 
 		$body .= '<tr>
-    <th>'.$value['title'].'</th>
-    <td>'. nl2br(h($data)) .'</td>
+    <th>' . $value['title'] . '</th>
+    <td>' . nl2br(h($data)) . '</td>
 </tr>
 ';
 	}
@@ -1707,9 +1633,9 @@ function plugin_qhmsetting_info_confirm()
 </table>
 ';
 
-	$body .= '<form method="post" action="'.$script.'">';
-	foreach($qsv as $key=>$val){
-		$body .= '<input type="hidden" name="qhmsetting['.$key.']" value="'. h($val).'" />'."\n";
+	$body .= '<form method="post" action="' . $script . '">';
+	foreach ($qsv as $key => $val) {
+		$body .= '<input type="hidden" name="qhmsetting[' . $key . ']" value="' . h($val) . '" />' . "\n";
 	}
 	$body .= '
   <div class="form-group" style="text-align: center">
@@ -1721,8 +1647,8 @@ function plugin_qhmsetting_info_confirm()
   <input type="hidden" name="from" value="info_form" />
 </form>';
 
-//	var_dump($vars['qhmsetting']);
-//	exit;
+	//	var_dump($vars['qhmsetting']);
+	//	exit;
 
 	return $body;
 }
@@ -1733,15 +1659,13 @@ function plugin_qhmsetting_info_msg()
 
 	// --------------------------------------------
 	// 直接のアクセスを拒否する
-	if( !isset($vars['from']) || $vars['from']!='info_form' )
-	{
+	if (!isset($vars['from']) || $vars['from'] != 'info_form') {
 		return 'このページへの直接アクセスは、無効です。';
 	}
 
 
 	// --------------------------------------------
-	foreach($vars['qhmsetting'] as $key=>$val)
-	{
+	foreach ($vars['qhmsetting'] as $key => $val) {
 		$_SESSION['qhmsetting'][$key] = $val;
 	}
 
@@ -1749,12 +1673,11 @@ function plugin_qhmsetting_info_msg()
 
 	redirect($script . '?cmd=qhmsetting', 'サイト情報の変更完了');
 	exit;
-
 }
 
 /**
-* 編集用ID、パスワードの設定
-*/
+ * 編集用ID、パスワードの設定
+ */
 function plugin_qhmsetting_admin_form($error = '')
 {
 	global $script, $vars;
@@ -1765,13 +1688,12 @@ function plugin_qhmsetting_admin_form($error = '')
 	$params = plugin_qhmsetting_getparams();
 
 
-	$error_msg = ($error!='') ? '<p style="color:red">'.$error.'</p>' : '';
+	$error_msg = ($error != '') ? '<p style="color:red">' . $error . '</p>' : '';
 
 	//ユーザー名だけ特別扱い
-	if( isset($vars['qhmsetting']['username']) ){
+	if (isset($vars['qhmsetting']['username'])) {
 		$uname = $vars['qhmsetting']['username'];
-	}
-	else{
+	} else {
 		$uname = $params['username'];
 	}
 
@@ -1838,8 +1760,7 @@ function plugin_qhmsetting_admin_confirm()
 
 	// --------------------------------------------
 	// 直接のアクセスを拒否する
-	if( !isset($vars['from']) || $vars['from']!='admin_form' )
-	{
+	if (!isset($vars['from']) || $vars['from'] != 'admin_form') {
 		return 'このページへの直接アクセスは、無効です。';
 	}
 
@@ -1850,26 +1771,26 @@ function plugin_qhmsetting_admin_confirm()
 	$error = '';
 
 	//ユーザーの重複を探すために
-	unset( $auth_users[ $username ] );
+	unset($auth_users[$username]);
 
-	if( isset( $auth_users[ $vars['qhmsetting']['username'] ] ) )
+	if (isset($auth_users[$vars['qhmsetting']['username']]))
 		$error .= '他のユーザーと名前が重複しています<br />';
-	if( $passwd != pkwk_hash_compute( $vars['qhmsetting']['password'] ) )
+	if ($passwd != pkwk_hash_compute($vars['qhmsetting']['password']))
 		$error .= '現在のパスワードと、一致しません<br />';
-	if( !ctype_alnum($vars['qhmsetting']['username']) )
+	if (!ctype_alnum($vars['qhmsetting']['username']))
 		$error .= 'ユーザー名は、半角英数のみで入力してください<br />';
-	if( $vars['qhmsetting']['password1'] != $vars['qhmsetting']['password2'] )
+	if ($vars['qhmsetting']['password1'] != $vars['qhmsetting']['password2'])
 		$error .= '新パスワードが一致しません<br />';
-	if( !preg_match(PLUGIN_QHMSETTING_ALLOW_PASSWD_PATTERN , $vars['qhmsetting']['password1']) )
+	if (!preg_match(PLUGIN_QHMSETTING_ALLOW_PASSWD_PATTERN, $vars['qhmsetting']['password1']))
 		$error .= 'パスワードは、英数半角と一部の記号のみ(スペース不可)で入力してください<br />';
-	if( strlen($vars['qhmsetting']['password1']) < 6 )
+	if (strlen($vars['qhmsetting']['password1']) < 6)
 		$error .= 'パスワードは、6文字以上を設定してください<br />';
 
 	$email_match = '/^([a-z0-9_]|\-|\.|\+)+@(([a-z0-9_]|\-)+\.)+[a-z]{2,6}$/i';
-	if( !preg_match($email_match, $vars['qhmsetting']['admin_email']) )
+	if (!preg_match($email_match, $vars['qhmsetting']['admin_email']))
 		$error .= 'メールアドレスを正しく、入力してください<br />';
 
-	if($error != '')
+	if ($error != '')
 		return plugin_qhmsetting_admin_form($error);
 
 
@@ -1878,7 +1799,7 @@ function plugin_qhmsetting_admin_confirm()
 	// -----------------------------------
 	// process from here
 	// -----------------------------------
-//	$password = md5($vars['qhmsetting']['password1']);
+	//	$password = md5($vars['qhmsetting']['password1']);
 	$password = $vars['qhmsetting']['password1'];
 
 	$body = <<<EOD
@@ -1913,24 +1834,22 @@ function plugin_qhmsetting_admin_msg()
 
 	// --------------------------------------------
 	// 直接のアクセスを拒否する
-	if( !isset($vars['from']) || $vars['from']!='admin_form' )
-	{
+	if (!isset($vars['from']) || $vars['from'] != 'admin_form') {
 		return 'このページへの直接アクセスは、無効です。';
 	}
 
 	$uname = $_SESSION['qhmsetting']['username'] = $vars['qhmsetting']['username'];
-	$_SESSION['qhmsetting']['passwd'] = '{x-php-md5}'.md5($vars['qhmsetting']['password']);
+	$_SESSION['qhmsetting']['passwd'] = '{x-php-md5}' . md5($vars['qhmsetting']['password']);
 	$admin_email = $_SESSION['qhmsetting']['admin_email'] = $vars['qhmsetting']['admin_email'];
 
 	// encrypt_ftp の再暗号化
-	if ($params['encrypt_ftp'] != '')
-	{
+	if ($params['encrypt_ftp'] != '') {
 		require_once("./lib/Mcrypt.php");
 
-		$mc = new ORMcrypt(trim($params['username']).trim($vars['qhmsetting']['old_password']));
+		$mc = new ORMcrypt(trim($params['username']) . trim($vars['qhmsetting']['old_password']));
 		$codearr = array_pad(explode(',', $params['encrypt_ftp']), 2, '');
-		$data = $mc->decrypt(trim($codearr[0]),trim($codearr[1]));
-		$mc->set_key($uname.$vars['qhmsetting']['password']);
+		$data = $mc->decrypt(trim($codearr[0]), trim($codearr[1]));
+		$mc->set_key($uname . $vars['qhmsetting']['password']);
 		$arr = $mc->encrypt($data);
 		$_SESSION['qhmsetting']['encrypt_ftp'] = implode(',', $arr);
 	}
@@ -1939,7 +1858,7 @@ function plugin_qhmsetting_admin_msg()
 
 	session_destroy();
 
-	$qt->appendv('beforescript', '<meta http-equiv="refresh" content="5;URL='. h($script. '?cmd=qhmauth') .'" />');
+	$qt->appendv('beforescript', '<meta http-equiv="refresh" content="5;URL=' . h($script . '?cmd=qhmauth') . '" />');
 
 
 	return <<<EOD
@@ -1953,85 +1872,77 @@ function plugin_qhmsetting_admin_msg()
 <p>
 ※5秒後にログイン画面に移動します</p>
 EOD;
-
 }
 
 
 //--<MailForm>--
 /**
-* メール送信設定
-*/
-function plugin_qhmsetting_mail_form($error='')
+ * メール送信設定
+ */
+function plugin_qhmsetting_mail_form($error = '')
 {
 	global $script;
 	global $other_plugins;
 	$hlp_mail = '';
 
 	$params = plugin_qhmsetting_getparams();
-	$error_msg = ($error!='') ? '<p style="color:red">'.$error.'</p>' : '';
+	$error_msg = ($error != '') ? '<p style="color:red">' . $error . '</p>' : '';
 
 	//notify
-	if($params['notify']){
+	if ($params['notify']) {
 		$notify_checked1 = "checked";
 		$notify_checked2 = "";
-	}
-	else{
+	} else {
 		$notify_checked1 = "";
 		$notify_checked2 = "checked";
 	}
 	//notify_diff_only
-	if($params['notify_diff_only']){
+	if ($params['notify_diff_only']) {
 		$notify_diff_only_checked1 = "checked";
 		$notify_diff_only_checked2 = "";
-	}
-	else{
+	} else {
 		$notify_diff_only_checked1 = "";
 		$notify_diff_only_checked2 = "checked";
 	}
 	//smtp_auth
-	if($params['smtp_auth']){
+	if ($params['smtp_auth']) {
 		$smtp_auth_checked1 = "checked";
 		$smtp_auth_checked2 = "";
-	}
-	else{
+	} else {
 		$smtp_auth_checked1 = "";
 		$smtp_auth_checked2 = "checked";
 	}
 	//smtp_auth
-	if($params['google_apps']){
+	if ($params['google_apps']) {
 		$google_apps_checked1 = "checked";
 		$google_apps_checked2 = "";
-	}
-	else{
+	} else {
 		$google_apps_checked1 = "";
 		$google_apps_checked2 = "checked";
 	}
 	//sendmail setting
-	if($params['exclude_to_name']){
+	if ($params['exclude_to_name']) {
 		$exclude_to_name1 = 'checked';
 		$exclude_to_name2 = '';
-	}
-	else{
+	} else {
 		$exclude_to_name1 = '';
 		$exclude_to_name2 = 'checked';
 	}
 
 	//is_qmail setting
-	if($params['is_qmail']){
+	if ($params['is_qmail']) {
 		$is_qmail1 = 'checked';
 		$is_qmail2 = '';
-	}
-	else{
+	} else {
 		$is_qmail1 = '';
 		$is_qmail2 = 'checked';
 	}
 
 	//mail_encode
-	if($params['mail_encode'] === 'ISO-2022-JP'){
+	if ($params['mail_encode'] === 'ISO-2022-JP') {
 		$mail_encode_checked1 = "checked";
 		$mail_encode_checked2 = "";
-	}
-	else{
+	} else {
 		$mail_encode_checked1 = "";
 		$mail_encode_checked2 = "checked";
 	}
@@ -2208,8 +2119,7 @@ function plugin_qhmsetting_mail_confirm()
 
 	// --------------------------------------------
 	// 直接のアクセスを拒否する
-	if( !isset($vars['from']) || $vars['from']!='mail_form' )
-	{
+	if (!isset($vars['from']) || $vars['from'] != 'mail_form') {
 		return 'このページへの直接アクセスは、無効です。';
 	}
 
@@ -2218,11 +2128,10 @@ function plugin_qhmsetting_mail_confirm()
 	// validation check
 	// -----------------------------------
 
-	foreach($vars['qhmsetting'] as $key => $val)
-	{
+	foreach ($vars['qhmsetting'] as $key => $val) {
 		$_SESSION['qhmsetting'][$key] = $val;
 	}
-//	var_dump($_SESSION['qhmsetting']);
+	//	var_dump($_SESSION['qhmsetting']);
 
 	$error = '';
 
@@ -2230,34 +2139,31 @@ function plugin_qhmsetting_mail_confirm()
 	$email_match = '/^([a-z0-9_]|\-|\.|\+)+@(([a-z0-9_]|\-)+\.)+[a-z]{2,6}$/i';
 	$hankaku = '/^[a-z0-9_\-\.\+@]+$/i';
 
-	if($vars['qhmsetting']['notify']==1)
-	{
-		if(! preg_match($email_match, $vars['qhmsetting']['notify_from']) )
+	if ($vars['qhmsetting']['notify'] == 1) {
+		if (! preg_match($email_match, $vars['qhmsetting']['notify_from']))
 			$error .= '送信者のメールアドレスを正しく、入力してください<br />';
-		if(! preg_match($email_match, $vars['qhmsetting']['notify_to']) )
+		if (! preg_match($email_match, $vars['qhmsetting']['notify_to']))
 			$error .= '更新通知先を正しく、設定して下さい。<br />';
 
 
-		if(! preg_match($hankaku, $vars['qhmsetting']['smtp_server']) )
+		if (! preg_match($hankaku, $vars['qhmsetting']['smtp_server']))
 			$error .= 'SMTPサーバーを設定して下さい';
 
-		if( $vars['qhmsetting']['smtp_auth'] )
-		{
-			if(! preg_match($hankaku, $vars['qhmsetting']['pop_server'] ) )
+		if ($vars['qhmsetting']['smtp_auth']) {
+			if (! preg_match($hankaku, $vars['qhmsetting']['pop_server']))
 				$error .= 'POPサーバーを正しく、設定して下さい。<br />';
-			if(! preg_match($hankaku, $vars['qhmsetting']['pop_userid'] ) )
+			if (! preg_match($hankaku, $vars['qhmsetting']['pop_userid']))
 				$error .= 'POPアカウントを入力してください。<br />';
-			if(! preg_match($hankaku, $vars['qhmsetting']['pop_passwd'] ) )
+			if (! preg_match($hankaku, $vars['qhmsetting']['pop_passwd']))
 				$error .= 'POPパスワードを入力してください。<br />';
 		}
 	}
 
-	if( $vars['qhmsetting']['google_apps'] && (! preg_match($hankaku, $vars['qhmsetting']['google_apps_domain']) ) )
-	{
+	if ($vars['qhmsetting']['google_apps'] && (! preg_match($hankaku, $vars['qhmsetting']['google_apps_domain']))) {
 		$error .= 'ドメインを正しく設定して下さい。';
 	}
 
-	if($error != '')
+	if ($error != '')
 		return plugin_qhmsetting_mail_form($error);
 
 
@@ -2268,44 +2174,37 @@ function plugin_qhmsetting_mail_confirm()
 	// -----------------------------------
 
 	$notify_msg = '';
-	if($vars['qhmsetting']['notify'])
-	{
+	if ($vars['qhmsetting']['notify']) {
 		$notify_msg = "利用する<br />(送り先:{$vars['qhmsetting']['notify_to']}、";
-		if($notify_diff_only)
+		if ($notify_diff_only)
 			$notify_msg .= ' 内容:差分のみ)';
 		else
 			$notify_msg .= ' 内容:全文)';
-	}
-	else
-	{
+	} else {
 		$notify_msg = '利用しない';
 	}
 
 	$notify_name_msg = $vars['qhmsetting']['notify_from'];
 
 	$smtp_auth_msg = '利用しない';
-	if($vars['qhmsetting']['smtp_auth'])
-	{
-		$smtp_auth_msg = 'サーバー: '.$vars['qhmsetting']['pop_server'].'<br />';
-		$smtp_auth_msg .= 'POPユーザー: '.$vars['qhmsetting']['pop_userid'].'<br />';
+	if ($vars['qhmsetting']['smtp_auth']) {
+		$smtp_auth_msg = 'サーバー: ' . $vars['qhmsetting']['pop_server'] . '<br />';
+		$smtp_auth_msg .= 'POPユーザー: ' . $vars['qhmsetting']['pop_userid'] . '<br />';
 		$smtp_auth_msg .= 'POPパスワード: ********<br />';
 	}
 
 	$google_apps_msg = '設定しない';
-	if($vars['qhmsetting']['google_apps'])
-	{
-		$google_apps_msg = '利用する<br />'.$vars['qhmsetting']['google_apps_domain'];
+	if ($vars['qhmsetting']['google_apps']) {
+		$google_apps_msg = '利用する<br />' . $vars['qhmsetting']['google_apps_domain'];
 	}
 
 	$exclude_to_name_msg = '通常送信(名前+メールアドレス)';
-	if($vars['qhmsetting']['exclude_to_name'])
-	{
+	if ($vars['qhmsetting']['exclude_to_name']) {
 		$exclude_to_name_msg = '<span style="color:red">メールアドレスのみで送る</span>';
 	}
 
 	$is_qmail_msg = '無効';
-	if($vars['qhmsetting']['is_qmail'])
-	{
+	if ($vars['qhmsetting']['is_qmail']) {
 		$is_qmail_msg = '有効';
 	}
 
@@ -2313,9 +2212,8 @@ function plugin_qhmsetting_mail_confirm()
 
 
 	$hiddens = '';
-	foreach($vars['qhmsetting'] as $key=>$val )
-	{
-		$hiddens .= '<input type="hidden" name="'.$key.'" value="'.$val.'" />'."\n";
+	foreach ($vars['qhmsetting'] as $key => $val) {
+		$hiddens .= '<input type="hidden" name="' . $key . '" value="' . $val . '" />' . "\n";
 	}
 
 
@@ -2378,15 +2276,13 @@ function plugin_qhmsetting_mail_msg()
 
 	// --------------------------------------------
 	// 直接のアクセスを拒否する
-	if( !isset($vars['from']) || $vars['from']!='mail_form' )
-	{
+	if (!isset($vars['from']) || $vars['from'] != 'mail_form') {
 		return 'このページへの直接アクセスは、無効です。';
 	}
 
 
 	//set session
-	foreach( $vars['qhmsetting'] as $key=>$val)
-	{
+	foreach ($vars['qhmsetting'] as $key => $val) {
 		$_SESSION['qhmsetting'][$key]
 			= $vars['qhmsetting'][$key]
 			= htmlspecialchars($val);
@@ -2402,7 +2298,6 @@ EOD;
 
 	redirect($script . '?cmd=qhmsetting', $message);
 	exit;
-
 }
 //--</MailForm>--
 
@@ -2410,8 +2305,8 @@ EOD;
 
 //--<UserForm>--
 /**
-* ユーザー権限設定
-*/
+ * ユーザー権限設定
+ */
 function plugin_qhmsetting_user_form($error = '')
 {
 	global $custom_meta, $script;
@@ -2482,13 +2377,13 @@ padding: 4px 3px;
 	//user accessの取得
 	$fp = fopen('qhm_access.ini.txt', "r");
 	if ($fp) {
-		flock( $fp, LOCK_SH );
+		flock($fp, LOCK_SH);
 
 		while (!feof($fp)) {
 			$line = fgets($fp);
 			if (trim($line) != "") {
-				list($type,$pattern,$name) = explode(',', $line);
-				$access_data[] = array("type"=>trim($type), "pattern"=>$pattern, "user"=>trim($name));
+				list($type, $pattern, $name) = explode(',', $line);
+				$access_data[] = array("type" => trim($type), "pattern" => $pattern, "user" => trim($name));
 			}
 		}
 		fclose($fp);
@@ -2531,7 +2426,7 @@ EOD;
 
 		ksort($users_data);
 
-		foreach ($users_data as $key=>$row) {
+		foreach ($users_data as $key => $row) {
 			$body .= <<<EOD
 	<tr><td class="style_td" style="padding:1px 3px;" onclick="this.style.backgroundColor='skyblue';selectUser('target_user','{$key}');" onmouseover="hightlight(this,'pink');" onmouseout="hightlight(this,'#EFEFF1');"><div>{$key} <input type="button" onclick="rewritePasswd('{$key}');" value="パスワード変更" class="btn btn-primary"  /> <input type="button" onclick="deleteUser('{$key}');" value="削除" class="btn btn-danger" /></div></td></tr>
 EOD;
@@ -2570,7 +2465,7 @@ EOD;
 EOD;
 
 	foreach ($users_data as $key => $val) {
-		$body .=  '<option value="'.$key.'">'.$key.'</option>';
+		$body .=  '<option value="' . $key . '">' . $key . '</option>';
 	}
 
 	$body .= <<<EOD
@@ -2595,7 +2490,7 @@ EOD;
 
 	if (is_array($access_data)) {
 		$row_cnt = 0;
-		foreach ($access_data as $key=>$row) {
+		foreach ($access_data as $key => $row) {
 			$type_name = _get_type_name($row["type"]);
 			$body .= <<<EOD
 <tr>
@@ -2619,7 +2514,6 @@ EOD;
 EOD;
 
 	return $body;
-
 }
 
 function plugin_qhmsetting_user_msg()
@@ -2628,27 +2522,24 @@ function plugin_qhmsetting_user_msg()
 	$msg = '';
 
 	// writable check
-	if( !is_writable(PLUGIN_QHMSETTING_USER_INI_FILE) )
-	{
+	if (!is_writable(PLUGIN_QHMSETTING_USER_INI_FILE)) {
 		return '<h2>エラー</h2><p>qhm_users.ini.txt の書き込み権限がありません。</p>';
 	}
 	// writable check
-	if( !is_writable(PLUGIN_QHMSETTING_ACCESS_INI_FILE) )
-	{
+	if (!is_writable(PLUGIN_QHMSETTING_ACCESS_INI_FILE)) {
 		return '<h2>エラー</h2><p>qhm_access.ini.txt の書き込み権限がありません。</p>';
 	}
 
 
 	// ------------------------------------
 	// add user
-	if( isset($vars['user_add']) )
-	{
+	if (isset($vars['user_add'])) {
 		$error = _check_userdata($vars['qhmsetting']);
-		if( $error != '' )
+		if ($error != '')
 			return plugin_qhmsetting_user_form($error);
 
 		$data = $vars['qhmsetting']['username']
-				.',{x-php-md5}'.md5($vars['qhmsetting']['passwd'])."\n";
+			. ',{x-php-md5}' . md5($vars['qhmsetting']['passwd']) . "\n";
 
 		_write_userfile($data, "a");
 
@@ -2659,23 +2550,20 @@ function plugin_qhmsetting_user_msg()
 
 	// -------------------------------------
 	// del user
-	if( $vars['user_op'] == 'delete_user')
-	{
+	if ($vars['user_op'] == 'delete_user') {
 		$users_data = _get_users_data();
 		$user = $vars['target_user'];
 
-		if( isset($users_data[$user]) )
-		{
+		if (isset($users_data[$user])) {
 
 			$acclist = _get_accessdata();
 
 			$dat = '';
-			foreach($acclist as $k=>$acc){
-				if($acc['user']===$user){
+			foreach ($acclist as $k => $acc) {
+				if ($acc['user'] === $user) {
 					//do nothing
-				}
-				else{
-					$dat .= $acc['type'].','.$acc['pattern'].','.$acc['user']."\n";
+				} else {
+					$dat .= $acc['type'] . ',' . $acc['pattern'] . ',' . $acc['user'] . "\n";
 				}
 			}
 			_write_accessfile($dat, 'w');
@@ -2683,14 +2571,11 @@ function plugin_qhmsetting_user_msg()
 
 			unset($users_data[$user]);
 			$data = '';
-			foreach($users_data as $key=>$value)
-			{
-				$data .= $key.','.$value['passwd']."\n";
+			foreach ($users_data as $key => $value) {
+				$data .= $key . ',' . $value['passwd'] . "\n";
 			}
 
 			_write_userfile($data, "w");
-
-
 		}
 
 		$msg = "ユーザーを削除しました。";
@@ -2699,40 +2584,36 @@ function plugin_qhmsetting_user_msg()
 
 	// --------------------------------------
 	// reset passwd
-	if( $vars['user_op'] == 'rewrite_password' )
-	{
+	if ($vars['user_op'] == 'rewrite_password') {
 		$msg = "ユーザーパスワードを設定しました";
 		$passwd = $vars['op_passwd'];
 
 		//error
 		$error = '';
 
-		if( $passwd == ''){
+		if ($passwd == '') {
 			$error = 'パスワードなしは、設定できません。';
-		}
-		else if( !preg_match("/^[a-zA-Z0-9]+$/",$passwd) ){
+		} else if (!preg_match("/^[a-zA-Z0-9]+$/", $passwd)) {
 			$error = 'パスワードは、半角英数を入力してください';
 		}
 
-		if($error!=''){
+		if ($error != '') {
 			return plugin_qhmsetting_user_form($error);
 		}
 
 
 		$usr = $vars['target_user'];
-		$pw = '{x-php-md5}'.md5($vars['op_passwd']);
+		$pw = '{x-php-md5}' . md5($vars['op_passwd']);
 
 		$users_data = _get_users_data();
 
-		if( isset( $users_data[$usr] ) )
-		{
+		if (isset($users_data[$usr])) {
 			$users_data[$usr]['passwd'] = $pw;
 		}
 
 		$data = '';
-		foreach($users_data as $key=>$value)
-		{
-			$data .= $key.','.$value['passwd']."\n";
+		foreach ($users_data as $key => $value) {
+			$data .= $key . ',' . $value['passwd'] . "\n";
 		}
 
 		_write_userfile($data, "w");
@@ -2741,34 +2622,30 @@ function plugin_qhmsetting_user_msg()
 	// -------------------------------------------
 	// 権限変更
 	//
-	if( isset( $vars['add_access']  ) )
-	{
+	if (isset($vars['add_access'])) {
 
 		$type =  input_filter($vars['type']);
 		$pattern = _get_pregdata($vars["pattern"], $vars["pattern_pos"]);
 		$user = input_filter($vars['access_user']);
 
-		$data = $type.",".$pattern.",".$user."\n";
+		$data = $type . "," . $pattern . "," . $user . "\n";
 		_write_accessfile($data, "a");
 
 		$msg = '権限を追加しました。';
-
 	}
 
 
-	if( $vars['pattern_op'] == 'delete_pattern' )
-	{
+	if ($vars['pattern_op'] == 'delete_pattern') {
 		//データ作成
 		$acclist = _get_accessdata();
-		unset($acclist[ $vars['delno']  ]);
+		unset($acclist[$vars['delno']]);
 
 		$data = '';
-		foreach($acclist as $key=>$value)
-		{
-			$data .= $value['type'].','.$value['pattern'].','.$value['user']."\n";
+		foreach ($acclist as $key => $value) {
+			$data .= $value['type'] . ',' . $value['pattern'] . ',' . $value['user'] . "\n";
 		}
 
-		_write_accessfile($data,"w");
+		_write_accessfile($data, "w");
 
 		$msg = 'アクセス権限を削除しました。';
 	}
@@ -2786,8 +2663,8 @@ function plugin_qhmsetting_user2_form($error = '')
 	global $custom_meta, $script;
 	$custom_meta .= '<script type="text/javascript" src="./js/opadmin.js"></script>';
 
-	if(! isset($_SESSION['usr']) ){
-		return '<p><a href="'.$script.'?cmd=qhmauth">ログイン</a>してください。</p>';
+	if (! isset($_SESSION['usr'])) {
+		return '<p><a href="' . $script . '?cmd=qhmauth">ログイン</a>してください。</p>';
 	}
 
 	$body = <<<EOD
@@ -2828,13 +2705,11 @@ function plugin_qhmsetting_user2_msg()
 	$msg = '';
 
 	// writable check
-	if( !is_writable(PLUGIN_QHMSETTING_USER_INI_FILE) )
-	{
+	if (!is_writable(PLUGIN_QHMSETTING_USER_INI_FILE)) {
 		return '<h2>エラー</h2><p>qhm_users.ini.txt の書き込み権限がありません。</p>';
 	}
 	// writable check
-	if( !is_writable(PLUGIN_QHMSETTING_ACCESS_INI_FILE) )
-	{
+	if (!is_writable(PLUGIN_QHMSETTING_ACCESS_INI_FILE)) {
 		return '<h2>エラー</h2><p>qhm_access.ini.txt の書き込み権限がありません。</p>';
 	}
 
@@ -2847,41 +2722,36 @@ function plugin_qhmsetting_user2_msg()
 
 	//error
 	$error = '';
-	if( $auth_users[ $_SESSION['usr'] ] != '{x-php-md5}'.md5($passwd) ){
+	if ($auth_users[$_SESSION['usr']] != '{x-php-md5}' . md5($passwd)) {
 		$error = '現在のパスワードが一致しません。<br />';
 	}
-	if( $passwd1 == ''){
+	if ($passwd1 == '') {
 		$error .= 'パスワードなしは、設定できません。<br />';
-	}
-	else if( $passwd1 !== $passwd2){
+	} else if ($passwd1 !== $passwd2) {
 		$error .= 'パスワードが違います<br />';
-	}
-	else if( !preg_match(PLUGIN_QHMSETTING_ALLOW_PASSWD_PATTERN, $passwd1) ){
+	} else if (!preg_match(PLUGIN_QHMSETTING_ALLOW_PASSWD_PATTERN, $passwd1)) {
 		$error .= 'パスワードは、英数半角と一部の記号のみ(スペース不可)で入力してください<br />';
-	}
-	else if( strlen($passwd1) < 6 ){
+	} else if (strlen($passwd1) < 6) {
 		$error .= 'パスワードが短すぎます(6文字以上)<br />';
 	}
 
-	if($error!=''){
+	if ($error != '') {
 		return plugin_qhmsetting_user2_form($error);
 	}
 
 
 	$usr = $_SESSION['usr'];
-	$pw = '{x-php-md5}'.md5($passwd1);
+	$pw = '{x-php-md5}' . md5($passwd1);
 
 	$users_data = _get_users_data();
 
-	if( isset( $users_data[$usr] ) )
-	{
+	if (isset($users_data[$usr])) {
 		$users_data[$usr]['passwd'] = $pw;
 	}
 
 	$data = '';
-	foreach($users_data as $key=>$value)
-	{
-		$data .= $key.','.$value['passwd']."\n";
+	foreach ($users_data as $key => $value) {
+		$data .= $key . ',' . $value['passwd'] . "\n";
 	}
 
 	_write_userfile($data, "w");
@@ -2900,123 +2770,110 @@ function plugin_qhmsetting_chmod_form($error = '')
 
 	$back_url = '';
 
-	$dirs = array('attach','backup','cache','cacheqhm','cacheqblog','counter','diff','trackback','wiki');
+	$dirs = array('attach', 'backup', 'cache', 'cacheqhm', 'cacheqblog', 'counter', 'diff', 'trackback', 'wiki');
 	$files = array('qhm.ini.php', 'qhm_access.ini.txt', 'qhm_users.ini.txt');
 
 
 
 	//書き込み権限のないファイル、apacheのみ書き込みファイル探し
-	$not_writable = array();
+	$not_writable = [];
 	$not_writable_list = '';
 
-	$web_file = array();
+	$web_file = [];
 	$web_file_list = '';
 
 	//その他警告
-	$warns = array();
+	$warns = [];
 	$warns_list = '';
 
-	foreach($dirs as $dir)
-	{
-		if (is_dir($dir))
-		{
+	foreach ($dirs as $dir) {
+		if (is_dir($dir)) {
 			$obj = dir($dir);
-			while( ($file=$obj->read()) )
-			{
-				$path = $dir.'/'.$file;
+			while (($file = $obj->read())) {
+				$path = $dir . '/' . $file;
 
-				if( !is_writable($path) && ($file!='..')
-						&& ($file!='.htaccess') && ($file!='.htpasswd') && ($file!='index.html') )
-				{
+				if (
+					!is_writable($path) && ($file != '..')
+					&& ($file != '.htaccess') && ($file != '.htpasswd') && ($file != 'index.html')
+				) {
 					$not_writable[] = $path;
-					$not_writable_list .= '<li>'.$path.'</li>'."\n";
+					$not_writable_list .= '<li>' . $path . '</li>' . "\n";
 				}
 
-				if( is_writable($path) && ($file!='..')
-						&& ($file!='.htaccess') && ($file!='.htpasswd') && ($file!='index.html') )
-				{
+				if (
+					is_writable($path) && ($file != '..')
+					&& ($file != '.htaccess') && ($file != '.htpasswd') && ($file != 'index.html')
+				) {
 					$perms = substr(sprintf('%o', fileperms($path)), -4);
-					if($perms == '0644')
-					{
+					if ($perms == '0644') {
 						$web_file[] = $path;
-						$web_file_list .= '<li>'.$path.'</li>';
+						$web_file_list .= '<li>' . $path . '</li>';
 					}
 				}
 			}
 			$obj->close();
-		}
-		else
-		{
+		} else {
 			$warns = array($dir);
-			$warns_list .= '<li>フォルダが見つかりません：'. h($dir) .'<br /><span style="font-size:small;color:#666;">権限777でフォルダ '. h($dir) .' を作成してください。</span></li>'. "\n";
+			$warns_list .= '<li>フォルダが見つかりません：' . h($dir) . '<br /><span style="font-size:small;color:#666;">権限777でフォルダ ' . h($dir) . ' を作成してください。</span></li>' . "\n";
 		}
 	}
 
-	foreach($files as $path)
-	{
-		if( !is_writable($path) )
-		{
+	foreach ($files as $path) {
+		if (!is_writable($path)) {
 			$not_writable[] = $path;
-			$not_writable_list .= '<li>'.$path.'</li>'."\n";
+			$not_writable_list .= '<li>' . $path . '</li>' . "\n";
 		}
 
-		if( is_writable($path) )
-		{
+		if (is_writable($path)) {
 			$perms = substr(sprintf('%o', fileperms($path)), -4);
-			if($perms == '0644')
-			{
+			if ($perms == '0644') {
 				$web_file[] = $path;
-				$web_file_list .= '<li>'.$path.'</li>';
+				$web_file_list .= '<li>' . $path . '</li>';
 			}
 		}
 	}
 
 
-	$not_writable_list = ($not_writable_list=='') ?
-		'' : '<ul>'.$not_writable_list.'</ul>';
+	$not_writable_list = ($not_writable_list == '') ?
+		'' : '<ul>' . $not_writable_list . '</ul>';
 
-	if($web_file_list!='')
-	{
-		$web_file_list = '<ul>'.$web_file_list.'</ul>';
-		$web_file_list .= '<form method="post" action="'.$script.'">';
+	if ($web_file_list != '') {
+		$web_file_list = '<ul>' . $web_file_list . '</ul>';
+		$web_file_list .= '<form method="post" action="' . $script . '">';
 
 		$cnt = 0;
-		foreach($web_file as $file){
-			$web_file_list .= '<input type="hidden" name="webfile['.$cnt.']" value="'.$file.'" />'."\n";
+		foreach ($web_file as $file) {
+			$web_file_list .= '<input type="hidden" name="webfile[' . $cnt . ']" value="' . $file . '" />' . "\n";
 			$cnt++;
 		}
 		$web_file_list .= '<p style="text-align:center;"><input type="submit" name="chmod" value="権限変更を実行する" class="btn btn-primary" /></p><input type="hidden" name="phase" value="chmod" />
 <input type="hidden" name="mode" value="msg" />
 <input type="hidden" name="plugin" value="qhmsetting" />';
 		$web_file_list .= '</form>';
-
 	}
 
 	//apacheしか書けないファイル探し
 
 	if ($not_writable_list == '') {
 		$not_writable_list = '<div style="padding:5px;width:350px;background-color:#ddeeff;border:2px solid #6699CC;text-align:center;margin:1em auto;">書き込み権限に問題はありませんでした</div>';
-	}
-	else {
+	} else {
 		$not_writable_list = '<p>以下のファイルは、HAIKによって利用するにも関わらず、書き込みができません。<br />
-FTPソフトなどを使って、書き込みを権限を設定して下さい</p>'.$not_writable_list;
+FTPソフトなどを使って、書き込みを権限を設定して下さい</p>' . $not_writable_list;
 	}
 
 	if ($web_file_list == '') {
 		$web_file_list = '<div style="padding:5px;width:350px;background-color:#ddeeff;border:2px solid #6699CC;text-align:center;margin:1em auto;">Webサーバーの書き込みに問題はありませんでした</div>';
-	}
-	else {
+	} else {
 		$web_file_list = '<p>PHPの仕様上、PHPプログラムが作成したファイルは、webサーバー(apache)のみが、<br />
 書き込み可能のファイルが作成されます。</p>
 <p>使う上で問題はありませんが、削除できないファイルなどがある場合は、<b>権限変更</b>を<br />
-実行することで、削除や変更、FTPによる上書きが可能になります。</p>'.$web_file_list;
+実行することで、削除や変更、FTPによる上書きが可能になります。</p>' . $web_file_list;
 	}
 
 	//その他警告
-	if ($warns_list != '')
-	{
+	if ($warns_list != '') {
 		$warns_dscr = '<p>ファイル・フォルダに関するいくつかの警告があります。</p>';
-		$warns_list = $warns_dscr . "\n" . '<ul>'. $warns_list. '</ul>';
+		$warns_list = $warns_dscr . "\n" . '<ul>' . $warns_list . '</ul>';
 	}
 
 
@@ -3042,14 +2899,13 @@ function plugin_qhmsetting_chmod_msg()
 	global $vars, $script;
 
 	$list = '<ul>';
-	foreach($vars['webfile'] as $key=>$name)
-	{
+	foreach ($vars['webfile'] as $key => $name) {
 		chmod($name, 0666);
-		$list .= '<li>'.$name."</li>\n";
+		$list .= '<li>' . $name . "</li>\n";
 	}
 	$list .= '</ul>';
 
-	$back_url = '<a href="'.$script.'?plugin=qhmsetting&amp;phase=chmod&amp;mode=form">戻る</a>';
+	$back_url = '<a href="' . $script . '?plugin=qhmsetting&amp;phase=chmod&amp;mode=form">戻る</a>';
 
 	$body = <<<EOD
 <p>$back_url</p>
@@ -3060,11 +2916,10 @@ function plugin_qhmsetting_chmod_msg()
 EOD;
 
 	return $body;
-
 }
 //--</ChmodForm>--
 
-function plugin_qhmsetting_counter_form($error='')
+function plugin_qhmsetting_counter_form($error = '')
 {
 	global $script, $vars;
 	global $other_plugins;
@@ -3072,18 +2927,17 @@ function plugin_qhmsetting_counter_form($error='')
 
 	//reset
 	$message = '';
-	if( isset($vars['reset']) )
-	{
+	if (isset($vars['reset'])) {
 		$page = decode(basename($vars['reset'], '.count'));
 		$message =  h($page) . 'のアクセスカウントをリセットしました。';
 		$_SESSION['flash_msg'] = $message;
-		file_put_contents('counter/'.$vars['reset'],'');
+		file_put_contents('counter/' . $vars['reset'], '');
 		redirect($script . '?cmd=qhmsetting&phase=counter&mode=form');
 		exit;
 	}
 
 
-	$list = get_existpages('counter','.count');
+	$list = get_existpages('counter', '.count');
 
 	$body = '
 <style type="text/css">
@@ -3106,15 +2960,14 @@ background-color: #2575cf;
 ';
 	$body .= '<ul>';
 
-	foreach($list as $fname=>$pname)
-	{
-		$url = $script.'?'.rawurlencode($pname);
-		$reset_url = $script.'?cmd=qhmsetting&amp;phase=counter&amp;mode=form&amp;reset='
+	foreach ($list as $fname => $pname) {
+		$url = $script . '?' . rawurlencode($pname);
+		$reset_url = $script . '?cmd=qhmsetting&amp;phase=counter&amp;mode=form&amp;reset='
 			. rawurlencode($fname);
 
 		$body .= '<li><input type="button" value="リセット" onclick="javascript:location.href=\''
-			.$reset_url.'\'" class="btn btn-primary" ><a href="'.$url.'"> '.$pname.
-			'</a> </li>'."\n";
+			. $reset_url . '\'" class="btn btn-primary" ><a href="' . $url . '"> ' . $pname .
+			'</a> </li>' . "\n";
 	}
 
 	$body .= '</ul>';
@@ -3130,30 +2983,24 @@ function plugin_qhmsetting_clear_form($error = '')
 
 	$hlp_clear = '';
 
-    $files = array();
-    $search_files = array();
-    $files_cache = array();
-    if ($dir = opendir(CACHE_DIR))
-    {
-        while (($file = readdir($dir)) !== false)
-        {
-            if (preg_match('/\.qtc$/', $file))
-            {
-                $files[] = $file;
-            }
-            else if (preg_match('/_search\.txt$/', $file))
-            {
-                $search_files[] = $file;
-            }
-        }
-        closedir($dir);
-    }
+	$files = [];
+	$search_files = [];
+	$files_cache = [];
+	if ($dir = opendir(CACHE_DIR)) {
+		while (($file = readdir($dir)) !== false) {
+			if (preg_match('/\.qtc$/', $file)) {
+				$files[] = $file;
+			} else if (preg_match('/_search\.txt$/', $file)) {
+				$search_files[] = $file;
+			}
+		}
+		closedir($dir);
+	}
 
 	// キャッシュ設定
-	if($qt->enable_cache){
+	if ($qt->enable_cache) {
 		$checked_cache = 'checked="checked"';
-	}
-	else{
+	} else {
 		$checked_cache = '';
 	}
 
@@ -3186,10 +3033,10 @@ function plugin_qhmsetting_clear_form($error = '')
 <ul>
 EOD;
 	$cnt = 0;
-	foreach($files as $file){
-		$rm_file = CACHE_DIR.$file;
+	foreach ($files as $file) {
+		$rm_file = CACHE_DIR . $file;
 		$body .= "<li>{$rm_file}<input type=\"hidden\" name=\"rm[{$cnt}]\" value=\"{$rm_file}\" /></li>\n";
-		$cnt ++;
+		$cnt++;
 	}
 	$body .= <<< EOD
 </ul>
@@ -3201,23 +3048,22 @@ EOD;
 </form>
 EOD;
 
-    if (count($search_files) > 0)
-    {
-        $body .= <<< EOD
+	if (count($search_files) > 0) {
+		$body .= <<< EOD
 <h3 style="margin-top:2em;">検索用キャッシュの初期化</h3>
 <p>search2 プラグインで使う検索用キャッシュを削除します。<br />
 削除を行うことで、検索時に使うキャッシュファイルを再構築できます。</p>
 <form action="{$script}" method="post">
 <ul>
 EOD;
-        $cnt = 0;
-        foreach($search_files as $file){
-            $rm_file = CACHE_DIR.$file;
-            $open_url = $script . '?cmd=qhmsetting&phase=clear&mode=view_search2_cache&file='.rawurlencode($rm_file);
-            $body .= "<li class=\"qhm-search2-cache-file\" data-href=\"{$open_url}\">{$rm_file}<input type=\"hidden\" name=\"rm[{$cnt}]\" value=\"{$rm_file}\" /></li>\n";
-            $cnt ++;
-        }
-        $body .= <<< EOD
+		$cnt = 0;
+		foreach ($search_files as $file) {
+			$rm_file = CACHE_DIR . $file;
+			$open_url = $script . '?cmd=qhmsetting&phase=clear&mode=view_search2_cache&file=' . rawurlencode($rm_file);
+			$body .= "<li class=\"qhm-search2-cache-file\" data-href=\"{$open_url}\">{$rm_file}<input type=\"hidden\" name=\"rm[{$cnt}]\" value=\"{$rm_file}\" /></li>\n";
+			$cnt++;
+		}
+		$body .= <<< EOD
 </ul>
 <p><input type="submit" name="clear" value="削除を実行する" class="btn btn-primary" /></p>
 <input type="hidden" name="search_del" value="search_del" />
@@ -3236,56 +3082,47 @@ $(function(){
 });
 </script>
 EOD;
-    }
+	}
 
 
-    $haik_cache_files = glob(CACHE_DIR.'custom_skin.*');
-    $haik_del_images = array();
-    $haik_cache_images = array();
+	$haik_cache_files = glob(CACHE_DIR . 'custom_skin.*');
+	$haik_del_images = [];
+	$haik_cache_images = [];
 
-    foreach($haik_cache_files as $file)
-    {
-        if (preg_match('/\.dat$/', $file))
-        {
-            $data = file_get_contents($file);
-            $data = unserialize($data);
-            foreach ($data as $key => $val)
-            {
-                if (preg_match('/\.(gif|jpe?g|png)$/i', $val))
-                {
-                    $haik_cache_images[] = $val;
-                }
-            }
-        }
-        else if (preg_match('/\.(gif|jpe?g|png)$/i', $file))
-        {
-            $haik_del_images[$file] = $file;
-        }
-    }
+	foreach ($haik_cache_files as $file) {
+		if (preg_match('/\.dat$/', $file)) {
+			$data = file_get_contents($file);
+			$data = unserialize($data);
+			foreach ($data as $key => $val) {
+				if (preg_match('/\.(gif|jpe?g|png)$/i', $val)) {
+					$haik_cache_images[] = $val;
+				}
+			}
+		} else if (preg_match('/\.(gif|jpe?g|png)$/i', $file)) {
+			$haik_del_images[$file] = $file;
+		}
+	}
 
-    foreach($haik_cache_images as $file)
-    {
-        if (array_key_exists($file, $haik_del_images))
-        {
-            unset($haik_del_images[$file]);
-        }
-    }
+	foreach ($haik_cache_images as $file) {
+		if (array_key_exists($file, $haik_del_images)) {
+			unset($haik_del_images[$file]);
+		}
+	}
 
-    if (count($haik_del_images) > 0)
-    {
-        $body .= <<< EOD
+	if (count($haik_del_images) > 0) {
+		$body .= <<< EOD
 <h3 style="margin-top:2em;">haikテーマ用キャッシュの初期化</h3>
 <p>haikテーマの編集でアップロードした画像を削除します。<br />
 ※ 現在、カスタムで設定していない画像を削除します</p>
 <form action="{$script}" method="post">
 <ul>
 EOD;
-        $cnt = 0;
-        foreach($haik_del_images as $file){
-            $body .= "<li class=\"qhm-haik-cache-file\">{$file}<input type=\"hidden\" name=\"rm[{$cnt}]\" value=\"{$file}\" /></li>\n";
-            $cnt ++;
-        }
-        $body .= <<< EOD
+		$cnt = 0;
+		foreach ($haik_del_images as $file) {
+			$body .= "<li class=\"qhm-haik-cache-file\">{$file}<input type=\"hidden\" name=\"rm[{$cnt}]\" value=\"{$file}\" /></li>\n";
+			$cnt++;
+		}
+		$body .= <<< EOD
 </ul>
 <p><input type="submit" name="clear" value="削除を実行する" class="btn btn-primary" /></p>
 <input type="hidden" name="haik_del" value="haik_del" />
@@ -3294,7 +3131,7 @@ EOD;
 <input type="hidden" name="cmd" value="qhmsetting" />
 </form>
 EOD;
-    }
+	}
 
 	// プラグインのキャッシュファイル
 	$plugin_caches = plugin_qhmsetting_get_plugin_cache_files();
@@ -3339,22 +3176,18 @@ function plugin_qhmsetting_clear_msg($error = '')
 	$error = '';
 
 	//----------------- テンプレートの削除 ---------------
-	if( isset($vars['tmp_del']) )
-	{
-		foreach($vars['rm'] as $rm_file)
-		{
-			if(file_exists($rm_file) && is_writable($rm_file)){
+	if (isset($vars['tmp_del'])) {
+		foreach ($vars['rm'] as $rm_file) {
+			if (file_exists($rm_file) && is_writable($rm_file)) {
 				unlink($rm_file);
-
-			}
-			else{
-				$error .= $rm_file."\n";
+			} else {
+				$error .= $rm_file . "\n";
 			}
 		}
 
-		$log_msg = $error==='' ?
+		$log_msg = $error === '' ?
 			''
-			: nl2br('削除できなかったファイル'."\n".$error);
+			: nl2br('削除できなかったファイル' . "\n" . $error);
 
 		$_SESSION['flash_msg'] = <<<EOD
 <h2>削除を完了しました</h2>
@@ -3363,26 +3196,23 @@ $log_msg
 EOD;
 
 
-		redirect($script. '?cmd=qhmsetting&mode=form&phase=clear');
+		redirect($script . '?cmd=qhmsetting&mode=form&phase=clear');
 		return $body;
 	}
 
 	//----------------- 検索用キャッシュの削除 ---------------
-	if( isset($vars['search_del']) )
-	{
-		foreach($vars['rm'] as $rm_file)
-		{
-			if(file_exists($rm_file) && is_writable($rm_file)){
+	if (isset($vars['search_del'])) {
+		foreach ($vars['rm'] as $rm_file) {
+			if (file_exists($rm_file) && is_writable($rm_file)) {
 				unlink($rm_file);
-			}
-			else{
-				$error .= $rm_file."\n";
+			} else {
+				$error .= $rm_file . "\n";
 			}
 		}
 
-		$log_msg = $error==='' ?
+		$log_msg = $error === '' ?
 			''
-			: nl2br('削除できなかったファイル'."\n".$error);
+			: nl2br('削除できなかったファイル' . "\n" . $error);
 
 		$_SESSION['flash_msg'] = <<<EOD
 <h2>削除を完了しました</h2>
@@ -3391,26 +3221,23 @@ $log_msg
 EOD;
 
 
-		redirect($script. '?cmd=qhmsetting&mode=form&phase=clear');
+		redirect($script . '?cmd=qhmsetting&mode=form&phase=clear');
 		return $body;
 	}
 
 	//----------------- haik用キャッシュの削除 ---------------
-	if( isset($vars['haik_del']) )
-	{
-		foreach($vars['rm'] as $rm_file)
-		{
-			if(file_exists($rm_file) && is_writable($rm_file)){
+	if (isset($vars['haik_del'])) {
+		foreach ($vars['rm'] as $rm_file) {
+			if (file_exists($rm_file) && is_writable($rm_file)) {
 				unlink($rm_file);
-			}
-			else{
-				$error .= $rm_file."\n";
+			} else {
+				$error .= $rm_file . "\n";
 			}
 		}
 
-		$log_msg = $error==='' ?
+		$log_msg = $error === '' ?
 			''
-			: nl2br('削除できなかったファイル'."\n".$error);
+			: nl2br('削除できなかったファイル' . "\n" . $error);
 
 		$_SESSION['flash_msg'] = <<<EOD
 <h2>削除を完了しました</h2>
@@ -3419,69 +3246,62 @@ $log_msg
 EOD;
 
 
-		redirect($script. '?cmd=qhmsetting&mode=form&phase=clear');
+		redirect($script . '?cmd=qhmsetting&mode=form&phase=clear');
 		return $body;
 	}
 
 
 	//-------------------- キャッシュ機能の設定 ------------
-	if( isset($vars['cache_setting']) )
-	{
-		if( isset($vars['enable_cache']) )
-		{
+	if (isset($vars['cache_setting'])) {
+		if (isset($vars['enable_cache'])) {
 			$_SESSION['qhmsetting']['enable_cache'] = 1;
 			$msg = '有効にしました。';
-		}
-		else{
+		} else {
 			$_SESSION['qhmsetting']['enable_cache'] = 0;
 			$msg = '無効にしました。';
 		}
 
 		plugin_qhmsetting_update_ini();
 
-		$_SESSION['flash_msg'] = '<h2>高速化設定の変更完了</h2><p>キャッシュ機能を、'.$msg.'</p>';
-		redirect($script. '?cmd=qhmsetting&mode=form&phase=clear');
+		$_SESSION['flash_msg'] = '<h2>高速化設定の変更完了</h2><p>キャッシュ機能を、' . $msg . '</p>';
+		redirect($script . '?cmd=qhmsetting&mode=form&phase=clear');
 
-		return '<p>キャッシュ機能を、'.$msg.'</p>'.'<p><a href="'.$script.'?cmd=qhmsetting">設定に戻る</a></p>';
+		return '<p>キャッシュ機能を、' . $msg . '</p>' . '<p><a href="' . $script . '?cmd=qhmsetting">設定に戻る</a></p>';
 	}
 
 	//-------------------- キャッシュの削除 ---------------
-	if( isset($vars['cache_del']) )
-	{
-		$files = array();
+	if (isset($vars['cache_del'])) {
+		$files = [];
 		if ($dir = opendir(CACHE_DIR)) {
-		    while (($file = readdir($dir)) !== false) {
-		        if (preg_match('/\.(tmp|tmpr)$/', $file)) {
-		            $files[] = $file;
-		            unlink(CACHE_DIR.$file);
-		        }
-		    }
-		    closedir($dir);
+			while (($file = readdir($dir)) !== false) {
+				if (preg_match('/\.(tmp|tmpr)$/', $file)) {
+					$files[] = $file;
+					unlink(CACHE_DIR . $file);
+				}
+			}
+			closedir($dir);
 		}
 
-		if (count($files) > 0)
-		{
+		if (count($files) > 0) {
 			$_SESSION['flash_msg'] = '<h2>高速化キャッシュの削除完了</h2>';
 			$_SESSION['flash_msg'] .= '<p>以下のファイルを削除しました</p>
 <ul>
 <li>'
-.join('</li><li>', $files).
-'</li>
+				. join('</li><li>', $files) .
+				'</li>
 </ul>
 ';
-		}
-		else
-		{
+		} else {
 			$_SESSION['flash_msg'] = '<p>高速化キャッシュは既に削除されています</p>';
 		}
-		redirect($script. '?cmd=qhmsetting&mode=form&phase=clear');
+		redirect($script . '?cmd=qhmsetting&mode=form&phase=clear');
 
-		return '<p><a href="'.$script.'?cmd=qhmsetting">設定に戻る</a></p>
+		return '<p><a href="' . $script . '?cmd=qhmsetting">設定に戻る</a></p>
 <p>以下のファイルを削除しました</p>
 <ul>
 <li>'
-.implode('</li><li>', $files).
-'</li>
+			. implode('</li><li>', $files) .
+			'</li>
 </ul>
 ';
 	}
@@ -3489,7 +3309,7 @@ EOD;
 	// ----------------- プラグインキャッシュの削除 ----------------
 	if (isset($vars['plugin_del'])) {
 		$files = plugin_qhmsetting_get_plugin_cache_files();
-		$oks = array();
+		$oks = [];
 		foreach ($files as $i => $file) {
 			if (unlink($file)) {
 				$oks[] = $file;
@@ -3512,22 +3332,22 @@ HTML;
 	}
 }
 
-function plugin_qhmsetting_get_plugin_cache_files() {
+function plugin_qhmsetting_get_plugin_cache_files()
+{
 	$plugin_caches = glob(CACHE_DIR . '*.contentsx');
 	return $plugin_caches;
 }
 
 function plugin_qhmsetting_clear_view_search2_cache()
 {
-    global $vars;
-    $file = $vars['file'];
-    if (preg_match('/cache\/(.+)_search\.txt/', $file, $mts))
-    {
-        $page = decode($mts[1]);
-        $content = file_get_contents($file);
-        return '<h2>'.$page.' の検索用キャッシュ</h2>' . '<pre>' . h($content) . '</pre>';
-    }
-    return '<p>利用できません</p>';
+	global $vars;
+	$file = $vars['file'];
+	if (preg_match('/cache\/(.+)_search\.txt/', $file, $mts)) {
+		$page = decode($mts[1]);
+		$content = file_get_contents($file);
+		return '<h2>' . $page . ' の検索用キャッシュ</h2>' . '<pre>' . h($content) . '</pre>';
+	}
+	return '<p>利用できません</p>';
 }
 
 //--<CloseForm>--
@@ -3540,7 +3360,7 @@ function plugin_qhmsetting_close_form($error = '')
 	$reverse = '公開';
 	$current = '閉鎖';
 	$btn_class = 'btn-success';
-	if($site_close_all === 0){
+	if ($site_close_all === 0) {
 		$tmp = $current;
 		$current = $reverse;
 		$reverse = $tmp;
@@ -3576,14 +3396,11 @@ function plugin_qhmsetting_close_msg($error = '')
 	global $script, $site_close_all, $vars;
 
 	//サイト閉鎖
-	if( isset($vars['qhmsetting']['site_close_all']) && $vars['qhmsetting']['site_close_all'] === '1')
-	{
+	if (isset($vars['qhmsetting']['site_close_all']) && $vars['qhmsetting']['site_close_all'] === '1') {
 		$msg = 'サイトを閉鎖しました。';
 		$note = 'ログイン時のみサイトの閲覧、編集が可能です。';
 		$_SESSION['qhmsetting']['site_close_all'] = 1;
-	}
-	else
-	{
+	} else {
 		$msg = 'サイトを公開しました。';
 		$note = 'サイトを一般公開しました。';
 		$_SESSION['qhmsetting']['site_close_all'] = 0;
@@ -3596,16 +3413,15 @@ function plugin_qhmsetting_close_msg($error = '')
 <p>$note</p>
 EOD;
 
-	redirect($script. '?cmd=qhmsetting');
+	redirect($script . '?cmd=qhmsetting');
 	return $body;
-
 }
 //--</CloseForm>--
 
 
 /**
-* モバイル転送
-*/
+ * モバイル転送
+ */
 function plugin_qhmsetting_mobile_form($error = '')
 {
 	global $script, $vars;
@@ -3614,7 +3430,7 @@ function plugin_qhmsetting_mobile_form($error = '')
 
 	$params = plugin_qhmsetting_getparams();
 
-	$error_msg = ($error!='') ? '<p style="color:red">'.$error.'</p>' : '';
+	$error_msg = ($error != '') ? '<p style="color:red">' . $error . '</p>' : '';
 
 	$body = <<<EOD
 <h2>携帯端末アクセスの転送先{$hlp_mobile}</h2>
@@ -3649,7 +3465,7 @@ function plugin_qhmsetting_mobile_msg()
 
 	$url = $_SESSION['qhmsetting']['mobile_redirect'] = $vars['qhmsetting']['mobile_redirect'];
 
-	if(! is_url($url) && $url!='' ){
+	if (! is_url($url) && $url != '') {
 		return plugin_qhmsetting_mobile_form('URLが不正です。正しいものを入力してください。');
 	}
 
@@ -3660,22 +3476,21 @@ function plugin_qhmsetting_mobile_msg()
 <p>%REP%</p>
 EOD;
 
-	if($url == ''){
-		$ret = str_replace('%REP%', '携帯端末からのアクセスを転送しません。' , $ret);
-	}
-	else{
-		$ret = str_replace('%REP%', '携帯端末からのアクセスを「'.h($url).'」に転送します。', $ret);
+	if ($url == '') {
+		$ret = str_replace('%REP%', '携帯端末からのアクセスを転送しません。', $ret);
+	} else {
+		$ret = str_replace('%REP%', '携帯端末からのアクセスを「' . h($url) . '」に転送します。', $ret);
 	}
 
 	$_SESSION['flash_msg'] = $ret;
-	redirect($script. '?cmd=qhmsetting');
+	redirect($script . '?cmd=qhmsetting');
 }
 
 
 
 /**
-* Googleマップキーの設定
-*/
+ * Googleマップキーの設定
+ */
 function plugin_qhmsetting_gmap_form($error = '')
 {
 	global $script, $vars;
@@ -3684,7 +3499,7 @@ function plugin_qhmsetting_gmap_form($error = '')
 
 	$params = plugin_qhmsetting_getparams();
 
-	$error_msg .= ($error!='') ? '<p style="color:red">'.$error.'</p>' : '';
+	$error_msg .= ($error != '') ? '<p style="color:red">' . $error . '</p>' : '';
 
 	$body = <<<EOD
 <h2>Googleマップのキーを設定します{$hlp_gmap}</h2>
@@ -3710,8 +3525,8 @@ EOD;
 }
 
 /**
-* Googleマップキーの設定
-*/
+ * Googleマップキーの設定
+ */
 function plugin_qhmsetting_gmap_msg()
 {
 	global $vars, $script;
@@ -3743,13 +3558,10 @@ function plugin_qhmsetting_sns_form($errmsg = '')
 	$qt->setv('jquery_include', TRUE);
 	$html = '';
 
-	if (isset($og_image) && $og_image != '')
-	{
+	if (isset($og_image) && $og_image != '') {
 		$og_image_url = $og_image;
-	}
-	else
-	{
-		$og_image_url = dirname($script). '/image/hokuken/ogp_default.png';
+	} else {
+		$og_image_url = dirname($script) . '/image/hokuken/ogp_default.png';
 	}
 
 	$beforescript = '
@@ -3823,15 +3635,14 @@ $(function(){
 ';
 	$qt->appendv('beforescript', $beforescript);
 
-	if ($errmsg != '')
-	{
+	if ($errmsg != '') {
 		$html .= '
 <p style="color:red;">
-	'. $errmsg. '
+	' . $errmsg . '
 </p>
 ';
 	}
-	$swfulink = has_swfu()? '<br /><br />■<a href="'. dirname($script). '/swfu/index_child.php?page='. rawurlencode($defaultpage). '&amp;KeepThis=true&amp;TB_iframe=true" class="thickbox">SWFU起動</a>（アップロードしたら<strong>URL</strong>をコピペしてください）': '';
+	$swfulink = has_swfu() ? '<br /><br />■<a href="' . dirname($script) . '/swfu/index_child.php?page=' . rawurlencode($defaultpage) . '&amp;KeepThis=true&amp;TB_iframe=true" class="thickbox">SWFU起動</a>（アップロードしたら<strong>URL</strong>をコピペしてください）' : '';
 
 	$html .= '
 <h2>HAIKとSNS連携の設定</h2>
@@ -3840,29 +3651,29 @@ $(function(){
 	また、このHAIKをFacebook アプリとして登録することで、Facebook プラグインと連携もできます。
 </p>
 
-<form action="'. $script. '" method="post">
+<form action="' . $script . '" method="post">
 <input type="hidden" name="plugin" value="qhmsetting" />
 <input type="hidden" name="phase" value="sns" />
 <input type="hidden" name="mode" value="msg" />
 
 <input type="hidden" name="ogp_tag" value="0" />
-<label><input type="checkbox" name="ogp_tag" value="1" id="ogpTag"'. ($ogp_tag? ' checked="checked"': ''). ' /> Open Graph Protocol タグを有効にする</label>
+<label><input type="checkbox" name="ogp_tag" value="1" id="ogpTag"' . ($ogp_tag ? ' checked="checked"' : '') . ' /> Open Graph Protocol タグを有効にする</label>
 
 <div id="ogpConfigWrapper" style="border:1px solid #aaa;margin: 10px;padding: 10px;">
 	<div id="ogpConfig">
 		<h3>Open Graph Protocol 設定</h3>
 		<ul style="margin: 10px 10px;">
 			<li>
-				サイトの説明&nbsp;<span style="color:#999">'. h('og:description').'</span><br />
-				<textarea name="og_description" id="" cols="60" rows="4" placeholder="'. h($description). '">'. h($og_description). '</textarea>
+				サイトの説明&nbsp;<span style="color:#999">' . h('og:description') . '</span><br />
+				<textarea name="og_description" id="" cols="60" rows="4" placeholder="' . h($description) . '">' . h($og_description) . '</textarea>
 				<br />
 				<span style="font-size:12px;">※「サイトの設定」で記述した<strong>サイトの説明</strong>と異なる文章を表示させたい場合、こちらに記入してください。</span>
 				<br /><br />
 			</li>
 			<li>
-				サイト画像&nbsp;<span style="color:#999">'. h('og:image').'</span><br />
-				<img src="'. $og_image_url. '" alt="サイト画像" title="サイト画像" style="max-width:100px;max-height:100px;" />
-				URL: <input type="text" name="og_image" value="'. h($og_image). '" size="30" style="width:30em;" />'. $swfulink. '<br />
+				サイト画像&nbsp;<span style="color:#999">' . h('og:image') . '</span><br />
+				<img src="' . $og_image_url . '" alt="サイト画像" title="サイト画像" style="max-width:100px;max-height:100px;" />
+				URL: <input type="text" name="og_image" value="' . h($og_image) . '" size="30" style="width:30em;" />' . $swfulink . '<br />
 				<span style="font-size:12px;">※あまり大きな画像はおすすめしません。<br />設定される場合、100px〜200px四方くらいの画像をご用意ください。</span>
 			</li>
 		</ul>
@@ -3893,7 +3704,7 @@ $(function(){
 				例えば、「いいね！」を押した方のウォールに最新情報を投稿できるようになります。<br />
 				※このHAIKをFacebook アプリとして登録する必要があります。
 			</p>
-			アプリID: <input type="text" name="fb_app_id" id="fbAppIdInput" value="'. h($fb_app_id). '" />
+			アプリID: <input type="text" name="fb_app_id" id="fbAppIdInput" value="' . h($fb_app_id) . '" />
 
 		</div>
 
@@ -3905,7 +3716,7 @@ $(function(){
 				※Facebook ページIDは利用できません。
 			</p>
 			Facebook アカウントID:<br />
-			<input type="text" name="fb_admins" id="fbAdminsInput" value="'. h($fb_admins). '" size="50" style="width:100%;" />
+			<input type="text" name="fb_admins" id="fbAdminsInput" value="' . h($fb_admins) . '" size="50" style="width:100%;" />
 
 		</div>
 
@@ -3931,11 +3742,9 @@ function plugin_qhmsetting_sns_msg()
 
 	$errmsg = '';
 	// OGP 設定
-	if (isset($vars['ogp_tag']))
-	{
+	if (isset($vars['ogp_tag'])) {
 		//有効
-		if ($vars['ogp_tag'] == '1')
-		{
+		if ($vars['ogp_tag'] == '1') {
 			//ogp tag
 			$_SESSION['qhmsetting']['ogp_tag'] = 1;
 
@@ -3944,80 +3753,59 @@ function plugin_qhmsetting_sns_msg()
 
 			//og:image
 			$og_image = trim($vars['og_image']);
-			if (isset($vars['og_image']) && is_url($vars['og_image']) && preg_match('/\.(jpg|jpeg|gif|png)$/', $og_image))
-			{
+			if (isset($vars['og_image']) && is_url($vars['og_image']) && preg_match('/\.(jpg|jpeg|gif|png)$/', $og_image)) {
 				$_SESSION['qhmsetting']['og_image'] = $og_image;
 			}
 			//空の場合も許可
-			else if ($og_image == '')
-			{
+			else if ($og_image == '') {
 				$_SESSION['qhmsetting']['og_image'] = '';
-			}
-			else
-			{
+			} else {
 				$errmsg = '画像のURLが不正です。<br />';
 			}
 
 			//Facebook 設定は排他的（fb_app_id XOR fb_admins）
-			$fb_app_id = isset($vars['fb_app_id']) && trim($vars['fb_app_id'])? $vars['fb_app_id']: FALSE;
-			$fb_admins = isset($vars['fb_admins']) && trim($vars['fb_admins'])? $vars['fb_admins']: FALSE;
-			$fb_type = isset($vars['fb_type']) && trim($vars['fb_type'])? $vars['fb_type']: 'app_id';//default: app_id
+			$fb_app_id = isset($vars['fb_app_id']) && trim($vars['fb_app_id']) ? $vars['fb_app_id'] : FALSE;
+			$fb_admins = isset($vars['fb_admins']) && trim($vars['fb_admins']) ? $vars['fb_admins'] : FALSE;
+			$fb_type = isset($vars['fb_type']) && trim($vars['fb_type']) ? $vars['fb_type'] : 'app_id'; //default: app_id
 
 			//両方設定されている場合、fb_type をチェックする
-			if ($fb_app_id !== FALSE && $fb_admins !== FALSE)
-			{
-				if ($fb_type == 'app_id')
-				{
+			if ($fb_app_id !== FALSE && $fb_admins !== FALSE) {
+				if ($fb_type == 'app_id') {
 					$fb_admins = FALSE;
-				}
-				else
-				{
+				} else {
 					$fb_app_id = FALSE;
 				}
 			}
 			//app_id
-			if ($fb_app_id !== FALSE)
-			{
-				if (preg_match('/^(:?\d+)?$/', $fb_app_id))
-				{
+			if ($fb_app_id !== FALSE) {
+				if (preg_match('/^(:?\d+)?$/', $fb_app_id)) {
 					$_SESSION['qhmsetting']['fb_app_id'] = trim($vars['fb_app_id']);
-					$_SESSION['qhmsetting']['fb_admins'] = '';//delete
-				}
-				else
-				{
+					$_SESSION['qhmsetting']['fb_admins'] = ''; //delete
+				} else {
 					$errmsg = 'Facebook アプリIDは数字のみで入力してください。<br />';
 				}
 			}
 			//admins
-			else if ($fb_admins !== FALSE)
-			{
+			else if ($fb_admins !== FALSE) {
 				$admins = explode(',', $fb_admins);
-				foreach ($admins as $i => $admin)
-				{
+				foreach ($admins as $i => $admin) {
 					$admin = trim($admin);
-					if (preg_match('/^[.0-9a-z_-]+$/i', $admin))
-					{
+					if (preg_match('/^[.0-9a-z_-]+$/i', $admin)) {
 						$admins[$i] = $admin;
-					}
-					else
-					{
+					} else {
 						$errmsg = 'Facebook 管理アカウント名に不正な文字列が含まれています<br />';
 						break;
 					}
 				}
 				$_SESSION['qhmsetting']['fb_admins'] = join(',', $admins);
-				$_SESSION['qhmsetting']['fb_app_id'] = '';//delete
-			}
-			else
-			{
+				$_SESSION['qhmsetting']['fb_app_id'] = ''; //delete
+			} else {
 				//両方消す
 				$_SESSION['qhmsetting']['fb_app_id'] = $_SESSION['qhmsetting']['fb_admins'] = '';
 			}
-
 		}
 		//無効
-		else
-		{
+		else {
 			$_SESSION['qhmsetting']['ogp_tag'] = 0;
 			//og:* は初期値に戻す
 			$_SESSION['qhmsetting']['og_image'] = $_SESSION['qhmsetting']['og_description'] = '';
@@ -4025,18 +3813,13 @@ function plugin_qhmsetting_sns_msg()
 	}
 
 
-	if ($errmsg == '')
-	{
+	if ($errmsg == '') {
 		plugin_qhmsetting_update_ini();
 		$msg = 'SNS連携設定完了';
-		redirect($script. '?cmd=qhmsetting', $msg);
-
-	}
-	else
-	{
+		redirect($script . '?cmd=qhmsetting', $msg);
+	} else {
 		return plugin_qhmsetting_sns_form($errmsg);
 	}
-
 }
 //--</SNSForm>--
 
@@ -4044,8 +3827,8 @@ function plugin_qhmsetting_sns_msg()
 
 //--<SSLScript>--
 /**
-* スクリプトのパスの設定
-*/
+ * スクリプトのパスの設定
+ */
 function plugin_qhmsetting_script_form($error = '')
 {
 	global $script, $script_ssl, $other_plugins;
@@ -4135,18 +3918,18 @@ function plugin_qhmsetting_script_msg()
 
 	//error
 	$error = '';
-	if ( $username != $opusername) {
+	if ($username != $opusername) {
 		$error = 'ユーザー名が一致しません。<br />';
 	}
 
-	if( $auth_users[$username] != '{x-php-md5}'.md5($oppasswd) ){
+	if ($auth_users[$username] != '{x-php-md5}' . md5($oppasswd)) {
 		$error .= 'パスワードが一致しません。<br />';
 	}
-	if($opscript != '' && !is_url($opscript)){
+	if ($opscript != '' && !is_url($opscript)) {
 		$error .= 'URLが正しくありません。<br />';
 	}
 
-	if($error!=''){
+	if ($error != '') {
 		return plugin_qhmsetting_script_form($error);
 	}
 
@@ -4155,17 +3938,17 @@ function plugin_qhmsetting_script_msg()
 	$_SESSION['qhmsetting']['script_ssl'] = $opscript_ssl;
 	plugin_qhmsetting_update_ini();
 
-	header('location: '.$opscript.'?cmd=qhmauth');
+	header('location: ' . $opscript . '?cmd=qhmauth');
 	exit;
-//	$msg = '変更しました';
-//	return plugin_qhmsetting_script_form($msg);
+	//	$msg = '変更しました';
+	//	return plugin_qhmsetting_script_form($msg);
 }
 //--</SSLScript>--
 
 
 /**
-* session save path の設定
-*/
+ * session save path の設定
+ */
 function plugin_qhmsetting_sssavepath_form($error = '')
 {
 	global $script, $session_save_path;
@@ -4220,39 +4003,38 @@ function plugin_qhmsetting_sssavepath_msg()
 
 	//error
 	$error = '';
-	if ( $username != $opusername) {
+	if ($username != $opusername) {
 		$error = 'ユーザー名が一致しません。<br />';
 	}
 
-	if( $auth_users[$username] != '{x-php-md5}'.md5($oppasswd) ){
+	if ($auth_users[$username] != '{x-php-md5}' . md5($oppasswd)) {
 		$error .= 'パスワードが一致しません。<br />';
 	}
 
-	if($error!=''){
+	if ($error != '') {
 		return plugin_qhmsetting_sssavepath_form($error);
 	}
 
 	if (isset($vars['set'])) {
 		$_SESSION['qhmsetting']['session_save_path'] = CACHEQHM_DIR;
-	}
-	else if (isset($vars['unset'])) {
+	} else if (isset($vars['unset'])) {
 		$_SESSION['qhmsetting']['session_save_path'] = '';
 	}
 
 	plugin_qhmsetting_update_ini();
 
-	header('location: '.$script.'?cmd=qhmauth');
+	header('location: ' . $script . '?cmd=qhmauth');
 	exit;
 
-//	$msg = '変更しました';
-//	return plugin_qhmsetting_script_form($msg);
+	//	$msg = '変更しました';
+	//	return plugin_qhmsetting_script_form($msg);
 }
 
 
 /**
-* 現在の設定ファイルの値を取得して、
-* $_SESSION['qhmsetting']の値で上書きして、pukiwiki.ini.phpを上書きする
-*/
+ * 現在の設定ファイルの値を取得して、
+ * $_SESSION['qhmsetting']の値で上書きして、pukiwiki.ini.phpを上書きする
+ */
 function plugin_qhmsetting_update_ini($params = '')
 {
 
@@ -4263,8 +4045,7 @@ function plugin_qhmsetting_update_ini($params = '')
 	//インストールシステムと、QHM上の両方で使うための処理
 	if (is_array($params)) {
 		$install_mode = true;
-	}
-	else {
+	} else {
 		$install_mode = false;
 		$params = plugin_qhmsetting_getparams();
 	}
@@ -4272,53 +4053,51 @@ function plugin_qhmsetting_update_ini($params = '')
 	//現在の設定変数にエスケープ処理を施し、PHPスクリプトに変換
 	$qhm_ini_php = '';
 
-	foreach($params as $key=>$val)
-	{
+	foreach ($params as $key => $val) {
 		$val = addcslashes($val, '\\\'');
 		$val = str_replace("\r\n", "\n", $val);
 
-		if ( isset($escapes[$key]) )
+		if (isset($escapes[$key]))
 			$val = htmlspecialchars($val); //「"」を「&quot;」に
 
 		//PHPスクリプトに変換
-		$qhm_ini_php .= '$'.$key." = " . ( preg_match('/^[0-9]{1,3}$/', $val) ? $val : "'".$val."'" ) . ";\n";
+		$qhm_ini_php .= '$' . $key . " = " . (preg_match('/^[0-9]{1,3}$/', $val) ? $val : "'" . $val . "'") . ";\n";
 	}
 
-	$str  = '<?php'."\n\n";
-	$str .= $qhm_ini_php."\n";
+	$str  = '<?php' . "\n\n";
+	$str .= $qhm_ini_php . "\n";
 	$str .= '?>';
 
-	if ( $install_mode ) {
+	if ($install_mode) {
 		return $str;
 	} else {
 		return file_put_contents('qhm.ini.php', $str);
 	}
 }
 
-function plugin_qhmsetting_get_escapes(){
+function plugin_qhmsetting_get_escapes()
+{
 
 	return array(
-		'page_title'=>'dummy',
-		'owneraddr'=>'dummy',
-		'ownertel' =>'dummy',
-		'headcopy' =>'dummy',
-		'keywords' =>'dummy',
-		'description' =>'dummy',
+		'page_title' => 'dummy',
+		'owneraddr' => 'dummy',
+		'ownertel' => 'dummy',
+		'headcopy' => 'dummy',
+		'keywords' => 'dummy',
+		'description' => 'dummy',
 	);
-
 }
 
 /**
-* pukiwiki.ini.php の設定項目のすべてを paramsにセットし、
-* $_SESSION['qhmsetting']の値で上書きして、returnする。
-*/
-function plugin_qhmsetting_getparams($update=TRUE, $inifile = '')
+ * pukiwiki.ini.php の設定項目のすべてを paramsにセットし、
+ * $_SESSION['qhmsetting']の値で上書きして、returnする。
+ */
+function plugin_qhmsetting_getparams($update = TRUE, $inifile = '')
 {
 	//設定ファイルの読み込み。インストールシステムで使うことを想定
-	if($inifile == ''){
+	if ($inifile == '') {
 		require(INI_FILE);
-	}
-	else{
+	} else {
 		require($inifile);
 	}
 
@@ -4412,7 +4191,7 @@ function plugin_qhmsetting_getparams($update=TRUE, $inifile = '')
 		'enable_wp_theme'  => '0',
 		'wp_add_css'       => '',
 		'exclude_to_name'  => '0',
-		'enable_smart_style'=> '0',
+		'enable_smart_style' => '0',
 		'smart_name'       => 'blue',
 		'check_login'      => '1',
 		'enable_fitvids'   => '1',
@@ -4425,35 +4204,33 @@ function plugin_qhmsetting_getparams($update=TRUE, $inifile = '')
 		'fb_admins'        => '',
 		'fb_app_id'        => '',
 		'qblog_social_widget' => 'default',
-		'qblog_social_html'=> '',
-		'qblog_social_wiki'=> '',
+		'qblog_social_html' => '',
+		'qblog_social_wiki' => '',
 		'qblog_title'      => '',
-		'qblog_enable_comment'=> '1',
-		'qblog_default_cat'=> 'ブログ',
+		'qblog_enable_comment' => '1',
+		'qblog_default_cat' => 'ブログ',
 		'qblog_close'      => '0',
-		'qblog_enable_ping'=> '0',
+		'qblog_enable_ping' => '0',
 		'qblog_ping'       => '',
-		'qblog_comment_notice'=> '0',
+		'qblog_comment_notice' => '0',
 		'is_qmail'         => '0',
-    'mail_encode'      => 'ISO-2022-JP',
+		'mail_encode'      => 'ISO-2022-JP',
 	);
 
 	//設定変数を格納した配列の生成、デフォルト値もセット
-	$params = array();
-	foreach($inivals as $vname){
-		eval('$params["'.$vname.'"] = $'.$vname.';');
+	$params = [];
+	foreach ($inivals as $vname) {
+		eval('$params["' . $vname . '"] = $' . $vname . ';');
 
-		if( isset( $defvals[$vname] ) && (($params[$vname]==='') OR is_null($params[$vname]))) {
+		if (isset($defvals[$vname]) && (($params[$vname] === '') or is_null($params[$vname]))) {
 			$params[$vname] = $defvals[$vname];
 		}
 	}
 
 	//セッションの設定変数で上書き
-	if($update && isset($_SESSION['qhmsetting']))
-	{
+	if ($update && isset($_SESSION['qhmsetting'])) {
 		//set up new params
-		foreach($_SESSION['qhmsetting'] as $key=>$val)
-		{
+		foreach ($_SESSION['qhmsetting'] as $key => $val) {
 			$params[$key] = $val;
 		}
 
@@ -4464,8 +4241,8 @@ function plugin_qhmsetting_getparams($update=TRUE, $inifile = '')
 
 	//htmlエスケープしている変数を逆変換
 	$escapes = plugin_qhmsetting_get_escapes();
-	foreach( $escapes as $key=>$v){
-		if( isset( $params[$key] ) ){
+	foreach ($escapes as $key => $v) {
+		if (isset($params[$key])) {
 			$params[$key] = htmlspecialchars_decode($params[$key]);
 		}
 	}
@@ -4473,18 +4250,19 @@ function plugin_qhmsetting_getparams($update=TRUE, $inifile = '')
 	return $params;
 }
 
-function _get_type_name($mark) {
+function _get_type_name($mark)
+{
 	$ret = "";
 	switch ($mark) {
-	case "r":
-		$ret = "閲覧制限";
-		break;
-	case "e":
-		$ret = "編集許可";
-		break;
-	default:
-		$ret = "閲覧制限";
-		break;
+		case "r":
+			$ret = "閲覧制限";
+			break;
+		case "e":
+			$ret = "編集許可";
+			break;
+		default:
+			$ret = "閲覧制限";
+			break;
 	}
 	return $ret;
 }
@@ -4492,17 +4270,17 @@ function _get_type_name($mark) {
 function _get_users_data()
 {
 	//user dataの取得
-	$users_data = array();
+	$users_data = [];
 	$fp = fopen(PLUGIN_QHMSETTING_USER_INI_FILE, "r");
 	if ($fp) {
-		flock( $fp, LOCK_SH );
+		flock($fp, LOCK_SH);
 
 		while (!feof($fp)) {
 			$line = fgets($fp);
 			if (trim($line)) {
-				list($name,$passwd) = explode(',', $line);
-				if ($name != ""){
-					$users_data[trim($name)] = array("passwd"=>trim($passwd));
+				list($name, $passwd) = explode(',', $line);
+				if ($name != "") {
+					$users_data[trim($name)] = array("passwd" => trim($passwd));
 				}
 			}
 		}
@@ -4510,21 +4288,21 @@ function _get_users_data()
 	}
 
 	return $users_data;
-
 }
 
-function _get_accessdata() {
-	$access_data = array();
+function _get_accessdata()
+{
+	$access_data = [];
 
 	$fp = fopen(PLUGIN_QHMSETTING_ACCESS_INI_FILE, "r");
 	if ($fp) {
-		flock( $fp, LOCK_SH );
+		flock($fp, LOCK_SH);
 
 		while (!feof($fp)) {
 			$line = fgets($fp);
 			if (trim($line) != "") {
-				list($type,$pattern,$name) = explode(',', $line);
-				$access_data[] = array("type"=>trim($type), "pattern"=>$pattern, "user"=>trim($name));
+				list($type, $pattern, $name) = explode(',', $line);
+				$access_data[] = array("type" => trim($type), "pattern" => $pattern, "user" => trim($name));
 			}
 		}
 		fclose($fp);
@@ -4533,54 +4311,55 @@ function _get_accessdata() {
 	return $access_data;
 }
 
-function _add_del($data) {
+function _add_del($data)
+{
 	return $data . ",";
 }
 
-function _check_userdata($params) {
+function _check_userdata($params)
+{
 
 	global $username;
 
 	$error = '';
-	foreach ($params as $key=>$value) {
+	foreach ($params as $key => $value) {
 
 		switch ($key) {
-		case "username":
-			$title = 'ユーザー名';
-			break;
-		case "passwd":
-			$title = 'パスワード';
-			break;
-		case "repasswd":
-			$title = 'パスワード(確認)';
-			break;
+			case "username":
+				$title = 'ユーザー名';
+				break;
+			case "passwd":
+				$title = 'パスワード';
+				break;
+			case "repasswd":
+				$title = 'パスワード(確認)';
+				break;
 		}
 
-		if (!preg_match( '/^[0-9a-zA-Z]+$/', $value) ) {
+		if (!preg_match('/^[0-9a-zA-Z]+$/', $value)) {
 			// 半角英数字
-			$error .= $title."は半角英数字で入力してください<br />";
+			$error .= $title . "は半角英数字で入力してください<br />";
 		}
 	}
 
-	if($params['passwd'] != $params['repasswd'] )
-	{
+	if ($params['passwd'] != $params['repasswd']) {
 		$error .= 'パスワードと、確認が一致しません。<br />';
 	}
 
-	if( $params['username'] == $username )
-	{
+	if ($params['username'] == $username) {
 		$error .= '管理者名と重複しています<br />';
 	}
 
 	return $error;
 }
 
-function _write_userfile($stream, $mode) {
+function _write_userfile($stream, $mode)
+{
 	// ファイルの作成
 	$fp  = fopen(PLUGIN_QHMSETTING_USER_INI_FILE, $mode);
-	flock( $fp, LOCK_EX );
+	flock($fp, LOCK_EX);
 
-	if($mode==='w'){
+	if ($mode === 'w') {
 		ftruncate($fp, 0);
 		rewind($fp);
 	}
@@ -4592,12 +4371,13 @@ function _write_userfile($stream, $mode) {
 	}
 }
 
-function _write_accessfile($stream, $mode) {
+function _write_accessfile($stream, $mode)
+{
 	// ファイルの作成
 	$fp  = fopen(PLUGIN_QHMSETTING_ACCESS_INI_FILE, $mode); // ファイルの読込み
-	flock( $fp, LOCK_EX );
+	flock($fp, LOCK_EX);
 
-	if($mode==='w'){
+	if ($mode === 'w') {
 		ftruncate($fp, 0);
 		rewind($fp);
 	}
@@ -4609,22 +4389,23 @@ function _write_accessfile($stream, $mode) {
 	}
 }
 
-function _get_pregdata($data, $mark) {
+function _get_pregdata($data, $mark)
+{
 	switch ($mark) {
-	case "front":
-		$data = "/^".$data.".*/";
-		break;
-	case "back":
-		$data = "/.*".$data."$/";
-		break;
-	case "part":
-		$data = "/.*".$data.".*/";
-		break;
-	case "all":
-		$data = "/^".$data."$/";
-		break;
-	default:
-		break;
+		case "front":
+			$data = "/^" . $data . ".*/";
+			break;
+		case "back":
+			$data = "/.*" . $data . "$/";
+			break;
+		case "part":
+			$data = "/.*" . $data . ".*/";
+			break;
+		case "all":
+			$data = "/^" . $data . "$/";
+			break;
+		default:
+			break;
 	}
 
 	return $data;
@@ -4634,18 +4415,19 @@ function _get_pregdata($data, $mark) {
 /**
  *   localhost にFTP接続し、フォルダを作る
  */
-function plugin_qhmsetting_ftp_access() {
+function plugin_qhmsetting_ftp_access()
+{
 	global $vars;
 
-	$club_data = isset($_SESSION['remote_club'])? $_SESSION['remote_club']: array();
+	$club_data = isset($_SESSION['remote_club']) ? $_SESSION['remote_club'] : [];
 
 	$out = '';
 	if ($club_data) {
 		$username = $vars['username'];
 		$password = $vars['password'];
-		$dir = $vars['use_dir']? $vars['dir']: FALSE;
-		$design = preg_match('/^[\w_]+$/', trim($vars['design_name']))? $vars['design_name']: '';
-		$path = getcwd();//qhm path
+		$dir = $vars['use_dir'] ? $vars['dir'] : FALSE;
+		$design = preg_match('/^[\w_]+$/', trim($vars['design_name'])) ? $vars['design_name'] : '';
+		$path = getcwd(); //qhm path
 		if ($design) {
 			if ($conn_id = ftp_connect('localhost', 21)) {
 				$login = ftp_login($conn_id, $username, $password);
@@ -4653,18 +4435,16 @@ function plugin_qhmsetting_ftp_access() {
 					ftp_pasv($conn_id, true);
 					//設置先フォルダが指定された場合、絶対パスかどうか判定する
 					if ($dir !== FALSE && $dir[0] != '/') {
-						$dir = ftp_pwd($conn_id). $dir;
+						$dir = ftp_pwd($conn_id) . $dir;
 					}
-					$designdir = ($dir? $dir: $path). '/skin/hokukenstyle/';
+					$designdir = ($dir ? $dir : $path) . '/skin/hokukenstyle/';
 					if (ftp_chdir($conn_id, $designdir)) {
 						ftp_mkdir($conn_id, $design);
-						ftp_chmod($conn_id, 0777, $designdir. $design);
+						ftp_chmod($conn_id, 0777, $designdir . $design);
 						$out = 'OK';
 					} else {
 						$out = 'NG_Dir';
 					}
-
-
 				} else {
 					$out .= 'FTPアカウント、あるいはパスワードが間違っています';
 				}
@@ -4676,14 +4456,12 @@ function plugin_qhmsetting_ftp_access() {
 		} else {
 			$out .= 'デザイン名が不正です';
 		}
-
 	} else {
 		$out .= 'Ensmall Clubに認証されていません';
 	}
 	header("Content-Type: application/text; charset=UTF-8");
 	echo '<result>', $out, '</result>';
 	exit;
-
 }
 //--</FTPAccess>--
 
@@ -4692,7 +4470,7 @@ function plugin_qhmsetting_ftp_access() {
 function plugin_qhmsetting_club_has_qhm()
 {
 	global $vars;
-	$club_data = isset($_SESSION['remote_club'])? $_SESSION['remote_club']: array();
+	$club_data = isset($_SESSION['remote_club']) ? $_SESSION['remote_club'] : [];
 
 	header("Content-Type: application/text; charset=UTF-8");
 	if ($club_data) {
@@ -4709,8 +4487,9 @@ function plugin_qhmsetting_club_has_qhm()
 
 //--</GetQHMDesign>--
 
-function plugin_qhmsetting_post($url, $data, $optional_headers = null) {
-	if(function_exists('stream_get_contents')){
+function plugin_qhmsetting_post($url, $data, $optional_headers = null)
+{
+	if (function_exists('stream_get_contents')) {
 		$params = array(
 			'http' => array(
 				'method' => 'POST',
@@ -4738,20 +4517,19 @@ function plugin_qhmsetting_post($url, $data, $optional_headers = null) {
 			//echo "Problem reading data from $url, $php_errormsg";
 		}
 		return $response;
-	}
-	else if(!function_exists('stream_get_contents')) {
+	} else if (!function_exists('stream_get_contents')) {
 
 		$url_parse = parse_url($url);
-		$port = $url_parse['scheme'] == 'http'? "80": '443';
+		$port = $url_parse['scheme'] == 'http' ? "80" : '443';
 
 		if ($fp = fsockopen($url_parse['host'], $port)) {
-			fputs ($fp, "POST ".$url_parse['path']." HTTP/1.1\r\n");
-			fputs ($fp, "User-Agent:PHP/".phpversion()."\r\n");
-			fputs ($fp, "Host: ".$_SERVER["HTTP_HOST"]."\r\n");
-			fputs ($fp, "Content-Type:
+			fputs($fp, "POST " . $url_parse['path'] . " HTTP/1.1\r\n");
+			fputs($fp, "User-Agent:PHP/" . phpversion() . "\r\n");
+			fputs($fp, "Host: " . $_SERVER["HTTP_HOST"] . "\r\n");
+			fputs($fp, "Content-Type:
 			application/x-www-form-urlencoded\r\n");
-			fputs ($fp, "Content-Length: ".strlen($data)."\r\n\r\n");
-			fputs ($fp, $data);
+			fputs($fp, "Content-Length: " . strlen($data) . "\r\n\r\n");
+			fputs($fp, $data);
 			while (!feof($fp)) {
 				$response .= fgets($fp, 4096);
 			}
@@ -4763,26 +4541,31 @@ function plugin_qhmsetting_post($url, $data, $optional_headers = null) {
 
 
 if (!function_exists('http_build_query')) {
-/**
- *   @sea http://php.net/manual/ja/function.http-build-query.php
- */
-function http_build_query($data, $prefix='', $sep='', $key='') {
-	$ret = array();
-	foreach ((array)$data as $k => $v) {
-		if (is_int($k) && $prefix != null) {$k = urlencode($prefix . $k);}
-		if (!empty($key)) {$k = $key.'['.urlencode($k).']';}
+	/**
+	 *   @sea http://php.net/manual/ja/function.http-build-query.php
+	 */
+	function http_build_query($data, $prefix = '', $sep = '', $key = '')
+	{
+		$ret = [];
+		foreach ((array)$data as $k => $v) {
+			if (is_int($k) && $prefix != null) {
+				$k = urlencode($prefix . $k);
+			}
+			if (!empty($key)) {
+				$k = $key . '[' . urlencode($k) . ']';
+			}
 
-		if (is_array($v) || is_object($v)) {
-			array_push($ret, http_build_query($v, '', $sep, $k));
+			if (is_array($v) || is_object($v)) {
+				array_push($ret, http_build_query($v, '', $sep, $k));
+			} else {
+				array_push($ret, $k . '=' . urlencode($v));
+			}
 		}
-		else {array_push($ret, $k.'='.urlencode($v));}
+
+		if (empty($sep)) {
+			$sep = ini_get('arg_separator.output');
+		}
+
+		return implode($sep, $ret);
 	}
-
-	if (empty($sep)) {$sep = ini_get('arg_separator.output');}
-
-	return implode($sep, $ret);
 }
-}
-
-
-?>

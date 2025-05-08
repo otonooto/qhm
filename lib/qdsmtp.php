@@ -30,8 +30,8 @@ class QdsmtpError extends QdsmtpBranch
 	var $error_display		= true;
 	var $errorlog_level		= 0;
 	var $log_level			= 0;
-	var $error				= array();
-	var $error_stack		= array();
+	var $error				= [];
+	var $error_stack		= [];
 	var $log_LFC			= "\r\n";
 	var $log_append			= 'a';
 	var $errorlog_append	= 'a';
@@ -75,7 +75,7 @@ class QdsmtpError extends QdsmtpBranch
 
 		$er = $this->errorRender();
 		$this->error_stack = array_merge($this->error_stack, $this->error);
-		$this->error = array();
+		$this->error = [];
 		if (!$this->logWrite('error',  $er)) {
 			$this->error_stack = array_merge($this->error_stack, $this->error);
 		}
@@ -114,7 +114,7 @@ class QdsmtpError extends QdsmtpBranch
 			$mes .= trim($line) . $this->log_LFC;
 		}
 		$this->logWrite(null, $mes);
-		$this->smtp_log = array();
+		$this->smtp_log = [];
 	}
 	function logFilename($data = null)
 	{
@@ -164,16 +164,16 @@ class QdsmtpBase extends QdsmtpError
 		'CONTINUE'	=> null,
 	);
 	var $protocol_def	= 'SMTP';
-	var $smtp_log		= array();
+	var $smtp_log		= [];
 	var $smtp_auth_kind	= array('PLAIN');
 	//	var $smtp_auth_kind	= array('CRAM-MD5','DIGEST-MD5','LOGIN','PLAIN');
 	var $data			= null;
 	var $continue		= false;
 	var $auto_kind		= true;
-	var $rcpt			= array();
-	var $rcpt_stack		= array();
-	var $rcpt_undone	= array();
-	var $rcpt_undone_stack = array();
+	var $rcpt			= [];
+	var $rcpt_stack		= [];
+	var $rcpt_undone	= [];
+	var $rcpt_undone_stack = [];
 	var $smtp_limit		= 1000;
 	var $sock			= null;
 	var $already_auth	= false;
@@ -357,7 +357,7 @@ class QdsmtpBase extends QdsmtpError
 		foreach ($this->smtp_param['PROTOCOL'] as $protocol) {
 			if ($this->sendBase($data, $protocol)) {
 				$ret = true;
-				$this->error_stack = array();
+				$this->error_stack = [];
 				break;
 			}
 		}
@@ -498,7 +498,7 @@ class QdsmtpBase extends QdsmtpError
 	}
 	function sendData()
 	{
-		$reci = array();
+		$reci = [];
 		$items = array(
 			array('MAIL', 'FROM:<' . $this->smtp_param['FROM'] . '>'),
 		);
@@ -506,7 +506,7 @@ class QdsmtpBase extends QdsmtpError
 		if (!$st) {
 			return $this->errorGather('Error From setting', __LINE__);
 		}
-		$this->rcpt = array();
+		$this->rcpt = [];
 		$notify = $this->always_notify_success ? ' NOTIFY=SUCCESS,FAILURE' : '';
 		foreach ($this->recipient as $recipi) {
 			$items = array(array('RCPT', 'TO:<' . $recipi . '>' . $notify));
@@ -520,7 +520,7 @@ class QdsmtpBase extends QdsmtpError
 		}
 		$this->rcpt_stack = array_merge($this->rcpt_stack, $this->rcpt);
 		$this->rcpt_undone_stack = array_merge($this->rcpt_undone_stack, $this->rcpt_undone);
-		$items = array();
+		$items = [];
 		$items[] = array('DATA',  null);
 		$items[] = array('DATA_CONTENT', $this->smtpEscape($this->data) . $this->smtpLFC . '.');
 		$items[] = array('RSET', null);
@@ -609,9 +609,9 @@ class QdsmtpBase extends QdsmtpError
 		if (!is_resource($fp)) {
 			return array($this->errorGather('Error Resouce  or stop connect', __LINE__), null);
 		}
-		$status = array();
+		$status = [];
 		$status[-1] = null;
-		$message = array();
+		$message = [];
 		$count = 0;
 		do {
 			$mes = fgets($fp, 512);
@@ -656,14 +656,14 @@ class QdsmtpBase extends QdsmtpError
 	function tryUntilSuccess($items)
 	{
 		$try = false;
-		$err_mes = array();
+		$err_mes = [];
 
 		foreach ($items as $item) {
 			$err_mes[] = $item[0];
 			list($st, $mes, $com) = $this->communicate(array($item));
 			if (true === $st) {
 				$try = true;
-				$this->error = array();
+				$this->error = [];
 				break;
 			}
 		}
@@ -679,7 +679,7 @@ class QdsmtpBase extends QdsmtpError
 	function plain()
 	{
 		$plain = $this->makePlain();
-		$items = array();
+		$items = [];
 		foreach ($plain as $pn) {
 			$items[] = array('AUTH PLAIN', $pn);
 		}
@@ -696,7 +696,7 @@ class QdsmtpBase extends QdsmtpError
 	//-----------------------------------
 	function makeData($to, $subject, $message, $header = null, $option = null)
 	{
-		$recip = array();
+		$recip = [];
 		$recip = array_merge($recip, $this->extractAddr($to));
 		$recip = array_merge($recip, $this->extractAddr($this->extractHeader('CC', $header)));
 		$recip = array_merge($recip, $this->extractAddr($this->extractHeader('BCC', $header)));
@@ -708,7 +708,7 @@ class QdsmtpBase extends QdsmtpError
 	function extractAddr($line)
 	{
 		if (0 === preg_match_all('/<?([^<,]+@[^>,]+)>?\s*,?\s*/', $line, $matches)) {
-			return array();
+			return [];
 		} else {
 			return $matches[1];
 		}

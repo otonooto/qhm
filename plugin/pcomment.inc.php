@@ -33,8 +33,10 @@ define('PLUGIN_PCOMMENT_FORMAT_MSG',	'$msg');
 define('PLUGIN_PCOMMENT_FORMAT_NOW',	'&new{$now};');
 
 // "\x01", "\x02", "\x03", and "\x08" are used just as markers
-define('PLUGIN_PCOMMENT_FORMAT_STRING',
-	"\x08" . 'MSG' . "\x08" . ' -- ' . "\x08" . 'NAME' . "\x08" . ' ' . "\x08" . 'DATE' . "\x08");
+define(
+	'PLUGIN_PCOMMENT_FORMAT_STRING',
+	"\x08" . 'MSG' . "\x08" . ' -- ' . "\x08" . 'NAME' . "\x08" . ' ' . "\x08" . 'DATE' . "\x08"
+);
 
 function plugin_pcomment_action()
 {
@@ -42,7 +44,7 @@ function plugin_pcomment_action()
 
 	if (PKWK_READONLY) die_message('PKWK_READONLY prohibits editing');
 
-	if (! isset($vars['msg']) || $vars['msg'] == '') return array();
+	if (! isset($vars['msg']) || $vars['msg'] == '') return [];
 	$refer = isset($vars['refer']) ? $vars['refer'] : '';
 
 	$retval = plugin_pcomment_insert();
@@ -65,12 +67,12 @@ function plugin_pcomment_convert()
 	$ret = '';
 
 	$params = array(
-		'noname'=>FALSE,
-		'nodate'=>FALSE,
-		'below' =>FALSE,
-		'above' =>FALSE,
-		'reply' =>FALSE,
-		'_args' =>array()
+		'noname' => FALSE,
+		'nodate' => FALSE,
+		'below' => FALSE,
+		'above' => FALSE,
+		'reply' => FALSE,
+		'_args' => []
 	);
 
 	// BugTrack2/106: Only variables can be passed by reference from PHP 5.0.5
@@ -83,9 +85,9 @@ function plugin_pcomment_convert()
 	$count = (isset($params['_args'][1]) && $params['_args'][1] != '') ? $params['_args'][1] : 0;
 	if ($count == 0 && $count !== '0')
 		$count = PLUGIN_PCOMMENT_NUM_COMMENTS;
-		
+
 	//キャッシュのために、追加
-	if(!in_array(strip_bracket($page), $qt->get_rel_pages()))
+	if (!in_array(strip_bracket($page), $qt->get_rel_pages()))
 		$qt->set_rel_page(strip_bracket($page));
 
 	$_page = get_fullname(strip_bracket($page), $vars_page);
@@ -153,15 +155,15 @@ EOD;
 		return '<div>' .
 			'<p>' . $recent . ' ' . $link . '</p>' . "\n" .
 			$form_start .
-				$comments . "\n" .
-				$form .
+			$comments . "\n" .
+			$form .
 			$form_end .
 			'</div>' . "\n";
 	} else {
 		return '<div>' .
 			$form_start .
-				$form .
-				$comments. "\n" .
+			$form .
+			$comments . "\n" .
 			$form_end .
 			'<p>' . $recent . ' ' . $link . '</p>' . "\n" .
 			'</div>' . "\n";
@@ -179,9 +181,9 @@ function plugin_pcomment_insert()
 
 	if (! is_pagename($page))
 		return array(
-			'msg' =>'Invalid page name',
-			'body'=>'Cannot add comment' ,
-			'collided'=>TRUE
+			'msg' => 'Invalid page name',
+			'body' => 'Cannot add comment',
+			'collided' => TRUE
 		);
 
 	check_editable($page, true, true);
@@ -232,16 +234,19 @@ function plugin_pcomment_insert()
 		$b_reply = FALSE;
 		if ($reply_hash != '') {
 			while ($end_position < $count) {
-				$matches = array();
-				if (preg_match('/^(\-{1,2})(?!\-)(.*)$/', $postdata[$end_position++], $matches)
-					&& md5($matches[2]) == $reply_hash)
-				{
+				$matches = [];
+				if (
+					preg_match('/^(\-{1,2})(?!\-)(.*)$/', $postdata[$end_position++], $matches)
+					&& md5($matches[2]) == $reply_hash
+				) {
 					$b_reply = TRUE;
 					$level   = strlen($matches[1]) + 1;
 
 					while ($end_position < $count) {
-						if (preg_match('/^(\-{1,3})(?!\-)/', $postdata[$end_position], $matches)
-							&& strlen($matches[1]) < $level) break;
+						if (
+							preg_match('/^(\-{1,3})(?!\-)/', $postdata[$end_position], $matches)
+							&& strlen($matches[1]) < $level
+						) break;
 						++$end_position;
 					}
 					break;
@@ -273,7 +278,7 @@ function plugin_pcomment_insert()
 }
 
 // Auto log rotation
-function plugin_pcomment_auto_log($page, $dir, $count, & $postdata)
+function plugin_pcomment_auto_log($page, $dir, $count, &$postdata)
 {
 	if (! PLUGIN_PCOMMENT_AUTO_LOG) return;
 
@@ -302,7 +307,7 @@ function plugin_pcomment_auto_log($page, $dir, $count, & $postdata)
 }
 
 // Check arguments
-function plugin_pcomment_check_arg($val, $key, & $params)
+function plugin_pcomment_check_arg($val, $key, &$params)
 {
 	if ($val != '') {
 		$l_val = strtolower($val);
@@ -335,7 +340,7 @@ function plugin_pcomment_get_comments($page, $count, $dir, $reply)
 
 	// Get latest N comments
 	$num  = $cnt     = 0;
-	$cmts = $matches = array();
+	$cmts = $matches = [];
 	if ($dir) $data = array_reverse($data);
 	foreach ($data as $line) {
 		if ($count > 0 && $dir && $cnt == $count) break;
@@ -366,10 +371,11 @@ function plugin_pcomment_get_comments($page, $count, $dir, $reply)
 
 	// Add radio buttons
 	if ($reply)
-		$comments = preg_replace('/<li>' . "\x01" . '(\d+)' . "\x02" . '(.*)' . "\x03" . '/',
+		$comments = preg_replace(
+			'/<li>' . "\x01" . '(\d+)' . "\x02" . '(.*)' . "\x03" . '/',
 			'<li class="pcmt"><input class="pcmt" type="radio" name="reply" value="$2" tabindex="$1" />',
-			$comments);
+			$comments
+		);
 
 	return array($comments, $digest);
 }
-?>

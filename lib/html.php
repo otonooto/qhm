@@ -55,7 +55,7 @@ function catbody($title, $page, $body)
 	if (! file_exists(SKIN_FILE) || ! is_readable(SKIN_FILE))
 		die_message('SKIN_FILE is not found');
 
-	$_LINK = $_IMAGE = array();
+	$_LINK = $_IMAGE = [];
 
 	// Add JavaScript header when ...
 	if ($trackback && $trackback_javascript) $javascript = 1; // Set something If you want
@@ -187,7 +187,7 @@ function catbody($title, $page, $body)
 		$words = array_splice($words, 0, 10); // Max: 10 words
 		$words = array_flip($words);
 
-		$keys = array();
+		$keys = [];
 		foreach ($words as $word => $id) $keys[$word] = strlen($word);
 		arsort($keys, SORT_NUMERIC);
 		$keys = get_search_words(array_keys($keys), TRUE);
@@ -497,7 +497,7 @@ function edit_form($page, $postdata, $digest = FALSE, $b_template = TRUE)
 	$qt = get_qt();
 
 	//accesskey setting
-	$accesskey = array();
+	$accesskey = [];
 	foreach (array('r', 'p', 's', 'c') as $v) {
 		$accesskey[$v] = $qhm_access_key ? 'accesskey="' . $v . '"' : '';
 	}
@@ -522,7 +522,7 @@ function edit_form($page, $postdata, $digest = FALSE, $b_template = TRUE)
 	}
 
 	if ($load_template_func && $b_template) {
-		$pages  = array();
+		$pages  = [];
 		foreach (get_existpages() as $_page) {
 			if ($_page == $whatsnew || check_non_list($_page))
 				continue;
@@ -911,7 +911,7 @@ function make_related($page, $tag = '')
 		arsort($links);
 	}
 
-	$_links = array();
+	$_links = [];
 	foreach ($links as $page => $lastmod) {
 		if (check_non_list($page)) continue;
 
@@ -1011,7 +1011,7 @@ function make_heading(&$str, $strip = TRUE)
 
 	// Cut fixed-heading anchors
 	$id = '';
-	$matches = array();
+	$matches = [];
 	if (preg_match('/^(!|\*{0,3})(.*?)\[#([A-Za-z][\w-]+)\](.*?)$/m', $str, $matches)) {
 		$str = $matches[2] . $matches[4];
 		$id  = &$matches[3];
@@ -1073,7 +1073,7 @@ function pkwk_common_headers()
 	if (! PKWK_OPTIMISE) pkwk_headers_sent();
 
 	if (defined('PKWK_ZLIB_LOADABLE_MODULE')) {
-		$matches = array();
+		$matches = [];
 		if (
 			ini_get('zlib.output_compression') &&
 			preg_match('/\b(gzip|deflate)\b/i', $_SERVER['HTTP_ACCEPT_ENCODING'], $matches)

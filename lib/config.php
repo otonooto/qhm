@@ -38,9 +38,9 @@ class Config
 	{
 		if (! is_page($this->page)) return FALSE;
 
-		$this->objs = array();
+		$this->objs = [];
 		$obj        = new ConfigTable('');
-		$matches = array();
+		$matches = [];
 
 		foreach (get_source($this->page) as $line) {
 			if ($line == '') continue;
@@ -179,7 +179,7 @@ class ConfigTable_Sequential extends ConfigTable
 
 class ConfigTable_Direct extends ConfigTable
 {
-	var $_keys = array();	// Used at initialization phase
+	var $_keys = [];	// Used at initialization phase
 
 	function set_key($line)
 	{

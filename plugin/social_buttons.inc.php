@@ -1,4 +1,5 @@
 <?php
+
 /**
  *   Social Buttons Plugin
  *   -------------------------------------------
@@ -26,7 +27,7 @@ function plugin_social_buttons_convert()
 	$args = func_get_args();
 
 	$url = '';
-	$layout = 'h1';//h1 | h2 | large
+	$layout = 'h1'; //h1 | h2 | large
 	$margin = '3px'; //margin-right per button
 	$h_margin = '0'; //horizontal margin of buttons wrapper
 	$text = ''; //extra text
@@ -34,69 +35,48 @@ function plugin_social_buttons_convert()
 
 	$service_list = array('twitter', 'facebook_like');
 
-	$services = array();
-	foreach ($args as $arg)
-	{
+	$services = [];
+	foreach ($args as $arg) {
 		$arg = trim($arg);
 
-		if (preg_match('/^tw(?:itter)?(?:=([^,\)]*))?$/', $arg, $mts))
-		{
+		if (preg_match('/^tw(?:itter)?(?:=([^,\)]*))?$/', $arg, $mts)) {
 			$option_str = isset($mts[1]) ? $mts[1] : '';
 			$services['twitter'] = plugin_social_buttons_parse_option($option_str);
-		}
-		else if (preg_match('/^(?:facebook|fb)(?:=([^,\)]*))?$/', $arg, $mts))
-		{
+		} else if (preg_match('/^(?:facebook|fb)(?:=([^,\)]*))?$/', $arg, $mts)) {
 			$option_str = isset($mts[1]) ? $mts[1] : '';
 			$services['facebook_like'] = plugin_social_buttons_parse_option($option_str);
-		}
-		else if (in_array($arg, array('h1', 'h2', 'large')))
-		{
+		} else if (in_array($arg, array('h1', 'h2', 'large'))) {
 			$layout = $arg;
-			if ($layout === 'large')
-			{
+			if ($layout === 'large') {
 				$margin = '15px';
 			}
-		}
-		else if (is_url($arg))
-		{
+		} else if (is_url($arg)) {
 			$url = $arg;
-		}
-		else if (preg_match('/^\d+$/', $arg))
-		{
+		} else if (preg_match('/^\d+$/', $arg)) {
 			$margin = intval($arg);
 			$margin = ($margin > 0) ? $margin . 'px' : 0;
-		}
-		else if ($arg === 'right' OR $arg === 'left')
-		{
+		} else if ($arg === 'right' or $arg === 'left') {
 			$float = $arg;
-		}
-		else
-		{
+		} else {
 			$text = $arg;
 		}
 	}
 
-	if (count($services) === 0)
-	{
-		foreach (array_flip($service_list) as $service => $v)
-		{
-			$services[$service] = array();
+	if (count($services) === 0) {
+		foreach (array_flip($service_list) as $service => $v) {
+			$services[$service] = [];
 		}
 	}
 
-	if ($float === 'right')
-	{
+	if ($float === 'right') {
 		$services = array_combine(array_reverse(array_keys($services)), array_reverse(array_values($services)));
 	}
 
 	$use_fb = FALSE;
-	foreach ($services as $service => $option)
-	{
-		switch ($service)
-		{
+	foreach ($services as $service => $option) {
+		switch ($service) {
 			case 'twitter':
-				switch ($layout)
-				{
+				switch ($layout) {
 					case 'h1':
 						$tmp = 'none';
 						break;
@@ -112,8 +92,7 @@ function plugin_social_buttons_convert()
 			case 'facebook_like':
 				$use_fb = TRUE;
 				$width = 120;
-				switch ($layout)
-				{
+				switch ($layout) {
 					case 'h1':
 						$width = 100;
 					case 'h2':
@@ -122,7 +101,7 @@ function plugin_social_buttons_convert()
 					default: //large
 						$tmp = 'box_count';
 				}
-				$option['show_faces'] ='false';
+				$option['show_faces'] = 'false';
 				$option['layout'] = $tmp;
 				$option['width'] = isset($option['width']) ? $option['width'] : $width;
 				break;
@@ -133,10 +112,9 @@ function plugin_social_buttons_convert()
 
 	$tinyurl = $fburl =  $url;
 	$page = $vars['page'];
-	if ($url === '')
-	{
-		$fburl = $script.'?'.rawurlencode($page);
-		$url = $script.'?'.rawurlencode($page);
+	if ($url === '') {
+		$fburl = $script . '?' . rawurlencode($page);
+		$url = $script . '?' . rawurlencode($page);
 		$tinyurl = $script . '?go=' . get_tiny_code($page);
 	}
 
@@ -175,27 +153,24 @@ $(function(){
 	$body = '
 <div class="qhm_plugin_social_buttons">
 ';
-	foreach ($services as $service => $option)
-	{
+	foreach ($services as $service => $option) {
 		$option_attr = '';
-		foreach ($option as $key => $val)
-		{
-			$option_attr .= ' data-sb-'. $key .'="'. h($val) .'"';
+		foreach ($option as $key => $val) {
+			$option_attr .= ' data-sb-' . $key . '="' . h($val) . '"';
 		}
 
-		switch ($service)
-		{
+		switch ($service) {
 			case 'twitter':
 				$service_url = $tinyurl;
 				break;
 			case 'facebook_like':
 				$service_url = $fburl;
 				break;
-			default :
+			default:
 				$service_url = $url;
 		}
 
-		$body .= '<div class="qhm_plugin_social_button" data-sb-service="'. h($service) .'" data-sb-url="'. h($service_url) .'"'. $option_attr.' style="margin-right:'. h($margin) .';float:'. h($float) .';"></div>';
+		$body .= '<div class="qhm_plugin_social_button" data-sb-service="' . h($service) . '" data-sb-url="' . h($service_url) . '"' . $option_attr . ' style="margin-right:' . h($margin) . ';float:' . h($float) . ';"></div>';
 	}
 	$body .= '
 	<div style="clear:both;"></div>
@@ -208,11 +183,10 @@ $(function(){
 	//原因は不明だが、Fbデバッガへ通すと改善する。
 	//管理者にはFacebook のデバッガーへのリンクを表示する。
 
-	if ($editable && $use_fb)
-	{
-		$debuggerlink = 'http://developers.facebook.com/tools/debug/og/object?q='. rawurlencode($fburl);
+	if ($editable && $use_fb) {
+		$debuggerlink = 'http://developers.facebook.com/tools/debug/og/object?q=' . rawurlencode($fburl);
 		$body .= '
-<p style="text-align:'. h($float) .';margin-top: 0;">
+<p style="text-align:' . h($float) . ';margin-top: 0;">
 <button type="button" class="" style="color:navy;cursor:pointer;border:none;background:none;" data-toggle="collapse" data-target="div.plugin_social_button_alert">
 	<i class="icon icon-hand-up"></i>
 	いいね！が表示されない
@@ -226,7 +200,7 @@ $(function(){
 		以下の手順で復旧してください。
 	</p>
 
-	1. <a href="'. h($debuggerlink) .'" class="btn btn-default btn-sm">ここをクリック &gt;&gt;</a><br />
+	1. <a href="' . h($debuggerlink) . '" class="btn btn-default btn-sm">ここをクリック &gt;&gt;</a><br />
 	2. Facebook のページが開いたら、そのまま閉じる。<br />
 	3. このページを<a href="#" class="btn btn-default btn-sm" onclick="document.location.reload();return false;">再読み込み</a>する。<br />
 	4. 完了
@@ -242,12 +216,11 @@ $(function(){
 
 function plugin_social_buttons_parse_option($option_str = '')
 {
-	if (trim($option_str) === '') return array();
+	if (trim($option_str) === '') return [];
 
-	$option = array();
+	$option = [];
 	$options = explode(';', $option_str);
-	foreach ($options as $opt)
-	{
+	foreach ($options as $opt) {
 		list($name, $value) = explode(':', $opt, 2);
 		$option[$name] = is_null($value) ? '' : $value;
 	}

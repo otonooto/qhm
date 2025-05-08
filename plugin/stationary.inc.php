@@ -14,8 +14,8 @@ function plugin_stationary_init()
 
 	$messages = array(
 		'_plugin_stationary_A' => 'a',
-		'_plugin_stationary_B' => array('C' => 'c', 'D'=>'d'),
-		);
+		'_plugin_stationary_B' => array('C' => 'c', 'D' => 'd'),
+	);
 	set_plugin_messages($messages);
 }
 
@@ -29,13 +29,13 @@ function plugin_stationary_convert()
 	if (PKWK_READONLY) return ''; // Show nothing
 
 	// Init
-	$args = array();
+	$args = [];
 	$result = '';
 
 	// Get arguments
 	if (func_num_args()) {
 		$args = func_get_args();
-		foreach	(array_keys($args) as $key)
+		foreach (array_keys($args) as $key)
 			$args[$key] = trim($args[$key]);
 		$result = join(',', $args);
 	}
@@ -52,7 +52,7 @@ function plugin_stationary_inline()
 	$args = func_get_args();
 	$body = strip_autolink(array_pop($args)); // {bar}
 
-	foreach	(array_keys($args) as $key)
+	foreach (array_keys($args) as $key)
 		$args[$key] = trim($args[$key]);
 	$result = join(',', $args);
 
@@ -69,6 +69,5 @@ function plugin_stationary_action()
 	$msg  = 'Message';
 	$body = 'Message body';
 
-	return array('msg'=>htmlspecialchars($msg), 'body'=>htmlspecialchars($body));
+	return array('msg' => htmlspecialchars($msg), 'body' => htmlspecialchars($body));
 }
-?>
