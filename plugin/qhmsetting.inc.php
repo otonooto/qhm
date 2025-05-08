@@ -89,7 +89,6 @@ function plugin_qhmsetting_default()
 		'design'    => array(
 			'help' => 'ChangeDesign',
 			'url'  => $scrt . 'design',
-			'img'  => IMAGE_DIR . 'settings_design.png',
 			'title' => 'デザインの変更',
 			'subtitle' => 'ロゴ画像の設定、ロゴ部分の文字、テンプレートの設定を行います。',
 			'limited' => false,
@@ -97,7 +96,6 @@ function plugin_qhmsetting_default()
 		'info'      => array(
 			'help' => 'SiteConfig',
 			'url'  => $scrt . 'info',
-			'img'  => IMAGE_DIR . 'settings_site.png',
 			'title' => 'サイト情報の設定',
 			'subtitle' => 'キーワード、サイト説明、ヘッダー、フッター、アクセス解析タグなどの設定を行います。',
 			'limited' => false,
@@ -105,7 +103,6 @@ function plugin_qhmsetting_default()
 		'admin'     => array(
 			'help' => 'SetPassword',
 			'url'  => $scrt . 'admin',
-			'img'  => IMAGE_DIR . 'settings_user.png',
 			'title' => 'ユーザー名、パスワードの変更',
 			'subtitle' => '編集用のユーザー名、パスワードの設定を行います。',
 			'limited' => false,
@@ -113,7 +110,6 @@ function plugin_qhmsetting_default()
 		'qblog' => array(
 			'help' => 'BlogSetting',
 			'url' => $script . '?cmd=qblog',
-			'img' => IMAGE_DIR . 'settings_blog.png',
 			'title' => 'ブログ設定',
 			'subtitle' => 'ブログの設定を行います。',
 			'limited' => false,
@@ -121,7 +117,6 @@ function plugin_qhmsetting_default()
 		'useradmin' => array(
 			'help' => 'UserAuthSetting',
 			'url'  => $scrt . 'user',
-			'img'  => IMAGE_DIR . 'settings_access.png',
 			'title' => 'アクセス権限設定',
 			'subtitle' => '特定のページにアクセス権限を設定し、アクセスできるユーザーを追加設定できます。',
 			'limited' => true,
@@ -129,7 +124,6 @@ function plugin_qhmsetting_default()
 		'clear'     => array(
 			'help' => 'SettingCache',
 			'url'  => $scrt . 'clear',
-			'img'  => IMAGE_DIR . 'settings_cache.png',
 			'title' => '高速化設定、キャッシュの初期化',
 			'subtitle' => '表示を高速化するためのキャッシュ機能を設定、キャッシュの初期化、テンプレートを初期化を行います。',
 			'limited' => false,
@@ -137,7 +131,6 @@ function plugin_qhmsetting_default()
 		'back'      => array(
 			'help' => 'EasyBackup',
 			'url'  => $script . '?cmd=dump',
-			'img'  => IMAGE_DIR . 'settings_backup.png',
 			'title' => 'バックアップ',
 			'subtitle' => 'バックアップをダウンロードできます。フルバックアップ、重要ファイルのみのバックアップなど可能です。',
 			'limited' => true,
@@ -145,7 +138,6 @@ function plugin_qhmsetting_default()
 		'counter'   => array(
 			'help' => 'Counter',
 			'url'  => $scrt . 'counter',
-			'img'  => IMAGE_DIR . 'settings_counter.png',
 			'title' => 'アクセスカウンター',
 			'subtitle' => 'アクセスカウンターをリセットします。',
 			'limited' => false,
@@ -153,7 +145,6 @@ function plugin_qhmsetting_default()
 		'chmod'     => array(
 			'help' => 'UserAuthSetting',
 			'url'  => $scrt . 'chmod',
-			'img'  => IMAGE_DIR . 'settings_file.png',
 			'title' => 'ファイル権限設定',
 			'subtitle' => '削除できない、FTPエラーが起こる原因である「ファイル権限」を設定、チェックします。',
 			'limited' => true,
@@ -161,7 +152,6 @@ function plugin_qhmsetting_default()
 		'mail'      => array(
 			'help' => 'MailSetting',
 			'url'  => $scrt . 'mail',
-			'img'  => IMAGE_DIR . 'settings_mail.png',
 			'title' => 'メール送信設定',
 			'subtitle' => '送信メールサーバーを設定できます（SMTP送信、GoogleAppsなどの場合）',
 			'limited' => true,
@@ -169,7 +159,6 @@ function plugin_qhmsetting_default()
 		'close'     => array(
 			'help' => 'SettingCloseSite',
 			'url'  => $scrt . 'close',
-			'img'  => IMAGE_DIR . 'settings_close.png',
 			'title' => 'サイトの閉鎖／公開',
 			'subtitle' => '全ページを閉鎖します。閉鎖後は、管理者権限でログインすることで編集、閲覧が可能です。',
 			'limited' => true,
@@ -177,7 +166,6 @@ function plugin_qhmsetting_default()
 		'mobile'    => array(
 			'help' => 'RedirectMobile',
 			'url'  => $scrt . 'mobile',
-			'img'  => IMAGE_DIR . 'settings_mobile.png',
 			'title' => '携帯アクセス転送',
 			'subtitle' => '携帯端末からのアクセスを携帯専用サイトなどに転送します。',
 			'limited' => false,
@@ -185,7 +173,6 @@ function plugin_qhmsetting_default()
 		'gmap'      => array(
 			'help' => 'GoogleMapsKey',
 			'url'  => $scrt . 'gmap',
-			'img'  => IMAGE_DIR . 'settings_googlemap.png',
 			'title' => 'Googleマップキー',
 			'subtitle' => 'QHMでGoogleマップを使うためのキーを設定します。',
 			'limited' => false,
@@ -193,7 +180,6 @@ function plugin_qhmsetting_default()
 		'sns'       => array(
 			'help' => 'SettingOGP',
 			'url'  => $scrt . 'sns',
-			'img'  => IMAGE_DIR . 'settings_sns.png',
 			'title' => 'ソーシャル連携',
 			'subtitle' => 'SNSの連携設定をします。',
 			'limited' => true,
@@ -202,7 +188,6 @@ function plugin_qhmsetting_default()
 		// 'update'       => array(
 		// 	'help' => 'HowToUseUpdatePlugin',
 		// 	'url'  => $script . '?cmd=system_updater',
-		// 	'img'  => IMAGE_DIR . 'settings_update.png',
 		// 	'title' => 'アップデート',
 		// 	'subtitle' => 'アップデートを行います。',
 		// 	'limited' => true,
@@ -291,13 +276,11 @@ EOD;
 		if ($set['limited']) {
 			$html .= '
 		<td style="background-color:#e0e0e0;"><p>
-			<img src="' . $set['img'] . '" alt="' . $set['title'] . '" title="' . $set['title'] . '" style="vertical-align:top;" />
 			<span style="font-weight:bold;color:#666;">' . $set['title'] . '</span>
 		</p><span style="color:#888;">' . $set['subtitle'] . '</span></td>';
 		} else {
 			$html .= '
 		<td><p>
-			<img src="' . $set['img'] . '" alt="' . $set['title'] . '" title="' . $set['title'] . '" style="vertical-align:top;" />
 			<a href="' . $set['url'] . '" style="font-weight:bold;">' . $set['title'] . '</a>' . $set['help'] . '
 		</p>' . $set['subtitle'] . '</td>';
 		}
