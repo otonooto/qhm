@@ -1,9 +1,10 @@
 <?php
-/**
-*  haik テーマでカスタマイズ可能にするための定義
-*/
 
-return array (
+/**
+ *  テーマでカスタマイズ可能にするための定義
+ */
+
+return array(
 	'bootstrap'      => true,
 	'default_layout' => "default",
 	'nomenu_layout'  => "nomenu",
@@ -21,13 +22,13 @@ return array (
 			'value'       => 'cyan',
 			'title'       => 'テーマカラー',
 			'description' => 'テーマカラーを選びます',
-		),		
+		),
 
 		'divider1' => array('type' => 'divider'),
 
 		'logo_text' =>	array(
 			'type'       => 'text',
-			'value'       => 'HAIK',
+			'value'       => 'QHM',
 			'title'       => 'ロゴテキスト',
 			'description' => 'ロゴ部分に使うテキスト（任意）です',
 		),
@@ -54,13 +55,13 @@ return array (
 			'value'       => TRUE,
 			'title'       => 'アイキャッチを使う',
 			'description' => 'ページタイトルを入れたアイキャッチを自動で表示する場合、有効にしてください',
-			),
+		),
 		'eyecatch_title_type' => array(
 			'type'        => 'hidden',
 			'value'       => 'site',
 			'title'       => 'アイキャッチのタイトル',
 			'description' => 'アイキャッチのタイトルにページ名(page)を使うかサイトタイトル(site)を使うか設定します',
-			),
+		),
 		'eyecatch_color' => array(
 			'type'        => 'color',
 			'value'       => '#494949',
@@ -102,12 +103,12 @@ return array (
 			'title'       => 'ナビを固定する',
 			'description' => 'ナビを固定する設定になります'
 		),
-		
+
 		'body_font'	=> array(
 			'type'        => 'font',
 			'value'       => '"游ゴシック体", "Yu Gothic", YuGothic,"ヒラギノ角ゴ ProN","Hiragino Kaku Gothic ProN","メイリオ","Meiryo",sans-serif',
 			'options'     => array(
-        '"游ゴシック体", "Yu Gothic", YuGothic,"ヒラギノ角ゴ ProN","Hiragino Kaku Gothic ProN","メイリオ","Meiryo",sans-serif',
+				'"游ゴシック体", "Yu Gothic", YuGothic,"ヒラギノ角ゴ ProN","Hiragino Kaku Gothic ProN","メイリオ","Meiryo",sans-serif',
 				'"ヒラギノ角ゴ ProN","Hiragino Kaku Gothic ProN","メイリオ","Meiryo","MS ゴシック","MS Gothic","MS Pゴシック","MS PGothic",sans-serif',
 				'"游明朝", YuMincho,"ヒラギノ明朝 ProN W3","Hiragino Mincho ProN","HG明朝E","ＭＳ Ｐ明朝","MS PMincho","MS 明朝",serif',
 				'"ヒラギノ丸ゴ ProN","Hiragino Maru Gothic ProN","HG丸ｺﾞｼｯｸM-PRO","Verdana","Osaka",sans-serif',

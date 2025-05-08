@@ -1,17 +1,17 @@
 {
-  "name": "qhmpro",
+  "name": "qhm",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/hokuken/qhmpro"
+    "url": "git://github.com/otonooto/qhm"
   },
-  "author": "Hokuken.Inc <customer@hokuken.com>",
+  "author": "otonooto <210685095+otonooto@users.noreply.github.com>",
   "bugs": {
-    "url": "https://github.com/hokuken/qhmpro/issues"
+    "url": "https://github.com/otonooto/qhm/issues"
   },
-  "homepage": "https://www.hokuken.com/qhmpro/",
+  "homepage": "https://github.com/otonooto/qhm/",
   "devDependencies": {
     "grunt": "^0.4.4",
     "grunt-contrib-coffee": "^0.11.1",

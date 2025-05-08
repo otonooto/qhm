@@ -990,7 +990,7 @@ function output_site_close_message($site_name, $login_url)
 {
 	global $qhm_adminmenu;
 
-	$qhm_sign = ($qhm_adminmenu < 2) ? '<a href="' . h($login_url) . '">HAIK</a>' : 'HAIK';
+	$qhm_sign = ($qhm_adminmenu < 2) ? '<a href="' . h($login_url) . '">QHM</a>' : 'QHM';
 
 	pkwk_common_headers();
 	$qm = get_qm();
@@ -1102,15 +1102,25 @@ function get_qblog_category($page, $lines = 10)
 
 /**
  * ブログカテゴリー一覧を返す。
- * @return asoc {cat_name : num, ...}
+ * @return array [cat_name : num, ...]
  */
 function get_qblog_categories()
 {
-	$cat_list = explode("\n", file_get_contents(CACHEQBLOG_DIR . 'qblog_categories.dat'));
+	$file_path = CACHEQBLOG_DIR . 'qblog_categories.dat';
+	// ファイルの存在確認
+	if (!file_exists($file_path)) {
+		return []; // ファイルがない場合は空の配列を返す
+	}
+	// 行単位でファイルを読み込む
+	$cat_list = file($file_path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 	$categories = [];
+
 	foreach ($cat_list as $cat_data) {
-		list($cat_name, $num) = explode("\t", $cat_data);
-		$categories[$cat_name] = $num;
+		$parts = explode("\t", $cat_data);
+		if (count($parts) === 2) { // データが期待通りの形式かチェック
+			list($cat_name, $num) = $parts;
+			$categories[$cat_name] = (int) $num; // 数値を明示的に整数変換
+		}
 	}
 	return $categories;
 }

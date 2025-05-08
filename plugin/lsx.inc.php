@@ -12,7 +12,7 @@
 
 class PluginLsx
 {
-    function PluginLsx()
+    function __construct()
     {
         // Configure external plugins
         static $conf = array(

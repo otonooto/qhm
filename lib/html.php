@@ -319,7 +319,7 @@ function catbody($title, $page, $body)
 	require(LIB_DIR . 'qhm_init_main.php');
 
 	// meta:GENERATOR
-	$generator_tag = '<meta name="GENERATOR" content="Quick Homepage Maker; version=' . QHM_VERSION . '; haik=' . (is_bootstrap_skin() ? 'true' : 'false') . '" />' . "\n";
+	$generator_tag = '<meta name="GENERATOR" content="Quick Homepage Maker; version=' . QHM_VERSION . '; qhm=' . (is_bootstrap_skin() ? 'true' : 'false') . '" />' . "\n";
 	$qt->prependv_once('generator_tag', 'beforescript', $generator_tag);
 
 	//-------------------------------------------------

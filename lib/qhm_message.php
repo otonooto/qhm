@@ -19,27 +19,15 @@
 
 class QHM_Message
 {
+	// Singleton Instance
+	private static ?QHM_Message $instance = null;
 
-	// Singleton Start: ------------------------------------------
-	private static $instance;
-
-	public static function get_instance()
-	{
-		if (isset(self::$instance)) {
-			return self::$instance;
-		} else {
-			self::$instance = new QHM_Message();
-			return self::$instance;
-		}
-	}
-	// Singleton End: --------------------------------------------
-
-	//messages
-	var $m;
-	var $file;
-	var $file_ja;
-	var $cache;
-	var $locales;
+	// Public properties
+	public $m;
+	public $file;
+	public $file_ja;
+	public $cache;
+	public $locales;
 
 	private function __construct()
 	{
@@ -48,6 +36,15 @@ class QHM_Message
 		$this->file_ja = 'lng.ja.txt';
 		$this->cache = CACHE_DIR . '/lng.' . LANG . '.qmc';
 		$this->readCache();
+	}
+
+	public static function get_instance(): QHM_Message
+	{
+		if (self::$instance === null) {
+			return self::$instance = new self();
+		} else {
+			return self::$instance;
+		}
 	}
 
 	function replace()
@@ -70,7 +67,14 @@ class QHM_Message
 	function readCache()
 	{
 		if ($this->checkCache()) {
-			$this->m = unserialize(file_get_contents($this->cache));
+			$data = file_get_contents($this->cache);
+			$this->m = unserialize($data);
+
+			// var_dump($this->m); // 🔍 確認
+			// $qm = get_qm();
+			// $qm->m['example']['key'];
+			// エラーでページが表示できなくなった場合、
+			// /cache/lng.ja.qmc を削除すると解消される場合があります。
 		}
 	}
 

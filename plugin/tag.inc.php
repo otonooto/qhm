@@ -1,4 +1,5 @@
 <?php
+
 /**
  *  Tag Plugin
  *
@@ -11,16 +12,16 @@
 
 class PluginTag extends Tag
 {
-    function PluginTag()
+    function __construct()
     {
         parent::Tag();
-        static $conf = array();
+        static $conf = [];
         if (empty($conf)) {
             $conf['listcmd'] = get_script_uri() . '?cmd=taglist&amp;tag=';
             $conf['use_session'] = TRUE;
             $conf['through_if_admin'] = TRUE;
         }
-        $this->conf = & $conf;
+        $this->conf = &$conf;
     }
 
     var $conf;
@@ -29,14 +30,14 @@ class PluginTag extends Tag
     function action() // clean cache
     {
         global $vars;
-        if (isset( $vars['pass'] ) && is_admin($vars['pass'], $this->conf['use_session'], $this->conf['through_if_admin'])) {
+        if (isset($vars['pass']) && is_admin($vars['pass'], $this->conf['use_session'], $this->conf['through_if_admin'])) {
             $body = $this->clean_cache();
         } else {
             $body = $this->display_password_form();
         }
-        return array('msg'=>'Clean Tag Caches', 'body'=>$body);
+        return array('msg' => 'Clean Tag Caches', 'body' => $body);
     }
-    
+
     /**
      * Clean Tag Caches
      *
@@ -46,7 +47,7 @@ class PluginTag extends Tag
     {
         set_time_limit(0);
         global $vars;
-        
+
         // remove all files
         $files = $this->get_items_filenames();
         $files = array_merge($files, $this->get_tags_filenames());
@@ -77,7 +78,7 @@ class PluginTag extends Tag
     {
         $cmd  = $this->plugin;
         $pcmd = 'clean';
-        $form = array();
+        $form = [];
         $form[] = '<form action="' . get_script_uri() . '?cmd=' . $cmd . '" method="post">';
         $form[] = '<div>';
         $form[] = ' <input type="hidden" name="pcmd" value="' . $pcmd . '" />';
@@ -88,7 +89,7 @@ class PluginTag extends Tag
         $form[] = '</div>';
         $form[] = '</form>';
         $form = implode("\n", $form);
-        
+
         if ($message != '') {
             $message = '<p><b>' . htmlspecialchars($message) . '</b></p>';
         }
@@ -98,19 +99,21 @@ class PluginTag extends Tag
     function inline() // tagging
     {
         static $tagging = FALSE;
-        if (func_num_args() == 0){
+        if (func_num_args() == 0) {
             return 'tag(): no argument(s). ';
         }
-        global $vars, $defaultpage; 
+        global $vars, $defaultpage;
         $page = isset($vars['page']) ? $vars['page'] : $defaultpage;
-        $args = func_get_args(); 
+        $args = func_get_args();
         array_pop($args);  // drop {}
         $tags = $args;
-        
+
         if ($tagging) { // 2nd call
             $this->add_tags($page, $tags);
-        } elseif (isset($vars['preview']) || isset($vars['realview']) ||
-                  is_page_newer($page, $this->get_tags_filename($page))) {
+        } elseif (
+            isset($vars['preview']) || isset($vars['realview']) ||
+            is_page_newer($page, $this->get_tags_filename($page))
+        ) {
             $this->save_tags($page, $tags);
             $tagging = TRUE;
         }
@@ -131,7 +134,7 @@ class PluginTag extends Tag
         $page = $args[0];
         $postdata = $args[1];
         if ($postdata == "") { // if page is deleted
-            $this->save_tags($page, array()); // remove tags
+            $this->save_tags($page, []); // remove tags
         }
         // ToDo: renew tag cache on write_after, not on read
         // Since the whole text must be parsed to find '&tag();',
@@ -180,13 +183,12 @@ class PluginTag extends Tag
             $ret .= $this->get_taglink($tag);
         }
         $ret .= '</span>';
-        
-		global $keywords;
-		if (strlen($keywords) > 0)
-		{
-			$keywords .= ',';
-		}
-		$keywords .= htmlspecialchars(implode(', ', $tags));
+
+        global $keywords;
+        if (strlen($keywords) > 0) {
+            $keywords .= ',';
+        }
+        $keywords .= htmlspecialchars(implode(', ', $tags));
 
         return $ret;
     }
@@ -301,7 +303,7 @@ if (! function_exists('is_admin')) {
             }
         }
         if (! $is_admin && isset($pass)) {
-            $is_admin = function_exists('pkwk_login') ? pkwk_login($pass) : 
+            $is_admin = function_exists('pkwk_login') ? pkwk_login($pass) :
                 md5($pass) === $GLOBALS['adminpass']; // 1.4.3
         }
         if ($use_session) {
@@ -330,7 +332,8 @@ if (! function_exists('make_pagelink_nopg')) {
     {
         // no passage
         global $show_passage;
-        $tmp = $show_passage; $show_passage = 0;
+        $tmp = $show_passage;
+        $show_passage = 0;
         $link = make_pagelink($page, $alias, $anchor, $refer, $isautolink);
         $show_passage = $tmp;
         return $link;
@@ -402,7 +405,7 @@ if (! function_exists('exec_existpages')) {
     {
         global $vars, $get, $post;
         $pages = get_existpages();
-        $exec_pages = array();
+        $exec_pages = [];
         $tmp_page = $vars['page'];
         $tmp_cmd  = $vars['cmd'];
         $vars['cmd'] = $get['cmd'] = $post['cmd'] = 'read';
@@ -481,8 +484,8 @@ if (! function_exists('r_strpos')) {
      */
     function r_strpos($str, $substr)
     {
-        $r_pos = array();
-        while(true) {
+        $r_pos = [];
+        while (true) {
             $pos = strpos($str, $substr);
             if ($pos === false) break;
             array_push($r_pos, $pos);
@@ -507,19 +510,19 @@ if (! function_exists('get_existfiles')) {
      * @uses opendir()
      * @uses readdir()
      */
-    function &get_existfiles($dir, $ext = '', $recursive = FALSE) 
+    function &get_existfiles($dir, $ext = '', $recursive = FALSE)
     {
         if (($dp = @opendir($dir)) == FALSE)
             return FALSE;
         $pattern = '/' . preg_quote($ext, '/') . '$/';
-        $dir = ($dir[strlen($dir)-1] == '/') ? $dir : $dir . '/';
+        $dir = ($dir[strlen($dir) - 1] == '/') ? $dir : $dir . '/';
         $dir = ($dir == '.' . '/') ? '' : $dir;
-        $files = array();
-        while (($file = readdir($dp)) !== false ) {
-            if($file != '.' && $file != '..' && is_dir($dir . $file) && $recursive) {
+        $files = [];
+        while (($file = readdir($dp)) !== false) {
+            if ($file != '.' && $file != '..' && is_dir($dir . $file) && $recursive) {
                 $files = array_merge($files, get_existfiles($dir . $file, $ext, $recursive));
             } else {
-                $matches = array();
+                $matches = [];
                 if (preg_match($pattern, $file, $matches)) {
                     $files[] = $dir . $file;
                 }
@@ -561,7 +564,7 @@ function plugin_tag_init()
 function plugin_tag_inline()
 {
     global $plugin_tag, $plugin_tag_name;
-     
+
     $plugin_tag = new $plugin_tag_name();
     $args = func_get_args();
     return call_user_func_array(array(&$plugin_tag, 'inline'), $args);
@@ -585,7 +588,7 @@ function plugin_tag_action()
 
 function plugin_tag_write_after()
 {
-    global $plugin_tag_name; 
+    global $plugin_tag_name;
     $plugin_tag = new $plugin_tag_name();
     $args = func_get_args();
     return call_user_func_array(array(&$plugin_tag, 'write_after'), $args);
@@ -593,7 +596,7 @@ function plugin_tag_write_after()
 
 function plugin_tag_rename_plugin()
 {
-    global $plugin_tag_name; 
+    global $plugin_tag_name;
     $plugin_tag = new $plugin_tag_name();
     $args = func_get_args();
     return call_user_func_array(array(&$plugin_tag, 'rename_plugin'), $args);
@@ -649,9 +652,9 @@ class Tag
      */
     var $reserved_keys = array('prod' => '^', 'diff' => '-');
 
-    function Tag($items = array(), $tags = array(), $tagcloud = null)
+    function __construct($items = [], $tags = [], $tagcloud = null)
     {
-        $this->items = $items; 
+        $this->items = $items;
         $this->tags = $tags;
         $this->tagcloud = $tagcloud;
     }
@@ -734,7 +737,7 @@ class Tag
     {
         if ($item === null) return false;
         if ($filename === null) $filename = $this->get_tags_filename($item);
-        if (! file_exists($filename)) return array();
+        if (! file_exists($filename)) return [];
         $tags = array_map('rtrim', file($filename));
         return $tags;
     }
@@ -752,7 +755,7 @@ class Tag
     function get_items_from_storage($tag, $filename = null)
     {
         if ($filename === null) $filename = $this->get_items_filename($tag);
-        if (! file_exists($filename)) return array();
+        if (! file_exists($filename)) return [];
         $items = array_map('rtrim', file($filename));
         return $items;
     }
@@ -768,10 +771,10 @@ class Tag
     function get_tagcloud_from_storage()
     {
         $filename = $this->get_tagcloud_filename();
-        $tagcloud = array();
+        $tagcloud = [];
         if (file_exists($filename)) {
             $lines = file($filename);
-            if (empty($lines)) return array();
+            if (empty($lines)) return [];
             $lines = array_map('rtrim', $lines);
             foreach ($lines as $line) {
                 list($tag, $count) = explode("\t", $line);
@@ -982,7 +985,7 @@ class Tag
      * @uses update_tagcloud
      * @access public
      */
-    function add_tags($item, $tags) 
+    function add_tags($item, $tags)
     {
         $tags = (array)$tags;
         $tags = $this->normalize_tags($tags);
@@ -1051,7 +1054,7 @@ class Tag
             foreach ($this->get_items($tag) as $item) {
                 $ret &= $this->remove_tags($item, $tag);
             }
-            $ret &= $this->set_items($tag, array());
+            $ret &= $this->set_items($tag, []);
         }
         $ret &= $this->update_tagcloud();
         return $ret;
@@ -1076,7 +1079,7 @@ class Tag
         $items = $this->get_items($old_tag);
         if (empty($items)) return false;
         $ret = true;
-        $ret &= $this->set_items($old_tag, array());
+        $ret &= $this->set_items($old_tag, []);
         $ret &= $this->set_items($new_tag, $items);
         foreach ($items as $item) {
             $ret &= $this->remove_tags($item, $old_tag);
@@ -1101,7 +1104,7 @@ class Tag
         $tags = $this->get_tags($old_item);
         if (empty($tags)) return false;
         $ret = true;
-        $ret &= $this->save_tags($old_item, array());
+        $ret &= $this->save_tags($old_item, []);
         $ret &= $this->save_tags($new_item, $tags);
         // $ret &= $this->update_tagcloud();
         return $ret;
@@ -1175,7 +1178,7 @@ class Tag
         }
         if (isset($relate_tag)) {
             $related_tags = $this->get_related_tags($relate_tag);
-            $r_tagcloud = array();
+            $r_tagcloud = [];
             foreach ($related_tags as $tag) {
                 $r_tagcloud[$tag] = $tagcloud[$tag];
             }
@@ -1233,7 +1236,7 @@ class Tag
     {
         if ($tag === null) return false;
         $items = $this->get_items($tag);
-        $tags = array();
+        $tags = [];
         foreach ($items as $item) {
             $tags = array_merge($tags, (array)$this->get_tags($item));
         }
@@ -1254,8 +1257,8 @@ class Tag
     function get_items_by_tagtok($tagtok)
     {
         // token analysis
-        $tags = array();
-        $operands = array();
+        $tags = [];
+        $operands = [];
         $tokpos = -1;
 
         $token  = implode('', $this->reserved_keys);
@@ -1265,13 +1268,13 @@ class Tag
         $substr = strtok($token);
         while ($substr !== false) {
             switch ($tagtok[$tokpos]) {
-            case $this->reserved_keys['diff']:
-                array_push($operands, $this->reserved_keys['diff']);
-                break;
-            case $this->reserved_keys['prod']:
-            default:
-                array_push($operands, $this->reserved_keys['prod']);
-                break;
+                case $this->reserved_keys['diff']:
+                    array_push($operands, $this->reserved_keys['diff']);
+                    break;
+                case $this->reserved_keys['prod']:
+                default:
+                    array_push($operands, $this->reserved_keys['prod']);
+                    break;
             }
             array_push($tags, $substr);
             $tokpos = $tokpos + strlen($substr) + 1;
@@ -1282,13 +1285,13 @@ class Tag
         $items = $this->get_items(array_shift($tags));
         foreach ($tags as $i => $tag) {
             switch ($operands[$i]) {
-            case $this->reserved_keys['diff']:
-                $items = array_diff($items, $this->get_items($tag));
-                break;
-            case $this->reserved_keys['prod']:
-            default:
-                $items = array_intersect($items, $this->get_items($tag));
-                break;
+                case $this->reserved_keys['diff']:
+                    $items = array_diff($items, $this->get_items($tag));
+                    break;
+                case $this->reserved_keys['prod']:
+                default:
+                    $items = array_intersect($items, $this->get_items($tag));
+                    break;
             }
         }
         return $items;
@@ -1407,11 +1410,11 @@ class TagCloud
      * [tag] = url
      */
     var $urls;
-    
-    function TagCloud()
+
+    function __construct()
     {
-        $this->counts = array();
-        $this->urls = array();
+        $this->counts = [];
+        $this->urls = [];
     }
 
     /**
@@ -1468,13 +1471,13 @@ class TagCloud
         } elseif ($n == 1) {
             $tag = $tags[0];
             $url = $this->urls[$tag];
-            return "<div class=\"htmltagcloud\"><span class=\"tagcloud1\"><a href=\"$url\">$tag</a></span></div>\n"; 
+            return "<div class=\"htmltagcloud\"><span class=\"tagcloud1\"><a href=\"$url\">$tag</a></span></div>\n";
         }
-        
+
         $min = sqrt($this->counts[$tags[$n - 1]]);
         $max = sqrt($this->counts[$tags[0]]);
         $factor = 0;
-        
+
         // specal case all tags having the same count
         if (($max - $min) == 0) {
             $min -= 24;
@@ -1484,11 +1487,11 @@ class TagCloud
         }
         $html = '';
         sort($tags);
-        foreach($tags as $tag) {
+        foreach ($tags as $tag) {
             $count = $this->counts[$tag];
             $url   = $this->urls[$tag];
             $level = (int)((sqrt($count) - $min) * $factor);
-            $html .=  "<span class=\"tagcloud$level\"><a href=\"$url\">$tag</a></span>\n"; 
+            $html .=  "<span class=\"tagcloud$level\"><a href=\"$url\">$tag</a></span>\n";
         }
         $html = "<div class=\"htmltagcloud\">$html</div>";
         return $html;
@@ -1503,10 +1506,8 @@ class TagCloud
      */
     function htmlAndCSS($limit = NULL)
     {
-        $html = "<style type=\"text/css\">\n" . $this->css() . "</style>" 
+        $html = "<style type=\"text/css\">\n" . $this->css() . "</style>"
             . $this->html($limit);
         return $html;
     }
 }
-
-?>

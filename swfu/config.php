@@ -4,7 +4,7 @@
 error_reporting(E_ERROR | E_PARSE); // Avoid E_WARNING, E_NOTICE, etc
 //error_reporting(E_ALL); // Debug purpose
 
-
+define('PKWK_DTD_HTML_5', 21);
 define('PKWK_DTD_XHTML_1_0_TRANSITIONAL', '');
 define('DATA_HOME', '');
 if (file_exists('../pukiwiki.ini.php'))
@@ -288,8 +288,8 @@ function echo_menu($recent_file, $recent_page)
 <p style="line-height:1.7em;"><font style="font-size:0.9em;"><strong>{$uplink_msg}</strong>{$uplink_msg_after}</font><br />
 <span style="background-color:#eee;border:1px solid #ccc;padding:5px;font-size:12px;font-weight:bold;"><a href="{$uploader}{$uplink_query}" id="upload_link">アップロード</a></span></p>
 <br />
+<p id="qhmtop"><a href="../">*&nbsp;トップページへ&nbsp;*</a></p>
 <p id="swfutop"><a href="$top">*&nbsp;トップへ&nbsp;*</a></p>
-<p id="qhmtop"><a href="../">*&nbsp;HAIKトップへ&nbsp;*</a></p>
 
 <h4>最近のファイル</h4>
 <p style="margin-left:0.5em;">
@@ -408,10 +408,6 @@ function get_buttons($image, $br = true)
 
 	$past = basename($path);
 	$buttons .= '<br><button type="button" class="editmode button-paste" onclick="insert_cmd(\'' . $past . '\');">ファイル名</buton>';
-
-	if ($print) {
-		echo $buttons;
-	}
 
 	return $buttons;
 }

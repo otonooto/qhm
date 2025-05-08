@@ -1,17 +1,15 @@
-HAIK
-====
+# QHM
 
-HAIK は、[PukiWiki][pukiwiki] をベースにしたウェブサイト作成システムです。
+QHM は、[PukiWiki][pukiwiki] をベースにしたウェブサイト作成システムです。
 
 ## Description
 
-HAIK はPHPの動作する環境へ設置するだけですぐに使えるウェブサイト作成システムです。
+QHM は PHP の動作する環境へ設置するだけですぐに使えるウェブサイト作成システムです。
 初期設定がほとんど必要ないため、素早いサイト作成が可能です。
-
 
 ## Requirement
 
-PHP 5.3 以上
+PHP 8.2 以上
 
 ## Usage
 
@@ -20,13 +18,12 @@ PHP の動作するサーバーへ設置後、ログイン画面より下記の�
 - 初期ユーザー名： `homepage`
 - パスワード： `makeit`
 
-ログイン画面は初期画面の右下にある **HAIK** リンクをクリックすると行けます。
-
+ログイン画面は初期画面の右下にある **QHM** リンクをクリックすると行けます。
 
 ## Install
 
-最新版をサーバーへ展開してください。
-PHPの実行ユーザーと設置場所のオーナーが異なる場合、PHPの実行ユーザーが下記のファイルやフォルダを変更できるようパーミッションを変更してください。
+最新版を PHP8.2 が利用できるサーバーへ展開してください。
+PHP の実行ユーザーと設置場所のオーナーが異なる場合、PHP の実行ユーザーが下記のファイルやフォルダを変更できるようパーミッションを変更してください。
 
 ```
 qhm.ini.php, qhm_access.ini.txt, qhm_users.ini.txt,
@@ -47,11 +44,8 @@ counter/, counter/*, diff/, diff/*, wiki/, wiki/*
 
 [GPL v2][license]
 
-
 ## [BrowserStack](https://www.browserstack.com/) - Cross-browser testing tool
 
 We appreciate the support of BrowserStack for providing cross browser test service to our projects!
 
 [![BrowserStack](https://user-images.githubusercontent.com/808888/38138970-68707288-3468-11e8-904d-907049942f19.png)](https://www.browserstack.com/)
-
-

@@ -23,7 +23,7 @@ function plugin_tracker_convert()
 
 	$config_name = 'default';
 	$form = 'form';
-	$options = array();
+	$options = [];
 	if (func_num_args()) {
 		$args = func_get_args();
 		switch (count($args)) {
@@ -196,7 +196,7 @@ function plugin_tracker_get_fields($base, $refer, &$config)
 	global $now;
 	$qm = get_qm();
 
-	$fields = array();
+	$fields = [];
 	// 予約語
 	foreach (
 		array(
@@ -241,7 +241,7 @@ class Tracker_field
 	var $sort_type = SORT_REGULAR;
 	var $id = 0;
 
-	function Tracker_field($field, $page, $refer, &$config)
+	function __construct($field, $page, $refer, &$config)
 	{
 		global $post;
 		static $id = 0;
@@ -340,15 +340,20 @@ class Tracker_field_format extends Tracker_field
 {
 	var $sort_type = SORT_STRING;
 
-	var $styles = array();
-	var $formats = array();
+	var $styles = [];
+	var $formats = [];
 
-	function Tracker_field_format($field, $page, $refer, &$config)
+	function __construct($field, $page, $refer, &$config)
 	{
-		parent::Tracker_field($field, $page, $refer, $config);
+		parent::__construct($field, $page, $refer, $config);
 
 		foreach ($this->config->get($this->name) as $option) {
-			list($key, $style, $format) = array_pad(array_map(create_function('$a', 'return trim($a);'), $option), 3, '');
+			list($key, $style, $format) = array_pad(array_map(
+				function ($a) {
+					return trim($a);
+				},
+				$option
+			), 3, '');
 			if ($style != '') {
 				$this->styles[$key] = $style;
 			}
@@ -432,9 +437,11 @@ class Tracker_field_radio extends Tracker_field_format
 	}
 	function get_value($value)
 	{
-		static $options = array();
+		static $options = [];
 		if (!array_key_exists($this->name, $options)) {
-			$options[$this->name] = array_flip(array_map(create_function('$arr', 'return $arr[0];'), $this->config->get($this->name)));
+			$options[$this->name] = array_flip(array_map(function ($arr) {
+				return $arr[0];
+			}, $this->config->get($this->name)));
 		}
 		return array_key_exists($value, $options[$this->name]) ? $options[$this->name][$value] : $value;
 	}
@@ -633,7 +640,7 @@ class Tracker_list
 
 		// パターンを生成
 		$this->pattern = '';
-		$this->pattern_fields = array();
+		$this->pattern_fields = [];
 		$pattern = preg_split('/\\\\\[(\w+)\\\\\]/', preg_quote($pattern, '/'), -1, PREG_SPLIT_DELIM_CAPTURE);
 		while (count($pattern)) {
 			$this->pattern .= preg_replace('/\s+/', '\\s*', '(?>\\s*' . trim(array_shift($pattern)) . '\\s*)');
@@ -644,7 +651,7 @@ class Tracker_list
 			}
 		}
 		// ページの列挙と取り込み
-		$this->rows = array();
+		$this->rows = [];
 		$pattern = "$page/";
 		$pattern_len = strlen($pattern);
 		foreach (get_existpages() as $_page) {
@@ -659,7 +666,7 @@ class Tracker_list
 	}
 	function add($page, $name)
 	{
-		static $moved = array();
+		static $moved = [];
 
 		// 無限ループ防止
 		if (array_key_exists($name, $this->rows)) {
@@ -698,7 +705,7 @@ class Tracker_list
 			return;
 		}
 		$names = array_flip(array_keys($this->fields));
-		$this->order = array();
+		$this->order = [];
 		foreach (explode(';', $order) as $item) {
 			list($key, $dir) = array_pad(explode(':', $item), 2, 'ASC');
 			if (!array_key_exists($key, $names)) {
@@ -720,8 +727,8 @@ class Tracker_list
 			}
 			$this->order[$key] = $dir;
 		}
-		$keys = array();
-		$params = array();
+		$keys = [];
+		$params = [];
 		foreach ($this->order as $field => $order) {
 			if (!array_key_exists($field, $names)) {
 				continue;
@@ -805,7 +812,7 @@ class Tracker_list
 		$qm = get_qm();
 
 		$source = '';
-		$body = array();
+		$body = [];
 
 		if ($limit !== NULL and count($this->rows) > $limit) {
 			$source = str_replace(

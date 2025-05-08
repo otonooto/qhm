@@ -15,7 +15,7 @@ define('QHM_VERSION', '8.0.0');  // version
 define('QHM_OPTIONS', 'update=download; support=false; banner=true');
 define(
 	'S_COPYRIGHT',
-	'powered by <strong><a href="https://github.com/otonooto/qhm">HAIK</a> ' . QHM_VERSION . '</strong><br />' .
+	'powered by <strong><a href="https://github.com/otonooto/qhm">QHM</a> ' . QHM_VERSION . '</strong><br />' .
 		' based on <a href="http://pukiwiki.sourceforge.jp/">PukiWiki</a> ' . S_VERSION . ' ' .
 		' License is <a href="http://www.gnu.org/licenses/gpl.html">GPL</a>.'
 );
@@ -32,20 +32,40 @@ define('QHM_HOME', 'https://github.com/otonooto/qhm');
 /////////////////////////////////////////////////
 // Init server variables
 
-foreach (
-	array(
-		'SCRIPT_NAME',
-		'SERVER_ADMIN',
-		'SERVER_NAME',
-		'SERVER_PORT',
-		'SERVER_SOFTWARE'
-	) as $key
-) {
-	define($key, isset($_SERVER[$key]) ? $_SERVER[$key] : '');
-	if (isset(${$key})) unset(${$key});
-	if (isset($_SERVER[$key])) unset($_SERVER[$key]);
-	if (isset($HTTP_SERVER_VARS[$key])) unset($HTTP_SERVER_VARS[$key]);
+$server_keys = [
+	'SCRIPT_NAME',
+	'SERVER_ADMIN',
+	'SERVER_NAME',
+	'SERVER_PORT',
+	'SERVER_SOFTWARE'
+];
+
+// 定数として定義し、不要な変数を削除
+foreach ($server_keys as $key) {
+	if (array_key_exists($key, $_SERVER)) {
+		define($key, $_SERVER[$key]);
+		unset($_SERVER[$key]); // 環境変数を削除
+	}
 }
+
+// `SCRIPT_NAME` が定義されていない場合のフォールバック処理
+// Web環境とCLI環境のどちらでも動作 し、静的解析の問題も回避
+if (!defined('SCRIPT_NAME')) {
+	define('SCRIPT_NAME', $_SERVER['PHP_SELF'] ?? basename(__FILE__));
+}
+if (!defined('SERVER_ADMIN')) {
+	define('SERVER_ADMIN', $_SERVER['PHP_SELF'] ?? basename(__FILE__));
+}
+if (!defined('SERVER_NAME')) {
+	define('SERVER_NAME', $_SERVER['PHP_SELF'] ?? basename(__FILE__));
+}
+if (!defined('SERVER_PORT')) {
+	define('SERVER_PORT', $_SERVER['PHP_SELF'] ?? basename(__FILE__));
+}
+if (!defined('SERVER_SOFTWARE')) {
+	define('SERVER_SOFTWARE', $_SERVER['PHP_SELF'] ?? basename(__FILE__));
+}
+
 
 /////////////////////////////////////////////////
 // Init global variables

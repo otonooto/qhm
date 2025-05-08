@@ -8,17 +8,15 @@
 //
 // 外部リンクを別ウインドウで開くためのjavascriptの読み込み
 //-------------------------------------------------
-if (exist_plugin('external_link'))
-{
+if (exist_plugin('external_link')) {
 	plugin_external_link_js($nowindow, $reg_exp_host);
 }
 
 //when admin call Bootstrap and jquery
-if (($qt->getv('editable') || ss_admin_check()))
-{
-    $qt->setv('jquery_include', true);
-    $qt->setv('bootstrap_script', '<script type="text/javascript" src="skin/bootstrap/js/bootstrap.min.js"></script>');
-    $qt->setv('bootstrap_style', '<link rel="stylesheet" href="skin/bootstrap/css/bootstrap-custom.min.css" />');
+if (($qt->getv('editable') || ss_admin_check())) {
+	$qt->setv('jquery_include', true);
+	$qt->setv('bootstrap_script', '<script type="text/javascript" src="skin/bootstrap/js/bootstrap.min.js"></script>');
+	$qt->setv('bootstrap_style', '<link rel="stylesheet" href="skin/bootstrap/css/bootstrap-custom.min.css" />');
 }
 
 // Javascript 読み込み
@@ -108,22 +106,21 @@ $killer_bg_body = $killer_page2['bg_body'];
 $killer_fg_body = $killer_page2['fg_body'];
 $killer_body_width = $killer_width - ($killer_padding * 2);
 
-if( preg_match('/^bg_/',$killer_bg) ){
-	$killer_page2['body_bg_img'] = 'image/'.$killer_bg.'.png';
+if (preg_match('/^bg_/', $killer_bg)) {
+	$killer_page2['body_bg_img'] = 'image/' . $killer_bg . '.png';
 	$killer_bg = '#ccc';
 }
 
-if( isset($killer_page2['body_bg_img']) ){
-	$body_bg_setting = 'background-image:url('.$killer_page2['body_bg_img'].');';
-}
-else{
-	$body_bg_setting = 'background-color:'.$killer_bg.';';
+if (isset($killer_page2['body_bg_img'])) {
+	$body_bg_setting = 'background-image:url(' . $killer_page2['body_bg_img'] . ');';
+} else {
+	$body_bg_setting = 'background-color:' . $killer_bg . ';';
 }
 
 $killer_logo_img_css = '';
 $qt->setv('killer_logo_img', '');
-if( isset($killer_page2['img']) ){
-	$killer_logo_img = '<img src="'.$killer_page2['img'].'" title="" alt="" />';
+if (isset($killer_page2['img'])) {
+	$killer_logo_img = '<img src="' . $killer_page2['img'] . '" title="" alt="" />';
 	$qt->setv('killer_logo_img', $killer_logo_img);
 	$killer_logo_img_css = 'padding-top:0px;';
 }
@@ -146,8 +143,7 @@ $qt->appendv('killerpage_css', $killerpage_css);
 
 //settings of access analytics & section edit mode
 $qt->setv('sec_edit_css', '');
-if ($qt->getv('editable'))
-{
+if ($qt->getv('editable')) {
 	$qt->setv('sec_edit_css', '<style type="text/css">
 <!--
 a.anchor_super{ display:inline; text-decoration:none;}
@@ -159,12 +155,11 @@ a.anchor_super img{border:none;};
 
 
 //UniversalAnalytics Tracking Code
-if ($code = $qt->getv('ga_universal_analytics'))
-{
-    $qt->appendv('beforescript', $code);
+if ($code = $qt->getv('ga_universal_analytics')) {
+	$qt->appendv('beforescript', $code);
 }
 
 $qt->setv('body', $body);
 
-$generator_tag = '<meta name="GENERATOR" content="Quick Homepage Maker; version='. QHM_VERSION. '; haik=false" />' . "\n";
+$generator_tag = '<meta name="GENERATOR" content="Quick Homepage Maker; version=' . QHM_VERSION . '; haik=false" />' . "\n";
 $qt->prependv_once('generator_tag', 'beforescript', $generator_tag);

@@ -3872,7 +3872,7 @@ class Qdmail extends QdmailUserFunc
 
 	var $name = 'Qdmail';
 
-	function Qdmail($param = null)
+	function __construct($param = null)
 	{
 		if (!is_null($param)) {
 			$param = func_get_args();
@@ -3894,7 +3894,7 @@ class QdmailComponent extends QdmailUserFunc
 	var $template	= 'default';
 	var $view		= null;
 
-	function QdmailComponent($param = null)
+	function __construct($param = null)
 	{
 		if (!is_null($param)) {
 			$param = func_get_args();

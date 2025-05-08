@@ -172,7 +172,7 @@ function ss_chkusr($title, $users)
 						$entry = CACHEQHM_DIR . $entry;
 						if (file_exists($entry)) {
 							// cacheqhmディレクトリにある3日前の一時ファイルを削除
-							if (mktime(date("H"), date("i"), date("s"), date("n"), date("j") - 3, date("Y")) > time(fileatime($entry))) {
+							if (file_exists($entry) && time() - fileatime($entry) > 3 * 24 * 60 * 60) {
 								unlink($entry);
 							}
 						}

@@ -46,15 +46,15 @@ body {background-color: #E7E7E7;}
 	$func = 'plugin_qhmsetting_' . $phase . '_' . $mode;
 
 	if (function_exists($func)) {
-		$ret = '<div class="admin"><p><a href="' . $script . '">HAIKトップ</a> &gt; <a href="' . $script . '?cmd=qhmsetting">設定一覧</a> &gt; here</p>'
+		$ret = '<div class="admin"><p><a href="' . $script . '">トップ</a> &gt; <a href="' . $script . '?cmd=qhmsetting">設定一覧</a> &gt; here</p>'
 			. plugin_qhmsetting_phpversion_block()
 			. $func() . '</div>';
 	} else {
 
 		$title = '
-<p><a href="' . $script . '">HAIKトップ</a> &gt; here</p>'
+<p><a href="' . $script . '">トップ</a> &gt; here</p>'
 			. plugin_qhmsetting_phpversion_block()
-			. '<h2>HAIK v' . QHM_VERSION . ' 設定</h2>';
+			. '<h2>QHM v' . QHM_VERSION . ' 設定</h2>';
 		$ret = $title . plugin_qhmsetting_default();
 	}
 
@@ -74,7 +74,7 @@ body {background-color: #E7E7E7;}
 
 
 	$style_name = '..';
-	return array('msg' => "HAIKサイト情報設定", 'body' => $ret);
+	return array('msg' => "サイト情報設定", 'body' => $ret);
 }
 
 function plugin_qhmsetting_default()
@@ -111,11 +111,11 @@ function plugin_qhmsetting_default()
 			'limited' => false,
 		),
 		'qblog' => array(
-			'help' => 'HAIKBlogSetting',
+			'help' => 'BlogSetting',
 			'url' => $script . '?cmd=qblog',
 			'img' => IMAGE_DIR . 'settings_blog.png',
 			'title' => 'ブログ設定',
-			'subtitle' => 'HAIKブログの設定を行います。',
+			'subtitle' => 'ブログの設定を行います。',
 			'limited' => false,
 		),
 		'useradmin' => array(
@@ -139,7 +139,7 @@ function plugin_qhmsetting_default()
 			'url'  => $script . '?cmd=dump',
 			'img'  => IMAGE_DIR . 'settings_backup.png',
 			'title' => 'バックアップ',
-			'subtitle' => 'HAIKのバックアップをダウンロードできます。フルバックアップ、重要ファイルのみのバックアップなど可能です。',
+			'subtitle' => 'バックアップをダウンロードできます。フルバックアップ、重要ファイルのみのバックアップなど可能です。',
 			'limited' => true,
 		),
 		'counter'   => array(
@@ -171,7 +171,7 @@ function plugin_qhmsetting_default()
 			'url'  => $scrt . 'close',
 			'img'  => IMAGE_DIR . 'settings_close.png',
 			'title' => 'サイトの閉鎖／公開',
-			'subtitle' => 'HAIKで作成された全ページを閉鎖します。閉鎖後は、管理者権限でログインすることで編集、閲覧が可能です。',
+			'subtitle' => '全ページを閉鎖します。閉鎖後は、管理者権限でログインすることで編集、閲覧が可能です。',
 			'limited' => true,
 		),
 		'mobile'    => array(
@@ -182,33 +182,31 @@ function plugin_qhmsetting_default()
 			'subtitle' => '携帯端末からのアクセスを携帯専用サイトなどに転送します。',
 			'limited' => false,
 		),
-		/*
 		'gmap'      => array(
 			'help' => 'GoogleMapsKey',
-			'url'  => $scrt. 'gmap',
-			'img'  => IMAGE_DIR. 'settings_googlemap.png',
+			'url'  => $scrt . 'gmap',
+			'img'  => IMAGE_DIR . 'settings_googlemap.png',
 			'title' => 'Googleマップキー',
 			'subtitle' => 'QHMでGoogleマップを使うためのキーを設定します。',
 			'limited' => false,
 		),
-*/
 		'sns'       => array(
 			'help' => 'SettingOGP',
 			'url'  => $scrt . 'sns',
 			'img'  => IMAGE_DIR . 'settings_sns.png',
 			'title' => 'ソーシャル連携',
-			'subtitle' => 'HAIKとSNSの連携設定をします。',
+			'subtitle' => 'SNSの連携設定をします。',
 			'limited' => true,
 		),
-		'update'       => array(
-			'help' => 'HowToUseUpdatePlugin',
-			'url'  => $script . '?cmd=system_updater',
-			'img'  => IMAGE_DIR . 'settings_update.png',
-			'title' => 'アップデート',
-			'subtitle' => 'HAIKのアップデートを行います。',
-			'limited' => true,
-		),
-
+		// アップデーターを非表示にする
+		// 'update'       => array(
+		// 	'help' => 'HowToUseUpdatePlugin',
+		// 	'url'  => $script . '?cmd=system_updater',
+		// 	'img'  => IMAGE_DIR . 'settings_update.png',
+		// 	'title' => 'アップデート',
+		// 	'subtitle' => 'アップデートを行います。',
+		// 	'limited' => true,
+		// ),
 	);
 
 	foreach ($setlist as $setname => $set) {
@@ -276,8 +274,7 @@ EOD;
 */
 	// HTML生成
 	$html .= <<<EOD
-<p>HAIKの設定を行います。<br />
-以下の項目から、変更したいものをクリックしてください。</p>
+<p>以下の項目から、変更したいものをクリックしてください。</p>
 
 {$update_showcase}
 
@@ -322,20 +319,20 @@ EOD;
 }
 
 /**
- *   PHPバージョンを判定し、4の場合警告を出す
+ *   PHPバージョンを判定し、7以下の場合警告を出す
  */
 function plugin_qhmsetting_phpversion_block()
 {
 	$msg = '';
 	$ver = phpversion();
-	if (version_compare($ver, '5', '<')) { //TODO:
+	if (version_compare($ver, '8', '<')) { //TODO:
 
 		$wkstr = '
 #style(class=box_red_dsm){{
 CENTER:&deco(bold,red,,){このQHMはPHP4で動作しています};
 
-HAIKではPHP4をサポートしておりません。
-正常動作させるには、ご利用のサーバーのPHPをバージョンアップ（PHP5.3 以上推奨）してください。
+PHP4をサポートしておりません。
+正常動作させるには、ご利用のサーバーのPHPをバージョンアップ（PHP8.2 以上推奨）してください。
 }}
 ';
 		$msg = convert_html($wkstr);
@@ -418,7 +415,7 @@ input[name="qhmsetting[style_name]"], input[name="qhmsetting[smart_name]"],
 		}
 		$tmp_design_name = isset($vars['design']) ? $vars['design'] : $_SESSION['temp_design'];
 		$wp_or_qhm = (isset($vars['enable_wp_theme']) ? $vars['enable_wp_theme'] : $_SESSION['temp_enable_wp'])
-			? 'WordPressテーマ' : 'HAIK専用';
+			? 'WordPressテーマ' : 'QHM専用';
 
 		$body_msg = <<<EOD
 <div style="color:#c00;border:1px solid #c00;background-color:#fcc;width:80%;margin:0 auto;padding:0 1em;text-align:center;">
@@ -427,7 +424,7 @@ input[name="qhmsetting[style_name]"], input[name="qhmsetting[smart_name]"],
 </div>
 EOD;
 	} else {
-		$wp_or_qhm = $enable_wp_theme ? 'WordPressテーマ' : 'HAIK専用';
+		$wp_or_qhm = $enable_wp_theme ? 'WordPressテーマ' : 'QHM専用';
 		$design_name = $enable_wp_theme ? $enable_wp_theme_name : $style_name;
 		$body_msg = <<<EOD
 <div class="alert alert-success">
@@ -466,15 +463,15 @@ EOD;
 
 
 	//======================================================
-	//  HAIK専用デザイン設定フォーム
+	//  QHM専用デザイン設定フォーム
 	//======================================================
 	$wp_index = count($wp_dirs) ? '<li><a href="#wordpress">WordPressテーマの設定</a></li>' : '';
 	$body .= <<<EOD
-<p>　HAIK専用デザインを使う、もしくは、WordPressテンプレートを使うことができます。利用したいデザインは、事前に skin/hokukenstyle、もしくは、skin/wordpress にフォルダに分けて、アップロードしてください。</p>
+<p>専用デザインを使う、もしくは、WordPressテンプレートを使うことができます。利用したいデザインは、事前に skin/hokukenstyle、もしくは、skin/wordpress にフォルダに分けて、アップロードしてください。</p>
 <ul class="list1">
 <li><strong>項目</strong>
 	<ul class="list2">
-		<li><a href="#qhmdesign">HAIK専用デザインの設定</a></li>
+		<li><a href="#qhmdesign">専用デザインの設定</a></li>
 		{$wp_index}
 		<li><a href="#smartdesign">スマートフォンのデザイン設定</a></li>
 	</ul>
@@ -1041,7 +1038,7 @@ EOD;
 	}
 	///////////////////////////////////////////////////////////////////
 	//
-	// HAIK専用デザイン設定
+	// 専用デザイン設定
 	//
 	else {
 		//WordPress をオフ
@@ -1278,7 +1275,7 @@ function plugin_qhmsetting_design_remove()
 		if ($vars['option'] == 'confirm') {
 			//確認画面を表示
 			$body .= <<<EOD
-	<h2>HAIK専用デザイン削除の確認</h2>
+	<h2>専用デザイン削除の確認</h2>
 	<p><b>デザイン名 : </b>{$d_rem}<br />
 	<img src="{$thumb}" width="180" height="200" alt="{$d_rem}"/></p>
 
@@ -1299,7 +1296,7 @@ EOD;
 		else if ($vars['option'] == 'complete') {
 			plugin_qhmsetting_remove_dir($dir);
 
-			return plugin_qhmsetting_design_form("HAIK専用デザイン：$d_rem を削除しました");
+			return plugin_qhmsetting_design_form("専用デザイン：$d_rem を削除しました");
 		}
 	}
 	//デザインが存在しない
@@ -1421,17 +1418,17 @@ function plugin_qhmsetting_info_getVals($params)
 		),
 		'qhm_adminmenu' => array(
 			'title' => '管理者認証への<br />リンク表示',
-			'msg' => '管理者ページへのアクセス方法を指定します<br />（おすすめは、「右下のHAIKリンクから」です)',
+			'msg' => '管理者ページへのアクセス方法を指定します<br />（おすすめは、「右下のQHMリンクから」です)',
 			'default' => $params['qhm_adminmenu'],
 			'option' => array(
 				0 => "常にedit thisを表示",
-				1 => "右下のHAIKリンクから",
+				1 => "右下のQHMリンクから",
 				2 => "なし(QHMAdminというページ)",
 			),
 		),
 		'no_qhm_licence' => array(
 			'title' => 'ライセンス表記',
-			'msg' => 'ページ右のHAIKライセンス表記を表示、非表示を設定します<br />（非表示にすると認証ページアクセスが難しくなります）',
+			'msg' => 'ページ右のライセンス表記を表示、非表示を設定します<br />（非表示にした場合は、urlに ?cmd=qhmauth を追加してログイン）',
 			'default' => $params['no_qhm_licence'],
 			'option' => array(
 				0 => "表示する",
@@ -1449,7 +1446,7 @@ function plugin_qhmsetting_info_getVals($params)
 		),*/
 		'autolink' => array(
 			'title' => '自動リンク',
-			'msg' => 'ページ名が長く、「\'」や「"」を利用し、HAIKが正常に動かない場合、<br />「オフ」にして下さい<br />',
+			'msg' => 'ページ名が長く、「\'」や「"」を利用し、リンクが正常に動かない場合、<br />「オフ」にして下さい<br />',
 			'default' => $params['autolink'],
 			'option' => array(
 				8 => "利用する",
@@ -1519,7 +1516,7 @@ function plugin_qhmsetting_info_form($error = '')
 	$params = plugin_qhmsetting_getparams();
 	$values = plugin_qhmsetting_info_getVals($params);
 
-	$body = '<h2>HAIK v' . QHM_VERSION . ' 設定' . $hlp_info . '</h2>';
+	$body = '<h2>QHM v' . QHM_VERSION . ' 設定' . $hlp_info . '</h2>';
 	$body .= $error_msg;
 	$body .= <<<EOD
 <p>サイト情報の設定では、titleタグ、ヘッドコピー、フッターの情報、アクセス解析タグなどの設定を行います。</p>
@@ -1606,7 +1603,7 @@ function plugin_qhmsetting_info_confirm()
 	$params = plugin_qhmsetting_getparams();
 	$values = plugin_qhmsetting_info_getVals($params);
 
-	$body = '<h2>HAIK v' . QHM_VERSION . ' 設定</h2>';
+	$body = '<h2>QHM v' . QHM_VERSION . ' 設定</h2>';
 	$body .= '
 <p>以下の内容でよければ、ページ下部の「設定する」をクリックしてください</p>
 <table class="table table-bordered">
@@ -1994,7 +1991,7 @@ function plugin_qhmsetting_mail_form($error = '')
 
 <h4>オプション</h4>
 <p>メール送信サーバー(SMTP)の設定を行います。<br />
-※ 通常、HAIK自体がメールを送信できるため、以下の設定を行う必要はありません</p>
+※ 通常、システムがメールを送信できるため、以下の設定を行う必要はありません</p>
 
   <div class="form-group">
     <label for="" class="control-label col-sm-4">SMTPサーバー</label>
@@ -2857,7 +2854,7 @@ function plugin_qhmsetting_chmod_form($error = '')
 	if ($not_writable_list == '') {
 		$not_writable_list = '<div style="padding:5px;width:350px;background-color:#ddeeff;border:2px solid #6699CC;text-align:center;margin:1em auto;">書き込み権限に問題はありませんでした</div>';
 	} else {
-		$not_writable_list = '<p>以下のファイルは、HAIKによって利用するにも関わらず、書き込みができません。<br />
+		$not_writable_list = '<p>以下のファイルは、書き込みができません。<br />
 FTPソフトなどを使って、書き込みを権限を設定して下さい</p>' . $not_writable_list;
 	}
 
@@ -3008,7 +3005,7 @@ function plugin_qhmsetting_clear_form($error = '')
 <h2>高速化設定、キャッシュ、テンプレートの初期化{$hlp_clear}</h2>
 <p>高速化、表示に関する設定を行います。</p>
 <h3>高速化設定（キャッシュ機能の有効化）</h3>
-<p>HAIKの表示をキャッシュ化して「高速化」することができます。<br />
+<p>キャッシュを利用して「高速に表示」することができます。<br />
 ※一部のプラグインを使ったページはキャッシュできません</p>
 <form action="{$script}" method="post">
 <p><label><input type="checkbox" {$checked_cache} name="enable_cache" /> 高速化設定を有効にする</label></p>
@@ -3645,10 +3642,10 @@ $(function(){
 	$swfulink = has_swfu() ? '<br /><br />■<a href="' . dirname($script) . '/swfu/index_child.php?page=' . rawurlencode($defaultpage) . '&amp;KeepThis=true&amp;TB_iframe=true" class="thickbox">SWFU起動</a>（アップロードしたら<strong>URL</strong>をコピペしてください）' : '';
 
 	$html .= '
-<h2>HAIKとSNS連携の設定</h2>
+<h2>SNS連携の設定</h2>
 <p>
-	HAIKのページを<strong>Open Graph Protocol</strong>に対応したSNSにシェアする際などに読み込まれる内容を制御することができます。<br />
-	また、このHAIKをFacebook アプリとして登録することで、Facebook プラグインと連携もできます。
+	<strong>Open Graph Protocol</strong>に対応したSNSにシェアする際などに読み込まれる内容を制御することができます。<br />
+	また、Facebook アプリとして登録することで、Facebook プラグインと連携もできます。
 </p>
 
 <form action="' . $script . '" method="post">
@@ -3700,9 +3697,9 @@ $(function(){
 
 		<div id="fbAppIdConf">
 			<p style="font-size: .8em">
-				Facebook アプリIDを設定することで、HAIKのFacebook 系プラグインでアプリIDが使用されます。<br />
+				Facebook アプリIDを設定することで、Facebook 系プラグインでアプリIDが使用されます。<br />
 				例えば、「いいね！」を押した方のウォールに最新情報を投稿できるようになります。<br />
-				※このHAIKをFacebook アプリとして登録する必要があります。
+				※このサイトをFacebook アプリとして登録する必要があります。
 			</p>
 			アプリID: <input type="text" name="fb_app_id" id="fbAppIdInput" value="' . h($fb_app_id) . '" />
 
@@ -3711,7 +3708,7 @@ $(function(){
 
 		<div id="fbAdminsConf">
 			<p style="font-size: .8em">
-				このHAIKの所有者や編集者のFacebook アカウントを関連付けることができます。<br />
+				このサイトの所有者や編集者のFacebook アカウントを関連付けることができます。<br />
 				複数人設定する場合、半角カンマ区切りでFacebook アカウントIDを記入してください。<br />
 				※Facebook ページIDは利用できません。
 			</p>
@@ -3846,8 +3843,8 @@ function fill_link(){
 }
 // -->
 </script>
-<h2>HAIK リンク設定</h2>
-<p>HAIKが利用するドメイン名、パス、リンクのための情報を設定します。{$help_link}<p/>
+<h2>リンク設定</h2>
+<p>ドメイン名、パス、リンクのための情報を設定します。{$help_link}<p/>
 
 <p style="color:red">{$error}</p>
 <form method="post" action="" id="frm_script" name="frm_script">
@@ -3957,13 +3954,13 @@ function plugin_qhmsetting_sssavepath_form($error = '')
 	$sts = '';
 	$btn = '<input type="submit" id="set" name="set" value="設　定" class="btn btn-primary" />';
 	if ($session_save_path != '') {
-		$sts = '<div style="border:2px solid #66AACC;background-color:#EEEEFF;margin:5px auto;padding:0 10px;width:90%;text-align:center;"><p>現在、HAIK内にセッションの保存先が設定されています。<br />設定を元に戻す場合は、「解除」を行ってください。</p></div>';
+		$sts = '<div style="border:2px solid #66AACC;background-color:#EEEEFF;margin:5px auto;padding:0 10px;width:90%;text-align:center;"><p>現在、システム内にセッションの保存先が設定されています。<br />設定を元に戻す場合は、「解除」を行ってください。</p></div>';
 		$btn = '<input type="submit" id="unset" name="unset" value="解　除" class="btn btn-danger" />';
 	}
 
 	$body = <<<EOD
 <h2>セッションが正常に動作しないサーバーの設定</h2>
-<p>サーバー側でセッションの保存先が正しく設定されていない場合、HAIKの認証ができません。<br />そこで、対処法としてHAIK内にセッションを保存します。（フォルダ：{$save_dir}）</p>
+<p>サーバー側でセッションの保存先が正しく設定されていない場合、認証ができません。<br />そこで、対処法としてシステム内にセッションを保存します。（フォルダ：{$save_dir}）</p>
 {$sts}
 <p style="color:red">{$error}</p>
 <form method="post" action="{$script}" id="frm_script" name="frm_script">
