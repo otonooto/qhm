@@ -24,10 +24,10 @@ define('PKWK_CONFIG_PREFIX', ':config/');
 // Configuration-page manager
 class Config
 {
-	var $name, $page; // Page name
-	var $objs = array();
+	public $name, $page; // Page name
+	public $objs = [];
 
-	function Config($name)
+	function __construct($name)
 	{
 		$this->name = $name;
 		$this->page = PKWK_CONFIG_PREFIX . $name;
@@ -127,12 +127,12 @@ class Config
 // Class holds array values
 class ConfigTable
 {
-	var $title  = '';	// Table title
-	var $before = array();	// Page contents (except table ones)
-	var $after  = array();	// Page contents (except table ones)
-	var $values = array();	// Table contents
+	public $title  = '';	// Table title
+	public $before = [];	// Page contents (except table ones)
+	public $after  = [];	// Page contents (except table ones)
+	public $values = [];	// Table contents
 
-	function ConfigTable($title, $obj = NULL)
+	function __construct($title, $obj = NULL)
 	{
 		if ($obj !== NULL) {
 			$this->title  = $obj->title;

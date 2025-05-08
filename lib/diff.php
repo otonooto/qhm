@@ -62,7 +62,7 @@ EOD;
 		foreach ($arr as $_obj) {
 			$do_update_diff_table .= '<tr>';
 			$params = array($_obj->get('left'), $_obj->get('right'), $_obj->text());
-			foreach ($params as $key=>$text) {
+			foreach ($params as $key => $text) {
 				$text = htmlspecialchars($text);
 				if (trim($text) == '') $text = '&nbsp;';
 				$do_update_diff_table .= '<' . $tags[$key] .
@@ -96,7 +96,7 @@ class line_diff
 {
 	var $arr1, $arr2, $m, $n, $pos, $key, $plus, $minus, $equal, $reverse;
 
-	function line_diff($plus = '+', $minus = '-', $equal = ' ')
+	function __construct($plus = '+', $minus = '-', $equal = ' ')
 	{
 		$this->plus  = $plus;
 		$this->minus = $minus;
@@ -146,7 +146,7 @@ class line_diff
 		$this->n = count($this->arr2);
 
 		if ($this->m == 0 || $this->n == 0) { // No need to compare
-			$this->result = array(array('x'=>0, 'y'=>0));
+			$this->result = array(array('x' => 0, 'y' => 0));
 			return;
 		}
 
@@ -159,8 +159,12 @@ class line_diff
 		$this->reverse = ($this->n < $this->m);
 		if ($this->reverse) {
 			// Swap
-			$tmp = $this->m; $this->m = $this->n; $this->n = $tmp;
-			$tmp = $this->arr1; $this->arr1 = $this->arr2; $this->arr2 = $tmp;
+			$tmp = $this->m;
+			$this->m = $this->n;
+			$this->n = $tmp;
+			$tmp = $this->arr1;
+			$this->arr1 = $this->arr2;
+			$this->arr2 = $tmp;
 			unset($tmp);
 		}
 
@@ -169,7 +173,7 @@ class line_diff
 		$fp = array();
 		$this->path = array();
 
-		for ($p = -($this->m + 1); $p <= ($this->n + 1); $p++) {
+		for ($p = - ($this->m + 1); $p <= ($this->n + 1); $p++) {
 			$fp[$p] = -1;
 			$this->path[$p] = array();
 		}
@@ -198,13 +202,14 @@ class line_diff
 			$_k = $k + 1;
 			$y = $y2;
 		}
-		$this->path[$k] = $this->path[$_k];// ここまでの経路をコピー
+		$this->path[$k] = $this->path[$_k]; // ここまでの経路をコピー
 		$x = $y - $k;
 		while ((($x + 1) < $this->m) && (($y + 1) < $this->n)
-			and $this->arr1[$x + 1]->compare($this->arr2[$y + 1]))
-		{
-			++$x; ++$y;
-			$this->path[$k][] = array('x'=>$x, 'y'=>$y); // 経路を追加
+			and $this->arr1[$x + 1]->compare($this->arr2[$y + 1])
+		) {
+			++$x;
+			++$y;
+			$this->path[$k][] = array('x' => $x, 'y' => $y); // 経路を追加
 		}
 		return $y;
 	}
@@ -213,14 +218,22 @@ class line_diff
 	{
 		$arr = array();
 		if ($this->reverse) { // 姑息な…
-			$_x = 'y'; $_y = 'x'; $_m = $this->n; $arr1 =& $this->arr2; $arr2 =& $this->arr1;
+			$_x = 'y';
+			$_y = 'x';
+			$_m = $this->n;
+			$arr1 = &$this->arr2;
+			$arr2 = &$this->arr1;
 		} else {
-			$_x = 'x'; $_y = 'y'; $_m = $this->m; $arr1 =& $this->arr1; $arr2 =& $this->arr2;
+			$_x = 'x';
+			$_y = 'y';
+			$_m = $this->m;
+			$arr1 = &$this->arr1;
+			$arr2 = &$this->arr2;
 		}
 
 		$x = $y = 1;
 		$this->add_count = $this->delete_count = 0;
-		$this->pos[] = array('x'=>$this->m, 'y'=>$this->n); // Sentinel
+		$this->pos[] = array('x' => $this->m, 'y' => $this->n); // Sentinel
 		foreach ($this->pos as $pos) {
 			$this->delete_count += ($pos[$_x] - $x);
 			$this->add_count    += ($pos[$_y] - $y);
@@ -240,7 +253,8 @@ class line_diff
 				$arr1[$x]->set($this->key, $this->equal);
 				$arr[] = $arr1[$x];
 			}
-			++$x; ++$y;
+			++$x;
+			++$y;
 		}
 		return $arr;
 	}
@@ -282,4 +296,3 @@ class DiffLine
 		return $this->text;
 	}
 }
-?>

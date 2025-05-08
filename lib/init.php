@@ -13,17 +13,18 @@
 define('S_VERSION', '1.4.7');
 define('QHM_VERSION', '7.6.4');  //絶対に編集しないで下さい
 define('QHM_OPTIONS', 'update=download; support=false; banner=true');
-define('S_COPYRIGHT',
+define(
+	'S_COPYRIGHT',
 	'powered by <strong><a href="https://haik-cms.jp/">HAIK</a> ' . QHM_VERSION . '</strong><br />' .
-	' based on <a href="http://pukiwiki.sourceforge.jp/">PukiWiki</a> ' . S_VERSION . ' ' .
-	' License is <a href="http://www.gnu.org/licenses/gpl.html">GPL</a>.'
+		' based on <a href="http://pukiwiki.sourceforge.jp/">PukiWiki</a> ' . S_VERSION . ' ' .
+		' License is <a href="http://www.gnu.org/licenses/gpl.html">GPL</a>.'
 );
 
 // SWFU Library
 define('SWFU_DIR', './swfu/');
-define('SWFU_TEXTSQL_PATH', SWFU_DIR.'cheetan/db/textsql.php');
-define('SWFU_IMAGEDB_PATH', SWFU_DIR.'data/image.txt');
-define('SWFU_IMAGE_DIR', SWFU_DIR.'d/');
+define('SWFU_TEXTSQL_PATH', SWFU_DIR . 'cheetan/db/textsql.php');
+define('SWFU_IMAGEDB_PATH', SWFU_DIR . 'data/image.txt');
+define('SWFU_IMAGE_DIR', SWFU_DIR . 'd/');
 
 // URLs
 define('QHM_HOME', 'https://haik-cms.jp/');
@@ -31,12 +32,19 @@ define('QHM_HOME', 'https://haik-cms.jp/');
 /////////////////////////////////////////////////
 // Init server variables
 
-foreach (array('SCRIPT_NAME', 'SERVER_ADMIN', 'SERVER_NAME',
-        'SERVER_PORT', 'SERVER_SOFTWARE') as $key) {
-        define($key, isset($_SERVER[$key]) ? $_SERVER[$key] : '');
-        if(isset(${$key})) unset(${$key});
-        if(isset($_SERVER[$key])) unset($_SERVER[$key]);
-        if(isset($HTTP_SERVER_VARS[$key])) unset($HTTP_SERVER_VARS[$key]);
+foreach (
+	array(
+		'SCRIPT_NAME',
+		'SERVER_ADMIN',
+		'SERVER_NAME',
+		'SERVER_PORT',
+		'SERVER_SOFTWARE'
+	) as $key
+) {
+	define($key, isset($_SERVER[$key]) ? $_SERVER[$key] : '');
+	if (isset(${$key})) unset(${$key});
+	if (isset($_SERVER[$key])) unset($_SERVER[$key]);
+	if (isset($HTTP_SERVER_VARS[$key])) unset($HTTP_SERVER_VARS[$key]);
 }
 
 /////////////////////////////////////////////////
@@ -68,8 +76,8 @@ if ($die) die_message(nl2br("\n\n" . $die));
 /////////////////////////////////////////////////
 //load QHM Messages
 //Load QHM Template
-require_once(LIB_DIR. 'qhm_message.php');
-require_once(LIB_DIR. 'qhm_template.php');
+require_once(LIB_DIR . 'qhm_message.php');
+require_once(LIB_DIR . 'qhm_template.php');
 $qm = QHM_Message::get_instance();
 $qt = QHM_Template::get_instance();
 $qt->create_cache = false;
@@ -83,20 +91,17 @@ define('SOURCE_ENCODING', 'UTF-8');
 define('CONTENT_CHARSET', 'UTF-8');
 
 // おかしな設定のサーバー対策
-if( ini_get('mbstring.encoding_translation')
-	&& ini_get('mbstring.http_input') != 'pass'
-	&& ini_get('mbstring.http_input') != 'auto'
-	&& ( strtoupper( ini_get('mbstring.internal_encoding') ) != SOURCE_ENCODING )
-){
+if (
+	ini_get('mbstring.encoding_translation') && strtoupper(ini_get('mbstring.internal_encoding')) != SOURCE_ENCODING
+) {
 	define('WARNING_OF_ENCODING', 1);
 }
 
-define('MB_LANGUAGE', $qm->m['mb_language']);
+$lang = isset($qm->m['mb_language']) ? $qm->m['mb_language'] : 'Japanese';
+define('MB_LANGUAGE', $lang);
 mb_language(MB_LANGUAGE);
 mb_internal_encoding(SOURCE_ENCODING);
 mb_regex_encoding(SOURCE_ENCODING);
-ini_set('mbstring.http_input', 'pass');
-mb_http_output('pass');
 mb_detect_order('auto');
 
 /////////////////////////////////////////////////
@@ -129,19 +134,19 @@ $weeklabels = $_msg_week;
 // INI_FILE: Init $script
 
 $default_script = $script;
-if ( !isset($script) || $script == '') {
+if (!isset($script) || $script == '') {
 	$script = get_script_uri(); // Init automanually
 } else {
 	get_script_uri($script); // Init matically
 }
 
 //ssl接続用の$scriptを生成
-if( ! isset($script_ssl) || $script_ssl == '' ){
+if (! isset($script_ssl) || $script_ssl == '') {
 	$script_ssl = preg_replace('/^http:/', 'https:', $script);
 }
 
 //is_httpsメソッド用など
-$init_scripts = array('normal'=>$script, 'ssl'=>$script_ssl);
+$init_scripts = array('normal' => $script, 'ssl' => $script_ssl);
 
 
 /////////////////////////////////////////////////
@@ -151,9 +156,9 @@ $ua = 'HTTP_USER_AGENT';
 $user_agent = $matches = array();
 
 $user_agent['agent'] = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
-if(isset(${$ua})) unset(${$ua});
-if(isset($_SERVER[$ua])) unset($_SERVER[$ua]);
-if(isset($HTTP_SERVER_VARS[$ua])) unset($HTTP_SERVER_VARS[$ua]);
+if (isset(${$ua})) unset(${$ua});
+if (isset($_SERVER[$ua])) unset($_SERVER[$ua]);
+if (isset($HTTP_SERVER_VARS[$ua])) unset($HTTP_SERVER_VARS[$ua]);
 unset($ua);
 
 foreach ($agents as $agent) {
@@ -185,15 +190,24 @@ unset($user_agent);	// Unset after reading UA_INI_FILE
 // ディレクトリのチェック
 
 $die = '';
-foreach(array('DATA_DIR', 'DIFF_DIR', 'BACKUP_DIR', 'CACHE_DIR') as $dir){
+foreach (array('DATA_DIR', 'DIFF_DIR', 'BACKUP_DIR', 'CACHE_DIR') as $dir) {
 	if (! is_writable(constant($dir)))
 		$die .= 'Directory is not found or not writable (' . $dir . ')' . "\n";
 }
 
 // 設定ファイルの変数チェック
 $temp = '';
-foreach(array('rss_max', 'page_title', 'note_hr', 'related_link', 'show_passage',
-	'rule_related_str', 'load_template_func') as $var){
+foreach (
+	array(
+		'rss_max',
+		'page_title',
+		'note_hr',
+		'related_link',
+		'show_passage',
+		'rule_related_str',
+		'load_template_func'
+	) as $var
+) {
 	if (! isset(${$var})) $temp .= '$' . $var . "\n";
 }
 if ($temp) {
@@ -202,7 +216,7 @@ if ($temp) {
 }
 
 $temp = '';
-foreach(array('LANG', 'PLUGIN_DIR') as $def){
+foreach (array('LANG', 'PLUGIN_DIR') as $def) {
 	if (! defined($def)) $temp .= $def . "\n";
 }
 if ($temp) {
@@ -210,13 +224,13 @@ if ($temp) {
 	$die .= 'Define(s) not found: (Maybe the old *.ini.php?)' . "\n" . $temp;
 }
 
-if($die) die_message(nl2br("\n\n" . $die));
+if ($die) die_message(nl2br("\n\n" . $die));
 unset($die, $temp);
 
 /////////////////////////////////////////////////
 // 必須のページが存在しなければ、空のファイルを作成する
 
-foreach(array($defaultpage, $whatsnew, $interwiki) as $page){
+foreach (array($defaultpage, $whatsnew, $interwiki) as $page) {
 	if (! is_page($page)) touch(get_filename($page));
 }
 
@@ -248,15 +262,16 @@ if (isset($_POST['encode_hint']) && $_POST['encode_hint'] != '') {
 	// コードが混入した場合に、コード検出に失敗する恐れがある。
 	$encode = mb_detect_encoding($_POST['encode_hint']);
 	mb_convert_variables(SOURCE_ENCODING, $encode, $_POST);
-
 } else if (isset($_POST['charset']) && $_POST['charset'] != '') {
 	// TrackBack Ping で指定されていることがある
 	// うまくいかない場合は自動検出に切り替え
-	if (mb_convert_variables(SOURCE_ENCODING,
-	    $_POST['charset'], $_POST) !== $_POST['charset']) {
+	if (mb_convert_variables(
+		SOURCE_ENCODING,
+		$_POST['charset'],
+		$_POST
+	) !== $_POST['charset']) {
 		mb_convert_variables(SOURCE_ENCODING, 'auto', $_POST);
 	}
-
 } else if (! empty($_POST)) {
 	// 全部まとめて、自動検出／変換
 	mb_convert_variables(SOURCE_ENCODING, 'auto', $_POST);
@@ -265,8 +280,7 @@ if (isset($_POST['encode_hint']) && $_POST['encode_hint'] != '') {
 // 文字コード変換 ($_GET)
 // GET method は form からの場合と、<a href="http://script/?key=value> の場合がある
 // <a href...> の場合は、サーバーが rawurlencode しているので、コード変換は不要
-if (isset($_GET['encode_hint']) && $_GET['encode_hint'] != '')
-{
+if (isset($_GET['encode_hint']) && $_GET['encode_hint'] != '') {
 	// form 経由の場合は、ブラウザがエンコードしているので、コード検出・変換が必要。
 	// encode_hint が含まれているはずなので、それを見て、コード検出した後、変換する。
 	// 理由は、post と同様
@@ -282,28 +296,28 @@ if (isset($_GET['encode_hint']) && $_GET['encode_hint'] != '')
 // ページ名かInterWikiNameであるとみなす
 $arg = '';
 if (isset($_SERVER['QUERY_STRING']) && $_SERVER['QUERY_STRING']) {
-	$arg = & $_SERVER['QUERY_STRING'];
+	$arg = &$_SERVER['QUERY_STRING'];
 } else if (isset($_SERVER['argv']) && ! empty($_SERVER['argv'])) {
-	$arg = & $_SERVER['argv'][0];
+	$arg = &$_SERVER['argv'][0];
 }
 if (PKWK_QUERY_STRING_MAX && strlen($arg) > PKWK_QUERY_STRING_MAX) {
 	// Something nasty attack?
 	pkwk_common_headers();
 	sleep(1);	// Fake processing, and/or process other threads
-	echo('Query string too long');
+	echo ('Query string too long');
 	exit;
 }
 $arg = input_filter($arg); // \0 除去
 
 // unset QUERY_STRINGs
 foreach (array('QUERY_STRING', 'argv', 'argc') as $key) {
-	if(isset(${$key})) unset(${$key});
-	if(isset($_SERVER[$key])) unset($_SERVER[$key]);
-	if(isset($HTTP_SERVER_VARS[$key])) unset($HTTP_SERVER_VARS[$key]);
+	if (isset(${$key})) unset(${$key});
+	if (isset($_SERVER[$key])) unset($_SERVER[$key]);
+	if (isset($HTTP_SERVER_VARS[$key])) unset($HTTP_SERVER_VARS[$key]);
 }
 // $_SERVER['REQUEST_URI'] is used at func.php NOW
-if(isset($REQUEST_URI)) unset($REQUEST_URI);
-if(isset($HTTP_SERVER_VARS['REQUEST_URI'])) unset($HTTP_SERVER_VARS['REQUEST_URI']);
+if (isset($REQUEST_URI)) unset($REQUEST_URI);
+if (isset($HTTP_SERVER_VARS['REQUEST_URI'])) unset($HTTP_SERVER_VARS['REQUEST_URI']);
 
 // mb_convert_variablesのバグ(?)対策: 配列で渡さないと落ちる
 $arg = array($arg);
@@ -316,8 +330,10 @@ $arg = $arg[0];
 // URI を urlencode せずに入力した場合に対処する
 $matches = array();
 foreach (explode('&', $arg) as $key_and_value) {
-	if (preg_match('/^([^=]+)=(.+)/', $key_and_value, $matches) &&
-	    mb_detect_encoding($matches[2]) != 'ASCII') {
+	if (
+		preg_match('/^([^=]+)=(.+)/', $key_and_value, $matches) &&
+		mb_detect_encoding($matches[2]) != 'ASCII'
+	) {
 		$_GET[$matches[1]] = $matches[2];
 	}
 }
@@ -326,15 +342,15 @@ unset($matches);
 /////////////////////////////////////////////////
 // GET, POST, COOKIE
 
-$get    = & $_GET;
-$post   = & $_POST;
-$cookie = & $_COOKIE;
+$get    = &$_GET;
+$post   = &$_POST;
+$cookie = &$_COOKIE;
 
 // GET + POST = $vars
 if (empty($_POST)) {
-	$vars = & $_GET;  // Major pattern: Read-only access via GET
+	$vars = &$_GET;  // Major pattern: Read-only access via GET
 } else if (empty($_GET)) {
-	$vars = & $_POST; // Minor pattern: Write access via POST etc.
+	$vars = &$_POST; // Minor pattern: Write access via POST etc.
 } else {
 	$vars = array_merge($_GET, $_POST); // Considered reliable than $_REQUEST
 }
@@ -344,8 +360,8 @@ if (isset($vars['cmd']) && isset($vars['plugin']))
 	die('Using both cmd= and plugin= is not allowed');
 
 // 入力チェック: cmd, plugin の文字列は英数字以外ありえない
-foreach(array('cmd', 'plugin') as $var) {
-	$regex = version_compare(PHP_VERSION, 5.3 , '<')
+foreach (array('cmd', 'plugin') as $var) {
+	$regex = version_compare(PHP_VERSION, 5.3, '<')
 		? '/^\w+$/'
 		: '/^\w+(?:\/\w+)?$/';
 	if (isset($vars[$var]) && ! preg_match($regex, $vars[$var]))
@@ -365,8 +381,10 @@ if (isset($vars['msg'])) {
 }
 
 // 後方互換性 (?md5=...)
-if (isset($get['md5']) && $get['md5'] != '' &&
-    ! isset($vars['cmd']) && ! isset($vars['plugin'])) {
+if (
+	isset($get['md5']) && $get['md5'] != '' &&
+	! isset($vars['cmd']) && ! isset($vars['plugin'])
+) {
 	$get['cmd'] = $post['cmd'] = $vars['cmd'] = 'md5';
 }
 
@@ -378,9 +396,9 @@ if (isset($vars['tb_id']) && $vars['tb_id'] != '') {
 // cmdもpluginも指定されていない場合は、QUERY_STRINGをページ名かInterWikiNameであるとみなす
 if (! isset($vars['cmd']) && ! isset($vars['plugin'])) {
 
-	if(isset($vars['go'])){ // by HOKUKEN.COM
+	if (isset($vars['go'])) { // by HOKUKEN.COM
 		$t = get_tiny_page($vars['go']);
-		header('Location: '.$script.'?'.rawurlencode($t));
+		header('Location: ' . $script . '?' . rawurlencode($t));
 		exit;
 	}
 

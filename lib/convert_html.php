@@ -30,12 +30,12 @@ function convert_html($lines, $noPara = FALSE)
 class Element
 {
 	var $parent;
-	var $elements; // References of childs
+	public array $elements = []; // References of childs
 	var $last;     // Insert new one at the back of the $last
 
-	function Element()
+	function __construct()
 	{
-		$this->elements = array();
+		$this->elements;
 		$this->last     = &$this;
 	}
 
@@ -171,9 +171,9 @@ function &Factory_Div(&$root, $text)
 // Inline elements
 class Inline extends Element
 {
-	function Inline($text)
+	function __construct($text)
 	{
-		parent::Element();
+		parent::__construct();
 		$this->elements[] = trim((substr($text, 0, 1) == "\n") ?
 			$text : make_link($text));
 	}
@@ -208,9 +208,9 @@ class Paragraph extends Element
 {
 	var $param;
 
-	function Paragraph($text, $param = '')
+	function __construct($text, $param = '')
 	{
-		parent::Element();
+		parent::__construct();
 		$this->param = $param;
 		if ($text == '') return;
 
@@ -240,9 +240,9 @@ class Heading extends Element
 	var $id;
 	var $msg_top;
 
-	function Heading(&$root, $text)
+	function __construct(&$root, $text)
 	{
-		parent::Element();
+		parent::__construct();
 
 		if (strspn($text, '!') > 0) {
 			$this->level = 0;
@@ -260,7 +260,7 @@ class Heading extends Element
 		return $this->last = &$this;
 	}
 
-	function canContain(&$obj)
+	function canContain($obj)
 	{
 		return FALSE;
 	}
@@ -285,12 +285,12 @@ class Heading extends Element
 // Horizontal Rule
 class HRule extends Element
 {
-	function HRule(&$root, $text)
+	function __construct(&$root, $text)
 	{
-		parent::Element();
+		parent::__construct();
 	}
 
-	function canContain(&$obj)
+	function canContain($obj)
 	{
 		return FALSE;
 	}
@@ -312,9 +312,9 @@ class ListContainer extends Element
 	var $margin;
 	var $left_margin;
 
-	function ListContainer($tag, $tag2, $head, $text)
+	function __construct($tag, $tag2, $head, $text)
 	{
-		parent::Element();
+		parent::__construct();
 
 		$var_margin      = '_' . $tag . '_margin';
 		$var_left_margin = '_' . $tag . '_left_margin';
@@ -333,7 +333,7 @@ class ListContainer extends Element
 			$this->last = &$this->last->insert(Factory_Inline($text));
 	}
 
-	function canContain(&$obj)
+	function canContain($obj)
 	{
 		return (! is_a($obj, 'ListContainer')
 			|| ($this->tag == $obj->tag && $this->level == $obj->level));
@@ -384,14 +384,17 @@ class ListContainer extends Element
 
 class ListElement extends Element
 {
-	function ListElement($level, $head)
+	public int $level;
+	public string $head;
+
+	function __construct($level, $head)
 	{
-		parent::Element();
+		parent::__construct();
 		$this->level = $level;
 		$this->head  = $head;
 	}
 
-	function canContain(&$obj)
+	function canContain($obj)
 	{
 		return (! is_a($obj, 'ListContainer') || ($obj->level > $this->level));
 	}
@@ -407,9 +410,9 @@ class ListElement extends Element
 // - Three
 class UList extends ListContainer
 {
-	function UList(&$root, $text)
+	function __construct(&$root, $text)
 	{
-		parent::ListContainer('ul', 'li', '-', $text);
+		parent::__construct('ul', 'li', '-', $text);
 	}
 }
 
@@ -418,9 +421,9 @@ class UList extends ListContainer
 // + Three
 class OList extends ListContainer
 {
-	function OList(&$root, $text)
+	function __construct(&$root, $text)
 	{
-		parent::ListContainer('ol', 'li', '+', $text);
+		parent::__construct('ol', 'li', '+', $text);
 	}
 }
 
@@ -429,9 +432,9 @@ class OList extends ListContainer
 // : definition3 | description3
 class DList extends ListContainer
 {
-	function DList($out)
+	function __construct($out)
 	{
-		parent::ListContainer('dl', 'dt', ':', $out[0]);
+		parent::__construct('dl', 'dt', ':', $out[0]);
 		$this->last = &Element::insert(new ListElement($this->level, 'dd'));
 		if ($out[1] != '')
 			$this->last = &$this->last->insert(Factory_Inline($out[1]));
@@ -444,9 +447,9 @@ class BQuote extends Element
 {
 	var $level;
 
-	function BQuote(&$root, $text)
+	function __construct(&$root, $text)
 	{
-		parent::Element();
+		parent::__construct();
 
 		$head = substr($text, 0, 1);
 		$this->level = min(3, strspn($text, $head));
@@ -463,7 +466,7 @@ class BQuote extends Element
 		}
 	}
 
-	function canContain(&$obj)
+	function canContain($obj)
 	{
 		return (! is_a($obj, get_class($this)) || $obj->level >= $this->level);
 	}
@@ -507,9 +510,9 @@ class TableCell extends Element
 	var $rowspan = 1;
 	var $style; // is array('width'=>, 'align'=>...);
 
-	function TableCell($text, $is_template = FALSE)
+	function __construct($text, $is_template = FALSE)
 	{
-		parent::Element();
+		parent::__construct();
 		$this->style = $matches = array();
 
 		while (preg_match('/^(?:(LEFT|CENTER|RIGHT)|(BG)?COLOR\(([#\w]+)\)|SIZE\((\d+)\)):(.*)$/', $text, $matches)) {
@@ -586,9 +589,9 @@ class Table extends Element
 	var $css_class;
 	var $css_enable;
 
-	function Table($out)
+	function __construct($out)
 	{
-		parent::Element();
+		parent::__construct();
 
 		// --------------------------------
 		// customize by hokuken.com
@@ -695,7 +698,7 @@ EOS;
 		}
 	}
 
-	function canContain(&$obj)
+	function canContain($obj)
 	{
 		if (is_a($obj, 'Table')) {
 			if ($obj->col == $this->col) {
@@ -789,9 +792,9 @@ class YTable extends Element
 {
 	var $col;
 
-	function YTable($_value)
+	function __construct($_value)
 	{
-		parent::Element();
+		parent::__construct();
 
 		$align = $value = $matches = array();
 		foreach ($_value as $val) {
@@ -824,7 +827,7 @@ class YTable extends Element
 		$this->elements[] = $str;
 	}
 
-	function canContain(&$obj)
+	function canContain($obj)
 	{
 		return is_a($obj, 'YTable') && ($obj->col == $this->col);
 	}
@@ -850,16 +853,16 @@ class YTable extends Element
 // ' 'Space-beginning sentence
 class Pre extends Element
 {
-	function Pre(&$root, $text)
+	function __construct(&$root, $text)
 	{
 		global $preformat_ltrim;
-		parent::Element();
+		parent::__construct();
 		$this->elements[] = htmlspecialchars(
 			(! $preformat_ltrim || $text == '' || $text[0] != ' ') ? $text : substr($text, 1)
 		);
 	}
 
-	function canContain(&$obj)
+	function canContain($obj)
 	{
 		return is_a($obj, 'Pre');
 	}
@@ -882,13 +885,13 @@ class Div extends Element
 	var $name;
 	var $param;
 
-	function Div($out)
+	function __construct($out)
 	{
-		parent::Element();
+		parent::__construct();
 		list(, $this->name, $this->param) = array_pad($out, 3, '');
 	}
 
-	function canContain(&$obj)
+	function canContain($obj)
 	{
 		return FALSE;
 	}
@@ -906,14 +909,14 @@ class Align extends Element
 	var $align;
 	var $ptag;
 
-	function Align($align, $ptag = true)
+	function __construct($align, $ptag = true)
 	{
-		parent::Element();
+		parent::__construct();
 		$this->align = $align;
 		$this->ptag = $ptag;
 	}
 
-	function canContain(&$obj)
+	function canContain($obj)
 	{
 		return is_a($obj, 'Inline') or is_a($obj, 'Heading') or is_a($obj, 'Paragraph');
 	}
@@ -946,12 +949,12 @@ class Body extends Element
 	);
 	var $noPara = FALSE;
 
-	function Body($id)
+	function __construct($id)
 	{
 		$this->id            = $id;
 		$this->contents      = new Element();
 		$this->contents_last = &$this->contents;
-		parent::Element();
+		parent::__construct();
 	}
 
 	function parse(&$lines)
@@ -1240,13 +1243,13 @@ class Body extends Element
 
 class Contents_UList extends ListContainer
 {
-	function Contents_UList($text, $level, $id)
+	function __construct($text, $level, $id)
 	{
 		// Reformatting $text
 		// A line started with "\n" means "preformatted" ... X(
 		make_heading($text);
 		$text = "\n" . '<a href="#' . $id . '">' . $text . '</a>' . "\n";
-		parent::ListContainer('ul', 'li', '-', str_repeat('-', $level));
+		parent::__construct('ul', 'li', '-', str_repeat('-', $level));
 		$this->insert(Factory_Inline($text));
 	}
 

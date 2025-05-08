@@ -1,4 +1,5 @@
 <?php
+
 /**
  *   QHM Template Class
  *   -------------------------------------------
@@ -28,13 +29,15 @@
  *    $this->values['logo_image'] --- logoimageプラグインによって使われる変数。qhm_init_main.phpの挙動を制御
  */
 
-class QHM_Template {
+class QHM_Template
+{
 
 	// Singleton Start: ------------------------------------------
 	private static $instance;
 
-	public static function get_instance() {
-		if (isset( self::$instance )) {
+	public static function get_instance()
+	{
+		if (isset(self::$instance)) {
 			return self::$instance;
 		} else {
 			self::$instance = new QHM_Template();
@@ -73,7 +76,8 @@ class QHM_Template {
 	/** キャッシュに関連するページのハッシュ配列 */
 	private $cache_rel_pages;
 
-	private function QHM_Template() {
+	private function __construct()
+	{
 		$this->values = array();
 		$this->appended = array();
 		$this->dplugins = array();
@@ -81,84 +85,83 @@ class QHM_Template {
 		$this->cache_rel_pages = array();
 	}
 
-	function set_page($page = '') {
+	function set_page($page = '')
+	{
 
 		if ($page) {
 			$this->page = $page;
-			$this->tmpfile = CACHE_DIR. encode($page). '.tmp';
-			$this->tmprfile = CACHE_DIR. encode($this->page). '.tmpr';
+			$this->tmpfile = CACHE_DIR . encode($page) . '.tmp';
+			$this->tmprfile = CACHE_DIR . encode($this->page) . '.tmpr';
 			$this->set_page = true;
 		}
-
 	}
 
 	/**
 	 *   テンプレートで置換するための変数をセットする
 	 */
-	function set_value($key = '', $value = '') {
+	function set_value($key = '', $value = '')
+	{
 		if ($key) {
 			$this->values[$key] = $value;
 			return true;
 		}
 		return false;
 	}
-	function setv($key = '', $value = '') {
+	function setv($key = '', $value = '')
+	{
 		return $this->set_value($key, $value);
 	}
 
-	function setv_once($key, $value) {
-		if ( $this->getv($key) ){
+	function setv_once($key, $value)
+	{
+		if ($this->getv($key)) {
 			return false;
-		}
-		else{ //まだセットされていない
+		} else { //まだセットされていない
 			return $this->setv($key, $value);
 		}
 	}
 
-    /** javascript 用データをセットする。セットする変数は QHM */
-    function setjsv($key, $value = NULL)
-    {
-        return $this->set_js_value($key, $value);
-    }
+	/** javascript 用データをセットする。セットする変数は QHM */
+	function setjsv($key, $value = NULL)
+	{
+		return $this->set_js_value($key, $value);
+	}
 
-    function set_js_value($key, $value = NULL)
-    {
-        if (is_null($value))
-        {
-            if ( ! is_array($key))
-            {
-                $data = array($key);
-            }
-            else
-            {
-                $data = $key;
-            }
-        }
-        else
-        {
-            $data = array(
-                $key => $value
-            );
-        }
+	function set_js_value($key, $value = NULL)
+	{
+		if (is_null($value)) {
+			if (! is_array($key)) {
+				$data = array($key);
+			} else {
+				$data = $key;
+			}
+		} else {
+			$data = array(
+				$key => $value
+			);
+		}
 
-        $QHM = $this->getv('QHM');
-        if ($QHM === FALSE) $QHM = array();
-        $QHM = array_merge($QHM, $data);
-        $this->setv('QHM', $QHM);
-    }
+		$QHM = $this->getv('QHM');
+		if ($QHM === FALSE) $QHM = array();
+		$QHM = array_merge($QHM, $data);
+		$this->setv('QHM', $QHM);
+	}
 
-	function get_value($key) {
+	function get_value($key)
+	{
 		if (isset($this->values[$key])) {
 			return $this->values[$key];
 		} else {
 			return false;
 		}
 	}
-	function getv($key) {
+	function getv($key)
+	{
 		return $this->get_value($key);
 	}
 
-	function append_value($key = '', $append_value = '') {
+	function append_value($key = '', $append_value = '')
+	{
 		if ($val = $this->getv($key)) {
 			$val .= $append_value;
 		} else {
@@ -166,10 +169,12 @@ class QHM_Template {
 		}
 		return $this->setv($key, $val);
 	}
-	function appendv($key = '', $append_value = '') {
+	function appendv($key = '', $append_value = '')
+	{
 		return $this->append_value($key, $append_value);
 	}
-	function appendv_once($hashkey, $valuekey = '', $append_value = '') {
+	function appendv_once($hashkey, $valuekey = '', $append_value = '')
+	{
 		if ($this->is_appended($hashkey)) {
 			return false;
 		} else {
@@ -177,11 +182,13 @@ class QHM_Template {
 			$this->appendv($valuekey, $append_value);
 		}
 	}
-	function is_appended($hashkey) {
+	function is_appended($hashkey)
+	{
 		return isset($this->appended[$hashkey]);
 	}
 
-	function prepend_value($key = '', $prepend_value = '') {
+	function prepend_value($key = '', $prepend_value = '')
+	{
 		if ($val = $this->getv($key)) {
 			$val = $prepend_value . $val;
 		} else {
@@ -189,10 +196,12 @@ class QHM_Template {
 		}
 		return $this->setv($key, $val);
 	}
-	function prependv($key = '', $prepend_value = '') {
+	function prependv($key = '', $prepend_value = '')
+	{
 		return $this->prepend_value($key, $prepend_value);
 	}
-	function prependv_once($hashkey, $valuekey = '', $prepend_value = '') {
+	function prependv_once($hashkey, $valuekey = '', $prepend_value = '')
+	{
 		if ($this->is_appended($hashkey)) {
 			return false;
 		} else {
@@ -201,7 +210,8 @@ class QHM_Template {
 		}
 	}
 
-	function get_values() {
+	function get_values()
+	{
 		return $this->values;
 	}
 
@@ -215,13 +225,11 @@ class QHM_Template {
 	 */
 	function set_first_image($url)
 	{
-		if ( ! is_url($url, false, true))
-		{
+		if (! is_url($url, false, true)) {
 			return FALSE;
 		}
 
-		if ( ! $this->getv('first_image'))
-		{
+		if (! $this->getv('first_image')) {
 			$this->setv_once('first_image', $url);
 
 			//管理者の場合、プレビュー用にfirst_image をセットする
@@ -240,7 +248,8 @@ class QHM_Template {
 	 *   @param
 	 *     $encode <boolean>: 変換するかしないか
 	 */
-	function set_encode($encode) {
+	function set_encode($encode)
+	{
 		$this->encode = $encode;
 		return true;
 	}
@@ -252,18 +261,18 @@ class QHM_Template {
 	 *   @params
 	 *     $filename
 	 */
-	function read($filename) {
-	    $cachename = $this->convert($filename);
-	    if ($this->encode) {
-		    mb_convert_variables(TEMPLATE_ENCODE, CONTENT_CHARSET, $this->values);
-	    }
+	function read($filename)
+	{
+		$cachename = $this->convert($filename);
+		if ($this->encode) {
+			mb_convert_variables(TEMPLATE_ENCODE, CONTENT_CHARSET, $this->values);
+		}
 
 		//JS variables を json へ変換
-		if (isset($this->values['QHM']))
-		{
+		if (isset($this->values['QHM'])) {
 			$js = '<script>
 if (typeof QHM === "undefined") QHM = {};
-QHM = '. json_encode($this->getv('QHM')) .';
+QHM = ' . json_encode($this->getv('QHM')) . ';
 </script>';
 			$this->prependv('beforescript', $js);
 		}
@@ -271,7 +280,7 @@ QHM = '. json_encode($this->getv('QHM')) .';
 		extract($this->values);
 		mb_internal_encoding(TEMPLATE_ENCODE);
 
-		if($this->create_cache && $this->enable_cache && $this->page) //特定のプラグインで、無効にできる
+		if ($this->create_cache && $this->enable_cache && $this->page) //特定のプラグインで、無効にできる
 		{
 			//仮出力
 			ob_start();
@@ -282,10 +291,7 @@ QHM = '. json_encode($this->getv('QHM')) .';
 			//キャッシュ生成と、取り出し
 			$body = $this->get_page_out($body);
 			echo $body;
-
-		}
-		else
-		{
+		} else {
 			//キャッシュでも実行できるプラグインを実行する
 			$this->create_cache = false;
 			$body = $this->replace_dynamic_plugin($body);
@@ -298,16 +304,17 @@ QHM = '. json_encode($this->getv('QHM')) .';
 	 *  filename.cache に書き込む。読み書きのロックは省略。
 	 *  (file_{get,put}_contents() はファイルロックできるようにすべきだ。)
 	 */
-	function convert($filename) {
-	    $sep = $this->encode ? '_'. TEMPLATE_ENCODE : '';
-	    $tcachename = CACHE_DIR. str_replace('/', '_', $filename). $sep.'.qtc';
+	function convert($filename)
+	{
+		$sep = $this->encode ? '_' . TEMPLATE_ENCODE : '';
+		$tcachename = CACHE_DIR . str_replace('/', '_', $filename) . $sep . '.qtc';
 
-	    if (! file_exists($tcachename) || filemtime($tcachename) < filemtime($filename)) {
-	        $phpstr = $this->convert_php($filename);
+		if (! file_exists($tcachename) || filemtime($tcachename) < filemtime($filename)) {
+			$phpstr = $this->convert_php($filename);
 			if ($this->encode) $phpstr = mb_convert_encoding($phpstr, TEMPLATE_ENCODE);
-	        file_put_contents($tcachename, $phpstr);
-	    }
-	    return $tcachename;
+			file_put_contents($tcachename, $phpstr);
+		}
+		return $tcachename;
 	}
 
 
@@ -317,11 +324,12 @@ QHM = '. json_encode($this->getv('QHM')) .';
 	 *     - '%{...}' を 'echo htmlspecialchars(...);' に置換
 	 *     - ついでにXML宣言も置換
 	 */
-	function convert_php($filename) {
-	    $s = file_get_contents($filename);
-	    $s = preg_replace('/#\{(.*?)\}/', '<?php echo $1; ?>', $s);
-	    $s = preg_replace('/%\{(.*?)\}/', '<?php echo h($1); ?>', $s);
-	    return $s;
+	function convert_php($filename)
+	{
+		$s = file_get_contents($filename);
+		$s = preg_replace('/#\{(.*?)\}/', '<?php echo $1; ?>', $s);
+		$s = preg_replace('/%\{(.*?)\}/', '<?php echo h($1); ?>', $s);
+		return $s;
 	}
 
 	/*
@@ -335,27 +343,27 @@ QHM = '. json_encode($this->getv('QHM')) .';
 	 */
 	function cache_is_available()
 	{
-		if(! file_exists($this->tmpfile))
+		if (! file_exists($this->tmpfile))
 			return false;
-		if(! file_exists($this->tmprfile))
+		if (! file_exists($this->tmprfile))
 			return false;
 
 		$cache_mtime = filemtime($this->tmpfile);
 
 		//最終更新ファイルと比較
-		if( !file_exists(CACHE_DIR. QHM_LASTMOD) || $cache_mtime < filemtime(CACHE_DIR. QHM_LASTMOD) )
+		if (!file_exists(CACHE_DIR . QHM_LASTMOD) || $cache_mtime < filemtime(CACHE_DIR . QHM_LASTMOD))
 			return false;
 
 		//バージョンアップされたら、とにかくキャッシュは再構築
-		if( $cache_mtime < filemtime(LIB_DIR. 'init.php') )
+		if ($cache_mtime < filemtime(LIB_DIR . 'init.php'))
 			return false;
 
 		//テンプレート構造
-		if( $cache_mtime < filemtime(LIB_DIR. 'qhm_template.php') )
+		if ($cache_mtime < filemtime(LIB_DIR . 'qhm_template.php'))
 			return false;
 
 		//pukiwiki.ini.phpと比較（デザイン変更に対応）
-		if ( $cache_mtime < filemtime('qhm.ini.php') )
+		if ($cache_mtime < filemtime('qhm.ini.php'))
 			return false;
 
 		return true;
@@ -369,7 +377,8 @@ QHM = '. json_encode($this->getv('QHM')) .';
 	 *     $body <string>: キャッシュする情報
 	 *   @return <string>: 動的プラグインを実行した出力できる結果
 	 */
-	function get_page_out($body) {
+	function get_page_out($body)
+	{
 		//キャッシュを保存
 		$this->save_page_cache($body);
 		$this->save_page_cacheinfo();
@@ -381,11 +390,13 @@ QHM = '. json_encode($this->getv('QHM')) .';
 		return $out;
 	}
 
-	function save_page_cache($body) {
+	function save_page_cache($body)
+	{
 		//コンテンツ部分のHTMLをキャッシュに出力
 		file_put_contents($this->tmpfile, $body);
 	}
-	function save_page_cacheinfo() {
+	function save_page_cacheinfo()
+	{
 		global $pkwk_dtd;
 
 		$tmpr = array();
@@ -402,7 +413,8 @@ QHM = '. json_encode($this->getv('QHM')) .';
 		file_put_contents($this->tmprfile, join("\n", $tmpr));
 	}
 
-	function set_rel_page($page) {
+	function set_rel_page($page)
+	{
 		$tmparr = array_flip($this->cache_rel_pages);
 		if (!isset($tmparr[$page])) {
 			$this->cache_rel_pages[] = $page;
@@ -411,7 +423,8 @@ QHM = '. json_encode($this->getv('QHM')) .';
 			return false;
 		}
 	}
-	function get_rel_pages() {
+	function get_rel_pages()
+	{
 		return $this->cache_rel_pages;
 	}
 
@@ -419,7 +432,8 @@ QHM = '. json_encode($this->getv('QHM')) .';
 	 *   $this->tmpr を読み込み、
 	 *   利用しやすい形に整形する
 	 */
-	function read_page_cacheinfo() {
+	function read_page_cacheinfo()
+	{
 
 		$lines = explode("\n", file_get_contents($this->tmprfile));
 
@@ -427,7 +441,7 @@ QHM = '. json_encode($this->getv('QHM')) .';
 
 		$ret_arr['pages'] = $lines[0];
 		$ret_arr['funcs'] = $lines[1];
-		$dplgarr = trim($ret_arr['funcs'])? explode('##SEP##', $ret_arr['funcs']): array();
+		$dplgarr = trim($ret_arr['funcs']) ? explode('##SEP##', $ret_arr['funcs']) : array();
 		$len = count($dplgarr);
 		for ($i = 0; $i < $len; $i += 2) {
 			$this->dplugins[] = array(
@@ -444,7 +458,8 @@ QHM = '. json_encode($this->getv('QHM')) .';
 		$this->cacheinfo = $ret_arr;
 	}
 
-	function get_page_cacheinfo($key = '') {
+	function get_page_cacheinfo($key = '')
+	{
 		$qm = get_qm();
 		if (!isset($this->cacheinfo)) {
 			$this->read_page_cacheinfo();
@@ -474,14 +489,13 @@ QHM = '. json_encode($this->getv('QHM')) .';
 			die_message($qm->replace('fmt_err_noplgname', $func_name));
 		}
 
-		if(count($args)) {
+		if (count($args)) {
 			foreach ($args as $i => $arg) {
 				$args[$i] = addcslashes($arg, "\\'");
 			}
-			$call_func = $func_name."('".implode("','",$args)."');";
-		}
-		else {
-			$call_func = $func_name."();";
+			$call_func = $func_name . "('" . implode("','", $args) . "');";
+		} else {
+			$call_func = $func_name . "();";
 		}
 
 		$this->dplugins[] = array(
@@ -489,11 +503,12 @@ QHM = '. json_encode($this->getv('QHM')) .';
 			'func' => $call_func
 		);
 
-		return '<!-- #'. $call_func. '# -->';
+		return '<!-- #' . $call_func . '# -->';
 	}
 
 
-	function get_dynamic_plugin_list() {
+	function get_dynamic_plugin_list()
+	{
 		$ret_arr = array();
 		foreach ($this->dplugins as $f) {
 			$ret_arr[] = $f['plg'];
@@ -503,7 +518,8 @@ QHM = '. json_encode($this->getv('QHM')) .';
 		return $ret_arr;
 	}
 
-	function get_dynamic_plugin_str(){
+	function get_dynamic_plugin_str()
+	{
 
 		$tmp_arr = $this->get_dynamic_plugin_list();
 
@@ -526,25 +542,22 @@ QHM = '. json_encode($this->getv('QHM')) .';
 		$cnt = count($arr);
 
 		//ダイナミックなプラグインがなければ、何もしない
-		if($cnt < 2)
+		if ($cnt < 2)
 			return $body;
 
-		for($i = 0; $i < $cnt; $i += 2)
-		{
+		for ($i = 0; $i < $cnt; $i += 2) {
 			$plg_name = $arr[$i];
-			$fnc_name = $arr[$i+1];
+			$fnc_name = $arr[$i + 1];
 
-			if(! isset($rel_funcs[ $plg_name ]) )
-			{
-				$rel_funcs[ $plg_name ] = array();
-				require_once(PLUGIN_DIR. $plg_name. '.inc.php');
+			if (! isset($rel_funcs[$plg_name])) {
+				$rel_funcs[$plg_name] = array();
+				require_once(PLUGIN_DIR . $plg_name . '.inc.php');
 			}
 
-			if(! in_array($fnc_name, $rel_funcs) )
-			{
-				$rel_funcs[ $plg_name ] = $fnc_name;
-				$srcs[] = '<!-- #'.$fnc_name.'# -->';
-				$rpls[] = eval('return '.$fnc_name);
+			if (! in_array($fnc_name, $rel_funcs)) {
+				$rel_funcs[$plg_name] = $fnc_name;
+				$srcs[] = '<!-- #' . $fnc_name . '# -->';
+				$rpls[] = eval('return ' . $fnc_name);
 			}
 		}
 
@@ -569,16 +582,10 @@ QHM = '. json_encode($this->getv('QHM')) .';
 		//HTML出力
 		echo $body;
 	}
-
-
-
 }
 
 
-function get_qt() {
+function get_qt()
+{
 	return QHM_Template::get_instance();
 }
-
-
-
-?>

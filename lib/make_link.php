@@ -38,19 +38,11 @@ class InlineConverter
 	var $pattern;
 	var $pos;
 	var $result;
+	private $page;
 
 	function get_clone($obj)
 	{
-		static $clone_func;
-
-		if (! isset($clone_func)) {
-			if (version_compare(PHP_VERSION, '5.0.0', '<')) {
-				$clone_func = create_function('$a', 'return $a;');
-			} else {
-				$clone_func = create_function('$a', 'return clone $a;');
-			}
-		}
-		return $clone_func($obj);
+		return clone $obj;
 	}
 
 	function __clone()
@@ -62,7 +54,7 @@ class InlineConverter
 		$this->converters = $converters;
 	}
 
-	function InlineConverter($converters = NULL, $excludes = NULL)
+	function __construct($converters = NULL, $excludes = NULL)
 	{
 		if ($converters === NULL) {
 			$converters = array(
@@ -143,13 +135,13 @@ class InlineConverter
 		return $arr;
 	}
 
-	function &get_converter(&$arr)
+	function get_converter(array $arr): mixed
 	{
 		foreach (array_keys($this->converters) as $start) {
 			if ($arr[$start] == $arr[0])
 				return $this->converters[$start];
 		}
-		return NULL;
+		return null;
 	}
 }
 
@@ -166,7 +158,7 @@ class Link
 	var $alias;
 
 	// Constructor
-	function Link($start)
+	function __construct($start)
 	{
 		$this->start = $start;
 	}
@@ -226,9 +218,9 @@ class Link_plugin extends Link
 	var $pattern;
 	var $plain, $param;
 
-	function Link_plugin($start)
+	function __construct($start)
 	{
-		parent::Link($start);
+		parent::__construct($start);
 	}
 
 	function get_pattern()
@@ -312,9 +304,9 @@ EOD;
 // Footnotes
 class Link_note extends Link
 {
-	function Link_note($start)
+	function __construct($start)
 	{
-		parent::Link($start);
+		parent::__construct($start);
 	}
 
 	function get_pattern()
@@ -380,9 +372,9 @@ EOD;
 // URLs
 class Link_url extends Link
 {
-	function Link_url($start)
+	function __construct($start)
 	{
-		parent::Link($start);
+		parent::__construct($start);
 	}
 
 	function get_pattern()
@@ -431,9 +423,9 @@ EOD;
 // URLs (InterWiki definition on "InterWikiName")
 class Link_url_interwiki extends Link
 {
-	function Link_url_interwiki($start)
+	function __construct($start)
 	{
-		parent::Link($start);
+		parent::__construct($start);
 	}
 
 	function get_pattern()
@@ -471,9 +463,9 @@ class Link_mailto extends Link
 {
 	var $is_image, $image;
 
-	function Link_mailto($start)
+	function __construct($start)
 	{
-		parent::Link($start);
+		parent::__construct($start);
 	}
 
 	function get_pattern()
@@ -513,9 +505,9 @@ class Link_interwikiname extends Link
 	var $param  = '';
 	var $anchor = '';
 
-	function Link_interwikiname($start)
+	function __construct($start)
 	{
-		parent::Link($start);
+		parent::__construct($start);
 	}
 
 	function get_pattern()
@@ -582,9 +574,9 @@ class Link_bracketname extends Link
 {
 	var $anchor, $refer;
 
-	function Link_bracketname($start)
+	function __construct($start)
 	{
-		parent::Link($start);
+		parent::__construct($start);
 	}
 
 	function get_pattern()
@@ -644,9 +636,9 @@ EOD;
 // WikiNames
 class Link_wikiname extends Link
 {
-	function Link_wikiname($start)
+	function __construct($start)
 	{
-		parent::Link($start);
+		parent::__construct($start);
 	}
 
 	function get_pattern()
@@ -685,11 +677,11 @@ class Link_autolink extends Link
 	var $auto;
 	var $auto_a; // alphabet only
 
-	function Link_autolink($start)
+	function __construct($start)
 	{
 		global $autolink;
 
-		parent::Link($start);
+		parent::__construct($start);
 
 		if (! $autolink || ! file_exists(CACHE_DIR . 'autolink.dat'))
 			return;
@@ -731,9 +723,9 @@ class Link_autolink extends Link
 
 class Link_autolink_a extends Link_autolink
 {
-	function Link_autolink_a($start)
+	function __construct($start)
 	{
-		parent::Link_autolink($start);
+		parent::__construct($start);
 	}
 
 	function get_pattern()
