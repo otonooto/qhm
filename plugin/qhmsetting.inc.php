@@ -3476,6 +3476,7 @@ function plugin_qhmsetting_gmap_form($error = '')
 	global $script, $vars;
 	global $other_plugins;
 	$hlp_gmap = '';
+	$error_msg = '';
 
 	$params = plugin_qhmsetting_getparams();
 
@@ -3811,7 +3812,7 @@ function plugin_qhmsetting_sns_msg()
  */
 function plugin_qhmsetting_script_form($error = '')
 {
-	global $script, $script_ssl, $other_plugins;
+	global $script, $script_ssl;
 
 	$body = <<<EOD
 <script type="text/javascript">
