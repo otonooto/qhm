@@ -15,7 +15,7 @@ class CAdmin extends CModel
 	{
 		$config = [];
 		$array = $this->find("", "name ASC");
-		foreach ($array as $key => $val) {
+		foreach ($array as $val) {
 			$config[$val['name']] = $val['value'];
 		}
 		return $config;

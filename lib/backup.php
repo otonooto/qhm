@@ -32,17 +32,20 @@
 
 function make_backup($page, $delete = FALSE)
 {
-	global $cycle, $maxage;
-	global $do_backup, $del_backup;
+	global $cycle, $maxage, $do_backup, $del_backup;
 
-	if (PKWK_READONLY || ! $do_backup) return;
+	if (PKWK_READONLY || ! $do_backup) {
+		return;
+	}
 
 	if ($del_backup && $delete) {
 		_backup_delete($page);
 		return;
 	}
 
-	if (! is_page($page)) return;
+	if (! is_page($page)) {
+		return;
+	}
 
 	$lastmod = _backup_get_filetime($page);
 	if ($lastmod == 0 || UTIME - $lastmod > 60 * 60 * $cycle) {
@@ -50,8 +53,9 @@ function make_backup($page, $delete = FALSE)
 		$count   = count($backups) + 1;
 
 		// 直後に1件追加するので、(最大件数 - 1)を超える要素を捨てる
-		if ($count > $maxage)
+		if ($count > $maxage) {
 			array_splice($backups, 0, $count - $maxage);
+		}
 
 		$strout = '';
 		foreach ($backups as $age => $data) {

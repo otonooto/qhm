@@ -116,6 +116,7 @@ function plugin_show_convert()
 	$args = func_get_args();
 	$args[] = '_block';
 	$params = plugin_show_body($args);
+	$is_bootstrap_skin = is_bootstrap_skin();
 
 	if (isset($params['_error']) && $params['_error'] != '') {
 		return "<p>#show(): {$params['_error']}</p>\n";

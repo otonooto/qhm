@@ -151,7 +151,7 @@ $pass_form
 EOD;
 		}
 
-		$helpstr = $qm->m['html']['view_help_message'];
+		$help = $qm->m['html']['view_help_message'];
 
 		$body = <<< EOD
 <div class="edit_form">
@@ -531,6 +531,7 @@ class Plugin_Secedit_Sections
 		$in_multiline = false;
 
 		foreach (explode("\n", $text) as $line) {
+			$close_multiline = '';
 			if (
 				! PKWKEXP_DISABLE_MULTILINE_PLUGIN_HACK && ! $in_multiline &&
 				preg_match('/^#[^{]+(\{{2,})\s*$/', $line, $matches)

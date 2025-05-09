@@ -472,6 +472,14 @@ class QdmailBase extends QdmailBranch
 	var $header_for_smtp_array;
 	var $content_all_for_smtp;
 	var	$header_for_smtp;
+	//----------------------------
+	// contents
+	//----------------------------
+	private ?string $after_id = null;
+	private ?string $body = null;
+	private ?array $subject = null;
+	private ?string $header_for_smtp_bcc = null;
+
 	//--------------
 	// attachament
 	//--------------
@@ -3173,7 +3181,7 @@ class QdmailBase extends QdmailBranch
 	}
 	function makeContentId($id)
 	{
-		if (is_null($this->after_id)) {
+		if ($this->after_id === null) {
 			$fromaddr = isset($this->header['From'][0]) ? $this->extractAddr($this->header['From'][0]) : null;
 			$this->after_id = mt_rand() . '_' . str_replace(array('@', '-', '/', '.'), '', $fromaddr . '_' . $this->xmailer . '_' . $this->version);
 		}

@@ -29,8 +29,6 @@ function plugin_social_buttons_convert()
 	$url = '';
 	$layout = 'h1'; //h1 | h2 | large
 	$margin = '3px'; //margin-right per button
-	$h_margin = '0'; //horizontal margin of buttons wrapper
-	$text = ''; //extra text
 	$float = 'right'; //left|right
 
 	$service_list = array('twitter', 'facebook_like');

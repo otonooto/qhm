@@ -19,10 +19,9 @@
 function plugin_qblog_action()
 {
 	global $vars, $script, $style_name;
-	global $qblog_defaultpage, $qblog_default_cat, $qblog_date_format, $qblog_page_prefix;
-	global $qblog_social_widget, $qblog_social_html, $qblog_social_wiki, $qblog_title;
+	global $qblog_defaultpage, $qblog_page_prefix;
 	global $qblog_enable_comment, $qblog_close, $qblog_enable_ping, $qblog_ping;
-	global $qblog_comment_notice, $admin_email;
+	global $qblog_comment_notice;
 
 	$qt = get_qt();
 	$style_name = '..';
@@ -347,8 +346,7 @@ function plugin_qblog_rebuild_posts()
  */
 function plugin_qblog_move_from_ameba_confirm()
 {
-	global $vars, $script;
-	global $qblog_defaultpage;
+	global $vars;
 
 	$vars['hash'] = 'misc';
 
@@ -410,7 +408,7 @@ function plugin_qblog_move_from_ameba_confirm()
 				'amember' => 0
 			);
 		}
-		while ($pq->find('a.pagingNext')->length()) {
+		while ($pq->find('a.pagingNext')->count() > 0) {
 			// 次のページを読み込む
 			$data = file_get_contents($pq->find('a.pagingNext')->attr('href'));
 			$pq = phpQuery::newDocument($data);
@@ -457,8 +455,7 @@ function plugin_qblog_move_from_ameba_confirm()
 
 function plugin_qblog_move_from_ameba()
 {
-	global $vars, $script;
-	global $qblog_page_format;
+	global $vars;
 
 	$ameba_id = isset($_SESSION['amebaid']) ? $_SESSION['amebaid'] : FALSE;
 	if (! $ameba_id) {
@@ -705,7 +702,6 @@ function plugin_qblog_save_social_widget()
 function plugin_qblog_move_from_eblog_confirm()
 {
 	global $vars, $script;
-	global $qblog_defaultpage;
 
 	$vars['hash'] = 'misc';
 
@@ -774,7 +770,7 @@ function plugin_qblog_move_from_eblog_confirm()
 
 function plugin_qblog_move_from_eblog()
 {
-	global $vars, $script;
+	global $vars;
 	global $ignore_plugin, $strip_plugin;
 	global $qblog_default_cat;
 
@@ -959,7 +955,7 @@ function plugin_qblog_start()
 
 function plugin_qblog_edit_title()
 {
-	global $vars, $script, $qblog_title;
+	global $vars, $qblog_title;
 
 	$title = $vars['title'];
 
@@ -979,7 +975,7 @@ function plugin_qblog_edit_title()
 
 function plugin_qblog_enable_comment()
 {
-	global $vars, $script, $qblog_enable_comment;
+	global $vars, $qblog_enable_comment;
 
 	$commentflg = (isset($vars['qblog_enable_comment']) and $vars['qblog_enable_comment'] == 1) ? $vars['qblog_enable_comment'] : 0;
 
@@ -998,7 +994,7 @@ function plugin_qblog_enable_comment()
 
 function plugin_qblog_close()
 {
-	global $vars, $script, $qblog_close;
+	global $vars, $qblog_close;
 
 	$vars['hash'] = 'misc';
 
@@ -1143,7 +1139,7 @@ function plugin_qblog_update_ping()
 
 function plugin_qblog_update_comment_notice()
 {
-	global $script, $vars, $qblog_comment_notice, $admin_email;
+	global $vars, $qblog_comment_notice, $admin_email;
 
 	if (trim($admin_email) === '') {
 		$vars['qblog_error'] = '管理者メールアドレスが設定されていません。';

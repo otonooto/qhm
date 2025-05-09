@@ -74,7 +74,7 @@ EOD;
 }
 function plugin_tracker_action()
 {
-	global $post, $vars, $now;
+	global $post, $now;
 
 	if (PKWK_READONLY) die_message('PKWK_READONLY prohibits editing');
 
@@ -193,7 +193,6 @@ function plugin_tracker_inline()
 // フィールドオブジェクトを構築する
 function plugin_tracker_get_fields($base, $refer, &$config)
 {
-	global $now;
 	$qm = get_qm();
 
 	$fields = [];
@@ -292,8 +291,6 @@ class Tracker_field_page extends Tracker_field_text
 
 	function format_value($value)
 	{
-		global $WikiName;
-
 		$value = strip_bracket($value);
 		if (is_pagename($value)) {
 			$value = "[[$value]]";
@@ -557,7 +554,6 @@ function plugin_tracker_list_convert()
 
 	$config = 'default';
 	$page = $refer = $vars['page'];
-	$field = '_page';
 	$order = '';
 	$list = 'list';
 	$limit = NULL;
@@ -580,7 +576,7 @@ function plugin_tracker_list_convert()
 }
 function plugin_tracker_list_action()
 {
-	global $script, $vars;
+	global $vars;
 	$qm = get_qm();
 
 	$page = $refer = $vars['refer'];
@@ -626,7 +622,7 @@ class Tracker_list
 	var $rows;
 	var $order;
 
-	function Tracker_list($page, $refer, &$config, $list)
+	function __construct($page, $refer, &$config, $list)
 	{
 		$this->page = $page;
 		$this->config = &$config;

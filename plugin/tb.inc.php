@@ -13,9 +13,13 @@
  * plugin_tb_output_htmllist($tb_id)     Show pings for the page via XHTML
  */
 
-switch(LANG){
-case 'ja': define('PLUGIN_TB_LANGUAGE', 'ja-jp'); break;
-default  : define('PLUGIN_TB_LANGUAGE', 'en-us'); break;
+switch (LANG) {
+	case 'ja':
+		define('PLUGIN_TB_LANGUAGE', 'ja-jp');
+		break;
+	default:
+		define('PLUGIN_TB_LANGUAGE', 'en-us');
+		break;
 }
 
 // ----
@@ -36,24 +40,28 @@ function plugin_tb_action()
 		// Output the response
 		plugin_tb_output_response($error, $message);
 		exit;
-
 	} else {
 		if ($trackback && isset($vars['__mode']) && isset($vars['tb_id'])) {
 			// Show TrackBacks received (and exit)
 			switch ($vars['__mode']) {
-			case 'rss' : plugin_tb_output_rsslist($vars['tb_id']);  break;
-			case 'view': plugin_tb_output_htmllist($vars['tb_id']); break;
+				case 'rss':
+					plugin_tb_output_rsslist($vars['tb_id']);
+					break;
+				case 'view':
+					plugin_tb_output_htmllist($vars['tb_id']);
+					break;
 			}
 			exit;
-
 		} else {
 			// Show List of pages that TrackBacks reached
 			$pages = get_existpages(TRACKBACK_DIR, '.txt');
 			if (! empty($pages)) {
-				return array('msg'=>'Trackback list',
-					'body'=>page_list($pages, 'read', FALSE));
+				return array(
+					'msg' => 'Trackback list',
+					'body' => page_list($pages, 'read', FALSE)
+				);
 			} else {
-				return array('msg'=>'', 'body'=>'');
+				return array('msg' => '', 'body' => '');
 			}
 		}
 	}
@@ -63,7 +71,7 @@ function plugin_tb_action()
 function plugin_tb_save($url, $tb_id)
 {
 	global $vars, $trackback;
-	static $fields = array( /* UTIME, */ 'url', 'title', 'excerpt', 'blog_name');
+	static $fields = array( /* UTIME, */'url', 'title', 'excerpt', 'blog_name');
 
 	$die = '';
 	if (! $trackback) $die .= 'TrackBack feature disabled. ';
@@ -139,8 +147,12 @@ function plugin_tb_output_rsslist($tb_id)
 	foreach (tb_get(tb_get_filename($page)) as $arr) {
 		// _utime_, title, excerpt, _blog_name_
 		array_shift($arr); // Cut utime
-		list ($url, $title, $excerpt) = array_map(
-			create_function('$a', 'return htmlspecialchars($a);'), $arr);
+		list($url, $title, $excerpt) = array_map(
+			function ($a) {
+				return htmlspecialchars($a);
+			},
+			$arr
+		);
 		$items .= <<<EOD
 
    <item>
@@ -200,13 +212,15 @@ function plugin_tb_output_htmllist($tb_id)
 	$data = tb_get(tb_get_filename($page));
 
 	// Sort: The first is the latest
-	usort($data, create_function('$a,$b', 'return $b[0] - $a[0];'));
+	usort($data, function ($a, $b) {
+		return $b[0] - $a[0];
+	});
 
 	$tb_body = '';
 	foreach ($data as $x) {
 		if (count($x) != 5) continue; // Ignore incorrect record
 
-		list ($time, $url, $title, $excerpt, $blog_name) = $x;
+		list($time, $url, $title, $excerpt, $blog_name) = $x;
 		if ($title == '') $title = 'no title';
 
 		$time = date($_tb_date, $time + LOCALZONE); // May 2, 2003 11:25 AM
@@ -236,4 +250,3 @@ EOD;
 	echo mb_convert_encoding($msg, 'UTF-8', SOURCE_ENCODING);
 	exit;
 }
-?>

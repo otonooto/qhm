@@ -16,7 +16,7 @@ class PluginTagcloud
 {
     var $plugin_tag;
 
-    function PluginTagcloud()
+    function __construct()
     {
         static $default_options = [];
         if (empty($default_options)) {

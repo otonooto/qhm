@@ -18,7 +18,7 @@ define('PLUGIN_QBLOG_RECENT_COMMENTS_DEFAULT_NUM', 10);
 
 function plugin_qblog_recent_comments_convert()
 {
-	global $script, $qblog_date_format, $qblog_close;
+	global $script, $qblog_close;
 
 	//閉鎖中は何も表示しない
 	if ($qblog_close && ! ss_admin_check()) {
