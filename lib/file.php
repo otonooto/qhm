@@ -1540,27 +1540,35 @@ function qblog_remove_post($page)
 	$datafile = CACHEQBLOG_DIR . encode($page) . '.qbp.dat';
 	$comment_datafile = CACHEQBLOG_DIR . encode($page) . '.qbcm.dat';
 
-	if (file_exists($datafile))
+	if (file_exists($datafile)) {
 		unlink($datafile);
-	if (file_exists($comment_datafile))
+	}
+	if (file_exists($comment_datafile)) {
 		unlink($comment_datafile);
+	}
 
 	// !ブログの削除処理
 	//最近のコメント一覧の調整（qblog_recent_comments.dat）
 	$commentfile = CACHEQBLOG_DIR . 'qblog_recent_comments.dat';
-	$comment_page_lines = explode("\n", file_get_contents($commentfile));
 	$datastr = '';
-	foreach ($comment_page_lines as $line) {
-		if ($cnt > QBLOG_MAX_RECENT_COMMENTS) break;
-		if (trim($line) === '') continue;
 
-		list($time, $pagename) = explode("\t", $line);
-		if ($comment['page'] != $pagename) {
-			$datastr .= $time . "\t" . $pagename . "\n";
+	if (file_exists($commentfile)) {
+		$comment_page_lines = explode("\n", file_get_contents($commentfile));
+		$cnt = 0;
+
+		foreach ($comment_page_lines as $line) {
+			if ($cnt > QBLOG_MAX_RECENT_COMMENTS) break;
+			if (trim($line) === '') continue;
+
+			list($time, $pagename) = explode("\t", $line);
+
+			if ($page != $pagename) {  // 修正: `$comment['page']` ではなく `$page` を使用
+				$datastr .= $time . "\t" . $pagename . "\n";
+			}
+			$cnt++;
 		}
+		file_put_contents($commentfile, $datastr, LOCK_EX);
 	}
-	file_put_contents($commentfile, $datastr, LOCK_EX);
-
 
 	//承認待ちコメント一覧の調整（qblog_pending_comments.dat）
 	$commentfile = CACHEQBLOG_DIR . 'qblog_pending_comments.dat';

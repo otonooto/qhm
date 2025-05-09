@@ -3902,9 +3902,9 @@ class QdmailComponent extends QdmailUserFunc
 		parent::__construct($param);
 	}
 
-	function startup(&$controller)
+	function startup($controller)
 	{
-		$this->Controller = &$controller;
+		$this->Controller = $controller;
 		if (defined('COMPONENTS')) {
 			$this->logPath(COMPONENTS);
 			$this->errorlogPath(COMPONENTS);
@@ -3914,7 +3914,7 @@ class QdmailComponent extends QdmailUserFunc
 	//----------------------------
 	// Override Parent Method
 	//----------------------------
-	function &smtpObject()
+	function &smtpObject($null = false)
 	{
 		if (isset($this->Qdsmtp) && is_object($this->Qdsmtp)) {
 			return $this->Qdsmtp;
