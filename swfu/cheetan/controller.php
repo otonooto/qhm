@@ -29,11 +29,6 @@ class CController extends CObject
 
 	function __construct() {}
 
-	public function __get($name)
-	{
-		return $this->m[$name] ?? $this->c[$name] ?? null;
-	}
-
 	function AddModel($path, $name = "")
 	{
 		$cname	= basename($path, ".php");
