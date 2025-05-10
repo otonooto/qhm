@@ -36,5 +36,5 @@ jobs:
           GIT_PR_RELEASE_TITLE: "Release v${{ steps.vars.outputs.release_version }}"
           GIT_PR_RELEASE_TEMPLATE: .github/release-pr-template
         run: |
-          gem install -N release-pr
-          release-pr --no-fetch
+          gem install -N git-pr-release
+          git-pr-release --no-fetch
