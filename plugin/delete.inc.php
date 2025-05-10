@@ -21,14 +21,13 @@ function plugin_delete_action()
 
 	check_editable($page, true, true);
 
-	if ($page === $defaultpage)
-	{
-	$body = <<<EOD
+	if ($page === $defaultpage) {
+		$body = <<<EOD
 <p>
 {$page}は削除できません。
 </p>
 EOD;
-		return array('msg'=>'$1の削除', 'body'=> $body);
+		return array('msg' => '$1の削除', 'body' => $body);
 	}
 
 	$body = <<<EOD
@@ -47,17 +46,16 @@ EOD;
 </form>
 EOD;
 
-	$body .= '<hr />'.convert_html(get_source($page));
-	
-	
-	
-	if (isset($vars['write']))
-	{
+	$body .= '<hr />' . convert_html(get_source($page));
+
+
+
+	if (isset($vars['write'])) {
 		plugin_delete_write();
-		redirect($defaultpage, $page.'を削除しました');
+		redirect($defaultpage, $page . 'を削除しました');
 	}
-	
-	return array('msg'=>'$1の削除', 'body'=> $body);
+
+	return array('msg' => '$1の削除', 'body' => $body);
 }
 
 // Write, add, or insert new comment
@@ -74,20 +72,16 @@ function plugin_delete_write()
 	$oldpagesrc = join('', get_source($page));
 	$oldpagemd5 = md5($oldpagesrc);
 	if ($digest == $oldpagemd5) {
-		$retvars = array();
+		$retvars = [];
 		page_write($page, '');
-		$retvars['msg' ] = $qm->m['fmt_title_deleted'];
+		$retvars['msg'] = $qm->m['fmt_title_deleted'];
 		$retvars['body'] = str_replace('$1', htmlspecialchars($page), $qm->m['fmt_title_deleted']);
-	
+
 		if ($trackback) tb_delete($page);
-	}
-	else
-	{
-		$retvars['msg' ] = '$1 を削除できません';
-		$retvars['body'] = $page.'を削除できませんでした。';
+	} else {
+		$retvars['msg'] = '$1 を削除できません';
+		$retvars['body'] = $page . 'を削除できませんでした。';
 	}
 
 	return $retvars;
 }
-
-?>

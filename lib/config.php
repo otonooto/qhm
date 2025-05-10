@@ -24,10 +24,10 @@ define('PKWK_CONFIG_PREFIX', ':config/');
 // Configuration-page manager
 class Config
 {
-	var $name, $page; // Page name
-	var $objs = array();
+	public $name, $page; // Page name
+	public $objs = [];
 
-	function Config($name)
+	function __construct($name)
 	{
 		$this->name = $name;
 		$this->page = PKWK_CONFIG_PREFIX . $name;
@@ -38,19 +38,18 @@ class Config
 	{
 		if (! is_page($this->page)) return FALSE;
 
-		$this->objs = array();
+		$this->objs = [];
 		$obj        = new ConfigTable('');
-		$matches = array();
+		$matches = [];
 
 		foreach (get_source($this->page) as $line) {
 			if ($line == '') continue;
 
-			$head  = $line{0};	// The first letter
+			$head  = $line[0];	// The first letter
 			$level = strspn($line, $head);
 
 			if ($level > 3) {
 				$obj->add_line($line);
-
 			} else if ($head == '*') {
 				// Cut fixed-heading anchors
 				$line = preg_replace('/^(\*{1,3}.*)\[#[A-Za-z][\w-]+\](.*)$/', '$1$2', $line);
@@ -63,12 +62,10 @@ class Config
 						$obj = new ConfigTable_Direct('', $obj);
 					$obj->set_key($line);
 				}
-				
 			} else if ($head == '-' && $level > 1) {
 				if (! is_a($obj, 'ConfigTable_Direct'))
 					$obj = new ConfigTable_Direct('', $obj);
 				$obj->add_value($line);
-
 			} else if ($head == '|' && preg_match('/^\|(.+)\|\s*$/', $line, $matches)) {
 				// Table row
 				if (! is_a($obj, 'ConfigTable_Sequential'))
@@ -85,28 +82,28 @@ class Config
 	}
 
 	// Get an array
-	function & get($title)
+	function &get($title)
 	{
-		$obj = & $this->get_object($title);
+		$obj = &$this->get_object($title);
 		return $obj->values;
 	}
 
 	// Set an array (Override)
 	function put($title, $values)
 	{
-		$obj         = & $this->get_object($title);
+		$obj         = &$this->get_object($title);
 		$obj->values = $values;
 	}
 
 	// Add a line
 	function add($title, $value)
 	{
-		$obj = & $this->get_object($title);
+		$obj = &$this->get_object($title);
 		$obj->values[] = $value;
 	}
 
 	// Get an object (or create it)
-	function & get_object($title)
+	function &get_object($title)
 	{
 		if (! isset($this->objs[$title]))
 			$this->objs[$title] = new ConfigTable('*' . trim($title) . "\n");
@@ -121,7 +118,7 @@ class Config
 	function toString()
 	{
 		$retval = '';
-		foreach ($this->objs as $title=>$obj)
+		foreach ($this->objs as $title => $obj)
 			$retval .= $obj->toString();
 		return $retval;
 	}
@@ -130,12 +127,12 @@ class Config
 // Class holds array values
 class ConfigTable
 {
-	var $title  = '';	// Table title
-	var $before = array();	// Page contents (except table ones)
-	var $after  = array();	// Page contents (except table ones)
-	var $values = array();	// Table contents
+	public $title  = '';	// Table title
+	public $before = [];	// Page contents (except table ones)
+	public $after  = [];	// Page contents (except table ones)
+	public $values = [];	// Table contents
 
-	function ConfigTable($title, $obj = NULL)
+	function __construct($title, $obj = NULL)
 	{
 		if ($obj !== NULL) {
 			$this->title  = $obj->title;
@@ -182,7 +179,7 @@ class ConfigTable_Sequential extends ConfigTable
 
 class ConfigTable_Direct extends ConfigTable
 {
-	var $_keys = array();	// Used at initialization phase
+	var $_keys = [];	// Used at initialization phase
 
 	function set_key($line)
 	{
@@ -194,9 +191,9 @@ class ConfigTable_Direct extends ConfigTable
 	function add_value($line)
 	{
 		$level = strspn($line, '-');
-		$arr   = & $this->values;
+		$arr   = &$this->values;
 		for ($n = 2; $n <= $level; $n++)
-			$arr = & $arr[$this->_keys[$n]];
+			$arr = &$arr[$this->_keys[$n]];
 		$arr[] = trim(substr($line, $level));
 	}
 
@@ -206,9 +203,9 @@ class ConfigTable_Direct extends ConfigTable
 		$root   = ($values === NULL);
 		if ($root) {
 			$retval = join('', $this->before);
-			$values = & $this->values;
+			$values = &$this->values;
 		}
-		foreach ($values as $key=>$value) {
+		foreach ($values as $key => $value) {
 			if (is_array($value)) {
 				$retval .= str_repeat('*', $level) . $key . "\n";
 				$retval .= $this->toString($value, $level + 1);
@@ -221,4 +218,3 @@ class ConfigTable_Direct extends ConfigTable
 		return $retval;
 	}
 }
-?>

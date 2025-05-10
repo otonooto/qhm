@@ -40,7 +40,7 @@ function tb_get_id($page)
 // Get page name from TrackBack ID
 function tb_id2page($tb_id)
 {
-	static $pages, $cache = array();
+	static $pages, $cache = [];
 
 	if (isset($cache[$tb_id])) return $cache[$tb_id];
 
@@ -82,14 +82,14 @@ function tb_send($page, $plus, $minus = '')
 	if (ini_get('safe_mode') == '0') set_time_limit(0);
 
 	// Get URLs from <a>(anchor) tag from convert_html()
-	$links = array();
+	$links = [];
 	$plus  = convert_html($plus); // WARNING: heavy and may cause side-effect
 	preg_match_all('#href="(https?://[^"]+)"#', $plus, $links, PREG_PATTERN_ORDER);
 	$links = array_unique($links[1]);
 
 	// Reject from minus list
 	if ($minus != '') {
-		$links_m = array();
+		$links_m = [];
 		$minus = convert_html($minus); // WARNING: heavy and may cause side-effect
 		preg_match_all('#href="(https?://[^"]+)"#', $minus, $links_m, PREG_PATTERN_ORDER);
 		$links_m = array_unique($links_m[1]);
@@ -134,9 +134,9 @@ function tb_delete($page)
 // Import TrackBack ping data from file
 function tb_get($file, $key = 1)
 {
-	if (! file_exists($file)) return array();
+	if (! file_exists($file)) return [];
 
-	$result = array();
+	$result = [];
 	$fp = @fopen($file, 'r');
 	set_file_buffer($fp, 0);
 	flock($fp, LOCK_EX);
@@ -146,7 +146,7 @@ function tb_get($file, $key = 1)
 		$result[rawurldecode($data[$key])] = $data;
 	}
 	flock($fp, LOCK_UN);
-	fclose ($fp);
+	fclose($fp);
 
 	return $result;
 }
@@ -182,16 +182,22 @@ function tb_get_url($url)
 
 	// Don't go across HTTP-proxy server
 	$parse_url = parse_url($url);
-	if (empty($parse_url['host']) ||
-	   ($use_proxy && ! in_the_net($no_proxy, $parse_url['host'])))
+	if (
+		empty($parse_url['host']) ||
+		($use_proxy && ! in_the_net($no_proxy, $parse_url['host']))
+	)
 		return '';
 
 	$data = http_request($url);
 	if ($data['rc'] !== 200) return '';
 
-	$matches = array();
-	if (! preg_match_all('#<rdf:RDF[^>]*xmlns:trackback=[^>]*>(.*?)</rdf:RDF>#si', $data['data'],
-	    $matches, PREG_PATTERN_ORDER))
+	$matches = [];
+	if (! preg_match_all(
+		'#<rdf:RDF[^>]*xmlns:trackback=[^>]*>(.*?)</rdf:RDF>#si',
+		$data['data'],
+		$matches,
+		PREG_PATTERN_ORDER
+	))
 		return '';
 
 	$obj = new TrackBack_XML();
@@ -218,11 +224,14 @@ class TrackBack_XML
 		$xml_parser = xml_parser_create();
 		if ($xml_parser === FALSE) return FALSE;
 
-		xml_set_element_handler($xml_parser, array(& $this, 'start_element'),
-			array(& $this, 'end_element'));
+		xml_set_element_handler(
+			$xml_parser,
+			array(&$this, 'start_element'),
+			array(&$this, 'end_element')
+		);
 
 		if (! xml_parse($xml_parser, $buf, TRUE)) {
-/*			die(sprintf('XML error: %s at line %d in %s',
+			/*			die(sprintf('XML error: %s at line %d in %s',
 				xml_error_string(xml_get_error_code($xml_parser)),
 				xml_get_current_line_number($xml_parser),
 				$buf));
@@ -238,12 +247,18 @@ class TrackBack_XML
 		if ($name !== 'RDF:DESCRIPTION') return;
 
 		$about = $url = $tb_url = '';
-		foreach ($attrs as $key=>$value) {
+		foreach ($attrs as $key => $value) {
 			switch ($key) {
-			case 'RDF:ABOUT'     : $about  = $value; break;
-			case 'DC:IDENTIFER'  : /*FALLTHROUGH*/
-			case 'DC:IDENTIFIER' : $url    = $value; break;
-			case 'TRACKBACK:PING': $tb_url = $value; break;
+				case 'RDF:ABOUT':
+					$about  = $value;
+					break;
+				case 'DC:IDENTIFER': /*FALLTHROUGH*/
+				case 'DC:IDENTIFIER':
+					$url    = $value;
+					break;
+				case 'TRACKBACK:PING':
+					$tb_url = $value;
+					break;
 			}
 		}
 		if ($about == $this->url || $url == $this->url)
@@ -301,4 +316,3 @@ function ref_save($page)
 
 	return TRUE;
 }
-?>

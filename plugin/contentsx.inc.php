@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Table of Contents Plugin
  *
@@ -14,7 +15,7 @@ class PluginContentsx
     function PluginContentsx()
     {
         // Message
-        static $msg = array();
+        static $msg = [];
         if (empty($msg)) $msg = array(
             'toctitle'  => _('Table of Contents'),
         );
@@ -57,7 +58,7 @@ class PluginContentsx
     var $error = "";
     var $plugin = "contentsx";
     var $metalines;
-    var $visited = array(); // page => title(alias)
+    var $visited = []; // page => title(alias)
 
     function convert()
     {
@@ -67,7 +68,7 @@ class PluginContentsx
         }
         $body = $this->body($args);
         if ($body != '') {
-/*            $body = '<table border="0" class="toc"><tbody>' . "\n"
+            /*            $body = '<table border="0" class="toc"><tbody>' . "\n"
                 . '<tr><td class="toctitle">' . "\n"
                 . '<span>' . $this->msg['toctitle'] . "</span>\n"
                 . "</td></tr>\n"
@@ -76,11 +77,11 @@ class PluginContentsx
                 . "</td></tr>\n"
                 . "</tbody></table>\n";
 */
-			$body = '<div class="contents">'."\n"
-				. $body
-				. '</div>'."\n";
+            $body = '<div class="contents">' . "\n"
+                . $body
+                . '</div>' . "\n";
         }
-        if ($this->error != "" ) {
+        if ($this->error != "") {
             return "<p>#$this->plugin(): $this->error</p>";
         }
         return $body;
@@ -90,19 +91,30 @@ class PluginContentsx
     {
         $parser = new PluginContentsxOptionParser();
         $this->options = $parser->parse_options($args, $this->options);
-        if ($parser->error != "") { $this->error = $parser->error; return; }
+        if ($parser->error != "") {
+            $this->error = $parser->error;
+            return;
+        }
 
         $this->options['page'][1] = $this->check_page($this->options['page'][1]);
-        if ($this->error !== "") { return; }
+        if ($this->error !== "") {
+            return;
+        }
 
         $this->init_metalines($this->options['page'][1]);
-        if ($this->error !== "") { return; }
+        if ($this->error !== "") {
+            return;
+        }
 
         $this->narrow_metalines();
-        if ($this->error !== "") { return; }
+        if ($this->error !== "") {
+            return;
+        }
 
         $body = $this->frontend();
-        if ($this->error !== "") { return; }
+        if ($this->error !== "") {
+            return;
+        }
         return $body;
     }
 
@@ -139,12 +151,18 @@ class PluginContentsx
 
         $parser = new PluginContentsxOptionParser();
         $this->options['depth'][1] = $parser->parse_numoption($this->options['depth'][1], 0, $this->conf['max_depth']);
-        if ($parser->error != "") { $this->error = $parser->error; return; }
+        if ($parser->error != "") {
+            $this->error = $parser->error;
+            return;
+        }
         $this->depth_filter_metalines();
 
         $num = sizeof($this->metalines);
         $this->options['num'][1] = $parser->parse_numoption($this->options['num'][1], 1, $num);
-        if ($parser->error != "") { $this->error = $parser->error; return; }
+        if ($parser->error != "") {
+            $this->error = $parser->error;
+            return;
+        }
         $this->num_filter_metalines();
     }
 
@@ -191,7 +209,7 @@ class PluginContentsx
                 $diff = $depth - $pdepth;
                 $html .= str_repeat('<ul><li style="list-style:none">', $diff - 1);
                 if ($depth == 1) { // or $first flag
-//                    $html .= '<ul class="' . $this->plugin . '"><li>';
+                    //                    $html .= '<ul class="' . $this->plugin . '"><li>';
                     $html .= '<ul class="list1"><li>';
                 } else { //なんとなく・・
                     $html .= '<ul><li>';
@@ -215,7 +233,7 @@ class PluginContentsx
 
     function makelink_metalines()
     {
-        $metalines = array();
+        $metalines = [];
         foreach ($this->metalines as $metaline) {
             $anchor = $metaline['anchor'];
             $headline = $metaline['headline'];
@@ -229,15 +247,17 @@ class PluginContentsx
     function make_pagelink($page, $alias, $anchor)
     {
         global $vars;
-        if ($this->options['link'][1] == 'off' || $anchor =='') {
+        if ($this->options['link'][1] == 'off' || $anchor == '') {
             return htmlspecialchars($alias);
         }
         if (($this->options['link'][1] == 'on' && $page == $vars['page'])
-            || $this->options['link'][1] == 'anchor') {
+            || $this->options['link'][1] == 'anchor'
+        ) {
             $page = '';
         }
         global $show_passage;
-        $tmp = $show_passage; $show_passage = 0;
+        $tmp = $show_passage;
+        $show_passage = 0;
         $link = make_pagelink($page, $alias, $anchor);
         $show_passage = $tmp;
         return $link;
@@ -255,11 +275,11 @@ class PluginContentsx
         // 1) fill in list spaces for each page
         // 1 3 1 1 3 3 1 => 1 2 1 1 2 2 1 (2 was none, move 3 to 2)
         // 2 2 2 => 1 1 1
-        $listdepthstack = array();
+        $listdepthstack = [];
         foreach ($this->metalines as $metaline) {
             $page  = $metaline['page'];
             $listdepth = $metaline['listdepth'];
-            if( !isset($listdepthstack[$page]) || ! in_array($listdepth, $listdepthstack[$page])) {
+            if (!isset($listdepthstack[$page]) || ! in_array($listdepth, $listdepthstack[$page])) {
                 $listdepthstack[$page][] = $listdepth;
             }
         }
@@ -267,13 +287,13 @@ class PluginContentsx
             sort($listdepthstack[$page]);
         }
         // 1 2 4 == (0=>1, 1=>2, 2=>4) -> (1=>1, 1=>2, 3=>4) -exchange keys and values-> (1=>1, 2=>1, 4=>3)
-        $listdepthfill = array();
+        $listdepthfill = [];
         foreach ($listdepthstack as $page => $stack) {
-            foreach($stack as $i => $listdepth) {
+            foreach ($stack as $i => $listdepth) {
                 $listdepthfill[$page][$listdepth] = $i + 1;
             }
         }
-        $metalines = array();
+        $metalines = [];
         foreach ($this->metalines as $metaline) {
             $page  = $metaline['page'];
             $listdepth = $metaline['listdepth'];
@@ -284,21 +304,21 @@ class PluginContentsx
 
         // 2) fill in previous list space, seperately for each page
         // 1 3 2 => 1 2 2
-        $pdepth = array(); $plistdepth = array();
+        $pdepth = [];
+        $plistdepth = [];
         foreach (array_keys($listdepthstack) as $page) {
             $pdepth[$page] = -1;
             $plistdepth[$page] = 0;
         }
-        $metalines = array();
-        $this->hoge = array();
+        $metalines = [];
         foreach ($this->metalines as $metaline) {
             $page = $metaline['page'];
             if ($metaline['depth'] > $pdepth[$page]) {
                 $metaline['listdepth'] = $plistdepth[$page] + 1;
-            } elseif($metaline['depth'] == $pdepth[$page]) {
+            } elseif ($metaline['depth'] == $pdepth[$page]) {
                 $metaline['listdepth'] = $plistdepth[$page];
             } else {
-                $metaline['listdepth'] = ($plistdepth[$page] < $metaline['listdepth']) ? $plistdepth[$page]: $metaline['listdepth'];
+                $metaline['listdepth'] = ($plistdepth[$page] < $metaline['listdepth']) ? $plistdepth[$page] : $metaline['listdepth'];
             }
             $pdepth[$page] = $metaline['depth'];
             $plistdepth[$page] = $metaline['listdepth'];
@@ -313,8 +333,8 @@ class PluginContentsx
         if ($this->options['include'][1] && sizeof($this->visited) >= 2) { // include (0,1,2,3...) -> (1,2,3,4...)
             $include = 1;
         }
-        $metalines = array();
-        foreach($this->metalines as $metaline) {
+        $metalines = [];
+        foreach ($this->metalines as $metaline) {
             if ($this->options['hierarchy'][1]) {
                 $metaline['listdepth'] = $metaline['depth'] + $include;
             } else {
@@ -330,7 +350,7 @@ class PluginContentsx
         if ($this->options['num'][1] === '') {
             return;
         }
-        $metalines = array();
+        $metalines = [];
         foreach ($this->options['num'][1] as $num) {
             $metalines[] = $this->metalines[$num - 1];
         }
@@ -342,7 +362,7 @@ class PluginContentsx
         if ($this->options['depth'][1] === '') {
             return;
         }
-        $metalines = array();
+        $metalines = [];
         foreach ($this->metalines as $metaline) {
             $depth = $metaline['depth'];
             if (in_array($depth, $this->options['depth'][1])) {
@@ -357,10 +377,10 @@ class PluginContentsx
         if ($this->options['filter'][1] === "") {
             return;
         }
-        $metalines = array();
+        $metalines = [];
         foreach ($this->metalines as $metaline) {
             $headline = $metaline['headline'];
-            if (preg_match('/'.$this->options['filter'][1].'/', $headline)) {
+            if (preg_match('/' . $this->options['filter'][1] . '/', $headline)) {
                 $metalines[] = $metaline;
             }
         }
@@ -372,10 +392,10 @@ class PluginContentsx
         if ($this->options['except'][1] === "") {
             return;
         }
-        $metalines = array();
+        $metalines = [];
         foreach ($this->metalines as $metaline) {
             $headline = $metaline['headline'];
-            if (!preg_match('/'.$this->options['except'][1].'/', $headline)) {
+            if (!preg_match('/' . $this->options['except'][1] . '/', $headline)) {
                 $metalines[] = $metaline;
             }
         }
@@ -387,7 +407,7 @@ class PluginContentsx
         if ($this->options['include'][1]) {
             return;
         }
-        $metalines = array();
+        $metalines = [];
         foreach ($this->metalines as $metaline) {
             if ($metaline['page'] == $this->options['page'][1]) {
                 $metalines[] = $metaline;
@@ -401,7 +421,7 @@ class PluginContentsx
         if (! $this->options['fromhere'][1]) {
             return;
         }
-        $metalines = array();
+        $metalines = [];
         foreach ($this->metalines as $metaline) {
             if ($metaline['fromhere']) {
                 $metalines[] = $metaline;
@@ -412,9 +432,11 @@ class PluginContentsx
 
     function init_metalines($page)
     {
-        $this->metalines = array();
-        $this->visited = array();
-        if ($this->read_cache($page) !== false) { return; }
+        $this->metalines = [];
+        $this->visited = [];
+        if ($this->read_cache($page) !== false) {
+            return;
+        }
         $this->metalines = $this->r_metalines($page);
         $this->write_cache($page);
     }
@@ -422,7 +444,7 @@ class PluginContentsx
     // false if cache is unavailable
     function read_cache($apage)
     {
-       	$qm = get_qm();
+        $qm = get_qm();
         if ($this->options['cache'][1] == 'off' || $this->options['cache'][1] == 'reset') {
             return false;
         }
@@ -434,7 +456,7 @@ class PluginContentsx
             return false;
         }
         if (! $this->is_readable($cache)) {
-        	$this->error = $qm->replace('plg_contentsx.err_cache_not_readable', $cache);
+            $this->error = $qm->replace('plg_contentsx.err_cache_not_readable', $cache);
             return;
         }
 
@@ -461,10 +483,10 @@ class PluginContentsx
         }
 
         $this->visited = $visited;
-        $metalines = array();
+        $metalines = [];
         foreach ($lines as $line) {
             $metas = csv_explode(',', rtrim($line));
-            $metaline = array();
+            $metaline = [];
             foreach ($metas as $meta) {
                 list($key, $val) = explode('=', $meta, 2);
                 $metaline[$key] = $val;
@@ -476,7 +498,7 @@ class PluginContentsx
 
     function write_cache($apage)
     {
-    	$qm = get_qm();
+        $qm = get_qm();
         if ($this->options['cache'][1] == 'off') {
             return;
         }
@@ -485,18 +507,18 @@ class PluginContentsx
         }
         $cache = CACHE_DIR . encode($apage) . ".$this->plugin";
         if ($this->file_exists($cache) && ! $this->is_writable($cache)) {
-        	$this->error = $qm->replace('plg_contentsx.err_cache_not_writable', $cache);
+            $this->error = $qm->replace('plg_contentsx.err_cache_not_writable', $cache);
             return;
         }
 
-        $pages = array();
+        $pages = [];
         foreach ($this->visited as $page => $title) {
             $pages[] = csv_implode('=', array($page, $title));
         }
         $contents = '';
         $contents .= csv_implode(',', $pages) . "\n";
         foreach ($this->metalines as $metaline) {
-            $metas = array();
+            $metas = [];
             foreach ($metaline as $key => $val) {
                 $metas[] = "$key=$val";
             }
@@ -504,11 +526,11 @@ class PluginContentsx
         }
         // file_put_contents($cache, $contents); // PHP5
         if (! $fp = fopen($cache, "w")) {
-        	$this->error = $qm->replace('plg_contentsx.err_cache_cannot_open', $cache);
+            $this->error = $qm->replace('plg_contentsx.err_cache_cannot_open', $cache);
             return;
         }
         if (! fwrite($fp, $contents)) {
-        	$this->error = $qm->replace('plg_contentsx.err_cache_cannot_write', $cache);
+            $this->error = $qm->replace('plg_contentsx.err_cache_cannot_write', $cache);
             return;
         }
         fclose($fp);
@@ -517,21 +539,21 @@ class PluginContentsx
     function r_metalines($page, $detected = false)
     {
         if (array_key_exists($page, $this->visited)) {
-            return array();
+            return [];
         }
         if (! is_page($page)) {
-            return array();
+            return [];
         }
         $this->visited[$page] = '';
         $lines = $this->get_source($page);
         $multiline = 0;
-        $metalines = array();
+        $metalines = [];
         foreach ($lines as $i => $line) {
             // multiline plugin. refer lib/convert_html
-            if(defined('PKWKEXP_DISABLE_MULTILINE_PLUGIN_HACK') && PKWKEXP_DISABLE_MULTILINE_PLUGIN_HACK === 0) {
-                $matches = array();
+            if (defined('PKWKEXP_DISABLE_MULTILINE_PLUGIN_HACK') && PKWKEXP_DISABLE_MULTILINE_PLUGIN_HACK === 0) {
+                $matches = [];
                 if ($multiline < 2) {
-                    if(preg_match('/^#([^\(\{]+)(?:\(([^\r]*)\))?(\{*)/', $line, $matches)) {
+                    if (preg_match('/^#([^\(\{]+)(?:\(([^\r]*)\))?(\{*)/', $line, $matches)) {
                         $multiline  = strlen($matches[3]);
                     }
                 } else {
@@ -554,14 +576,14 @@ class PluginContentsx
                 $depth    = strlen($matches[1]);
                 $anchor   = '#' . $this->make_heading($line); // *** [id] is removed from $line
                 $headline = trim($line);
-                $metalines[] = array('page'=>$page, 'headline'=>$headline, 'anchor'=>$anchor, 'depth'=>$depth, 'linenum'=>$i, 'fromhere'=>$detected);
+                $metalines[] = array('page' => $page, 'headline' => $headline, 'anchor' => $anchor, 'depth' => $depth, 'linenum' => $i, 'fromhere' => $detected);
                 continue;
             }
 
             if (preg_match($this->conf['def_include'], $line, $matches)) {
                 $args    = csv_explode(',', $matches[1]);
                 $inclpage = array_shift($args);
-                $options = array();
+                $options = [];
                 foreach ($args as $arg) {
                     list($key, $val) = array_pad(explode('=', $arg, 2), 2, true);
                     $options[$key] = $val;
@@ -578,7 +600,7 @@ class PluginContentsx
                 } else {
                     $titlestr = $inclpage;
                 }
-                $metalines[] = array('page'=>$inclpage, 'headline'=>$titlestr, 'anchor'=>$anchor, 'depth'=>0, 'linenum'=>$i, 'fromhere'=>$detected);
+                $metalines[] = array('page' => $inclpage, 'headline' => $titlestr, 'anchor' => $anchor, 'depth' => 0, 'linenum' => $i, 'fromhere' => $detected);
                 $metalines = array_merge($metalines, $this->r_metalines($inclpage, $detected));
                 continue;
             }
@@ -593,16 +615,16 @@ class PluginContentsx
     }
 
     // copy from lib/html.php
-    function make_heading(& $str, $strip = TRUE)
+    function make_heading(&$str, $strip = TRUE)
     {
         global $NotePattern;
 
         // Cut fixed-heading anchors
         $id = '';
-        $matches = array();
+        $matches = [];
         if (preg_match('/^(\*{0,3})(.*?)\[#([A-Za-z][\w-]+)\](.*?)$/m', $str, $matches)) {
             $str = $matches[2] . $matches[4];
-            $id  = & $matches[3];
+            $id  = &$matches[3];
         } else {
             $str = preg_replace('/^\*{0,3}/', '', $str);
         }
@@ -627,11 +649,11 @@ class PluginContentsx
             $this->options['fromhere'][1] = false;
         }
         if (! $this->is_page($page)) {
-        	$this->error = $qm->replace('plg_contentsx.err_no_page', $page);
+            $this->error = $qm->replace('plg_contentsx.err_no_page', $page);
             return;
         }
         if (! $this->check_readable($page, FALSE, FALSE)) {
-        	$this->error = $qm->replace('plg_contentsx.err_page_not_readable', $page);
+            $this->error = $qm->replace('plg_contentsx.err_page_not_readable', $page);
         }
         return $page;
     }
@@ -676,94 +698,98 @@ class PluginContentsxOptionParser
 
     function parse_options($args, $options)
     {
-    	$qm = get_qm();
+        $qm = get_qm();
         if (! $this->is_associative_array($args)) {
             $args = $this->associative_args($args, $options);
-            if ($this->error != "") { return; }
+            if ($this->error != "") {
+                return;
+            }
         }
 
         foreach ($args as $key => $val) {
-            if ( !isset($options[$key]) ) { continue; } // for action ($vars)
+            if (!isset($options[$key])) {
+                continue;
+            } // for action ($vars)
             $type = $options[$key][0];
 
             switch ($type) {
-            case 'bool':
-                if($val == "" || $val == "on" || $val == "true") {
-                    $options[$key][1] = true;
-                } elseif ($val == "off" || $val == "false" ) {
-                    $options[$key][1] = false;
-                } else {
-                	$this->error = $qm->replace('plg_contentsx.err_usage_boolean', h($key), h($val));
-                    return;
-                }
-                break;
-            case 'string':
-                $options[$key][1] = $val;
-                break;
-            case 'sanitize':
-                $options[$key][1] = htmlspecialchars($val);
-                break;
-            case 'number':
-                // Do not parse yet, parse after getting min and max. Here, just format checking
-                if ($val === '') {
-                    $options[$key][1] = '';
-                    break;
-                }
-                if ($val[0] === '(' && $val[strlen($val) - 1] == ')') {
-                    $val = substr($val, 1, strlen($val) - 2);
-                }
-                foreach (explode(",", $val) as $range) {
-                    if (preg_match('/^-?\d+$/', $range)) {
-                    } elseif (preg_match('/^-?\d*\:-?\d*$/', $range)) {
-                    } elseif (preg_match('/^-?\d+\+-?\d+$/', $range)) {
+                case 'bool':
+                    if ($val == "" || $val == "on" || $val == "true") {
+                        $options[$key][1] = true;
+                    } elseif ($val == "off" || $val == "false") {
+                        $options[$key][1] = false;
                     } else {
-                    	$this->error = $qm->replace('plg_contentsx.err_usage_number', h($key), h($val));
+                        $this->error = $qm->replace('plg_contentsx.err_usage_boolean', h($key), h($val));
                         return;
                     }
-                }
-                $options[$key][1] = $val;
-                break;
-            case 'enum':
-                if($val == "") {
-                    $options[$key][1] = $options[$key][2][0];
-                } elseif (in_array($val, $options[$key][2])) {
+                    break;
+                case 'string':
                     $options[$key][1] = $val;
-                } else {
-                	$this->error = $qm->replace('plg_contentsx.err_usage_enum', h($key), h($val), join(",", $options[$key][2]), $options[$key][2][0]);
-                    return;
-                }
-                break;
-            case 'array':
-                if ($val == '') {
-                    $options[$key][1] = array();
                     break;
-                }
-                if ($val[0] === '(' && $val[strlen($val) - 1] == ')') {
-                    $val = substr($val, 1, strlen($val) - 2);
-                }
-                $val = explode(',', $val);
-                //$val = $this->support_paren($val);
-                $options[$key][1] = $val;
-                break;
-            case 'enumarray':
-                if ($val == '') {
-                    $options[$key][1] = $options[$key][2];
+                case 'sanitize':
+                    $options[$key][1] = htmlspecialchars($val);
                     break;
-                }
-                if ($val[0] === '(' && $val[strlen($val) - 1] == ')') {
-                    $val = substr($val, 1, strlen($val) - 2);
-                }
-                $val = explode(',', $val);
-                //$val = $this->support_paren($val);
-                $options[$key][1] = $val;
-                foreach ($options[$key][1] as $each) {
-                    if (! in_array($each, $options[$key][2])) {
-                    	$this->error = $qm->replace('plg_contentsx.err_usage_enumarray', h($key), h(join(",", $options[$key][1])), join(",", $options[$key][2]));
+                case 'number':
+                    // Do not parse yet, parse after getting min and max. Here, just format checking
+                    if ($val === '') {
+                        $options[$key][1] = '';
+                        break;
+                    }
+                    if ($val[0] === '(' && $val[strlen($val) - 1] == ')') {
+                        $val = substr($val, 1, strlen($val) - 2);
+                    }
+                    foreach (explode(",", $val) as $range) {
+                        if (preg_match('/^-?\d+$/', $range)) {
+                        } elseif (preg_match('/^-?\d*\:-?\d*$/', $range)) {
+                        } elseif (preg_match('/^-?\d+\+-?\d+$/', $range)) {
+                        } else {
+                            $this->error = $qm->replace('plg_contentsx.err_usage_number', h($key), h($val));
+                            return;
+                        }
+                    }
+                    $options[$key][1] = $val;
+                    break;
+                case 'enum':
+                    if ($val == "") {
+                        $options[$key][1] = $options[$key][2][0];
+                    } elseif (in_array($val, $options[$key][2])) {
+                        $options[$key][1] = $val;
+                    } else {
+                        $this->error = $qm->replace('plg_contentsx.err_usage_enum', h($key), h($val), join(",", $options[$key][2]), $options[$key][2][0]);
                         return;
                     }
-                }
-                break;
-            default:
+                    break;
+                case 'array':
+                    if ($val == '') {
+                        $options[$key][1] = [];
+                        break;
+                    }
+                    if ($val[0] === '(' && $val[strlen($val) - 1] == ')') {
+                        $val = substr($val, 1, strlen($val) - 2);
+                    }
+                    $val = explode(',', $val);
+                    //$val = $this->support_paren($val);
+                    $options[$key][1] = $val;
+                    break;
+                case 'enumarray':
+                    if ($val == '') {
+                        $options[$key][1] = $options[$key][2];
+                        break;
+                    }
+                    if ($val[0] === '(' && $val[strlen($val) - 1] == ')') {
+                        $val = substr($val, 1, strlen($val) - 2);
+                    }
+                    $val = explode(',', $val);
+                    //$val = $this->support_paren($val);
+                    $options[$key][1] = $val;
+                    foreach ($options[$key][1] as $each) {
+                        if (! in_array($each, $options[$key][2])) {
+                            $this->error = $qm->replace('plg_contentsx.err_usage_enumarray', h($key), h(join(",", $options[$key][1])), join(",", $options[$key][2]));
+                            return;
+                        }
+                    }
+                    break;
+                default:
             }
         }
 
@@ -781,24 +807,24 @@ class PluginContentsxOptionParser
      */
     function associative_args($args, $options)
     {
-    	$qm = get_qm();
-        $result = array();
+        $qm = get_qm();
+        $result = [];
         while (($arg = current($args)) !== false) {
             list($key, $val) = array_pad(explode("=", $arg, 2), 2, '');
             if (! isset($options[$key])) {
-            	$this->error = $qm->replace('plg_contentsx.err_no_option', h($key));
+                $this->error = $qm->replace('plg_contentsx.err_no_option', h($key));
                 return;
             }
             // paren support
             if ($val[0] === '(' && ($options[$key][0] == 'number' ||
-                 $options[$key][0] == 'array' || $options[$key][0] == 'enumarray')) {
-                while(true) {
-                    if ($val[strlen($val)-1] === ')' && substr_count($val, '(') == substr_count($val, ')')) {
+                $options[$key][0] == 'array' || $options[$key][0] == 'enumarray')) {
+                while (true) {
+                    if ($val[strlen($val) - 1] === ')' && substr_count($val, '(') == substr_count($val, ')')) {
                         break;
                     }
                     $arg = next($args);
                     if ($arg === false) {
-                    	$this->error = $qm->m['plg_contensx']['err_paren'];
+                        $this->error = $qm->m['plg_contensx']['err_paren'];
                         return;
                     }
                     $val .= ',' . $arg;
@@ -815,7 +841,7 @@ class PluginContentsxOptionParser
         if ($optionval === '') {
             return '';
         }
-        $result = array();
+        $result = [];
         foreach (explode(",", $optionval) as $range) {
             if (preg_match('/^-?\d+$/', $range)) {
                 $left = $right = $range;
@@ -824,7 +850,7 @@ class PluginContentsxOptionParser
                 if ($left == "" && $right == "") {
                     $left = $min;
                     $right = $max;
-                } elseif($left == "") {
+                } elseif ($left == "") {
                     $left = $min;
                 } elseif ($right == "") {
                     $right = $max;
@@ -854,12 +880,13 @@ class PluginContentsxOptionParser
         return $result;
     }
 
-    function option_debug_print($options) {
+    function option_debug_print($options)
+    {
         foreach ($options as $key => $val) {
             $type = $val[0];
             $val = $val[1];
-            if(is_array($val)) {
-                $val=join(',', $val);
+            if (is_array($val)) {
+                $val = join(',', $val);
             }
             $body .= "$key=>($type, $val),";
         }
@@ -901,9 +928,8 @@ function plugin_contentsx_common_init()
 
 function plugin_contentsx_convert()
 {
-    global $plugin_contentsx; plugin_contentsx_common_init();
+    global $plugin_contentsx;
+    plugin_contentsx_common_init();
     $args = func_get_args();
     return call_user_func_array(array(&$plugin_contentsx, 'convert'), $args);
 }
-
-?>

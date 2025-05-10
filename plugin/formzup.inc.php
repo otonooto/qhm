@@ -14,20 +14,19 @@ function plugin_formzup_convert()
 	$qm = get_qm();
 
 	$args = func_get_args();
-	$args_cnt = count( $args );
+	$args_cnt = count($args);
 	list($formurl, $hight, $width, $align) = array_pad($args, 4, '');
 
 	if ($args_cnt < 3 || $args_cnt > 4) {  //correct args
 		return $qm->replace('fmt_err_cvt', 'formzup', $qm->m['plg_formzup']['err_usage']);
 	}
 	if ($args_cnt == 3) {
-		$align = 'center'; 
+		$align = 'center';
 	}
 
 	if (PLUGIN_FORMZUP_ALLOW_CSS === TRUE || ! isset($pkwk_dtd) || $pkwk_dtd == PKWK_DTD_XHTML_1_1) {
-		return '<div style="text-align:' .$align. '"><iframe src="' . $formurl . '" frameborder="0" height="' . $hight . '" width="' . $width . '" style="border:dashed 3px #f00; margin:0px; text-align:' . $align . ';">'. $qm->replace('plg_formzu.ntc', $formurl). '</iframe></div>';
+		return '<div style="text-align:' . $align . '"><iframe src="' . $formurl . '" frameborder="0" height="' . $hight . '" width="' . $width . '" style="border:dashed 3px #f00; margin:0px; text-align:' . $align . ';">' . $qm->replace('plg_formzu.ntc', $formurl) . '</iframe></div>';
 	} else {
 		return $qm->m['plg_formzu']['err_invalid_arg'];
 	}
 }
-?>

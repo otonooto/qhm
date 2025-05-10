@@ -28,30 +28,29 @@
 
 */
 // max file size for upload on PHP(PHP default 2MB)
-ini_set('upload_max_filesize','2M');
+ini_set('upload_max_filesize', '2M');
 
 // max file size for upload on script of PukiWiki(default 1MB)
-define('MAX_FILESIZE',2000000);
+define('MAX_FILESIZE', 2000000);
 
 // 管理者だけが添付ファイルをアップロードできるようにする
-define('ATTACHREF_UPLOAD_ADMIN_ONLY',TRUE); // FALSE or TRUE
+define('ATTACHREF_UPLOAD_ADMIN_ONLY', TRUE); // FALSE or TRUE
 // アップロード/削除時にパスワードを要求する(ADMIN_ONLYが優先)
-define('ATTACHREF_PASSWORD_REQUIRE',TRUE); // FALSE or TRUE
+define('ATTACHREF_PASSWORD_REQUIRE', TRUE); // FALSE or TRUE
 
 
 // upload dir(must set end of /) attach.inc.phpと合わせる
-define('ATTACHREF_UPLOAD_DIR','./attach/');
+define('ATTACHREF_UPLOAD_DIR', './attach/');
 
 
 function plugin_attachref_inline()
 {
-	global $script,$vars,$digest,$username;
-	static $numbers = array();
+	global $script, $vars, $digest, $username;
+	static $numbers = [];
 	static $no_flag = 0;
 	$qm = get_qm();
 
-	if (!array_key_exists($vars['page'],$numbers))
-	{
+	if (!array_key_exists($vars['page'], $numbers)) {
 		$numbers[$vars['page']] = 0;
 	}
 	$attachref_no = $numbers[$vars['page']]++;
@@ -62,60 +61,51 @@ function plugin_attachref_inline()
 	$button = 0;
 
 	$args = func_get_args();
-    $btn_text = array_pop($args);
-    $btn_text = $btn_text ? $btn_text : $qm->m['plg_attachref']['btn_submit'];
+	$btn_text = array_pop($args);
+	$btn_text = $btn_text ? $btn_text : $qm->m['plg_attachref']['btn_submit'];
 
-    //SWFUを持っている人用
-    if( $username == $_SESSION['usr'] && has_swfu())
-    {
-    	$btn_text = '(swfu'.$btn_text.')';
-    }
-
-    $options = array();
-    foreach ( $args as $opt ){
-	    if ( $opt === 'button' ){
-	        $button = 1;
-	    }
-	    else if ( $opt === 'number' ){
-		$no_flag = 1;
-	    }
-	    else if ( $opt === 'nonumber' ){
-		$no_flag = 0;
-	    }
-	    else {
-	        array_push($options, $opt);
-	    }
+	//SWFUを持っている人用
+	if ($username == $_SESSION['usr'] && has_swfu()) {
+		$btn_text = '(swfu' . $btn_text . ')';
 	}
-    if ( $no_flag == 1 ) $btn_text .= "[$attachref_no]";
+
+	$options = [];
+	foreach ($args as $opt) {
+		if ($opt === 'button') {
+			$button = 1;
+		} else if ($opt === 'number') {
+			$no_flag = 1;
+		} else if ($opt === 'nonumber') {
+			$no_flag = 0;
+		} else {
+			array_push($options, $opt);
+		}
+	}
+	if ($no_flag == 1) $btn_text .= "[$attachref_no]";
 	$args = $options;
-	if ( count($args) and $args[0]!='' )
-	{
+	if (count($args) and $args[0] != '') {
 
-//		if( fopen($args[0], 'r') ){ // http:..., swfu/d/hogehoge.png.. などなど
-		if( !is_url($args[0]) && file_exists($args[0]) ){ // http:..., swfu/d/hogehoge.png.. などなど
-			require_once(PLUGIN_DIR."show.inc.php");
-		    $params = plugin_show_body($args,$vars['page']);
-		}
-		else{
-			require_once(PLUGIN_DIR."ref.inc.php");
-		    $params = plugin_ref_body($args,$vars['page']);
+		//		if( fopen($args[0], 'r') ){ // http:..., swfu/d/hogehoge.png.. などなど
+		if (!is_url($args[0]) && file_exists($args[0])) { // http:..., swfu/d/hogehoge.png.. などなど
+			require_once(PLUGIN_DIR . "show.inc.php");
+			$params = plugin_show_body($args, $vars['page']);
+		} else {
+			require_once(PLUGIN_DIR . "ref.inc.php");
+			$params = plugin_ref_body($args, $vars['page']);
 		}
 
-	    if ($params['_error'] != '') {
+		if ($params['_error'] != '') {
 			$ret = $params['_error'];
 			$dispattach = 1;
-	    }
-	    else
-	    {
+		} else {
 			$ret = $params['_body'];
 			$dispattach = 0;
-	    }
-
+		}
 	}
-	if ( $dispattach ) {
-	    //XSS脆弱性問題 - 外部から来た変数をエスケープ
-	    $s_args = trim(join(",", $args));
-	    if ( $button ){
+	if ($dispattach) {
+		//XSS脆弱性問題 - 外部から来た変数をエスケープ
+		$s_args = trim(join(",", $args));
+		if ($button) {
 			$s_args .= ",button";
 			$f_page = htmlspecialchars($vars['page']);
 			$f_args = htmlspecialchars($s_args);
@@ -133,75 +123,72 @@ function plugin_attachref_inline()
   </div>
   </form>
 EOD;
-	    }
-	    else {
-			$f_btn_text = preg_replace('/<[^<>]+>/','',$btn_text);
-//		echo '[debug]btn=',$f_btn_text;
+		} else {
+			$f_btn_text = preg_replace('/<[^<>]+>/', '', $btn_text);
+			//		echo '[debug]btn=',$f_btn_text;
 			$f_page = rawurlencode($vars['page']);
 			$f_args = rawurlencode($s_args);
 			$ret = <<<EOD
   $ret<a href="$script?plugin=attachref&amp;attachref_no=$attachref_no&amp;attachref_opt=$f_args&amp;refer=$f_page&amp;digest=$digest" title="$f_btn_text">$btn_text</a>
 EOD;
-	    }
+		}
 	}
 	return $ret;
 }
 
 function plugin_attachref_action()
 {
-	global $script,$vars,$username;
+	global $script, $vars, $username;
 	global $html_transitional;
 	$qm = get_qm();
 
 	//check auth
 	$editable = edit_auth($vars['refer'], FALSE, FALSE);
-	if(!$editable){
-		return array('msg'=>$qm->m['plg_attachref']['title_ntc_admin'],'body'=>'<p>'. $qm->m['plg_attachref']['ntc_admin']. '</p>');
+	if (!$editable) {
+		return array('msg' => $qm->m['plg_attachref']['title_ntc_admin'], 'body' => '<p>' . $qm->m['plg_attachref']['ntc_admin'] . '</p>');
 	}
 
 	//戻り値を初期化
 	$retval['msg'] = $qm->m['plg_attachref']['title'];
 	$retval['body'] = '';
 
-	if (array_key_exists('attach_file',$_FILES)
-		and array_key_exists('refer',$vars)
-		and is_page($vars['refer']))
-	{
+	if (
+		array_key_exists('attach_file', $_FILES)
+		and array_key_exists('refer', $vars)
+		and is_page($vars['refer'])
+	) {
 		$file = $_FILES['attach_file'];
 		$attachname = $file['name'];
-		$filename = preg_replace('/\..+$/','', $attachname,1);
+		$filename = preg_replace('/\..+$/', '', $attachname, 1);
 
 
 		//! swfuを持っていたら (管理者のみ)--------------------------------------------
-	    if( $editable && has_swfu())
-    	{
+		if ($editable && has_swfu()) {
 
-    		//アップロードするファイル名を決め（日本語ダメ、重複もダメ）
-		 	$upload_name = $file['name'];
-			if( preg_match('/^[-_.+a-zA-Z0-9]+$/', $upload_name ) ){
-				while(!$overwrite && file_exists(SWFU_IMAGE_DIR.$upload_name)){
-					$upload_name = 's_'.$upload_name;
+			//アップロードするファイル名を決め（日本語ダメ、重複もダメ）
+			$upload_name = $file['name'];
+			if (preg_match('/^[-_.+a-zA-Z0-9]+$/', $upload_name)) {
+				while (!$overwrite && file_exists(SWFU_IMAGE_DIR . $upload_name)) {
+					$upload_name = 's_' . $upload_name;
 				}
-				$upload_file = SWFU_IMAGE_DIR.$upload_name;
+				$upload_file = SWFU_IMAGE_DIR . $upload_name;
 				$fname = $upload_name;
 				$disp = $qm->m['plg_attachref']['img_desc'];
-			}
-			else
-			{
-				$matches = array();
+			} else {
+				$matches = [];
 
-				if( !preg_match('/[^.]+\.(.*)$/', $upload_name, $matches) ){
-					echo 'invalid file name : '.$upload_name;
+				if (!preg_match('/[^.]+\.(.*)$/', $upload_name, $matches)) {
+					echo 'invalid file name : ' . $upload_name;
 					exit(0);
 				}
 
 				$ext = $matches[1];
 				$tmp_name = tempnam(SWFU_IMAGE_DIR, 'auto_');
-				$upname = $tmp_name.'.'.$ext;
+				$upname = $tmp_name . '.' . $ext;
 				$disp = $upload_name;
 
 				rename($tmp_name, $upname);
-				$upload_file = SWFU_IMAGE_DIR. basename($upname);
+				$upload_file = SWFU_IMAGE_DIR . basename($upname);
 				$fname = basename($upname);
 			}
 
@@ -224,36 +211,31 @@ function plugin_attachref_action()
 			$db->insert($data);
 
 
-    		$retval = attachref_insert_ref(SWFU_IMAGE_DIR.$fname);
+			$retval = attachref_insert_ref(SWFU_IMAGE_DIR . $fname);
 
-    		return $retval;
-	    }
+			return $retval;
+		}
 
 
 		//すでに存在した場合、 ファイル名に'_0','_1',...を付けて回避(姑息)
 		$count = '_0';
-		while (file_exists(ATTACHREF_UPLOAD_DIR.encode($vars['refer']).'_'.encode($attachname)))
-		{
-			$attachname = preg_replace('/^[^\.]+/',$filename.$count++,$file['name']);
+		while (file_exists(ATTACHREF_UPLOAD_DIR . encode($vars['refer']) . '_' . encode($attachname))) {
+			$attachname = preg_replace('/^[^\.]+/', $filename . $count++, $file['name']);
 		}
 
 		$file['name'] = $attachname;
 
-		require_once(PLUGIN_DIR."attach.inc.php");
-		if (!exist_plugin('attach') or !function_exists('attach_upload'))
-		{
+		require_once(PLUGIN_DIR . "attach.inc.php");
+		if (!exist_plugin('attach') or !function_exists('attach_upload')) {
 			return array('msg' => $qm->m['plg_attachref']['err_notfound']);
 		}
-		$pass = array_key_exists('pass',$vars) ? $vars['pass'] : NULL;
+		$pass = array_key_exists('pass', $vars) ? $vars['pass'] : NULL;
 
-	    $retval = attach_upload($file,$vars['refer'],$pass);
-		if ($retval['result'] == TRUE)
-		{
+		$retval = attach_upload($file, $vars['refer'], $pass);
+		if ($retval['result'] == TRUE) {
 			$retval = attachref_insert_ref($file['name']);
 		}
-	}
-	else
-	{
+	} else {
 		$retval = attachref_showform();
 		// XHTML 1.0 Transitional
 		$html_transitional = TRUE;
@@ -263,116 +245,110 @@ function plugin_attachref_action()
 
 function attachref_insert_ref($filename)
 {
-	global $script,$vars,$now,$do_backup;
+	global $script, $vars, $now, $do_backup;
 	$qm = get_qm();
 
 	$ret['msg'] = $qm->m['plg_attachref']['title'];
 
 	$args = preg_split("/,/", $vars['attachref_opt']);
-	if ( count($args) ){
-	    $args[0] = $filename;//array_shift,unshiftって要するにこれね
-	    $s_args = join(",", $args);
-	}
-	else {
-	    $s_args = $filename;
+	if (count($args)) {
+		$args[0] = $filename; //array_shift,unshiftって要するにこれね
+		$s_args = join(",", $args);
+	} else {
+		$s_args = $filename;
 	}
 	$msg = "&attachref($s_args)";
 
 	$refer = $vars['refer'];
 	$digest = $vars['digest'];
 	$postdata_old = get_source($refer);
-	$thedigest = md5(join('',$postdata_old));
+	$thedigest = md5(join('', $postdata_old));
 
 	$postdata = '';
 	$attachref_ct = 0; //'#attachref'の出現回数
 	$attachref_no = $vars['attachref_no'];
-    $skipflag = 0;
+	$skipflag = 0;
 
 	$is_box = false;
 	$boxcnt = 0;
-	$boxdata = array();
+	$boxdata = [];
 
-	foreach ($postdata_old as $line)
-	{
-	    if ($is_box == false && ( $skipflag || substr($line,0,1) == ' ' || substr($line,0,2) == '//') ){
+	foreach ($postdata_old as $line) {
+		if ($is_box == false && ($skipflag || substr($line, 0, 1) == ' ' || substr($line, 0, 2) == '//')) {
 			$postdata .= $line;
 			continue;
-	    }
+		}
 
-	    if ($is_box == true && preg_match('/^\}\}/',$line)) {
+		if ($is_box == true && preg_match('/^\}\}/', $line)) {
 			$postdata .= $line;
 			$is_box = false;
 			continue;
-	    }
+		}
 
-	    if ($is_box) {
-	    	$boxdata[$boxcnt][] = $line;
-	    	continue;
-	    }
+		if ($is_box) {
+			$boxdata[$boxcnt][] = $line;
+			continue;
+		}
 
-	    if ($is_box == false && preg_match('/^#.+\{\{$/',$line)) {
+		if ($is_box == false && preg_match('/^#.+\{\{$/', $line)) {
 			$postdata .= $line;
 			$is_box = true;
-			$postdata .= '${box'. ++$boxcnt ."}\n";
-			$boxdata[$boxcnt] = array();
+			$postdata .= '${box' . ++$boxcnt . "}\n";
+			$boxdata[$boxcnt] = [];
 			continue;
-	    }
-
-	    $ct = preg_match_all('/&attachref(?=[({;])/',$line, $out);
-	    if ( $ct ){
-
-		for($i=0; $i < $ct; $i++){
-		    if ($attachref_ct++ == $attachref_no ){
-				$line = preg_replace('/&attachref(\([^(){};]*\))?(\{[^{}]*\})?;/',$msg.'$2;',$line,1);
-				$skipflag = 1;
-				break;
-		    }
-		    else {
-				$line = preg_replace('/&attachref(\([^(){};]*\))?(\{[^{}]*\})?;/','&___attachref$1$2___;',$line,1);
-		    }
 		}
-		$line = preg_replace('/&___attachref(\([^(){};]*\))?(\{[^{}]*\})?___;/','&attachref$1$2;',$line);
-	    }
 
-	    $postdata .= $line;
+		$ct = preg_match_all('/&attachref(?=[({;])/', $line, $out);
+		if ($ct) {
+
+			for ($i = 0; $i < $ct; $i++) {
+				if ($attachref_ct++ == $attachref_no) {
+					$line = preg_replace('/&attachref(\([^(){};]*\))?(\{[^{}]*\})?;/', $msg . '$2;', $line, 1);
+					$skipflag = 1;
+					break;
+				} else {
+					$line = preg_replace('/&attachref(\([^(){};]*\))?(\{[^{}]*\})?;/', '&___attachref$1$2___;', $line, 1);
+				}
+			}
+			$line = preg_replace('/&___attachref(\([^(){};]*\))?(\{[^{}]*\})?___;/', '&attachref$1$2;', $line);
+		}
+
+		$postdata .= $line;
 	}
 
 	foreach ($boxdata as $bi => $box) {
 		$boxstr = '';
 		foreach ($box as $line) {
-		    if ( $skipflag || substr($line,0,1) == ' ' || substr($line,0,2) == '//' ){
+			if ($skipflag || substr($line, 0, 1) == ' ' || substr($line, 0, 2) == '//') {
 				$boxstr .= $line;
 				continue;
-		    }
-
-		    $ct = preg_match_all('/&attachref(?=[({;])/',$line, $out);
-		    if ( $ct ){
-
-			for($i=0; $i < $ct; $i++){
-			    if ($attachref_ct++ == $attachref_no ){
-					$line = preg_replace('/&attachref(\([^(){};]*\))?(\{[^{}]*\})?;/',$msg.'$2;',$line,1);
-					$skipflag = 1;
-					break;
-			    }
-			    else {
-					$line = preg_replace('/&attachref(\([^(){};]*\))?(\{[^{}]*\})?;/','&___attachref$1$2___;',$line,1);
-			    }
 			}
-			$line = preg_replace('/&___attachref(\([^(){};]*\))?(\{[^{}]*\})?___;/','&attachref$1$2;',$line);
-		    }
-		    $boxstr .= $line;
 
+			$ct = preg_match_all('/&attachref(?=[({;])/', $line, $out);
+			if ($ct) {
+
+				for ($i = 0; $i < $ct; $i++) {
+					if ($attachref_ct++ == $attachref_no) {
+						$line = preg_replace('/&attachref(\([^(){};]*\))?(\{[^{}]*\})?;/', $msg . '$2;', $line, 1);
+						$skipflag = 1;
+						break;
+					} else {
+						$line = preg_replace('/&attachref(\([^(){};]*\))?(\{[^{}]*\})?;/', '&___attachref$1$2___;', $line, 1);
+					}
+				}
+				$line = preg_replace('/&___attachref(\([^(){};]*\))?(\{[^{}]*\})?___;/', '&attachref$1$2;', $line);
+			}
+			$boxstr .= $line;
 		}
-		$postdata = str_replace('${box'.$bi.'}', trim($boxstr), $postdata);
+		$postdata = str_replace('${box' . $bi . '}', trim($boxstr), $postdata);
 	}
 
 	// 更新の衝突を検出
-	if ( $thedigest != $digest )
-	{
+	if ($thedigest != $digest) {
 		$ret['msg'] = $qm->m['fmt_title_collided'];
 		$ret['body'] = $qm->m['plg_attachref']['collided'];
 	}
-	page_write($vars['refer'],$postdata);
+	page_write($vars['refer'], $postdata);
 
 	return $ret;
 }
@@ -385,32 +361,30 @@ function attachref_showform()
 	$vars['page'] = $vars['refer'];
 	$body = ini_get('file_uploads') ? attachref_form($vars['page']) : 'file_uploads disabled.';
 
-	return array('msg'=>$qm->m['plg_attach']['upload'],'body'=>$body);
+	return array('msg' => $qm->m['plg_attach']['upload'], 'body' => $body);
 }
 //アップロードフォーム
 function attachref_form($page)
 {
-	global $script,$vars;
+	global $script, $vars;
 	$qm = get_qm();
 
 	$s_page = htmlspecialchars($page);
 
-	$f_digest = array_key_exists('digest',$vars) ? $vars['digest'] : '';
-	$f_no = (array_key_exists('attachref_no',$vars) and is_numeric($vars['attachref_no'])) ?
+	$f_digest = array_key_exists('digest', $vars) ? $vars['digest'] : '';
+	$f_no = (array_key_exists('attachref_no', $vars) and is_numeric($vars['attachref_no'])) ?
 		$vars['attachref_no'] + 0 : 0;
 
 
-	if (!(bool)ini_get('file_uploads'))
-	{
+	if (!(bool)ini_get('file_uploads')) {
 		return "";
 	}
 
 	$maxsize = MAX_FILESIZE;
-	$msg_maxsize = $qm->replace('plg_attach.maxsize', number_format($maxsize/1000)."KB");
+	$msg_maxsize = $qm->replace('plg_attach.maxsize', number_format($maxsize / 1000) . "KB");
 
 	$pass = '';
-	if (ATTACHREF_PASSWORD_REQUIRE or ATTACHREF_UPLOAD_ADMIN_ONLY)
-	{
+	if (ATTACHREF_PASSWORD_REQUIRE or ATTACHREF_UPLOAD_ADMIN_ONLY) {
 		$title = $qm->m['plg_attach'][ATTACHREF_UPLOAD_ADMIN_ONLY ? 'adminpass' : 'password'];
 	}
 	return <<<EOD
@@ -433,4 +407,3 @@ function attachref_form($page)
 </form>
 EOD;
 }
-?>

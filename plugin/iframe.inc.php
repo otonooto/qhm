@@ -9,7 +9,9 @@
 define('PLUGIN_IFRAME_ALLOW_CSS', TRUE); // TRUE, FALSE
 
 // ----
-define('PLUGIN_IFRAME_FIT_IFRAME_JS', '
+define(
+	'PLUGIN_IFRAME_FIT_IFRAME_JS',
+	'
 <script type="text/javascript">
 $(function(){
 	$(\'iframe.autofit_iframe\').load(function(){
@@ -29,34 +31,33 @@ function plugin_iframe_convert()
 
 	$qt = get_qt();
 	$qt->setv('jquery_include', true);
-	
+
 	$args = func_get_args();
-	$args_cnt = count( $args );
+	$args_cnt = count($args);
 	list($formurl, $height, $width, $align) = array_pad($args, 4, '');
-	
+
 	if (strlen(trim($formurl)) == 0) {
 		return $qm->replace('fmt_err_cvt', 'iframe', $qm->m['plg_iframe']['err_usage']);
 	}
 
 	$fit = '';
-	
+
 	if ($args_cnt < 3) {  //correct args
 		$height = '200';
 		$width = '100%';
-		
+
 		$fit = ' class="autofit_iframe" ';
-		
+
 		$qt->appendv_once('plugin_iframe', 'beforescript', PLUGIN_IFRAME_FIT_IFRAME_JS);
 	}
-	if ($args_cnt < 4){
+	if ($args_cnt < 4) {
 		$align = 'center';
 	}
-	
+
 
 	if (PLUGIN_IFRAME_ALLOW_CSS === TRUE || ! isset($pkwk_dtd) || $pkwk_dtd == PKWK_DTD_XHTML_1_1) {
-		return '<div style="text-align:' .$align. '"><iframe src="' . $formurl . '" frameborder="0" height="' . $height . '" width="' . $width . '" style="margin:0px;text-align:' . $align . ';" '.$fit.'><p>'. $qm->replace('plg_iframe.ntc', $formurl). '</p></iframe></div>';
+		return '<div style="text-align:' . $align . '"><iframe src="' . $formurl . '" frameborder="0" height="' . $height . '" width="' . $width . '" style="margin:0px;text-align:' . $align . ';" ' . $fit . '><p>' . $qm->replace('plg_iframe.ntc', $formurl) . '</p></iframe></div>';
 	} else {
 		return 'Invalid argument';
 	}
 }
-?>

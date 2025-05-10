@@ -41,7 +41,7 @@ if (is_readable(JCODE_FILE)) {
 // jcodeが存在しない場合、マルチバイト文字や漢字コードを扱えない
 if (! function_exists('jcode_convert_encoding')) {
 
-//	die_message('Multibyte functions cannot be used. Please read "mbstring.php" for an additional installation procedure of "jcode".');
+	//	die_message('Multibyte functions cannot be used. Please read "mbstring.php" for an additional installation procedure of "jcode".');
 
 	function jstrlen($str)
 	{
@@ -70,7 +70,7 @@ function mb_convert_encoding($str, $to_encoding, $from_encoding = '')
 	// 拡張: 配列を受けられるように
 	// mb_convert_variable対策
 	if (is_array($str)) {
-		foreach ($str as $key=>$value) {
+		foreach ($str as $key => $value) {
 			$str[$key] = mb_convert_encoding($value, $to_encoding, $from_encoding);
 		}
 		return $str;
@@ -95,7 +95,7 @@ function mb_convert_variables($to_encoding, $from_encoding, &$vars)
 // 補助関数:配列を再帰的にjoinする
 function join_array($glue, $pieces)
 {
-	$arr = array();
+	$arr = [];
 	foreach ($pieces as $piece) {
 		$arr[] = is_array($piece) ? join_array($glue, $piece) : $piece;
 	}
@@ -105,7 +105,7 @@ function join_array($glue, $pieces)
 // mb_detect_encoding -- 文字エンコーディングを検出する
 function mb_detect_encoding($str, $encoding_list = '')
 {
-	static $codes = array(0=>'ASCII', 1=>'EUC-JP', 2=>'SJIS', 3=>'JIS', 4=>'UTF-8');
+	static $codes = array(0 => 'ASCII', 1 => 'EUC-JP', 2 => 'SJIS', 3 => 'JIS', 4 => 'UTF-8');
 
 	// 注: $encoding_listは使用しない。
 	$code = AutoDetect($str);
@@ -117,7 +117,7 @@ function mb_detect_encoding($str, $encoding_list = '')
 // mb_detect_order --  文字エンコーディング検出順序の設定/取得
 function mb_detect_order($encoding_list = NULL)
 {
-	static $list = array();
+	static $list = [];
 
 	// 注: 他の関数に影響を及ぼさない。呼んでも無意味。
 	if ($encoding_list === NULL) return $list;
@@ -201,4 +201,3 @@ function mb_substr($str, $start, $length = NULL, $encoding = '')
 	// 注: EUC-JP専用, $encodingを使用しない
 	return jsubstr($str, $start, ($length === NULL) ? jstrlen($str) : $length);
 }
-?>

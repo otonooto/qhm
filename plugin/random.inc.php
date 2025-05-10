@@ -22,7 +22,7 @@ function plugin_random_convert()
 {
 	$qt = get_qt();
 	//---- キャッシュのための処理を登録 -----
-	if($qt->create_cache) {
+	if ($qt->create_cache) {
 		$args = func_get_args();
 		return $qt->get_dynamic_plugin_mark(__FUNCTION__, $args);
 	}
@@ -46,17 +46,16 @@ function plugin_random_action()
 	global $vars;
 
 	$pattern = strip_bracket($vars['refer']) . '/';
-	$pages = array();
+	$pages = [];
 	foreach (get_existpages() as $_page) {
 		if (strpos($_page, $pattern) === 0)
 			$pages[$_page] = strip_bracket($_page);
 	}
 
-	srand((double)microtime() * 1000000);
+	srand((float)microtime() * 1000000);
 	$page = array_rand($pages);
 
 	if ($page != '') $vars['refer'] = $page;
 
-	return array('body'=>'','msg'=>'');
+	return array('body' => '', 'msg' => '');
 }
-?>

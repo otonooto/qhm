@@ -1,0 +1,40 @@
+name: Create a release pull request
+on:
+  push:
+    branches:
+      - release-*
+
+env:
+  RUBY_VERSION: 3.1
+
+jobs:
+  create-release-pr:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ env.RUBY_VERSION }}
+
+      - name: Setup vars
+        id: vars
+        run: |
+          echo "branch_name=${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
+          echo "release_version=$(echo ${GITHUB_REF} | cut -d '-' -f 2)" >> $GITHUB_OUTPUT
+
+      - name: Create a staging release pull request
+        env:
+          GIT_PR_RELEASE_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GIT_PR_RELEASE_BRANCH_PRODUCTION: main
+          GIT_PR_RELEASE_BRANCH_STAGING: ${{ steps.vars.outputs.branch_name }}
+          GIT_PR_RELEASE_LABELS: release
+          GIT_PR_RELEASE_TITLE: "Release v${{ steps.vars.outputs.release_version }}"
+          GIT_PR_RELEASE_TEMPLATE: .github/git-pr-release-template
+        run: |
+          gem install -N git-pr-release
+          git-pr-release --no-fetch

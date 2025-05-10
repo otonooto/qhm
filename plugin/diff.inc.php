@@ -12,9 +12,10 @@ function plugin_diff_action()
 {
 	global $vars, $script;
 	global $layout_pages, $style_name;
+	$page = isset($vars['page']) ? $vars['page'] : '';
 
 	$editable = edit_auth($page, FALSE, FALSE);
-	if(!$editable){
+	if (!$editable) {
 		header("Location: $script");
 		exit();
 	}
@@ -24,8 +25,7 @@ function plugin_diff_action()
 
 	//レイアウト部品の場合、スタイルを変更する
 	$is_layout = FALSE;
-	if (isset($layout_pages) && isset($layout_pages[$page]))
-	{
+	if (isset($layout_pages) && isset($layout_pages[$page])) {
 		$style_name = '..';
 		$is_layout = TRUE;
 	}
@@ -35,8 +35,12 @@ function plugin_diff_action()
 
 	$action = isset($vars['action']) ? $vars['action'] : '';
 	switch ($action) {
-		case 'delete': $retval = plugin_diff_delete($page);	break;
-		default:       $retval = plugin_diff_view($page);	break;
+		case 'delete':
+			$retval = plugin_diff_delete($page);
+			break;
+		default:
+			$retval = plugin_diff_view($page);
+			break;
 	}
 	return $retval;
 }
@@ -57,17 +61,14 @@ function plugin_diff_view($page)
 
 	//レイアウト部品の場合、スタイルを変更する
 	$is_layout = FALSE;
-	if (isset($layout_pages) && isset($layout_pages[$page]))
-	{
+	if (isset($layout_pages) && isset($layout_pages[$page])) {
 		$is_layout = TRUE;
 	}
 
 	$is_page = is_page($page);
-	if ($is_page && $is_layout)
-	{
-		$menu[] = ' <li><a href="'. h($script) .'?cmd=edit&amp;page='. $r_page .'">'. h($layout_pages[$page]) .'を編集する</a></li>';
-	}
-	else if ($is_page) {
+	if ($is_page && $is_layout) {
+		$menu[] = ' <li><a href="' . h($script) . '?cmd=edit&amp;page=' . $r_page . '">' . h($layout_pages[$page]) . 'を編集する</a></li>';
+	} else if ($is_page) {
 		$menu[] = ' <li>' . str_replace('$1', '<a href="' . $script . '?' . $r_page . '">' .
 			$s_page . '</a>', $qm->m['fmt_msg_goto']) . '</li>';
 	} else {
@@ -78,14 +79,14 @@ function plugin_diff_view($page)
 	if (file_exists($filename)) {
 		if (! PKWK_READONLY) {
 			$menu[] = '<li><a href="' . $script . '?cmd=diff&amp;action=delete&amp;page=' .
-				$r_page . '">' . $qm->replace('plg_diff.title_delete', $s_page). '</a></li>';
+				$r_page . '">' . $qm->replace('plg_diff.title_delete', $s_page) . '</a></li>';
 		}
 		$msg = '<pre>' . diff_style_to_css(htmlspecialchars(join('', file($filename)))) . '</pre>' . "\n";
 	} else if ($is_page) {
 		$diffdata = trim(htmlspecialchars(join('', get_source($page))));
 		$msg = '<pre><span class="diff_added">' . $diffdata . '</span></pre>' . "\n";
 	} else {
-		return array('msg'=>$qm->m['plg_diff']['title'], 'body'=>$qm->m['fmt_err_notfound']);
+		return array('msg' => $qm->m['plg_diff']['title'], 'body' => $qm->m['fmt_err_notfound']);
 	}
 
 	$menu = join("\n", $menu);
@@ -97,12 +98,11 @@ $hr
 EOD;
 
 	$title = $qm->m['plg_diff']['title'];
-	if ($is_layout)
-	{
+	if ($is_layout) {
 		$title = h($layout_pages[$page]) . 'の変更点';
 	}
 
-	return array('msg'=>$title, 'body'=>$body . $msg);
+	return array('msg' => $title, 'body' => $body . $msg);
 }
 
 function plugin_diff_delete($page)
@@ -114,7 +114,7 @@ function plugin_diff_delete($page)
 	$body = '';
 	if (! is_pagename($page))     $body = 'Invalid page name';
 	if (! file_exists($filename)) $body = make_pagelink($page) . '\'s diff seems not found';
-	if ($body) return array('msg'=>$qm->m['plg_diff']['title_delete'], 'body'=>$body);
+	if ($body) return array('msg' => $qm->m['plg_diff']['title_delete'], 'body' => $body);
 
 	if (isset($vars['pass'])) {
 		if (pkwk_login($vars['pass'])) {
@@ -142,10 +142,11 @@ function plugin_diff_delete($page)
 </form>
 EOD;
 
-	return array('msg'=>$qm->m['plg_diff']['title_delete'], 'body'=>$body);
+	return array('msg' => $qm->m['plg_diff']['title_delete'], 'body' => $body);
 }
 
-function plugin_diff_set_css() {
+function plugin_diff_set_css()
+{
 	$qt = get_qt();
 	$style_tag = <<< HTML
 <style>

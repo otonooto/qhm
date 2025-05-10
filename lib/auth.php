@@ -14,8 +14,10 @@ function pkwk_login($pass = '')
 {
 	global $adminpass;
 
-	if (! PKWK_READONLY && isset($adminpass) &&
-		check_passwd($pass, $adminpass)) {
+	if (
+		! PKWK_READONLY && isset($adminpass) &&
+		check_passwd($pass, $adminpass)
+	) {
 		return TRUE;
 	} else {
 		sleep(2);       // Blocking brute force attack
@@ -26,25 +28,20 @@ function pkwk_login($pass = '')
 function check_passwd($pass, $storedhash)
 {
 	$scheme = '';
-	
+
 	if (preg_match('/^(\{.+\})(.*)$/', $storedhash, $matches)) {
-		$scheme = & $matches[1];
-		$hash   = & $matches[2];
+		$scheme = &$matches[1];
+		$hash   = &$matches[2];
 	}
-	
-	if ($scheme === '{PHPASS}')
-	{
+
+	if ($scheme === '{PHPASS}') {
 		require_once(LIB_DIR . 'PasswordHash.php');
 		$t_hasher = new PasswordHash(8, TRUE);
 
 		return $t_hasher->CheckPassword($pass, $hash);
-		
-	}
-	else
-	{
+	} else {
 		return pkwk_hash_compute($pass, $storedhash) == $storedhash;
 	}
-
 }
 
 // Compute RFC2307 'userPassword' value, like slappasswd (OpenLDAP)
@@ -60,10 +57,10 @@ function pkwk_hash_compute($phrase = '', $scheme = '{x-php-md5}', $prefix = TRUE
 		die('pkwk_hash_compute(): malicious message length');
 
 	// With a {scheme}salt or not
-	$matches = array();
+	$matches = [];
 	if (preg_match('/^(\{.+\})(.*)$/', $scheme, $matches)) {
-		$scheme = & $matches[1];
-		$salt   = & $matches[2];
+		$scheme = &$matches[1];
+		$salt   = &$matches[2];
 	} else if ($scheme != '') {
 		$scheme  = ''; // Cleartext
 		$salt    = '';
@@ -72,77 +69,77 @@ function pkwk_hash_compute($phrase = '', $scheme = '{x-php-md5}', $prefix = TRUE
 	// Compute and add a scheme-prefix
 	switch (strtolower($scheme)) {
 
-	// PHP crypt()
-	case '{x-php-crypt}' :
-		$hash = ($prefix ? ($canonical ? '{x-php-crypt}' : $scheme) : '') .
-			($salt != '' ? crypt($phrase, $salt) : crypt($phrase));
-		break;
+		// PHP crypt()
+		case '{x-php-crypt}':
+			$hash = ($prefix ? ($canonical ? '{x-php-crypt}' : $scheme) : '') .
+				($salt != '' ? crypt($phrase, $salt) : crypt($phrase));
+			break;
 
-	// PHP md5()
-	case '{x-php-md5}'   :
-		$hash = ($prefix ? ($canonical ? '{x-php-md5}' : $scheme) : '') .
-			md5($phrase);
-		break;
+		// PHP md5()
+		case '{x-php-md5}':
+			$hash = ($prefix ? ($canonical ? '{x-php-md5}' : $scheme) : '') .
+				md5($phrase);
+			break;
 
-	// PHP sha1()
-	case '{x-php-sha1}'  :
-		$hash = ($prefix ? ($canonical ? '{x-php-sha1}' : $scheme) : '') .
-			sha1($phrase);
-		break;
+		// PHP sha1()
+		case '{x-php-sha1}':
+			$hash = ($prefix ? ($canonical ? '{x-php-sha1}' : $scheme) : '') .
+				sha1($phrase);
+			break;
 
-	// LDAP CRYPT
-	case '{crypt}'       :
-		$hash = ($prefix ? ($canonical ? '{CRYPT}' : $scheme) : '') .
-			($salt != '' ? crypt($phrase, $salt) : crypt($phrase));
-		break;
+		// LDAP CRYPT
+		case '{crypt}':
+			$hash = ($prefix ? ($canonical ? '{CRYPT}' : $scheme) : '') .
+				($salt != '' ? crypt($phrase, $salt) : crypt($phrase));
+			break;
 
-	// LDAP MD5
-	case '{md5}'         :
-		$hash = ($prefix ? ($canonical ? '{MD5}' : $scheme) : '') .
-			base64_encode(hex2bin(md5($phrase)));
-		break;
+		// LDAP MD5
+		case '{md5}':
+			$hash = ($prefix ? ($canonical ? '{MD5}' : $scheme) : '') .
+				base64_encode(hex2bin(md5($phrase)));
+			break;
 
-	// LDAP SMD5
-	case '{smd5}'        :
-		// MD5 Key length = 128bits = 16bytes
-		$salt = ($salt != '' ? substr(base64_decode($salt), 16) : substr(crypt(''), -8));
-		$hash = ($prefix ? ($canonical ? '{SMD5}' : $scheme) : '') .
-			base64_encode(hex2bin(md5($phrase . $salt)) . $salt);
-		break;
+		// LDAP SMD5
+		case '{smd5}':
+			// MD5 Key length = 128bits = 16bytes
+			$salt = ($salt != '' ? substr(base64_decode($salt), 16) : substr(crypt(''), -8));
+			$hash = ($prefix ? ($canonical ? '{SMD5}' : $scheme) : '') .
+				base64_encode(hex2bin(md5($phrase . $salt)) . $salt);
+			break;
 
-	// LDAP SHA
-	case '{sha}'         :
-		$hash = ($prefix ? ($canonical ? '{SHA}' : $scheme) : '') .
-			base64_encode(hex2bin(sha1($phrase)));
-		break;
+		// LDAP SHA
+		case '{sha}':
+			$hash = ($prefix ? ($canonical ? '{SHA}' : $scheme) : '') .
+				base64_encode(hex2bin(sha1($phrase)));
+			break;
 
-	// LDAP SSHA
-	case '{ssha}'        :
-		// SHA-1 Key length = 160bits = 20bytes
-		$salt = ($salt != '' ? substr(base64_decode($salt), 20) : substr(crypt(''), -8));
-		$hash = ($prefix ? ($canonical ? '{SSHA}' : $scheme) : '') .
-			base64_encode(hex2bin(sha1($phrase . $salt)) . $salt);
-		break;
+		// LDAP SSHA
+		case '{ssha}':
+			// SHA-1 Key length = 160bits = 20bytes
+			$salt = ($salt != '' ? substr(base64_decode($salt), 20) : substr(crypt(''), -8));
+			$hash = ($prefix ? ($canonical ? '{SSHA}' : $scheme) : '') .
+				base64_encode(hex2bin(sha1($phrase . $salt)) . $salt);
+			break;
 
-	// PHPASS - http://www.openwall.com/phpass/
-	case '{phpass}'      :
-		require_once(LIB_DIR . 'PasswordHash.php');
-		$t_hasher = new PasswordHash(8, TRUE);
-		$hash = ($prefix ? ($canonical ? '{PHPASS}' : $scheme) : '') . $t_hasher->HashPassword($phrase);
-		break;
+		// PHPASS - http://www.openwall.com/phpass/
+		case '{phpass}':
+			require_once(LIB_DIR . 'PasswordHash.php');
+			$t_hasher = new PasswordHash(8, TRUE);
+			$hash = ($prefix ? ($canonical ? '{PHPASS}' : $scheme) : '') . $t_hasher->HashPassword($phrase);
+			break;
 
-	// LDAP CLEARTEXT and just cleartext
-	case '{cleartext}'   : /* FALLTHROUGH */
-	case ''              :
-		$hash = ($prefix ? ($canonical ? '{CLEARTEXT}' : $scheme) : '') .
-			$phrase;
-		break;
+		// LDAP CLEARTEXT and just cleartext
+		case '{cleartext}': /* FALLTHROUGH */
+		case '':
+			$hash = ($prefix ? ($canonical ? '{CLEARTEXT}' : $scheme) : '') .
+				$phrase;
+			break;
 
 
-	// Invalid scheme
-	default:
-		$hash = FALSE;
-		break;
+		// Invalid scheme
+		default:
+			$hash = FALSE;
+			break;
 	}
 
 	return $hash;
@@ -165,8 +162,11 @@ function check_editable($page, $auth_flag = TRUE, $exit_flag = TRUE)
 			return FALSE; // Without exit
 		} else {
 			// With exit
-			$body = $title = str_replace('$1',
-				htmlspecialchars(strip_bracket($page)), $_title_cannotedit);
+			$body = $title = str_replace(
+				'$1',
+				htmlspecialchars(strip_bracket($page)),
+				$_title_cannotedit
+			);
 			if (is_freeze($page))
 				$body .= '(<a href="' . $script . '?cmd=unfreeze&amp;page=' .
 					rawurlencode($page) . '">' . $_msg_unfreeze . '</a>)';
@@ -186,15 +186,25 @@ function check_readable($page, $auth_flag = TRUE, $exit_flag = TRUE)
 function edit_auth($page, $auth_flag = TRUE, $exit_flag = TRUE)
 {
 	global $edit_auth, $edit_auth_pages, $_title_cannotedit;
-	return $edit_auth ?  basic_auth($page, $auth_flag, $exit_flag,
-		$edit_auth_pages, $_title_cannotedit) : TRUE;
+	return $edit_auth ?  basic_auth(
+		$page,
+		$auth_flag,
+		$exit_flag,
+		$edit_auth_pages,
+		$_title_cannotedit
+	) : TRUE;
 }
 
 function read_auth($page, $auth_flag = TRUE, $exit_flag = TRUE)
 {
 	global $read_auth, $read_auth_pages, $_title_cannotread;
-	return $read_auth ?  basic_auth($page, $auth_flag, $exit_flag,
-		$read_auth_pages, $_title_cannotread) : TRUE;
+	return $read_auth ?  basic_auth(
+		$page,
+		$auth_flag,
+		$exit_flag,
+		$read_auth_pages,
+		$_title_cannotread
+	) : TRUE;
 }
 
 // Basic authentication
@@ -210,27 +220,27 @@ function basic_auth($page, $auth_flag, $exit_flag, $auth_pages, $title_cannot)
 		$target_str = join('', get_source($page)); // Its contents
 	}
 
-	$user_list = array();
-	foreach($auth_pages as $key=>$val)
+	$user_list = [];
+	foreach ($auth_pages as $key => $val)
 		if (preg_match($key, $target_str))
 			$user_list = array_merge($user_list, explode(',', $val));
 
 	if (empty($user_list)) return TRUE; // No limit
-	
-	
+
+
 	//--------------------------------------------
 	//Customize from here
 	//Session Auth instead of Basic Auth
 	//Thanks & Refer SiteDev + AT by AKKO
-	if(in_array($_SESSION['usr'],$user_list)){
+	if (in_array($_SESSION['usr'], $user_list)) {
 		return TRUE;
 	}
-	
-    $fg = FALSE;
-	if ($auth_flag){
-		$arr_temp = array();
+
+	$fg = FALSE;
+	if ($auth_flag) {
+		$arr_temp = [];
 		foreach ($user_list as $val) {
-			foreach ($auth_users as $user=>$pass) {
+			foreach ($auth_users as $user => $pass) {
 				if ($val == $user) {
 					$auth_temp[$user] = $pass;
 				}
@@ -238,21 +248,23 @@ function basic_auth($page, $auth_flag, $exit_flag, $auth_pages, $title_cannot)
 		}
 		$qm = get_qm();
 		$fg = ss_chkusr($qm->m['auth']['ss_chkusr'], $auth_temp);
-		if($fg){
+		if ($fg) {
 			$_SESSION['usr'] = $_POST['username'];
-		 	return TRUE;
+			return TRUE;
 		}
 	}
 
 
 	if ($exit_flag) {
-		$body = $title = str_replace('$1',
-		htmlspecialchars(strip_bracket($page)), $title_cannot);
+		$body = $title = str_replace(
+			'$1',
+			htmlspecialchars(strip_bracket($page)),
+			$title_cannot
+		);
 		$page = str_replace('$1', make_search($page), $title_cannot);
 		auth_catbody($title, $body);
 		exit;
 	}
-	
+
 	return FALSE;
 }
-?>

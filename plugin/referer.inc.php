@@ -14,22 +14,24 @@ function plugin_referer_action()
 	$qm = get_qm();
 
 	// Setting: Off
-	if (! $referer) return array('msg'=>'','body'=>'');
+	if (! $referer) return array('msg' => '', 'body' => '');
 
 	if (isset($vars['page']) && is_page($vars['page'])) {
 		$sort = (empty($vars['sort'])) ? '0d' : $vars['sort'];
 		return array(
 			'msg'  => $qm->m['plg_referer']['title'],
-			'body' => plugin_referer_body($vars['page'], $sort));
+			'body' => plugin_referer_body($vars['page'], $sort)
+		);
 	}
 	$pages = get_existpages(TRACKBACK_DIR, '.ref');
 
 	if (empty($pages)) {
-		return array('msg'=>'', 'body'=>'');
+		return array('msg' => '', 'body' => '');
 	} else {
 		return array(
 			'msg'  => $qm->m['plg_referer']['title_list'],
-			'body' => page_list($pages, 'referer', FALSE));
+			'body' => page_list($pages, 'referer', FALSE)
+		);
 	}
 }
 
@@ -51,47 +53,60 @@ function plugin_referer_body($page, $sort)
 	$sort_ctr  = '2d';
 
 	switch ($sort) {
-	case '0d': // 0d 最終更新日時(新着順)
-		usort($data, create_function('$a,$b', 'return $b[0] - $a[0];'));
-		$color_last = $bg['cur'];
-		$arrow_last = $qm->m['plg_referer']['down'];
-		$sort_last = '0a';
-		break;
-	case '0a': // 0a 最終更新日時(日付順)
-		usort($data, create_function('$a,$b', 'return $a[0] - $b[0];'));
-		$color_last = $bg['cur'];
-		$arrow_last = $qm->m['plg_referer']['up'];
-//		$sort_last = '0d';
-		break;
-	case '1d': // 1d 初回登録日時(新着順)
-		usort($data, create_function('$a,$b', 'return $b[1] - $a[1];'));
-		$color_1st = $bg['cur'];
-		$arrow_1st = $qm->m['plg_referer']['down'];
-		$sort_1st = '1a';
-		break;
-	case '1a': // 1a 初回登録日時(日付順)
-		usort($data, create_function('$a,$b', 'return $a[1] - $b[1];'));
-		$color_1st = $bg['cur'];
-		$arrow_1st = $qm->m['plg_referer']['up'];
-//		$sort_1st = '1d';
-		break;
-	case '2d': // 2d カウンタ(大きい順)
-		usort($data, create_function('$a,$b', 'return $b[2] - $a[2];'));
-		$color_ctr = $bg['cur'];
-		$arrow_ctr = $qm->m['plg_referer']['down'];
-		$sort_ctr = '2a';
-		break;
-	case '2a': // 2a カウンタ(小さい順)
-		usort($data, create_function('$a,$b', 'return $a[2] - $b[2];'));
-		$color_ctr = $bg['cur'];
-		$arrow_ctr = $qm->m['plg_referer']['up'];
-//		$sort_ctr = '2d';
-		break;
-	case '3': // 3 Referer
-		usort($data, create_function('$a,$b',
-			'return ($a[3] == $b[3]) ? 0 : (($a[3] > $b[3]) ? 1 : -1);'));
-		$color_ref = $bg['cur'];
-		break;
+		case '0d': // 0d 最終更新日時(新着順)
+			usort($data, function ($a, $b) {
+				return $b[0] - $a[0];
+			});
+			$color_last = $bg['cur'];
+			$arrow_last = $qm->m['plg_referer']['down'];
+			$sort_last = '0a';
+			break;
+		case '0a': // 0a 最終更新日時(日付順)
+			usort($data, function ($a, $b) {
+				return $a[0] - $b[0];
+			});
+			$color_last = $bg['cur'];
+			$arrow_last = $qm->m['plg_referer']['up'];
+			//		$sort_last = '0d';
+			break;
+		case '1d': // 1d 初回登録日時(新着順)
+			usort($data, function ($a, $b) {
+				return $b[1] - $a[1];
+			});
+			$color_1st = $bg['cur'];
+			$arrow_1st = $qm->m['plg_referer']['down'];
+			$sort_1st = '1a';
+			break;
+		case '1a': // 1a 初回登録日時(日付順)
+			usort($data, function ($a, $b) {
+				return $a[1] - $b[1];
+			});
+			$color_1st = $bg['cur'];
+			$arrow_1st = $qm->m['plg_referer']['up'];
+			//		$sort_1st = '1d';
+			break;
+		case '2d': // 2d カウンタ(大きい順)
+			usort($data, function ($a, $b) {
+				return $b[2] - $a[2];
+			});
+			$color_ctr = $bg['cur'];
+			$arrow_ctr = $qm->m['plg_referer']['down'];
+			$sort_ctr = '2a';
+			break;
+		case '2a': // 2a カウンタ(小さい順)
+			usort($data, function ($a, $b) {
+				return $a[2] - $b[2];
+			});
+			$color_ctr = $bg['cur'];
+			$arrow_ctr = $qm->m['plg_referer']['up'];
+			//		$sort_ctr = '2d';
+			break;
+		case '3': // 3 Referer
+			usort($data, function ($a, $b) {
+				return ($a[3] == $b[3]) ? 0 : (($a[3] > $b[3]) ? 1 : -1);
+			});
+			$color_ref = $bg['cur'];
+			break;
 	}
 
 	$body = '';
@@ -100,7 +115,9 @@ function plugin_referer_body($page, $sort)
 		list($ltime, $stime, $count, $url, $enable) = $arr;
 
 		// 非ASCIIキャラクタ(だけ)をURLエンコードしておく BugTrack/440
-		$e_url = htmlspecialchars(preg_replace_callback('/([" \x80-\xff]+)/', function($m) { return rawurlencode($m[0]); }, $url));
+		$e_url = htmlspecialchars(preg_replace_callback('/([" \x80-\xff]+)/', function ($m) {
+			return rawurlencode($m[0]);
+		}, $url));
 		$s_url = htmlspecialchars(mb_convert_encoding(rawurldecode($url), SOURCE_ENCODING, 'auto'));
 
 		$lpass = get_passage($ltime, FALSE); // 最終更新日時からの経過時間
@@ -163,11 +180,12 @@ function plugin_referer_set_color()
 		unset($config);
 
 		// BGCOLOR(#88ff88)
-		$matches = array();
+		$matches = [];
 		foreach ($pconfig_color as $x)
 			$color[$x[0]] = htmlspecialchars(
 				preg_match('/BGCOLOR\(([^)]+)\)/si', $x[1], $matches) ?
-					$matches[1] : $x[1]);
+					$matches[1] : $x[1]
+			);
 	}
 	return $color;
 }
@@ -189,4 +207,3 @@ function plugin_referer_ignore_check($url)
 			return 1;
 	return 0;
 }
-?>

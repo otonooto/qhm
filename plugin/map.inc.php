@@ -31,7 +31,7 @@ function plugin_map_action()
 	$retval['body'] = '';
 
 
-	$retval['body'] = '<p style="text-align:right;"><a href="'.$script.'?cmd=related&page='.rawurlencode($refer).'" style="font-size:80%">'. $qm->m['plg_map']['link_rel']. '</a></p>';
+	$retval['body'] = '<p style="text-align:right;"><a href="' . $script . '?cmd=related&page=' . rawurlencode($refer) . '" style="font-size:80%">' . $qm->m['plg_map']['link_rel'] . '</a></p>';
 
 	// Get pages
 	$pages = array_values(array_diff(get_existpages(), array($whatsnew)));
@@ -41,11 +41,11 @@ function plugin_map_action()
 		$retval['body'] .= $qm->m['plg_map']['no_pages'];
 		return $retval;
 	} else {
-		$retval['body'] .= '<p>'. $qm->replace('plg_map.rel_pages', h($refer), count($pages)) .'</p>'. "\n";
+		$retval['body'] .= '<p>' . $qm->replace('plg_map.rel_pages', h($refer), count($pages)) . '</p>' . "\n";
 	}
 
 	// Generate a tree
-	$nodes = array();
+	$nodes = [];
 	foreach ($pages as $page)
 		$nodes[$page] = new MapNode($page, $reverse);
 
@@ -55,7 +55,7 @@ function plugin_map_action()
 	if ($reverse) {
 		$keys = array_keys($nodes);
 		sort($keys);
-		$alone = array();
+		$alone = [];
 		$retval['body'] .= '<ul>' . "\n";
 		foreach ($keys as $page) {
 			if (! empty($nodes[$page]->rels)) {
@@ -67,7 +67,7 @@ function plugin_map_action()
 		$retval['body'] .= '</ul>' . "\n";
 		if (! empty($alone)) {
 			$retval['body'] .= '<hr />' . "\n" .
-				'<p>'. $qm->m['plg_map']['no_ref']. '</p>' . "\n";
+				'<p>' . $qm->m['plg_map']['no_ref'] . '</p>' . "\n";
 			$retval['body'] .= '<ul>' . "\n";
 			foreach ($alone as $page)
 				$retval['body'] .= $nodes[$page]->toString($nodes, 1, $nodes[$page]->parent_id);
@@ -77,7 +77,7 @@ function plugin_map_action()
 		$nodes[$refer]->chain($nodes);
 		$retval['body'] .= '<ul>' . "\n" . $nodes[$refer]->toString($nodes) . '</ul>' . "\n";
 		$retval['body'] .= '<hr />' . "\n" .
-			'<p>'. $qm->replace('plg_map.no_rel', h($refer)). '</p>' . "\n";
+			'<p>' . $qm->replace('plg_map.no_rel', h($refer)) . '</p>' . "\n";
 		$keys = array_keys($nodes);
 		sort($keys);
 		$retval['body'] .= '<ul>' . "\n";
@@ -106,7 +106,7 @@ class MapNode
 	var $hide_pattern;
 	var $name;
 
-	function MapNode($page, $reverse = FALSE)
+	function __construct($page, $reverse = FALSE)
 	{
 		global $script, $non_list;
 
@@ -120,7 +120,7 @@ class MapNode
 		$this->id      = ++$id;
 		$this->hide_pattern = '/' . $non_list . '/';
 
-		$this->link    = get_page_title($page);	
+		$this->link    = get_page_title($page);
 
 		$this->rels = $reverse ? $this->ref() : $this->rel();
 		$mark       = $reverse ? '' : '<sup>+</sup>';
@@ -129,7 +129,7 @@ class MapNode
 			$mark . '</a>';
 	}
 
-	function hide(& $pages)
+	function hide(&$pages)
 	{
 		if (! PLUGIN_MAP_SHOW_HIDDEN)
 			$pages = array_diff($pages, preg_grep($this->hide_pattern, $pages));
@@ -138,7 +138,7 @@ class MapNode
 
 	function ref()
 	{
-		$refs = array();
+		$refs = [];
 		$file = $this->cache . '.ref';
 		if (file_exists($file)) {
 			foreach (file($file) as $line) {
@@ -153,7 +153,7 @@ class MapNode
 
 	function rel()
 	{
-		$rels = array();
+		$rels = [];
 		$file = $this->cache . '.rel';
 		if (file_exists($file)) {
 			$data = file($file);
@@ -164,7 +164,7 @@ class MapNode
 		return $rels;
 	}
 
-	function chain(& $nodes)
+	function chain(&$nodes)
 	{
 		if ($this->done) return;
 
@@ -180,7 +180,7 @@ class MapNode
 			$nodes[$page]->chain($nodes);
 	}
 
-	function toString(& $nodes, $level = 1, $parent_id = -1)
+	function toString(&$nodes, $level = 1, $parent_id = -1)
 	{
 		$indent = str_repeat(' ', $level);
 
@@ -192,7 +192,7 @@ class MapNode
 		}
 		$retval = $indent . '<li>' . $this->mark . $this->link . "\n";
 		if (! empty($this->rels)) {
-			$childs = array();
+			$childs = [];
 			$level += 2;
 			foreach ($this->rels as $page)
 				if (isset($nodes[$page]) && $this->parent_id != $nodes[$page]->id)
@@ -207,4 +207,3 @@ class MapNode
 		return $retval;
 	}
 }
-?>

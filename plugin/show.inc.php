@@ -1,4 +1,5 @@
 <?php
+
 /**
  *   QHM Show Plugin
  *   -------------------------------------------
@@ -51,15 +52,14 @@ define('PLUGIN_SHOW_MAX_FILESIZE', (1024 * 1024 * 5)); // default: 5MB
 
 function plugin_show_inline()
 {
-	global $script,$vars,$digest,$username;
-	static $numbers = array();
+	global $script, $vars, $digest, $username;
+	static $numbers = [];
 
 	$qm = get_qm();
 	$args = func_get_args();
 
 	//添付ファイル番号を付ける
-	if (!array_key_exists($vars['page'],$numbers))
-	{
+	if (!array_key_exists($vars['page'], $numbers)) {
 		$numbers[$vars['page']] = 0;
 	}
 	$show_no = $numbers[$vars['page']]++;
@@ -68,22 +68,19 @@ function plugin_show_inline()
 	$btn_text = $qm->m['plg_attachref']['btn_submit'];
 
 	$editable = edit_auth($vars['page'], FALSE, FALSE);
-	if ($editable && has_swfu())
-	{
-		$btn_text = '('.$btn_text.'-swfu)'; // SWFUを持っている人用
+	if ($editable && has_swfu()) {
+		$btn_text = '(' . $btn_text . '-swfu)'; // SWFUを持っている人用
 	}
 
 	//添付用のリンクを表示
-	if ($args[0]=='')
-	{
+	if ($args[0] == '') {
 
-		if (isset($vars['page_alt']))
-		{
-			return '<a href="'.$script.'?'.rawurlencode($vars['page_alt']).'" style="font-size:80%;">'.$qm->m['plg_attachref']['btn_submit_alt'].'</a>';
+		if (isset($vars['page_alt'])) {
+			return '<a href="' . $script . '?' . rawurlencode($vars['page_alt']) . '" style="font-size:80%;">' . $qm->m['plg_attachref']['btn_submit_alt'] . '</a>';
 		}
 
-		$s_args = trim( rtrim(join(",", $args),',') );
-		$f_page = rawurlencode( $vars['page'] );
+		$s_args = trim(rtrim(join(",", $args), ','));
+		$f_page = rawurlencode($vars['page']);
 		$f_args = rawurlencode($s_args);
 		$ret = <<<EOD
 <a href="$script?plugin=show&amp;show_no=$show_no&amp;show_opt=$f_args&amp;refer=$f_page&amp;digest=$digest" title="$btn_text" style="display:inline-block;width:300px;height:200px;background-color:#eee;text-align:center;line-height:200px;text-decoration:none;" class="img-rounded text-muted">300 x 200</a>
@@ -96,8 +93,8 @@ EOD;
 	if (isset($params['_error']) && $params['_error'] != '') {
 
 		//attachフォルダにないか確認
-		require_once(PLUGIN_DIR."ref.inc.php");
-		$params = plugin_ref_body($args,$vars['page']);
+		require_once(PLUGIN_DIR . "ref.inc.php");
+		$params = plugin_ref_body($args, $vars['page']);
 
 		if (isset($params['_error']) && $params['_error'] != '') {
 			// Error
@@ -119,6 +116,7 @@ function plugin_show_convert()
 	$args = func_get_args();
 	$args[] = '_block';
 	$params = plugin_show_body($args);
+	$is_bootstrap_skin = is_bootstrap_skin();
 
 	if (isset($params['_error']) && $params['_error'] != '') {
 		return "<p>#show(): {$params['_error']}</p>\n";
@@ -152,7 +150,6 @@ EOD;
 	if ($params['around']) {
 		$param_ard = ($params['_align'] == 'right') ? 'right' : 'left';
 		$style_ard = "_" . $param_ard;
-
 	} else {
 		$style = "text-align:{$params['_align']}";
 	}
@@ -169,8 +166,7 @@ EOD;
 }
 </style>
 EOD;
-	if ($is_bootstrap_skin)
-	{
+	if ($is_bootstrap_skin) {
 		$add_style .= <<< EOD
 <script>
 $(function(){
@@ -241,14 +237,14 @@ function plugin_show_body($args)
 		'_h'        => 0,     // 高さ
 		'_%'        => 0,     // 拡大率
 		'_ratio'    => FALSE, // 縦横比
-		'_args'     => array(),
+		'_args'     => [],
 		'_done'     => FALSE,
 		'_error'    => '',
 		'_block'    => FALSE, // convert called
 	);
 
 	$is_bootstrap_skin = is_bootstrap_skin();
-	$bs_image_deco = array (
+	$bs_image_deco = array(
 		'circle'    => FALSE, // .img-circle by bootstrap
 		'rounded'   => FALSE, // .img-rounded by bootstrap
 		'round'     => FALSE, // .img-rounded by bootstrap
@@ -257,10 +253,8 @@ function plugin_show_body($args)
 		'polaroid ' => FALSE, // .img-thumbnail by bootstrap
 	);
 
-	if ($is_bootstrap_skin)
-	{
-		foreach ($bs_image_deco as $key => $val)
-		{
+	if ($is_bootstrap_skin) {
+		foreach ($bs_image_deco as $key => $val) {
 			$params[$key] = $val;
 		}
 	}
@@ -279,19 +273,15 @@ function plugin_show_body($args)
 	$is_url = is_url($name, false, true);
 
 	//画像ファイルかどうか
-	if ( ! preg_match(PLUGIN_SHOW_IMAGE, $name))
-	{
+	if (! preg_match(PLUGIN_SHOW_IMAGE, $name)) {
 		$params['_error'] = $qm->replace('plg_show.err_noimg', h($name));
 	}
 
-	if ( ! $is_url)
-	{
+	if (! $is_url) {
 		$file = $name;
-		if ( ! is_file($file))
-		{
+		if (! is_file($file)) {
 			$file = SWFU_IMAGE_DIR . $file;
-			if ( ! is_file($file))
-			{
+			if (! is_file($file)) {
 				$params['_error'] = $qm->replace('plg_show.err_notfound', h($name));
 				return $params;
 			}
@@ -299,16 +289,14 @@ function plugin_show_body($args)
 	}
 
 	// 残りの引数の処理
-	if ( ! empty($args))
-	{
+	if (! empty($args)) {
 		foreach ($args as $arg) {
 			plugin_show_check_arg($arg, $params);
 		}
 	}
 
-	if (is_page($params['linkurl']))
-	{
-		$params['linkurl'] = $script. '?'. rawurlencode($params['linkurl']);
+	if (is_page($params['linkurl'])) {
+		$params['linkurl'] = $script . '?' . rawurlencode($params['linkurl']);
 	}
 
 	/*
@@ -323,7 +311,7 @@ function plugin_show_body($args)
 
 	$title = $url = $url2 = $info = $style = '';
 	$width = $height = 0;
-	$matches = array();
+	$matches = [];
 
 	if ($is_url) {	// URL
 		if (PKWK_DISABLE_INLINE_IMAGE_FROM_URI) {
@@ -343,18 +331,17 @@ function plugin_show_body($args)
 				$info   = $size[3];
 			}
 		}
-
 	} else { // 添付ファイル
 
 		$title = h($name);
 
-/*
+		/*
 		// Count downloads with attach plugin
 		$url = $script . '?plugin=attach' . '&amp;refer=' . rawurlencode($page) .
 			'&amp;openfile=' . rawurlencode($name); // Show its filename at the last
 */
 
-		$file = (substr($file, 0, 2)== './') ? substr($file, 2) : $file;
+		$file = (substr($file, 0, 2) == './') ? substr($file, 2) : $file;
 		$url = $url2 = $file;
 
 		$width = $height = 0;
@@ -366,20 +353,18 @@ function plugin_show_body($args)
 	}
 
 	//first Image をセット
-	$qt->set_first_image($is_url? $url: (dirname($script). '/'. $url));
+	$qt->set_first_image($is_url ? $url : (dirname($script) . '/' . $url));
 
 	// 拡張パラメータをチェック
 	if (! empty($params['_args'])) {
-		$_title = array();
+		$_title = [];
 		foreach ($params['_args'] as $arg) {
 			if (preg_match('/^([0-9]+)x([0-9]+)$/', $arg, $matches)) {
 				$params['_size'] = TRUE;
 				$params['_w'] = $matches[1];
 				$params['_h'] = $matches[2];
-
 			} else if (preg_match('/^([0-9.]+)%$/', $arg, $matches) && $matches[1] > 0) {
 				$params['_%'] = $matches[1];
-
 			} else {
 				$_title[] = $arg;
 			}
@@ -414,10 +399,8 @@ function plugin_show_body($args)
 		$width  = (int)($width  * $params['_%'] / 100);
 		$height = (int)($height * $params['_%'] / 100);
 	}
-	if ($params['_size'] OR $params['_%'])
-	{
-		if ($width && $height)
-		{
+	if ($params['_size'] or $params['_%']) {
+		if ($width && $height) {
 			$info = "width=\"$width\" height=\"$height\" ";
 
 			// 表示領域が画像の幅よりも小さい場合
@@ -428,12 +411,9 @@ function plugin_show_body($args)
 		}
 	}
 
-	if ($is_bootstrap_skin)
-	{
+	if ($is_bootstrap_skin) {
 		$params['class'] .= $params['_block'] ? ' img-responsive' : '';
-	}
-	else
-	{
+	} else {
 		$style = 'style="max-width:100%;" ';
 	}
 
@@ -456,20 +436,19 @@ function plugin_show_body($args)
 			}
 			$params['_align'] = $align;
 			break;
-		}
-		else if ($params[$align])  {
+		} else if ($params[$align]) {
 			$params['_align'] = $align;
 			break;
 		}
 	}
 
 	$mouseover = '';
-	if ( $params['change'] ){
+	if ($params['change']) {
 		$a_path = explode('.', $url);
-		$a_path[ (count($a_path)-2) ] .= '_onmouse';
+		$a_path[(count($a_path) - 2)] .= '_onmouse';
 		$mo_url = join('.', $a_path);
 		$mouseover = " onmouseover=\"this.src='{$mo_url}'\" onmouseout=\"this.src='{$url}'\" ";
-		$mouseover .= 'onload="qhm_preload(\''. $mo_url .'\');"';
+		$mouseover .= 'onload="qhm_preload(\'' . $mo_url . '\');"';
 
 		//preload
 		$addscript = '
@@ -488,7 +467,7 @@ function qhm_preload(src) {
 	}
 
 	$aclass = $arel = '';
-	$url2 = $params['linkurl']? $params['linkurl']: $url2;
+	$url2 = $params['linkurl'] ? $params['linkurl'] : $url2;
 
 	//異なるURLが2つある場合、nolink をFALSEに
 	if ($url2 != $url) {
@@ -496,7 +475,7 @@ function qhm_preload(src) {
 	}
 
 	//表示設定
-	if ( $params['greybox'] ){
+	if ($params['greybox']) {
 		$addscript = '
 <script type="text/javascript">
 	var GB_ROOT_DIR = "./plugin/greybox/";
@@ -510,24 +489,23 @@ function qhm_preload(src) {
 
 		//文字列の場合：グループ
 		if ($params['greybox'] !== TRUE) {
-			$gb_type = ($url == $url2)? 'imageset': 'pageset';
+			$gb_type = ($url == $url2) ? 'imageset' : 'pageset';
 			$gb_grp = $params['greybox'];
-			$arel = ' rel="gb_'. $gb_type.'['. $gb_grp.']"';
+			$arel = ' rel="gb_' . $gb_type . '[' . $gb_grp . ']"';
 		} else {
-			$gb_type = ($url == $url2)? 'image': 'page_fs';
-			$arel = ' rel="gb_'. $gb_type.'[]"';
+			$gb_type = ($url == $url2) ? 'image' : 'page_fs';
+			$arel = ' rel="gb_' . $gb_type . '[]"';
 		}
 		$params['nolink'] = FALSE;
-	}
-	else if( $params['lightbox2'] ){
+	} else if ($params['lightbox2']) {
 
-		require_once(PLUGIN_DIR. '/lightbox2.inc.php');
+		require_once(PLUGIN_DIR . '/lightbox2.inc.php');
 
 		$addscript = '
 <script type="text/javascript" src="js/jquery.dimensions.min.js"></script>
 <script type="text/javascript" src="js/jquery.dropshadow.js"></script>
-<script type="text/javascript" src="'.LIGHTBOX2_LIB.'/js/jquery.lightbox.js"></script>
-<link href="'.LIGHTBOX2_LIB.'/css/lightbox.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="' . LIGHTBOX2_LIB . '/js/jquery.lightbox.js"></script>
+<link href="' . LIGHTBOX2_LIB . '/css/lightbox.css" rel="stylesheet" type="text/css" />
 <script type="text/javascript">
 $(document).ready(function(){
 	$(".lightbox").lightbox();
@@ -538,19 +516,17 @@ $(document).ready(function(){
 		$aclass = ' class="lightbox"';
 
 		if ($params['lightbox2'] !== TRUE) {
-			$arel = ' rel="'. $params['lightbox2'].'"';
+			$arel = ' rel="' . $params['lightbox2'] . '"';
 		}
 
 
 		//$url2 が画像ファイルでない場合、無効にする|エラーを出す
 		if (!preg_match(PLUGIN_SHOW_IMAGE, $url2)) {
 			$url2 = $url;
-//			$params['_error'] = 'lightbox2 cannot show except images';
+			//			$params['_error'] = 'lightbox2 cannot show except images';
 		}
 		$params['nolink'] = FALSE;
-	}
-	else if ($params['colorbox'])
-	{
+	} else if ($params['colorbox']) {
 		$addscript = '
 <script type="text/javascript" src="./plugin/colorbox/jquery.colorbox-min.js"></script>
 <link href="./plugin/colorbox/colorbox.css" rel="stylesheet" type="text/css" />
@@ -576,59 +552,48 @@ $(function(){
 
 		//文字列の場合：グループ
 		//グループ名がslideshow で始まる場合、スライドショー
-		if (substr($params['colorbox'], 0, 9) === 'slideshow')
-		{
+		if (substr($params['colorbox'], 0, 9) === 'slideshow') {
 			$aclass = ' class="colorbox_slideshow"';
 			$gb_grp = $params['colorbox'];
-			$arel = ' rel="cb_'. $gb_grp.'"';
-		}
-		else if ($params['colorbox'] !== TRUE) {
-			$gb_type = ($url == $url2)? 'imageset': 'pageset';
+			$arel = ' rel="cb_' . $gb_grp . '"';
+		} else if ($params['colorbox'] !== TRUE) {
+			$gb_type = ($url == $url2) ? 'imageset' : 'pageset';
 			$gb_grp = $params['colorbox'];
-			$arel = ' rel="cb_'. $gb_grp.'"';
+			$arel = ' rel="cb_' . $gb_grp . '"';
 			$aclass = ' class="colorbox"';
 		} else {
 			$aclass = ' class="colorbox"';
 			//
 		}
 		$params['nolink'] = FALSE;
-	}
-	else if ($params['normal'])
-	{
+	} else if ($params['normal']) {
 		$params['nolink'] = FALSE;
 	}
 
-	if ($is_bootstrap_skin)
-	{
+	if ($is_bootstrap_skin) {
 		$img_thumbnail = false;
 		$img_rounded = false;
 		$img_circle  = false;
-		foreach (array_keys($bs_image_deco) as $deco)
-		{
-			if (isset($params[$deco]) && $params[$deco] !== FALSE)
-			{
-				switch ($deco)
-				{
+		foreach (array_keys($bs_image_deco) as $deco) {
+			if (isset($params[$deco]) && $params[$deco] !== FALSE) {
+				switch ($deco) {
 					case 'pola':
 					case 'polaroid':
 					case 'thumbnail':
-						if ( ! $img_thumbnail)
-						{
+						if (! $img_thumbnail) {
 							$params['class'] .= ' img-thumbnail';
 							$img_thumbnail = true;
 						}
 						break;
 					case 'round':
 					case 'rounded':
-						if ( ! $img_rounded)
-						{
+						if (! $img_rounded) {
 							$params['class'] .= ' img-rounded';
 							$img_rounded = true;
 						}
 						break;
 					case 'circle':
-						if ( ! $img_circle)
-						{
+						if (! $img_circle) {
 							$params['class'] .= ' img-circle';
 							$img_circle = true;
 						}
@@ -641,20 +606,18 @@ $(function(){
 	$imgclass = ' class="' . h($params['class']) . '"';
 
 
-	if($params['label']!==FALSE && $params['label']!=''){
+	if ($params['label'] !== FALSE && $params['label'] != '') {
 		//画像を指定した場合、画像を表示する
 		if (preg_match('/\.(jpe?g|gif|png)$/', $params['label'])) {
 			$url = plugin_show_get_filepath($params['label']);
 			$size = plugin_show_get_imagesize($params['label']);
 			//高さと幅を指定している場合はそちらを利用する
-			if ($params['_w'] === 0 && $params['_h'] === 0 && $size !== FALSE)
-			{
+			if ($params['_w'] === 0 && $params['_h'] === 0 && $size !== FALSE) {
 				$info = '';
 				if (is_array($size)) {
 					$width  = $size[0];
 					$height = $size[1];
-					if ($params['_%'] !== 0)
-					{
+					if ($params['_%'] !== 0) {
 						$width = floor($width * $params['_%'] / 100);
 						$height = floor($height * $params['_%'] / 100);
 					}
@@ -663,13 +626,10 @@ $(function(){
 				$params['_body'] = "<img src=\"$url\" alt=\"$title\" title=\"$title\" $info $mouseover $style{$imgclass}{$ratio_attr}>";
 			}
 			$params['_body'] = "<img src=\"$url\" alt=\"$title\" title=\"$title\" $info $mouseover $style{$imgclass}{$ratio_attr}>";
-		}
-		else
-		{
+		} else {
 			$params['_body'] = h($params['label']);
 		}
-	}
-	else{
+	} else {
 		$params['_body'] = "<img src=\"$url\" alt=\"$title\" title=\"$title\" $info $mouseover $style{$imgclass}{$ratio_attr}>";
 	}
 
@@ -680,12 +640,11 @@ $(function(){
 }
 
 // オプションを解析する
-function plugin_show_check_arg($val, & $params)
+function plugin_show_check_arg($val, &$params)
 {
 	global $script;
 
-	if ($val === '_block')
-	{
+	if ($val === '_block') {
 		$params['_block'] = TRUE;
 		return;
 	}
@@ -720,63 +679,61 @@ function plugin_show_check_arg($val, & $params)
 
 
 /**
-* 画像を添付するためのもの
-*/
+ * 画像を添付するためのもの
+ */
 function plugin_show_action()
 {
-	global $script,$vars,$username;
+	global $script, $vars, $username;
 	global $html_transitional;
 	$qm = get_qm();
 
 	//check auth
 	$editable = edit_auth($vars['refer'], FALSE, FALSE);
-	if(!$editable){
-		return array('msg'=>$qm->m['plg_attachref']['title_ntc_admin'],'body'=>'<p>'. $qm->m['plg_attachref']['ntc_admin']. '</p>');
+	if (!$editable) {
+		return array('msg' => $qm->m['plg_attachref']['title_ntc_admin'], 'body' => '<p>' . $qm->m['plg_attachref']['ntc_admin'] . '</p>');
 	}
 
-		//戻り値を初期化
+	//戻り値を初期化
 	$retval['msg'] = $qm->m['plg_attachref']['title'];
 	$retval['body'] = '';
 
-	if (array_key_exists('attach_file',$_FILES)
-		and array_key_exists('refer',$vars)
-		and is_page($vars['refer']))
-	{
+	if (
+		array_key_exists('attach_file', $_FILES)
+		and array_key_exists('refer', $vars)
+		and is_page($vars['refer'])
+	) {
 		$file = $_FILES['attach_file'];
 		$attachname = $file['name'];
-		$filename = preg_replace('/\..+$/','', $attachname,1);
+		$filename = preg_replace('/\..+$/', '', $attachname, 1);
 
 
 		//! swfuを持っていたら (管理者のみ)--------------------------------------------
-		if( $editable && has_swfu())
-		{
+		if ($editable && has_swfu()) {
 
 			//アップロードするファイル名を決める（日本語ダメ、重複もダメ）
-		 	$upload_name = $file['name'];
-			if( preg_match('/^[-_.+a-zA-Z0-9]+$/', $upload_name ) ){
-				while(!$overwrite && file_exists(SWFU_IMAGE_DIR.$upload_name)){
-					$upload_name = 's_'.$upload_name;
+			$upload_name = $file['name'];
+			if (preg_match('/^[-_.+a-zA-Z0-9]+$/', $upload_name)) {
+				while (!$overwrite && file_exists(SWFU_IMAGE_DIR . $upload_name)) {
+					$upload_name = 's_' . $upload_name;
 				}
-				$upload_file = SWFU_IMAGE_DIR.$upload_name;
+				$upload_file = SWFU_IMAGE_DIR . $upload_name;
 				$fname = $upload_name;
 				$disp = $qm->m['plg_attachref']['img_desc'];
-			}
-			else
-			{
-				$matches = array();
+			} else {
+				$matches = [];
 
-				if( !preg_match('/[^.]+\.(.*)$/', $upload_name, $matches) ){
-					echo 'invalid file name : '.$upload_name;
+				if (!preg_match('/[^.]+\.(.*)$/', $upload_name, $matches)) {
+					echo 'invalid file name : ' . $upload_name;
 					exit(0);
 				}
 
 				$ext = $matches[1];
 				$tmp_name = tempnam(SWFU_IMAGE_DIR, 'auto_');
-				$upname = $tmp_name.'.'.$ext;
+				$upname = $tmp_name . '.' . $ext;
 				$disp = $upload_name;
 
 				rename($tmp_name, $upname);
-				$upload_file = SWFU_IMAGE_DIR. basename($upname);
+				$upload_file = SWFU_IMAGE_DIR . basename($upname);
 				$fname = basename($upname);
 			}
 
@@ -798,7 +755,7 @@ function plugin_show_action()
 			$db = new CTextDB(SWFU_IMAGEDB_PATH);
 			$db->insert($data);
 
-			$retval = show_insert_ref(SWFU_IMAGE_DIR.$fname);
+			$retval = show_insert_ref(SWFU_IMAGE_DIR . $fname);
 
 			return $retval;
 		}
@@ -806,34 +763,28 @@ function plugin_show_action()
 		// open qhm用 attachフォルダにファイルを置く
 		//すでに存在した場合、 ファイル名に'_0','_1',...を付けて回避(姑息)
 		$count = '_0';
-		while (file_exists('./attach/'.encode($vars['refer']).'_'.encode($attachname)))
-		{
-			$attachname = preg_replace('/^[^\.]+/',$filename.$count++,$file['name']);
+		while (file_exists('./attach/' . encode($vars['refer']) . '_' . encode($attachname))) {
+			$attachname = preg_replace('/^[^\.]+/', $filename . $count++, $file['name']);
 		}
 
 		$file['name'] = $attachname;
 
-		require_once(PLUGIN_DIR."attach.inc.php");
-		if (!exist_plugin('attach') or !function_exists('attach_upload'))
-		{
+		require_once(PLUGIN_DIR . "attach.inc.php");
+		if (!exist_plugin('attach') or !function_exists('attach_upload')) {
 			return array('msg' => $qm->m['plg_attachref']['err_notfound']);
 		}
-		$pass = array_key_exists('pass',$vars) ? $vars['pass'] : NULL;
+		$pass = array_key_exists('pass', $vars) ? $vars['pass'] : NULL;
 
-		$retval = attach_upload($file,$vars['refer'],$pass);
-		if ($retval['result'] == TRUE)
-		{
+		$retval = attach_upload($file, $vars['refer'], $pass);
+		if ($retval['result'] == TRUE) {
 			$retval = show_insert_ref($file['name']);
 		}
-	}
-	else
-	{
+	} else {
 		$retval = show_showform();
 		// XHTML 1.0 Transitional
 		$html_transitional = TRUE;
 	}
 	return $retval;
-
 }
 
 //アップロードフォームを表示
@@ -845,32 +796,30 @@ function show_showform()
 	$vars['page'] = $vars['refer'];
 	$body = ini_get('file_uploads') ? show_form($vars['page']) : 'file_uploads disabled.';
 
-	return array('msg'=>$qm->m['plg_attach']['upload'],'body'=>$body);
+	return array('msg' => $qm->m['plg_attach']['upload'], 'body' => $body);
 }
 //アップロードフォーム
 function show_form($page)
 {
-	global $script,$vars;
+	global $script, $vars;
 	$qm = get_qm();
 
 	$s_page = htmlspecialchars($page);
 
-	$f_digest = array_key_exists('digest',$vars) ? $vars['digest'] : '';
-	$f_no = (array_key_exists('show_no',$vars) and is_numeric($vars['show_no'])) ?
+	$f_digest = array_key_exists('digest', $vars) ? $vars['digest'] : '';
+	$f_no = (array_key_exists('show_no', $vars) and is_numeric($vars['show_no'])) ?
 		$vars['show_no'] + 0 : 0;
 
 
-	if (!(bool)ini_get('file_uploads'))
-	{
+	if (!(bool)ini_get('file_uploads')) {
 		return "";
 	}
 
 	$maxsize = PLUGIN_SHOW_MAX_FILESIZE;
-	$msg_maxsize = $qm->replace('plg_attach.maxsize', number_format($maxsize/1024)."KB");
+	$msg_maxsize = $qm->replace('plg_attach.maxsize', number_format($maxsize / 1024) . "KB");
 
 	$pass = '';
-	if (ATTACHREF_PASSWORD_REQUIRE or ATTACHREF_UPLOAD_ADMIN_ONLY)
-	{
+	if (ATTACHREF_PASSWORD_REQUIRE or ATTACHREF_UPLOAD_ADMIN_ONLY) {
 		$title = $qm->m['plg_attach'][ATTACHREF_UPLOAD_ADMIN_ONLY ? 'adminpass' : 'password'];
 	}
 	return <<<EOD
@@ -896,20 +845,19 @@ EOD;
 
 function show_insert_ref($filename)
 {
-	global $script,$vars,$now,$do_backup;
+	global $script, $vars, $now, $do_backup;
 	$qm = get_qm();
 
 	$slen = strlen(SWFU_IMAGE_DIR);
-	$filename = substr($filename, 0, $slen)==SWFU_IMAGE_DIR ? substr($filename, $slen) : $filename;
+	$filename = substr($filename, 0, $slen) == SWFU_IMAGE_DIR ? substr($filename, $slen) : $filename;
 
 	$ret['msg'] = $qm->m['plg_attachref']['title'];
 
 	$args = preg_split("/,/", $vars['show_opt']);
-	if ( count($args) ){
-		$args[0] = $filename;//array_shift,unshiftって要するにこれね
+	if (count($args)) {
+		$args[0] = $filename; //array_shift,unshiftって要するにこれね
 		$s_args = implode(",", $args);
-	}
-	else {
+	} else {
 		$s_args = $filename;
 	}
 	$msg = "&show($s_args)";
@@ -917,7 +865,7 @@ function show_insert_ref($filename)
 	$refer = $vars['refer'];
 	$digest = $vars['digest'];
 	$postdata_old = get_source($refer);
-	$thedigest = md5(join('',$postdata_old));
+	$thedigest = md5(join('', $postdata_old));
 
 	$postdata = '';
 	$show_ct = 0; //'#show'の出現回数
@@ -926,55 +874,45 @@ function show_insert_ref($filename)
 
 	$is_box = false;
 	$boxcnt = 0;
-	$boxdata = array();
+	$boxdata = [];
 
-	foreach ($postdata_old as $line)
-	{
-		if ($is_box == false && ( $skipflag || substr($line,0,1) == ' ' || substr($line,0,2) == '//'))
-		{
+	foreach ($postdata_old as $line) {
+		if ($is_box == false && ($skipflag || substr($line, 0, 1) == ' ' || substr($line, 0, 2) == '//')) {
 			$postdata .= $line;
 			continue;
-			}
+		}
 
-		if ($is_box == true && preg_match('/^\}\}/',$line))
-		{
+		if ($is_box == true && preg_match('/^\}\}/', $line)) {
 			$postdata .= $line;
 			$is_box = false;
 			continue;
 		}
 
-		if ($is_box)
-		{
+		if ($is_box) {
 			$boxdata[$boxcnt][] = $line;
 			continue;
 		}
 
-		if ($is_box == false && preg_match('/^#.+\{\{$/',$line))
-		{
+		if ($is_box == false && preg_match('/^#.+\{\{$/', $line)) {
 			$postdata .= $line;
 			$is_box = true;
-			$postdata .= '${box'. ++$boxcnt ."}\n";
-			$boxdata[$boxcnt] = array();
+			$postdata .= '${box' . ++$boxcnt . "}\n";
+			$boxdata[$boxcnt] = [];
 			continue;
 		}
 
-		$ct = preg_match_all('/&show(?=[({;])/',$line, $out);
-		if ($ct)
-		{
-			for ($i=0; $i < $ct; $i++)
-			{
-				if ($show_ct++ == $show_no)
-				{
-					$line = preg_replace('/&show(\([^(){};]*\))?(\{[^{}]*\})?;/',$msg.'$2;',$line,1);
+		$ct = preg_match_all('/&show(?=[({;])/', $line, $out);
+		if ($ct) {
+			for ($i = 0; $i < $ct; $i++) {
+				if ($show_ct++ == $show_no) {
+					$line = preg_replace('/&show(\([^(){};]*\))?(\{[^{}]*\})?;/', $msg . '$2;', $line, 1);
 					$skipflag = 1;
 					break;
-				}
-				else
-				{
-					$line = preg_replace('/&show(\([^(){};]*\))?(\{[^{}]*\})?;/','&___show$1$2___;',$line,1);
+				} else {
+					$line = preg_replace('/&show(\([^(){};]*\))?(\{[^{}]*\})?;/', '&___show$1$2___;', $line, 1);
 				}
 			}
-			$line = preg_replace('/&___show(\([^(){};]*\))?(\{[^{}]*\})?___;/','&show$1$2;',$line);
+			$line = preg_replace('/&___show(\([^(){};]*\))?(\{[^{}]*\})?___;/', '&show$1$2;', $line);
 		}
 
 		$postdata .= $line;
@@ -983,41 +921,35 @@ function show_insert_ref($filename)
 	foreach ($boxdata as $bi => $box) {
 		$boxstr = '';
 		foreach ($box as $line) {
-			if ( $skipflag || substr($line,0,1) == ' ' || substr($line,0,2) == '//' ){
+			if ($skipflag || substr($line, 0, 1) == ' ' || substr($line, 0, 2) == '//') {
 				$boxstr .= $line;
 				continue;
 			}
 
-			$ct = preg_match_all('/&show(?=[({;])/',$line, $out);
-			if ($ct)
-			{
-				for ($i=0; $i < $ct; $i++)
-				{
-					if ($show_ct++ == $show_no)
-					{
-						$line = preg_replace('/&show(\([^(){};]*\))?(\{[^{}]*\})?;/',$msg.'$2;',$line,1);
+			$ct = preg_match_all('/&show(?=[({;])/', $line, $out);
+			if ($ct) {
+				for ($i = 0; $i < $ct; $i++) {
+					if ($show_ct++ == $show_no) {
+						$line = preg_replace('/&show(\([^(){};]*\))?(\{[^{}]*\})?;/', $msg . '$2;', $line, 1);
 						$skipflag = 1;
 						break;
-					}
-					else
-					{
-						$line = preg_replace('/&show(\([^(){};]*\))?(\{[^{}]*\})?;/','&___show$1$2___;',$line,1);
+					} else {
+						$line = preg_replace('/&show(\([^(){};]*\))?(\{[^{}]*\})?;/', '&___show$1$2___;', $line, 1);
 					}
 				}
-				$line = preg_replace('/&___show(\([^(){};]*\))?(\{[^{}]*\})?___;/','&show$1$2;',$line);
+				$line = preg_replace('/&___show(\([^(){};]*\))?(\{[^{}]*\})?___;/', '&show$1$2;', $line);
 			}
 			$boxstr .= $line;
 		}
-		$postdata = str_replace('${box'.$bi.'}', trim($boxstr), $postdata);
+		$postdata = str_replace('${box' . $bi . '}', trim($boxstr), $postdata);
 	}
 
 	// 更新の衝突を検出
-	if ( $thedigest != $digest )
-	{
+	if ($thedigest != $digest) {
 		$ret['msg'] = $qm->m['fmt_title_collided'];
 		$ret['body'] = $qm->m['plg_attachref']['collided'];
 	}
-	page_write($vars['refer'],$postdata);
+	page_write($vars['refer'], $postdata);
 
 	return $ret;
 }
@@ -1046,15 +978,12 @@ function plugin_show_get_imagesize($image_path = '')
 			$size = @getimagesize($url);
 			return $size;
 		}
-
 	} else {
 
 		$file = $image_path;
-		if ( ! is_file($file))
-		{
+		if (! is_file($file)) {
 			$file = SWFU_IMAGE_DIR . $file;
-			if ( ! is_file($file))
-			{
+			if (! is_file($file)) {
 				return FALSE;
 			}
 		}
@@ -1065,7 +994,6 @@ function plugin_show_get_imagesize($image_path = '')
 		$size = @getimagesize($file);
 		return $size;
 	}
-
 }
 
 /**
@@ -1076,13 +1004,11 @@ function plugin_show_get_filepath($file_path = '')
 	$is_url = is_url($file_path, false, true);
 	$url = $file_path;
 
-	if ( ! $is_url) {
+	if (! $is_url) {
 		$file = $file_path;
-		if ( ! is_file($file))
-		{
+		if (! is_file($file)) {
 			$file = SWFU_IMAGE_DIR . $file;
-			if (is_file($file))
-			{
+			if (is_file($file)) {
 				$url = $file;
 			}
 		}
@@ -1114,5 +1040,4 @@ $(document).on("ready", QHM.keepRatio);
 EOS;
 
 	$qt->appendv_once('plugin_show_set_keep_ratio', 'beforescript', $addjs);
-
 }

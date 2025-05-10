@@ -22,7 +22,7 @@ define('PKWK_AUTOLINK_REGEX_CACHE', 'autolink.dat');
 // Get source(wiki text) data of the page
 function get_source($page = NULL, $lock = TRUE, $join = FALSE)
 {
-	$result = $join ? '' : array();
+	$result = $join ? '' : [];
 
 	if (is_page($page)) {
 		$path  = get_filename($page);
@@ -104,27 +104,31 @@ function make_str_rules($source)
 
 	$modify    = TRUE;
 	$multiline = 0;
-	$matches   = array();
+	$matches   = [];
 	for ($i = 0; $i < $count; $i++) {
-		$line = & $lines[$i]; // Modify directly
+		$line = &$lines[$i]; // Modify directly
 
 		// Ignore null string and preformatted texts
-		if ($line == '' || $line{0} == ' ' || $line{0} == "\t") continue;
+		if ($line == '' || $line[0] == ' ' || $line[0] == "\t") continue;
 
 		// Modify this line?
 		if ($modify) {
-			if (! PKWKEXP_DISABLE_MULTILINE_PLUGIN_HACK &&
-			    $multiline == 0 &&
-			    preg_match('/^#[^{]*(\{\{+)\s*$/', $line, $matches)) {
-			    	// Multiline convert plugin start
+			if (
+				! PKWKEXP_DISABLE_MULTILINE_PLUGIN_HACK &&
+				$multiline == 0 &&
+				preg_match('/^#[^{]*(\{\{+)\s*$/', $line, $matches)
+			) {
+				// Multiline convert plugin start
 				$modify    = FALSE;
 				$multiline = strlen($matches[1]); // Set specific number
 			}
 		} else {
-			if (! PKWKEXP_DISABLE_MULTILINE_PLUGIN_HACK &&
-			    $multiline != 0 &&
-			    preg_match('/^\}{' . $multiline . '}\s*$/', $line)) {
-			    	// Multiline convert plugin end
+			if (
+				! PKWKEXP_DISABLE_MULTILINE_PLUGIN_HACK &&
+				$multiline != 0 &&
+				preg_match('/^\}{' . $multiline . '}\s*$/', $line)
+			) {
+				// Multiline convert plugin end
 				$modify    = TRUE;
 				$multiline = 0;
 			}
@@ -134,11 +138,13 @@ function make_str_rules($source)
 		// Replace with $str_rules
 		foreach ($str_rules as $pattern => $replacement)
 			$line = preg_replace('/' . $pattern . '/', $replacement, $line);
-		
+
 		// Adding fixed anchor into headings
-		if ($fixed_heading_anchor &&
-		    preg_match('/^((?:\*{1,3}|!).*?)(?:\[#([A-Za-z][\w-]*)\]\s*)?$/', $line, $matches) &&
-		    (! isset($matches[2]) || $matches[2] == '')) {
+		if (
+			$fixed_heading_anchor &&
+			preg_match('/^((?:\*{1,3}|!).*?)(?:\[#([A-Za-z][\w-]*)\]\s*)?$/', $line, $matches) &&
+			(! isset($matches[2]) || $matches[2] == '')
+		) {
 			// Generate unique id
 			$anchor = generate_fixed_heading_anchor_id($matches[1]);
 			$line = rtrim($matches[1]) . ' [#' . $anchor . ']';
@@ -146,8 +152,10 @@ function make_str_rules($source)
 	}
 
 	// Multiline part has no stopper
-	if (! PKWKEXP_DISABLE_MULTILINE_PLUGIN_HACK &&
-	    $modify === FALSE && $multiline != 0)
+	if (
+		! PKWKEXP_DISABLE_MULTILINE_PLUGIN_HACK &&
+		$modify === FALSE && $multiline != 0
+	)
 		$lines[] = str_repeat('}', $multiline);
 
 	return implode("\n", $lines);
@@ -158,15 +166,18 @@ function generate_fixed_heading_anchor_id($seed)
 {
 	// A random alphabetic letter + 7 letters of random strings from md()
 	return chr(mt_rand(ord('a'), ord('z'))) .
-		substr(md5(uniqid(substr($seed, 0, 100), TRUE)),
-		mt_rand(0, 24), 7);
+		substr(
+			md5(uniqid(substr($seed, 0, 100), TRUE)),
+			mt_rand(0, 24),
+			7
+		);
 }
 
 // Read top N lines as an array
 // (Use PHP file() function if you want to get ALL lines)
 function file_head($file, $count = 1, $lock = TRUE, $buffer = 8192)
 {
-	$array = array();
+	$array = [];
 
 	$fp = @fopen($file, 'r');
 	if ($fp === FALSE) return FALSE;
@@ -189,7 +200,7 @@ function file_head($file, $count = 1, $lock = TRUE, $buffer = 8192)
 // (Use PHP file() function if you want to get ALL lines)
 function file_slice($file, $offset = 0, $count = 1, $lock = TRUE, $buffer = 8192)
 {
-	$array = array();
+	$array = [];
 
 	$fp = @fopen($file, 'r');
 	if ($fp === FALSE) return FALSE;
@@ -201,20 +212,17 @@ function file_slice($file, $offset = 0, $count = 1, $lock = TRUE, $buffer = 8192
 		$line = fgets($fp, $buffer);
 
 		//index がoffset 未満の時はcontinue
-		if ($index < $offset)		
-		{
+		if ($index < $offset) {
 			$index++;
 			continue;
-		}
-		else
-		{
+		} else {
 			//index がoffset 以上の時は配列に格納
 			if ($line)
 				$array[] = $line;
 		}
 
 		//index+1 がcount+offset 以上の時は、break
-		if (++$index >= $count+$offset) break;
+		if (++$index >= $count + $offset) break;
 	}
 	if ($lock) flock($fp, LOCK_UN);
 	if (! fclose($fp)) return FALSE;
@@ -237,7 +245,7 @@ function file_write($dir, $page, $str, $notimestamp = FALSE)
 	$page = strip_bracket($page);
 	$file = $dir . encode($page) . '.txt';
 	$file_exists = file_exists($file);
-	
+
 	// ----
 	// Record last modified date for QHM cache func.
 	$lm_file = CACHE_DIR . QHM_LASTMOD;
@@ -254,8 +262,7 @@ function file_write($dir, $page, $str, $notimestamp = FALSE)
 		add_recent($page, $whatsdeleted, '', $maxshow_deleted);
 
 		//QBlog 記事 であれば、削除処理を呼び出す
-		if (preg_match($qblog_page_re, $page))
-		{
+		if (preg_match($qblog_page_re, $page)) {
 			qblog_remove_post($page);
 		}
 
@@ -269,7 +276,6 @@ function file_write($dir, $page, $str, $notimestamp = FALSE)
 		is_page($page, TRUE);
 
 		return;
-
 	} else if ($dir == DIFF_DIR && $str === " \n") {
 		return; // Ignore null posting for DIFF_DIR
 	}
@@ -278,8 +284,11 @@ function file_write($dir, $page, $str, $notimestamp = FALSE)
 	// File replacement (Edit)
 
 	if (! is_pagename($page))
-		die_message(str_replace('$1', htmlspecialchars($page),
-		            str_replace('$2', 'WikiName', $qm->m['fmt_err_invalidiwn'])));
+		die_message(str_replace(
+			'$1',
+			htmlspecialchars($page),
+			str_replace('$2', 'WikiName', $qm->m['fmt_err_invalidiwn'])
+		));
 
 	$str = rtrim(preg_replace('/' . "\r" . '/', '', $str)) . "\n";
 	$timestamp = ($file_exists && $notimestamp) ? filemtime($file) : FALSE;
@@ -305,17 +314,16 @@ function file_write($dir, $page, $str, $notimestamp = FALSE)
 		// Command execution per update
 		if (defined('PKWK_UPDATE_EXEC') && PKWK_UPDATE_EXEC)
 			system(PKWK_UPDATE_EXEC . ' > /dev/null &');
-
 	} else if ($dir == DIFF_DIR && $notify) {
 		if ($notify_diff_only) $str = preg_replace('/^[^-+].*\n/m', '', $str);
 		$footer['ACTION'] = 'Page update';
-		$footer['PAGE']   = & $page;
+		$footer['PAGE']   = &$page;
 		$footer['URI']    = get_script_uri() . '?' . rawurlencode($page);
 		$footer['USER_AGENT']  = TRUE;
 		$footer['REMOTE_ADDR'] = TRUE;
 
-		if(isset($_SESSION['usr']))
-			$str .= "\n\n ". $qm->replace('file.lbl_editor', $_SESSION['usr']). "\n";
+		if (isset($_SESSION['usr']))
+			$str .= "\n\n " . $qm->replace('file.lbl_editor', $_SESSION['usr']) . "\n";
 
 		pkwk_mail_notify($notify_subject, $str, $footer) or
 			die($qm->m['file']['err_mail_failed']);
@@ -327,13 +335,15 @@ function file_write($dir, $page, $str, $notimestamp = FALSE)
 // Update RecentDeleted
 function add_recent($page, $recentpage, $subject = '', $limit = 0)
 {
-	if (PKWK_READONLY || $limit == 0 || $page == '' || $recentpage == '' ||
-	    check_non_list($page)) return;
-	
+	if (
+		PKWK_READONLY || $limit == 0 || $page == '' || $recentpage == '' ||
+		check_non_list($page)
+	) return;
+
 	$qm = get_qm();
 
 	// Load
-	$lines = $matches = array();
+	$lines = $matches = [];
 	foreach (get_source($recentpage) as $line)
 		if (preg_match('/^-(.+) - (\[\[.+\]\])$/', $line, $matches))
 			$lines[$matches[2]] = $line;
@@ -362,7 +372,6 @@ function add_recent($page, $recentpage, $subject = '', $limit = 0)
 	fputs($fp, join('', $lines));
 	flock($fp, LOCK_UN);
 	fclose($fp);
-
 }
 
 // Update PKWK_MAXSHOW_CACHE itself (Add or renew about the $page) (Light)
@@ -395,8 +404,8 @@ function lastmodified_add($update = '', $remove = '')
 	flock($fp, LOCK_EX);
 
 	// Read (keep the order of the lines)
-	$recent_pages = $matches = array();
-	foreach(file_head($file, $maxshow + PKWK_MAXSHOW_ALLOWANCE, FALSE) as $line)
+	$recent_pages = $matches = [];
+	foreach (file_head($file, $maxshow + PKWK_MAXSHOW_ALLOWANCE, FALSE) as $line)
 		if (preg_match('/^([0-9]+)\t(.+)/', $line, $matches))
 			$recent_pages[$matches[2]] = $matches[1];
 
@@ -415,7 +424,7 @@ function lastmodified_add($update = '', $remove = '')
 		// Write
 		ftruncate($fp, 0);
 		rewind($fp);
-		foreach ($recent_pages as $_page=>$time)
+		foreach ($recent_pages as $_page => $time)
 			fputs($fp, $time . "\t" . $_page . "\n");
 	}
 
@@ -445,7 +454,7 @@ function lastmodified_add($update = '', $remove = '')
 	// Recreate
 	ftruncate($fp, 0);
 	rewind($fp);
-	foreach ($recent_pages as $_page=>$time)
+	foreach ($recent_pages as $_page => $time)
 		fputs($fp, '-' . htmlspecialchars(format_date($time)) .
 			' - ' . '[[' . htmlspecialchars($_page) . ']]' . "\n");
 	fputs($fp, '#freeze'    . "\n");
@@ -468,8 +477,8 @@ function put_lastmodified()
 	$pages = get_existpages();
 
 	// Check ALL filetime
-	$recent_pages = array();
-	foreach($pages as $page)
+	$recent_pages = [];
+	foreach ($pages as $page)
 		if ($page != $whatsnew && ! check_non_list($page))
 			$recent_pages[$page] = get_filetime($page);
 
@@ -479,13 +488,13 @@ function put_lastmodified()
 	// Cut unused lines
 	// BugTrack2/179: array_splice() will break integer keys in hashtable
 	$count   = $maxshow + PKWK_MAXSHOW_ALLOWANCE;
-	$_recent = array();
-	foreach($recent_pages as $key=>$value) {
+	$_recent = [];
+	foreach ($recent_pages as $key => $value) {
 		unset($recent_pages[$key]);
 		$_recent[$key] = $value;
 		if (--$count < 1) break;
 	}
-	$recent_pages = & $_recent;
+	$recent_pages = &$_recent;
 
 	// Re-create PKWK_MAXSHOW_CACHE
 	$file = CACHE_DIR . PKWK_MAXSHOW_CACHE;
@@ -496,7 +505,7 @@ function put_lastmodified()
 	flock($fp, LOCK_EX);
 	ftruncate($fp, 0);
 	rewind($fp);
-	foreach ($recent_pages as $page=>$time)
+	foreach ($recent_pages as $page => $time)
 		fputs($fp, $time . "\t" . $page . "\n");
 	flock($fp, LOCK_UN);
 	fclose($fp);
@@ -515,7 +524,7 @@ function put_lastmodified()
 		$s_lastmod = htmlspecialchars(format_date($time));
 		$s_page    = htmlspecialchars($page);
 		$pagetile  = get_page_title($page);
-		fputs($fp, '-' . $s_lastmod . ' - [[' .$pagetile. '>' . $s_page . ']]' . "\n");
+		fputs($fp, '-' . $s_lastmod . ' - [[' . $pagetile . '>' . $s_page . ']]' . "\n");
 	}
 	fputs($fp, '#freeze'    . "\n");
 	fputs($fp, '#norelated' . "\n");
@@ -571,16 +580,16 @@ function header_lastmod($page = NULL)
 // Get a page list of this wiki
 function get_existpages($dir = DATA_DIR, $ext = '.txt')
 {
-	$aryret = array();
+	$aryret = [];
 	$qm = get_qm();
-	
+
 	$pattern = '((?:[0-9A-F]{2})+)';
 	if ($ext != '') $ext = preg_quote($ext, '/');
 	$pattern = '/^' . $pattern . $ext . '$/';
 
 	$dp = @opendir($dir) or
 		die_message($qm->replace('fmt_err_not_found_or_readable', $dir));
-	$matches = array();
+	$matches = [];
 	while ($file = readdir($dp))
 		if (preg_match($pattern, $file, $matches))
 			$aryret[$file] = decode($matches[1]);
@@ -589,7 +598,7 @@ function get_existpages($dir = DATA_DIR, $ext = '.txt')
 	return $aryret;
 }
 
-// Get PageReading(pronounce-annotated) data in an array()
+// Get PageReading(pronounce-annotated) data in an []
 function get_readings()
 {
 	global $pagereading_enable, $pagereading_kanji2kana_converter;
@@ -600,16 +609,16 @@ function get_readings()
 
 	$pages = get_existpages();
 
-	$readings = array();
-	foreach ($pages as $page) 
+	$readings = [];
+	foreach ($pages as $page)
 		$readings[$page] = '';
 
 	$deletedPage = FALSE;
-	$matches = array();
+	$matches = [];
 	foreach (get_source($pagereading_config_page) as $line) {
 		$line = chop($line);
-		if(preg_match('/^-\[\[([^]]+)\]\]\s+(.+)$/', $line, $matches)) {
-			if(isset($readings[$matches[1]])) {
+		if (preg_match('/^-\[\[([^]]+)\]\]\s+(.+)$/', $line, $matches)) {
+			if (isset($readings[$matches[1]])) {
 				// This page is not clear how to be pronounced
 				$readings[$matches[1]] = $matches[2];
 			} else {
@@ -620,118 +629,133 @@ function get_readings()
 	}
 
 	// If enabled ChaSen/KAKASI execution
-	if($pagereading_enable) {
+	if ($pagereading_enable) {
 
 		// Check there's non-clear-pronouncing page
 		$unknownPage = FALSE;
 		foreach ($readings as $page => $reading) {
-			if($reading == '') {
+			if ($reading == '') {
 				$unknownPage = TRUE;
 				break;
 			}
 		}
 
 		// Execute ChaSen/KAKASI, and get annotation
-		if($unknownPage) {
-			switch(strtolower($pagereading_kanji2kana_converter)) {
-			case 'chasen':
-				if(! file_exists($pagereading_chasen_path))
-					die_message($qm->replace('file.err_chasen_notfound', $pagereading_chasen_path));
+		if ($unknownPage) {
+			switch (strtolower($pagereading_kanji2kana_converter)) {
+				case 'chasen':
+					if (! file_exists($pagereading_chasen_path))
+						die_message($qm->replace('file.err_chasen_notfound', $pagereading_chasen_path));
 
-				$tmpfname = tempnam(realpath(CACHE_DIR), 'PageReading');
-				$fp = fopen($tmpfname, 'w') or
-					die_message($qm->replace('file.err_cannot_write_tmpfile', $tmpfname));
-				foreach ($readings as $page => $reading) {
-					if($reading != '') continue;
-					fputs($fp, mb_convert_encoding($page . "\n",
-						$pagereading_kanji2kana_encoding, SOURCE_ENCODING));
-				}
-				fclose($fp);
-
-				$chasen = "$pagereading_chasen_path -F %y $tmpfname";
-				$fp     = popen($chasen, 'r');
-				if($fp === FALSE) {
-					unlink($tmpfname);
-					die_message($qm->replace('file.err_chasen_failed', $chasen));
-				}
-				foreach ($readings as $page => $reading) {
-					if($reading != '') continue;
-
-					$line = fgets($fp);
-					$line = mb_convert_encoding($line, SOURCE_ENCODING,
-						$pagereading_kanji2kana_encoding);
-					$line = chop($line);
-					$readings[$page] = $line;
-				}
-				pclose($fp);
-
-				unlink($tmpfname) or
-					die_message($qm->replace('file.err_cannot_remove_tmpfile', $tmpfname));
-				break;
-
-			case 'kakasi':	/*FALLTHROUGH*/
-			case 'kakashi':
-				if(! file_exists($pagereading_kakasi_path))
-					die_message('KAKASI not found: ' . $pagereading_kakasi_path);
-
-				$tmpfname = tempnam(realpath(CACHE_DIR), 'PageReading');
-				$fp       = fopen($tmpfname, 'w') or
-					die_message('Cannot write temporary file "' . $tmpfname . '".' . "\n");
-				foreach ($readings as $page => $reading) {
-					if($reading != '') continue;
-					fputs($fp, mb_convert_encoding($page . "\n",
-						$pagereading_kanji2kana_encoding, SOURCE_ENCODING));
-				}
-				fclose($fp);
-
-				$kakasi = "$pagereading_kakasi_path -kK -HK -JK < $tmpfname";
-				$fp     = popen($kakasi, 'r');
-				if($fp === FALSE) {
-					unlink($tmpfname);
-					die_message($qm->replace('file.err_kakasi_failed', $kakasi));
-				}
-
-				foreach ($readings as $page => $reading) {
-					if($reading != '') continue;
-
-					$line = fgets($fp);
-					$line = mb_convert_encoding($line, SOURCE_ENCODING,
-						$pagereading_kanji2kana_encoding);
-					$line = chop($line);
-					$readings[$page] = $line;
-				}
-				pclose($fp);
-
-				unlink($tmpfname) or
-					die_message($qm->replace('file.err_cannot_remove_tmpfile', $tmpfname));
-				break;
-
-			case 'none':
-				$patterns = $replacements = $matches = array();
-				foreach (get_source($pagereading_config_dict) as $line) {
-					$line = chop($line);
-					if(preg_match('|^ /([^/]+)/,\s*(.+)$|', $line, $matches)) {
-						$patterns[]     = $matches[1];
-						$replacements[] = $matches[2];
+					$tmpfname = tempnam(realpath(CACHE_DIR), 'PageReading');
+					$fp = fopen($tmpfname, 'w') or
+						die_message($qm->replace('file.err_cannot_write_tmpfile', $tmpfname));
+					foreach ($readings as $page => $reading) {
+						if ($reading != '') continue;
+						fputs($fp, mb_convert_encoding(
+							$page . "\n",
+							$pagereading_kanji2kana_encoding,
+							SOURCE_ENCODING
+						));
 					}
-				}
-				foreach ($readings as $page => $reading) {
-					if($reading != '') continue;
+					fclose($fp);
 
-					$readings[$page] = $page;
-					foreach ($patterns as $no => $pattern)
-						$readings[$page] = mb_convert_kana(mb_ereg_replace($pattern,
-							$replacements[$no], $readings[$page]), 'aKCV');
-				}
-				break;
+					$chasen = "$pagereading_chasen_path -F %y $tmpfname";
+					$fp     = popen($chasen, 'r');
+					if ($fp === FALSE) {
+						unlink($tmpfname);
+						die_message($qm->replace('file.err_chasen_failed', $chasen));
+					}
+					foreach ($readings as $page => $reading) {
+						if ($reading != '') continue;
 
-			default:
-				die_message($qm->replace('file.err_unknown_kk_converter', $pagereading_kanji2kana_converter));
-				break;
+						$line = fgets($fp);
+						$line = mb_convert_encoding(
+							$line,
+							SOURCE_ENCODING,
+							$pagereading_kanji2kana_encoding
+						);
+						$line = chop($line);
+						$readings[$page] = $line;
+					}
+					pclose($fp);
+
+					unlink($tmpfname) or
+						die_message($qm->replace('file.err_cannot_remove_tmpfile', $tmpfname));
+					break;
+
+				case 'kakasi':	/*FALLTHROUGH*/
+				case 'kakashi':
+					if (! file_exists($pagereading_kakasi_path))
+						die_message('KAKASI not found: ' . $pagereading_kakasi_path);
+
+					$tmpfname = tempnam(realpath(CACHE_DIR), 'PageReading');
+					$fp       = fopen($tmpfname, 'w') or
+						die_message('Cannot write temporary file "' . $tmpfname . '".' . "\n");
+					foreach ($readings as $page => $reading) {
+						if ($reading != '') continue;
+						fputs($fp, mb_convert_encoding(
+							$page . "\n",
+							$pagereading_kanji2kana_encoding,
+							SOURCE_ENCODING
+						));
+					}
+					fclose($fp);
+
+					$kakasi = "$pagereading_kakasi_path -kK -HK -JK < $tmpfname";
+					$fp     = popen($kakasi, 'r');
+					if ($fp === FALSE) {
+						unlink($tmpfname);
+						die_message($qm->replace('file.err_kakasi_failed', $kakasi));
+					}
+
+					foreach ($readings as $page => $reading) {
+						if ($reading != '') continue;
+
+						$line = fgets($fp);
+						$line = mb_convert_encoding(
+							$line,
+							SOURCE_ENCODING,
+							$pagereading_kanji2kana_encoding
+						);
+						$line = chop($line);
+						$readings[$page] = $line;
+					}
+					pclose($fp);
+
+					unlink($tmpfname) or
+						die_message($qm->replace('file.err_cannot_remove_tmpfile', $tmpfname));
+					break;
+
+				case 'none':
+					$patterns = $replacements = $matches = [];
+					foreach (get_source($pagereading_config_dict) as $line) {
+						$line = chop($line);
+						if (preg_match('|^ /([^/]+)/,\s*(.+)$|', $line, $matches)) {
+							$patterns[]     = $matches[1];
+							$replacements[] = $matches[2];
+						}
+					}
+					foreach ($readings as $page => $reading) {
+						if ($reading != '') continue;
+
+						$readings[$page] = $page;
+						foreach ($patterns as $no => $pattern)
+							$readings[$page] = mb_convert_kana(mb_ereg_replace(
+								$pattern,
+								$replacements[$no],
+								$readings[$page]
+							), 'aKCV');
+					}
+					break;
+
+				default:
+					die_message($qm->replace('file.err_unknown_kk_converter', $pagereading_kanji2kana_converter));
+					break;
 			}
 		}
 
-		if($unknownPage || $deletedPage) {
+		if ($unknownPage || $deletedPage) {
 
 			asort($readings); // Sort by pronouncing(alphabetical/reading) order
 			$body = '';
@@ -744,7 +768,7 @@ function get_readings()
 
 	// Pages that are not prounouncing-clear, return pagenames of themselves
 	foreach ($pages as $page) {
-		if($readings[$page] == '')
+		if ($readings[$page] == '')
 			$readings[$page] = $page;
 	}
 
@@ -756,7 +780,7 @@ function get_existfiles($dir, $ext)
 {
 	$qm = get_qm();
 	$pattern = '/^(?:[0-9A-F]{2})+' . preg_quote($ext, '/') . '$/';
-	$aryret = array();
+	$aryret = [];
 	$dp = @opendir($dir) or die_message($qm->replace('fmt_err_not_found_or_readable', $dir));
 	while ($file = readdir($dp))
 		if (preg_match($pattern, $file))
@@ -769,12 +793,12 @@ function get_existfiles($dir, $ext)
 function links_get_related($page)
 {
 	global $vars, $related;
-	static $links = array();
+	static $links = [];
 
 	if (isset($links[$page])) return $links[$page];
 
 	// If possible, merge related pages generated by make_link()
-	$links[$page] = ($page == $vars['page']) ? $related : array();
+	$links[$page] = ($page == $vars['page']) ? $related : [];
 
 	// Get repated pages from DB
 	$links[$page] += links_get_related_db($vars['page']);
@@ -862,117 +886,108 @@ function pkwk_touch_file($filename, $time = FALSE, $atime = FALSE)
 //regist tinyurl table
 function add_tinycode($page)
 {
-	if($page=='')
+	global $whatsnew;
+
+	if ($page == '')
 		return false;
 	$qm = get_qm();
-	
-	$file = CACHE_DIR.QHM_TINYURL_TABLE;
-	
-	if( !file_exists( $file ) )
-	{
+
+	$file = CACHE_DIR . QHM_TINYURL_TABLE;
+
+	if (!file_exists($file)) {
 		$pages = array_diff(get_existpages(), array($whatsnew));
 		$str = '';
-		$table = array();
-		foreach($pages as $k=>$v)
-		{
+		$table = [];
+		foreach ($pages as $k => $v) {
 			$tname = get_random_string(6);
-			while( isset($table[$tname]) )  // prob is X/62^6 !!
+			while (isset($table[$tname]))  // prob is X/62^6 !!
 			{
-				$tname = get_random_string(6); 
+				$tname = get_random_string(6);
 			}
-			
+
 			$table[$tname] = '';
-			$str .= $tname.','.$v."\n";
+			$str .= $tname . ',' . $v . "\n";
 		}
-				
+
 		$fp = fopen($file, 'w') or
 			die_message($qm->replace('file.err_cannot_open', h($file)));
 		set_file_buffer($fp, 0);
 		flock($fp, LOCK_EX);
-		
+
 		fputs($fp, $str);
-		
+
 		flock($fp, LOCK_UN);
 		fclose($fp);
-	}
-	else
-	{
-	
+	} else {
+
 		$table = get_tiny_table();
-		
+
 		$r_table = array_flip($table);
-		if(isset($r_table[$page]))
+		if (isset($r_table[$page]))
 			return '';
-		
+
 		$tname = get_random_string(6);
-		while( isset($table[$tname]) )  // prob is X/62^6 !!
+		while (isset($table[$tname]))  // prob is X/62^6 !!
 		{
-			$tname = get_random_string(6); 
+			$tname = get_random_string(6);
 		}
-		
-		$str = $tname.','.$page."\n";
+
+		$str = $tname . ',' . $page . "\n";
 
 		$fp = fopen($file, 'a') or
 			die_message($qm->replace('file.err_cannot_open', h($file)));
 		set_file_buffer($fp, 0);
 		flock($fp, LOCK_EX);
-		
+
 		fputs($fp, $str);
-		
+
 		flock($fp, LOCK_UN);
 		fclose($fp);
-
 	}
 }
 
 function del_tinycode($page)
 {
 	$qm = get_qm();
-	
+
 	$table = get_tiny_table(false);
 	unset($table[$page]);
-	
+
 	$str = '';
-	foreach($table as $key=>$val)
-	{
-		$str .= $val.','.$key."\n";
+	foreach ($table as $key => $val) {
+		$str .= $val . ',' . $key . "\n";
 	}
 
-	$file = CACHE_DIR.QHM_TINYURL_TABLE;
+	$file = CACHE_DIR . QHM_TINYURL_TABLE;
 	$fp = fopen($file, 'w') or
 		die_message($qm->replace('file.err_cannot_open', h($file)));
 	set_file_buffer($fp, 0);
 	flock($fp, LOCK_EX);
-	
+
 	fputs($fp, $str);
-	
+
 	flock($fp, LOCK_UN);
 	fclose($fp);
 }
 
-function get_tiny_table($key_is_code=true)
+function get_tiny_table($key_is_code = true)
 {
-	$file = CACHE_DIR.QHM_TINYURL_TABLE;
-	
-	$lines = explode("\n",file_get_contents($file));
-	$table = array();
-	foreach($lines as $line)
-	{
-		if( trim($line) != '')
-		{
+	$file = CACHE_DIR . QHM_TINYURL_TABLE;
+
+	$lines = explode("\n", file_get_contents($file));
+	$table = [];
+	foreach ($lines as $line) {
+		if (trim($line) != '') {
 			$arr = explode(',', $line);
-			
-			if($key_is_code)
-			{
-				$table[ trim($arr[0]) ] = trim($arr[1]);
+
+			if ($key_is_code) {
+				$table[trim($arr[0])] = trim($arr[1]);
+			} else {
+				$table[trim($arr[1])] = trim($arr[0]);
 			}
-			else
-			{
-				$table[ trim($arr[1]) ] = trim($arr[0]);			
-			}	
 		}
 	}
-	
+
 	return $table;
 }
 
@@ -980,12 +995,9 @@ function get_tiny_code($page)
 {
 	$table = get_tiny_table(false);
 
-	if( isset($table[$page]) )
-	{
+	if (isset($table[$page])) {
 		return $table[$page];
-	}
-	else
-	{
+	} else {
 		return null;
 	}
 }
@@ -993,30 +1005,31 @@ function get_tiny_code($page)
 function get_tiny_page($code)
 {
 	$table = get_tiny_table();
-	if(isset($table[$code]))
+	if (isset($table[$code]))
 		return $table[$code];
 	else
 		return '';
 }
 
-function get_random_string($length=6)
+function get_random_string($length = 6)
 {
 	static $seed = '0123456789abcdefghifklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-	$max = strlen($seed)-1;
-	
+	$max = strlen($seed) - 1;
+
 	$str = '';
-	for($i=0; $i<$length; $i++)
+	for ($i = 0; $i < $length; $i++)
 		$str .= substr($seed, rand(0, $max), 1);
 
 	return $str;
 }
 
-function chk_script($script){
-	
-	$file = CACHE_DIR.'qhm_script.txt';
-	if(file_exists($file)){
+function chk_script($script)
+{
+
+	$file = CACHE_DIR . 'qhm_script.txt';
+	if (file_exists($file)) {
 		$past_script = trim(file_get_contents($file));
-		if($script == $past_script){
+		if ($script == $past_script) {
 			return true;
 		}
 	}
@@ -1025,7 +1038,6 @@ function chk_script($script){
 
 	$lm_file = CACHE_DIR . QHM_LASTMOD;
 	file_put_contents($lm_file, date('Y-m-d H:i:s'));
-
 }
 
 function qblog_update($force = FALSE)
@@ -1034,13 +1046,13 @@ function qblog_update($force = FALSE)
 	if ($updated) return;
 
 	$updated = TRUE;
-	
+
 	// update caches
 	// qblog_recent.dat
 	// qblog_categories.dat
 	// qblog_archived.dat
 	// *.qbc.dat
-	
+
 	qblog_update_post($force);
 	qblog_update_recent($force);
 	qblog_update_categories($force);
@@ -1052,37 +1064,34 @@ function qblog_update($force = FALSE)
 function qblog_update_recent($force = FALSE)
 {
 	global $qblog_page_prefix, $qblog_page_re;
-	
+
 	//タイムスタンプをチェック
 	$datafile = CACHEQBLOG_DIR . 'qblog_recent.dat';
-	if ($force === FALSE && filemtime($datafile) >= filemtime(CACHE_DIR . QHM_LASTMOD))
-	{
+	if ($force === FALSE && filemtime($datafile) >= filemtime(CACHE_DIR . QHM_LASTMOD)) {
 		return;
 	}
-	
+
 	//すべてのブログ記事ファイルを配列に格納
 	$files = glob(DATA_DIR . encode($qblog_page_prefix) . '*');
-	
-	$pages = array();
-	foreach ($files as $file)
-	{
+
+	$pages = [];
+	foreach ($files as $file) {
 		$pagename = decode(basename($file, '.txt'));
 		if (preg_match($qblog_page_re, $pagename))
 			$pages[] = $pagename;
 	}
-	
+
 	//日付+ナンバリングでソート
 	natsort($pages);
 	$pages = array_reverse($pages);
 
-	
+
 	//件数を1行目に追加
 	array_unshift($pages, count($pages));
-	
+
 	//その順番で qblog_recent.dat に保存
 	$data = join("\n", $pages);
 	file_put_contents($datafile, $data, LOCK_EX);
-
 }
 
 function qblog_update_categories($force = FALSE)
@@ -1093,65 +1102,55 @@ function qblog_update_categories($force = FALSE)
 	$cat_list_file = CACHEQBLOG_DIR . 'qblog_categories.dat';
 	$lastmod_file = CACHE_DIR . QHM_LASTMOD;
 
-	if ($force === FALSE && (filemtime($cat_list_file) >= filemtime($lastmod_file)))
-	{
+	if ($force === FALSE && (filemtime($cat_list_file) >= filemtime($lastmod_file))) {
 		return;
 	}
 
 	//カテゴリ毎のキャッシュファイルを空に
 	$files = glob(CACHEQBLOG_DIR . '*.qbc.dat');
-	foreach ($files as $file)
-	{
+	foreach ($files as $file) {
 		file_put_contents($file, '');
 	}
-	
+
 	// ブログ記事のカテゴリを取得する
-	$categories = array();
-	
+	$categories = [];
+
 	$files = glob(CACHEQBLOG_DIR . '*.qbp.dat');
-	foreach ($files as $file)
-	{
+	foreach ($files as $file) {
 		$pagename = decode(basename($file, '.qbp.dat'));
 		$data = get_qblog_post_data($pagename);
-		if ($data === FALSE)
-		{
+		if ($data === FALSE) {
 			continue;
 		}
-		
-		if (isset($data['category']) OR trim($data['category']) !== '')
-		{
+
+		if (isset($data['category']) or trim($data['category']) !== '') {
 			$categories[$data['category']][] = $pagename;
-		}
-		else
-		{
+		} else {
 			$categories[$qblog_default_cat][] = $pagename;
 		}
 	}
-	
+
 	//カテゴリー毎のキャッシュファイルを作成・更新
-	foreach ($categories as $category => $pages)
-	{
+	foreach ($categories as $category => $pages) {
 		qblog_update_category($category, $pages, TRUE);
 	}
 
 	// --------------------
 	// categoryの一覧を作成
 	// --------------------
-	
+
 	$cat_data = '';
 
 	// カテゴリ毎のファイルを取得し、属するページ数をカウント
 	$files = glob(CACHEQBLOG_DIR . '*.qbc.dat');
-	foreach ($files as $file)
-	{
+	foreach ($files as $file) {
 		$cat = decode(basename($file, '.qbc.dat'));
 		$pages = count($categories[$cat]);
-		$cat_data .= $cat ."\t". $pages ."\n";
+		$cat_data .= $cat . "\t" . $pages . "\n";
 	}
-	
+
 	// カテゴリの一覧を作成
 	file_put_contents($cat_list_file, $cat_data, LOCK_EX);
-	
 }
 
 function qblog_update_category($category, $add_pages, $force = FALSE)
@@ -1160,24 +1159,21 @@ function qblog_update_category($category, $add_pages, $force = FALSE)
 
 	//更新しない
 	$lastmod_file = CACHE_DIR . QHM_LASTMOD;
-	
-	if ($force === FALSE && file_exists($cat_file) && (filemtime($cat_file) >= filemtime($lastmod_file)))
-	{
+
+	if ($force === FALSE && file_exists($cat_file) && (filemtime($cat_file) >= filemtime($lastmod_file))) {
 		return;
 	}
 
 	//カテゴリの更新
-	$pages = array();
-	if (file_exists($cat_file))
-	{
+	$pages = [];
+	if (file_exists($cat_file)) {
 		$pages = explode("\n", file_get_contents($cat_file));
 	}
-	
-	if ( ! is_array($add_pages))
-	{
+
+	if (! is_array($add_pages)) {
 		$add_pages = array($add_pages);
 	}
-	
+
 	$pages = array_merge($pages, $add_pages);
 	$pages = array_unique($pages);
 
@@ -1192,39 +1188,34 @@ function qblog_update_category($category, $add_pages, $force = FALSE)
 function qblog_update_archives($force = FALSE)
 {
 	global $qblog_page_prefix, $qblog_page_re;
-	
+
 	//タイムスタンプをチェック
 	$datafile = CACHEQBLOG_DIR . 'qblog_archives.dat';
-	if ($force === FALSE && filemtime($datafile) >= filemtime(CACHE_DIR . QHM_LASTMOD))
-	{
+	if ($force === FALSE && filemtime($datafile) >= filemtime(CACHE_DIR . QHM_LASTMOD)) {
 		return;
 	}
-	
+
 	//すべてのブログ記事を配列に格納
 	$files = glob(DATA_DIR . encode($qblog_page_prefix) . '*');
-	
-	$pages = array();
-	$year_month_list = array();
-	foreach ($files as $file)
-	{
+
+	$pages = [];
+	$year_month_list = [];
+	foreach ($files as $file) {
 		$pagename = decode(basename($file, '.txt'));
-		if (preg_match($qblog_page_re, $pagename, $mts))
-		{
+		if (preg_match($qblog_page_re, $pagename, $mts)) {
 			$pages[] = $pagename;
 			//年月をキーに、記事数をカウント
-			if ( ! isset($year_month_list[$mts[1].$mts[2]]))
-			{
-				$year_month_list[$mts[1].$mts[2]] = 0;
+			if (! isset($year_month_list[$mts[1] . $mts[2]])) {
+				$year_month_list[$mts[1] . $mts[2]] = 0;
 			}
-			$year_month_list[$mts[1].$mts[2]]++;
+			$year_month_list[$mts[1] . $mts[2]]++;
 		}
 	}
-	
+
 	//新しい順にソート
 	krsort($year_month_list);
-	
-	foreach ($year_month_list as $year_month => $count)
-	{
+
+	foreach ($year_month_list as $year_month => $count) {
 		$year = substr($year_month, 0, 4);
 		$month = substr($year_month, 4, 2);
 		$year_month_list[$year_month] = join(",", array($year, $month, $count));
@@ -1233,7 +1224,6 @@ function qblog_update_archives($force = FALSE)
 	//保存
 	$data = join("\n", $year_month_list);
 	file_put_contents($datafile, $data, LOCK_EX);
-	
 }
 
 /**
@@ -1251,108 +1241,89 @@ function qblog_update_post($force = FALSE, $page = NULL, $option = NULL)
 	global $qblog_defaultpage, $qblog_page_prefix, $qblog_page_re, $qblog_default_cat;
 
 	//ページが未指定の場合
-	if (is_null($page))
-	{
+	if (is_null($page)) {
 		$page = $vars['page'];
 		//ページがブログでなければ何もしない
-		if ( ! is_qblog())
-		{
+		if (! is_qblog()) {
 			return FALSE;
 		}
 	}
-	if ($page === $qblog_defaultpage)
-	{
+	if ($page === $qblog_defaultpage) {
 		return FALSE;
 	}
-	
+
 	//wikiファイルとキャッシュファイルのmtime を比べる
 	$wikifile = get_filename($page);
 	$datafile = CACHEQBLOG_DIR . encode($page) . '.qbp.dat';
 
-	if ( ! file_exists($wikifile))
-	{
+	if (! file_exists($wikifile)) {
 		return FALSE;
 	}
 	//キャッシュが古ければ更新
-	if ($force === FALSE && file_exists($datafile) && filemtime($wikifile) <= filemtime($datafile))
-	{
+	if ($force === FALSE && file_exists($datafile) && filemtime($wikifile) <= filemtime($datafile)) {
 		return TRUE;
 	}
 
 	//オプションが未指定の場合
 	//すでにデータファイルがあればそれを読み込む
-	if (is_null($option))
-	{
-		$option = array('image'=>'', 'category'=>$qblog_default_cat);
-		if (file_exists($datafile))
-		{
+	if (is_null($option)) {
+		$option = array('image' => '', 'category' => $qblog_default_cat);
+		if (file_exists($datafile)) {
 			$data = unserialize(file_get_contents($datafile));
-			$data = ($data === FALSE) ? array() : $data;
+			$data = ($data === FALSE) ? [] : $data;
 			$option = array_merge($option, $data);
 		}
 	}
 
-	
+
 	$source = get_source($page);
-	
-	$title = '';//ページタイトル
-	$header = '';//見出し
-	$image = (isset($option['image']) && $option['image'] !== '') ? $option['image'] : '';//画像パス
+
+	$title = ''; //ページタイトル
+	$header = ''; //見出し
+	$image = (isset($option['image']) && $option['image'] !== '') ? $option['image'] : ''; //画像パス
 	$visible = TRUE; //表示
 
 	// 説明ページに表示しないプラグイン
 	global $ignore_plugin, $strip_plugin, $strip_plugin_inline;
-	foreach($source as $i => $line)
-	{
-		if (preg_match($ignore_plugin, $line))
-		{	// リストから省く
-			$source = array();
+	foreach ($source as $i => $line) {
+		if (preg_match($ignore_plugin, $line)) {	// リストから省く
+			$source = [];
 			break;
 		}
-		
+
 		//タイトルのセット
-		if (preg_match('/^TITLE:(.*)/', $line, $ms))
-		{
+		if (preg_match('/^TITLE:(.*)/', $line, $ms)) {
 			$title = $ms[1];
 			unset($source[$i]);
 		}
 		//見出し
-		else if (preg_match('/^(?:\*){1,3}(.*)\[#\w+\]\s?/', $line, $ms))
-		{
-			if ($header === '')
-			{
+		else if (preg_match('/^(?:\*){1,3}(.*)\[#\w+\]\s?/', $line, $ms)) {
+			if ($header === '') {
 				$header = trim($ms[1]);
 			}
 			$source[$i] = trim($ms[1]);
 		}
 		//使わないブロックプラグインやキーワード
-		else if (preg_match($strip_plugin, $line))
-		{
+		else if (preg_match($strip_plugin, $line)) {
 			unset($source[$i]);
 		}
 		//ブロックプラグインを除く
-		else if (preg_match('/^#qblog/', $line))
-		{
+		else if (preg_match('/^#qblog/', $line)) {
 			unset($source[$i]);
-		}
-		else if ($image === '' && preg_match('/(?:^#show|&show)\(([^,]+)(.*)\)/', $line, $mts))
-		{
-			if (strpos($mts[2], 'nolink') === FALSE)
-			{
+		} else if ($image === '' && preg_match('/(?:^#show|&show)\(([^,]+)(.*)\)/', $line, $mts)) {
+			if (strpos($mts[2], 'nolink') === FALSE) {
 				$image = $mts[1];
 			}
 		}
 	}
 
 	//閉鎖されている場合は表示フラグをオフ
-	if (count($source) === 0)
-	{
+	if (count($source) === 0) {
 		$visible = FALSE;
 	}
 
 	//タイトルがない場合は最初の見出しを使う
-	if ($title === '')
-	{
+	if ($title === '') {
 		$title = $header;
 	}
 
@@ -1362,17 +1333,14 @@ function qblog_update_post($force = FALSE, $page = NULL, $option = NULL)
 	$abstract = strip_tags(convert_html($source));
 	//指定文字数抜粋し、改行文字を除く
 	$abst_length = 100;
-	if (mb_strlen($abstract) > $abst_length)
-	{
+	if (mb_strlen($abstract) > $abst_length) {
 		$abstract = str_replace(array("\n", "\r"), '', mb_substr($abstract, 0, $abst_length - 1) . '…');
-	}
-	else
-	{
+	} else {
 		$abstract = str_replace(array("\n", "\r"), '', $abstract);
 	}
-	
-	$category = $option['category'];//カテゴリ
-	
+
+	$category = $option['category']; //カテゴリ
+
 	//ファイルを保存
 	$data = compact(array('title', 'abstract', 'image', 'category', 'visible'));
 	file_put_contents($datafile, serialize($data), LOCK_EX);
@@ -1392,91 +1360,78 @@ function qblog_save_post_data($page, $data)
 function qblog_add_comment($page, $comment_data, $timestamp = NULL)
 {
 	global $qblog_datetime_format, $qblog_comment_check, $qblog_comment_notice;
-	if (is_null($timestamp))
-	{
+	if (is_null($timestamp)) {
 		$timestamp = time();
 	}
 	$comment_date = date($qblog_datetime_format, $timestamp);
-	
+
 	$accept = $qblog_comment_check ? 0 : 1;
 	$comment_data = array_merge(array(
-			'id'       => '',//set after
-			'msg'      => '',
-			'title'    => '',
-			'name'     => '',
-			'datetime' => $comment_date,
-			'ipaddress' => $_SERVER['REMOTE_ADDR'],
-			'accepted' => $accept,
-			'show'     => 1,
-			'admin'    => 0
-		), $comment_data);
-	
+		'id'       => '', //set after
+		'msg'      => '',
+		'title'    => '',
+		'name'     => '',
+		'datetime' => $comment_date,
+		'ipaddress' => $_SERVER['REMOTE_ADDR'],
+		'accepted' => $accept,
+		'show'     => 1,
+		'admin'    => 0
+	), $comment_data);
 
-	$comments = array();
+
+	$comments = [];
 	$newid = 1;
 	//read data file
-	if (file_exists(CACHEQBLOG_DIR . encode($page) . '.qbcm.dat'))
-	{
+	if (file_exists(CACHEQBLOG_DIR . encode($page) . '.qbcm.dat')) {
 		$comments = unserialize(file_get_contents(CACHEQBLOG_DIR . encode($page) . '.qbcm.dat'));
-		if ($comments !== FALSE)
-		{
+		if ($comments !== FALSE) {
 			$newest = array_pop($comments);
 			$newid  = $newest['id'] + 1;
 			array_push($comments, $newest);
-		}
-		else
-		{
-			$comments = array();
+		} else {
+			$comments = [];
 		}
 	}
 	$comment_data['id'] = $newid;
 	$comments[$newid] = $comment_data;
-	
+
 	file_put_contents(CACHEQBLOG_DIR . encode($page) . '.qbcm.dat', serialize($comments), LOCK_EX);
-	
+
 	//承認が必要であれば未承認コメント一覧を更新
-	if ($qblog_comment_check)
-	{
+	if ($qblog_comment_check) {
 		qblog_update_pending_comment($page, $comment_data, $timestamp);
 	}
 	//承認不要であれば最新コメント一覧を更新
-	else
-	{
+	else {
 		qblog_update_recent_comment($page, $timestamp);
 	}
-	
+
 	//管理者以外のコメントの場合、通知メールを送信
-	if ( ! $comment_data['admin'] && $qblog_comment_notice)
-	{
+	if (! $comment_data['admin'] && $qblog_comment_notice) {
 		sent_qblog_comment_notice($page, $comment_data);
 	}
-	
 }
 
 function qblog_update_recent_comment($page, $timestamp = NULL)
 {
-	if (is_null($timestamp))
-	{
+	if (is_null($timestamp)) {
 		$timestamp = time();
 	}
 	//最近コメントされたページ名一覧を読み込む
-	$recent_comments = array();
-	if (file_exists(CACHEQBLOG_DIR . 'qblog_recent_comments.dat'))
-	{
+	$recent_comments = [];
+	if (file_exists(CACHEQBLOG_DIR . 'qblog_recent_comments.dat')) {
 		$recent_comment_lines = explode("\n", file_get_contents(CACHEQBLOG_DIR . 'qblog_recent_comments.dat'));
-		foreach ($recent_comment_lines as $line)
-		{
+		foreach ($recent_comment_lines as $line) {
 			list($time, $pagename) = explode("\t", $line);
 			$recent_comments[$pagename] = $time;
 		}
 	}
 	$recent_comments[$page] = $timestamp;
 	arsort($recent_comments);
-	
+
 	$datastr = '';
 	$cnt = 0;
-	foreach ($recent_comments as $pagename => $time)
-	{
+	foreach ($recent_comments as $pagename => $time) {
 		if ($cnt > QBLOG_MAX_RECENT_COMMENTS)
 			break;
 
@@ -1488,19 +1443,17 @@ function qblog_update_recent_comment($page, $timestamp = NULL)
 
 function qblog_update_pending_comment($page, $comment_data, $timestamp = NULL)
 {
-	if (is_null($timestamp))
-	{
+	if (is_null($timestamp)) {
 		$timestamp = time();
 	}
 
 	$datafile = CACHEQBLOG_DIR . 'qblog_pending_comments.dat';
-	$pending_comments = array();
-	if (file_exists($datafile))
-	{
+	$pending_comments = [];
+	if (file_exists($datafile)) {
 		$pending_comments = unserialize(file_get_contents($datafile));
-		$pending_comments = ($pending_comments === FALSE) ? array() : $pending_comments;
+		$pending_comments = ($pending_comments === FALSE) ? [] : $pending_comments;
 	}
-	
+
 	$data = array(
 		'id'    => $comment_data['id'],
 		'page'  => $page,
@@ -1508,14 +1461,13 @@ function qblog_update_pending_comment($page, $comment_data, $timestamp = NULL)
 		'name'  => $comment_data['name'],
 		'title' => $comment_data['title']
 	);
-	
+
 	array_unshift($pending_comments, $data);
-	
+
 	file_put_contents($datafile, serialize($pending_comments), LOCK_EX);
 
 	//タイムスタンプを更新
 	pkwk_touch_file(CACHE_DIR . QHM_LASTMOD);
-	
 }
 
 function qblog_accept_comment($page, $id)
@@ -1523,35 +1475,32 @@ function qblog_accept_comment($page, $id)
 	$datafile = CACHEQBLOG_DIR . encode($page) . '.qbcm.dat';
 	//コメントファイルの承認フラグを立てる
 	$comments = unserialize(file_get_contents($datafile));
-	if ( ! isset($comments[$id]))
-	{
+	if (! isset($comments[$id])) {
 		return FALSE;
 	}
-	
+
 	$comments[$id]['accepted'] = 1;
 	file_put_contents($datafile, serialize($comments), LOCK_EX);
-	
+
 	//最新コメントに追加
 	qblog_update_recent_comment($page);
-	
+
 	//承認待ちリストから削除
 	$datafile = CACHEQBLOG_DIR . 'qblog_pending_comments.dat';
 	$pending_comments = unserialize(file_get_contents($datafile));
-	$pending_comments = ($pending_comments === FALSE) ? array() : $pending_comments;
-	
-	foreach ($pending_comments as $i => $comment)
-	{
-		if ($comment['page'] === $page && $comment['id'] == $id)
-		{
+	$pending_comments = ($pending_comments === FALSE) ? [] : $pending_comments;
+
+	foreach ($pending_comments as $i => $comment) {
+		if ($comment['page'] === $page && $comment['id'] == $id) {
 			unset($pending_comments[$i]);
 			break;
 		}
 	}
 	file_put_contents($datafile, serialize($pending_comments), LOCK_EX);
-	
+
 	//タイムスタンプを更新
 	pkwk_touch_file(CACHE_DIR . QHM_LASTMOD);
-	
+
 	return TRUE;
 }
 
@@ -1560,8 +1509,7 @@ function qblog_hide_comment($page, $id)
 	$datafile = CACHEQBLOG_DIR . encode($page) . '.qbcm.dat';
 	//コメントファイルの承認フラグを立てる
 	$comments = unserialize(file_get_contents($datafile));
-	if (isset($comments[$id]))
-	{
+	if (isset($comments[$id])) {
 		$comments[$id]['show'] = 0;
 		file_put_contents($datafile, serialize($comments), LOCK_EX);
 	}
@@ -1569,20 +1517,18 @@ function qblog_hide_comment($page, $id)
 	//承認待ちリストから削除
 	$datafile = CACHEQBLOG_DIR . 'qblog_pending_comments.dat';
 	$pending_comments = unserialize(file_get_contents($datafile));
-	$pending_comments = ($pending_comments === FALSE) ? array() : $pending_comments;
-	
-	foreach ($pending_comments as $i => $comment)
-	{
-		if ($comment['page'] === $page && $comment['id'] == $id)
-		{
+	$pending_comments = ($pending_comments === FALSE) ? [] : $pending_comments;
+
+	foreach ($pending_comments as $i => $comment) {
+		if ($comment['page'] === $page && $comment['id'] == $id) {
 			unset($pending_comments[$i]);
 			break;
 		}
 	}
-	
+
 	file_put_contents($datafile, serialize($pending_comments), LOCK_EX);
-	
-	return TRUE;	
+
+	return TRUE;
 }
 
 /**
@@ -1593,39 +1539,43 @@ function qblog_remove_post($page)
 {
 	$datafile = CACHEQBLOG_DIR . encode($page) . '.qbp.dat';
 	$comment_datafile = CACHEQBLOG_DIR . encode($page) . '.qbcm.dat';
-	
-	if (file_exists($datafile))
+
+	if (file_exists($datafile)) {
 		unlink($datafile);
-	if (file_exists($comment_datafile))
+	}
+	if (file_exists($comment_datafile)) {
 		unlink($comment_datafile);
+	}
 
 	// !ブログの削除処理
 	//最近のコメント一覧の調整（qblog_recent_comments.dat）
-	$commentfile = CACHEQBLOG_DIR.'qblog_recent_comments.dat';
-	$comment_page_lines = explode("\n", file_get_contents($commentfile));
+	$commentfile = CACHEQBLOG_DIR . 'qblog_recent_comments.dat';
 	$datastr = '';
-	foreach ($comment_page_lines as $line)
-	{
-		if ($cnt > QBLOG_MAX_RECENT_COMMENTS) break;
-		if (trim($line) === '') continue;
 
-		list($time, $pagename) = explode("\t", $line);
-		if ($comment['page'] != $pagename)
-		{
-			$datastr .= $time . "\t" . $pagename . "\n";
+	if (file_exists($commentfile)) {
+		$comment_page_lines = explode("\n", file_get_contents($commentfile));
+		$cnt = 0;
+
+		foreach ($comment_page_lines as $line) {
+			if ($cnt > QBLOG_MAX_RECENT_COMMENTS) break;
+			if (trim($line) === '') continue;
+
+			list($time, $pagename) = explode("\t", $line);
+
+			if ($page != $pagename) {  // 修正: `$comment['page']` ではなく `$page` を使用
+				$datastr .= $time . "\t" . $pagename . "\n";
+			}
+			$cnt++;
 		}
+		file_put_contents($commentfile, $datastr, LOCK_EX);
 	}
-	file_put_contents($commentfile, $datastr, LOCK_EX);
-	
-	
+
 	//承認待ちコメント一覧の調整（qblog_pending_comments.dat）
-	$commentfile = CACHEQBLOG_DIR.'qblog_pending_comments.dat';
+	$commentfile = CACHEQBLOG_DIR . 'qblog_pending_comments.dat';
 	$pending_comments = unserialize(file_get_contents($commentfile));
-	$pending_comments = ($pending_comments === FALSE) ? array() : $pending_comments;
-	foreach ($pending_comments as $i => $comment)
-	{
-		if ($comment['page'] == $page)
-		{
+	$pending_comments = ($pending_comments === FALSE) ? [] : $pending_comments;
+	foreach ($pending_comments as $i => $comment) {
+		if ($comment['page'] == $page) {
 			unset($pending_comments[$i]);
 		}
 	}
@@ -1639,53 +1589,46 @@ function qblog_remove_post($page)
 function qblog_get_newpage($date = NULL)
 {
 	global $qblog_page_format;
-	
-	if (is_null($date))
-	{
+
+	if (is_null($date)) {
 		$search_replace = array(
 			'YYYY' => date('Y'),
 			'MM'   => date('m'),
 			'DD'   => date('d')
 		);
-	}
-	else
-	{
+	} else {
 		$search_replace = array(
 			'YYYY' => substr($date, 0, 4),
 			'MM'   => substr($date, 5, 2),
 			'DD'   => substr($date, 8, 2),
 		);
 	}
-	
+
 	// QBlogに保存するページ名を作成
 	$newpage = str_replace(
-					array_keys($search_replace), 
-					array_values($search_replace),
-					$qblog_page_format
-				);
+		array_keys($search_replace),
+		array_values($search_replace),
+		$qblog_page_format
+	);
 	$number_holder_pos = strpos($newpage, '#');
-	if ($number_holder_pos !== FALSE)
-	{
+	if ($number_holder_pos !== FALSE) {
 		$filename_prefix = encode(substr($newpage, 0, $number_holder_pos));
 		$files = glob(DATA_DIR . $filename_prefix . '*');
-		
+
 		// PHP7.3 より正規表現において # が特殊文字として扱われる
 		$pattern = '/^(' . str_replace(['\#', '#'], '(\d+)', preg_quote($newpage)) . ')$/';
 		$max = 0;
-		foreach ($files as $file)
-		{
+		foreach ($files as $file) {
 			$pagename = decode(basename($file, '.txt'));
-			if (preg_match($pattern, $pagename, $mts))
-			{
+			if (preg_match($pattern, $pagename, $mts)) {
 				$max = max($mts[2], $max);
 			}
 		}
-		
+
 		$newpage = str_replace('#', $max + 1, $newpage);
 	}
 
 	return $newpage;
-
 }
 
 /* End of file file.php */

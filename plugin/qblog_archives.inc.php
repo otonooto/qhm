@@ -1,4 +1,5 @@
 <?php
+
 /**
  *   QBlog Achives Plugin
  *   -------------------------------------------
@@ -21,8 +22,7 @@ function plugin_qblog_archives_convert()
     global $vars, $script, $qblog_close;
 
     //閉鎖中は何も表示しない
-    if ($qblog_close && ! ss_admin_check())
-    {
+    if ($qblog_close && ! ss_admin_check()) {
         return '';
     }
 
@@ -51,12 +51,11 @@ function plugin_qblog_archives_convert()
     $archives_file = CACHEQBLOG_DIR . 'qblog_archives.dat';
     if (file_exists($archives_file)) {
         $archives_list = file_get_contents($archives_file);
-    }
-    else {
-        $archives_list = array();
+    } else {
+        $archives_list = [];
     }
 
-    $archives = array_map(function($line) {
+    $archives = array_map(function ($line) {
         list($year, $month, $num) = explode(",", rtrim($line));
         return array(
             'year' => $year,
@@ -67,12 +66,12 @@ function plugin_qblog_archives_convert()
     }, array_filter(explode("\n", $archives_list)));
 
     if ($by_year) {
-        $year_archives = array_reduce($archives, function($carry, $archive) use ($default_year_collapse) {
+        $year_archives = array_reduce($archives, function ($carry, $archive) use ($default_year_collapse) {
             $year = $archive['year'];
-            if ( ! isset($carry[$year])) {
+            if (! isset($carry[$year])) {
                 $carry[$year] = array(
                     'year' => $year,
-                    'archives' => array(),
+                    'archives' => [],
                     'count' => 0,
                     'collapse' => $default_year_collapse ? true : ($year !== date('Y')),
                 );
@@ -80,7 +79,7 @@ function plugin_qblog_archives_convert()
             $carry[$year]['archives'][] = $archive;
             $carry[$year]['count'] += $archive['count'];
             return $carry;
-        }, array());
+        }, []);
 
         ob_start();
         include __DIR__ . '/qblog/qblog_archives_by_year.html';
@@ -98,7 +97,8 @@ function plugin_qblog_archives_convert()
  * 渡した年月のアーカイブページへのURLを生成する。
  * @return [String] url
  */
-function plugin_qblog_archives_get_archive_url($year, $month) {
+function plugin_qblog_archives_get_archive_url($year, $month)
+{
     global $script;
-    return $script . '?QBlog&mode=archives&date=' . rawurlencode($year.$month);
+    return $script . '?QBlog&mode=archives&date=' . rawurlencode($year . $month);
 }

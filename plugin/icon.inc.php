@@ -1,4 +1,5 @@
 <?php
+
 /**
  *   Haik Icon Plugin
  *   -------------------------------------------
@@ -20,11 +21,9 @@ function plugin_icon_inline()
 {
 	$args = func_get_args();
 
-	$class = '';
 	$icon_base = 'glyphicon';
 	$icon_prefix = $icon_base . '-';
 	$icon_name = $icon_options = '';
-	$icon_text = '';
 
 	$format = '<i class="%s %s%s" aria-hidden="true"></i>';
 
@@ -38,16 +37,13 @@ function plugin_icon_inline()
 		return $args[0];
 	}
 
-	foreach ($args as $arg)
-	{
-		if ($arg === 'glyphicon')
-		{
+	foreach ($args as $arg) {
+		if ($arg === 'glyphicon') {
 			$icon_base = 'glyphicon';
 			$icon_prefix = $icon_base . '-';
 		}
 		// FontAwesome 4 系互換の記述
-		if ($arg === 'font-awesome' OR $arg === 'fa')
-		{
+		if ($arg === 'font-awesome' or $arg === 'fa') {
 			$icon_base = 'fa';
 			$icon_prefix = $icon_base . '-';
 			plugin_icon_set_font_awesome();
@@ -57,14 +53,11 @@ function plugin_icon_inline()
 			$icon_base = $arg;
 			$icon_prefix = 'fa-';
 			plugin_icon_set_font_awesome();
-		}
-		else if (preg_match('/^fa[bsrl]?$/', $icon_base) && preg_match('/^[1-5]x|lg|fw$/', $arg))
-		{
+		} else if (preg_match('/^fa[bsrl]?$/', $icon_base) && preg_match('/^[1-5]x|lg|fw$/', $arg)) {
 			$icon_options = " {$icon_prefix}{$arg}";
 		}
 		// Bootstrap Icons
-		else if ($arg === 'bootstrap-icons' OR $arg === 'bi')
-		{
+		else if ($arg === 'bootstrap-icons' or $arg === 'bi') {
 			$icon_base = 'bi';
 			$icon_prefix = $icon_base . '-';
 			plugin_icon_set_bootstrap_icons();
@@ -96,14 +89,12 @@ function plugin_icon_inline()
 			$icon_prefix = '';
 			$format = '<i class="%s">%s</i>';
 			plugin_icon_set_google_material_icons($type);
-		}
-		else if ($arg !== '')
-		{
+		} else if ($arg !== '') {
 			$icon_name = $arg;
 		}
 	}
 
-	$icon_name = $icon_prefix.$icon_name;
+	$icon_name = $icon_prefix . $icon_name;
 
 	return sprintf($format, h($icon_base), h($icon_name), $icon_options);
 }
@@ -123,15 +114,15 @@ function plugin_icon_set_font_awesome($search_pseudo_elements = false)
 <script defer src="https://use.fontawesome.com/releases/v5.15.4/js/all.js"></script>
 <script defer src="https://use.fontawesome.com/releases/v5.15.4/js/v4-shims.js"></script>
 HTML;
-    // CSS Pseudo-elements を利用する場合
-    if ($search_pseudo_elements) {
-        $extrajs = <<< HTML
+	// CSS Pseudo-elements を利用する場合
+	if ($search_pseudo_elements) {
+		$extrajs = <<< HTML
 <script>
   FontAwesomeConfig = { searchPseudoElements: true };
 </script>
 HTML;
-        $qt->prependv_once('plugin_icon_font_awesome_pseudo_elements', 'beforescript', $extrajs);
-    }
+		$qt->prependv_once('plugin_icon_font_awesome_pseudo_elements', 'beforescript', $extrajs);
+	}
 	$qt->appendv_once('plugin_icon_font_awesome', 'beforescript', $js);
 }
 
@@ -144,7 +135,8 @@ HTML;
 	$qt->appendv_once('plugin_icon_bootstrap_icons', 'beforescript', $head);
 }
 
-function plugin_icon_set_google_material_symbols($type) {
+function plugin_icon_set_google_material_symbols($type)
+{
 	$type_capitalized = ucfirst($type);
 	$qt = get_qt();
 	$head = <<<HTML
@@ -160,7 +152,8 @@ HTML;
 	$qt->appendv_once("plugin_icon_google_material_symbols_$type", 'beforescript', $head);
 }
 
-function plugin_icon_set_google_material_icons($type) {
+function plugin_icon_set_google_material_icons($type)
+{
 	$map = [
 		"outlined" => "+Outlined",
 		"filled" => "",

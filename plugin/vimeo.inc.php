@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Display Vimeo Player Plugin
  * -------------------------------------------
@@ -26,66 +27,57 @@ define('PLUGIN_VIMEO_DEFAULT_HEIGHT', 384);
 function plugin_vimeo_convert()
 {
 	global $script, $vars;
-	
+
 	$args = func_get_args();
 	$vimeo_id = array_shift($args);
-	
+
 	$wrapper = $color = $width = $height = FALSE;
 	$style = '';
-	foreach ($args as $arg)
-	{
+	foreach ($args as $arg) {
 		$arg = trim($arg);
 		// size: widthxheight
-		if (preg_match('/^(\d+)x(\d+)$/', $arg, $mts))
-		{
+		if (preg_match('/^(\d+)x(\d+)$/', $arg, $mts)) {
 			$width = $mts[1];
 			$height = $mts[2];
 		}
 		//align: left, center, right
-		else if (in_array($arg, array('left', 'center', 'right')))
-		{
-			$wrapper = '<div style="text-align:'. $arg. '">%s</div>';
+		else if (in_array($arg, array('left', 'center', 'right'))) {
+			$wrapper = '<div style="text-align:' . $arg . '">%s</div>';
 		}
 		//float option: arround left, arround right
-		else if (in_array($arg, array('arroundl', 'arroundr')))
-		{
-			$align = (substr($arg, -1, 1) === 'r')? 'right': 'left';
-			$margin = ($align === 'right')? 'left': 'right';
-			$wrapper = '<div style="float:'. $align. ';">%s</div>';
-			$style = 'margin-'. $margin. ':10px;';
+		else if (in_array($arg, array('arroundl', 'arroundr'))) {
+			$align = (substr($arg, -1, 1) === 'r') ? 'right' : 'left';
+			$margin = ($align === 'right') ? 'left' : 'right';
+			$wrapper = '<div style="float:' . $align . ';">%s</div>';
+			$style = 'margin-' . $margin . ':10px;';
 		}
 		//color: RRGGBB
-		else if (preg_match('/^[0-9a-f]{6}$/i', $arg))
-		{
+		else if (preg_match('/^[0-9a-f]{6}$/i', $arg)) {
 			$color = $arg;
 		}
-	
 	}
-	
-	$player_queries = array();
-	
+
+	$player_queries = [];
+
 	// size: widthxheight
-	$width = $width? $width: PLUGIN_VIMEO_DEFAULT_WIDTH;
-	$height = $height? $height: PLUGIN_VIMEO_DEFAULT_HEIGHT;
-	
+	$width = $width ? $width : PLUGIN_VIMEO_DEFAULT_WIDTH;
+	$height = $height ? $height : PLUGIN_VIMEO_DEFAULT_HEIGHT;
+
 	// color setting
-	if ($color)
-	{
-		$player_queries[] = 'color='. rawurlencode($color);
+	if ($color) {
+		$player_queries[] = 'color=' . rawurlencode($color);
 	}
-	
+
 	// create player url
-	$player = 'http'. (is_ssl()? 's': ''). '://player.vimeo.com/video/'. rawurlencode($vimeo_id);
-	if (count($player_queries) > 0)
-	{
-		$player .= '?'. join('&', $player_queries);
+	$player = 'http' . (is_ssl() ? 's' : '') . '://player.vimeo.com/video/' . rawurlencode($vimeo_id);
+	if (count($player_queries) > 0) {
+		$player .= '?' . join('&', $player_queries);
 	}
-	
+
 	// create iframe
 	$body = sprintf('<iframe src="%s" width="%d" height="%d" frameborder="0" style="%s"></iframe>', $player, $width, $height, $style);
-	
-	if ($wrapper !== FALSE)
-	{
+
+	if ($wrapper !== FALSE) {
 		$body = sprintf($wrapper, $body);
 	}
 

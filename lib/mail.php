@@ -9,7 +9,7 @@
 // E-mail related functions
 
 // Send a mail to the administrator
-function pkwk_mail_notify($subject, $message, $footer = array())
+function pkwk_mail_notify($subject, $message, $footer = [])
 {
 	global $smtp_server, $smtp_auth, $notify_to, $notify_from, $notify_header;
 	static $_to, $_headers, $_after_pop;
@@ -38,7 +38,7 @@ function pkwk_mail_notify($subject, $message, $footer = array())
 			'X-Mailer: PukiWiki/' . S_VERSION .
 			' PHP/' . phpversion() . "\r\n" .
 			'From: ' . $notify_from;
-			
+
 		// Additional header(s) by admin
 		if ($notify_header != '') $_headers .= "\r\n" . $notify_header;
 
@@ -51,13 +51,13 @@ function pkwk_mail_notify($subject, $message, $footer = array())
 	if (isset($footer['PAGE'])) $subject = str_replace('$page', $footer['PAGE'], $subject);
 
 	// Footer
-	if (isset($footer['REMOTE_ADDR'])) $footer['REMOTE_ADDR'] = & $_SERVER['REMOTE_ADDR'];
+	if (isset($footer['REMOTE_ADDR'])) $footer['REMOTE_ADDR'] = &$_SERVER['REMOTE_ADDR'];
 	if (isset($footer['USER_AGENT']))
 		$footer['USER_AGENT']  = '(' . UA_PROFILE . ') ' . UA_NAME . '/' . UA_VERS;
 	if (! empty($footer)) {
 		$_footer = '';
 		if ($message != '') $_footer = "\n" . str_repeat('-', 30) . "\n";
-		foreach($footer as $key => $value)
+		foreach ($footer as $key => $value)
 			$_footer .= $key . ': ' . $value . "\n";
 		$message .= $_footer;
 	}
@@ -78,9 +78,12 @@ function pkwk_mail_notify($subject, $message, $footer = array())
 }
 
 // APOP/POP Before SMTP
-function pop_before_smtp($pop_userid = '', $pop_passwd = '',
-	$pop_server = 'localhost', $pop_port = 110)
-{
+function pop_before_smtp(
+	$pop_userid = '',
+	$pop_passwd = '',
+	$pop_server = 'localhost',
+	$pop_port = 110
+) {
 	$pop_auth_use_apop = TRUE;	// Always try APOP, by default
 	$must_use_apop     = FALSE;	// Always try POP for APOP-disabled server
 	if (isset($GLOBALS['pop_auth_use_apop'])) {
@@ -89,19 +92,20 @@ function pop_before_smtp($pop_userid = '', $pop_passwd = '',
 	}
 
 	// Compat: GLOBALS > function arguments
-	foreach(array('pop_userid', 'pop_passwd', 'pop_server', 'pop_port') as $global) {
-		if(isset($GLOBALS[$global]) && $GLOBALS[$global] !== '')
+	foreach (array('pop_userid', 'pop_passwd', 'pop_server', 'pop_port') as $global) {
+		if (isset($GLOBALS[$global]) && $GLOBALS[$global] !== '')
 			$$global = $GLOBALS[$global];
 	}
 
 	// Check
 	$die = '';
-	foreach(array('pop_userid', 'pop_server', 'pop_port') as $global)
-		if($$global == '') $die .= 'pop_before_smtp(): $' . $global . ' seems blank' . "\n";
+	foreach (array('pop_userid', 'pop_server', 'pop_port') as $global)
+		if ($$global == '') $die .= 'pop_before_smtp(): $' . $global . ' seems blank' . "\n";
 	if ($die) return ($die);
 
 	// Connect
-	$errno = 0; $errstr = '';
+	$errno = 0;
+	$errstr = '';
 	$fp = @fsockopen($pop_server, $pop_port, $errno, $errstr, 30);
 	if (! $fp) return ('pop_before_smtp(): ' . $errstr . ' (' . $errno . ')');
 
@@ -112,9 +116,11 @@ function pop_before_smtp($pop_userid = '', $pop_passwd = '',
 		return ('pop_before_smtp(): Greeting message seems invalid');
 	}
 
-	$challenge = array();
-	if ($pop_auth_use_apop &&
-	   (preg_match('/<.*>/', $message, $challenge) || $must_use_apop)) {
+	$challenge = [];
+	if (
+		$pop_auth_use_apop &&
+		(preg_match('/<.*>/', $message, $challenge) || $must_use_apop)
+	) {
 		$method = 'APOP'; // APOP auth
 		if (! isset($challenge[0])) {
 			$response = md5(time()); // Someting worthless but variable
@@ -152,4 +158,3 @@ function pop_before_smtp($pop_userid = '', $pop_passwd = '',
 		return TRUE;	// Success
 	}
 }
-?>

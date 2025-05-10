@@ -1,4 +1,5 @@
 <?php
+
 /**
  *   QHM Font Size Selector Plugin
  *   -------------------------------------------
@@ -18,7 +19,7 @@
  */
 function plugin_select_fsize_convert()
 {
-	global $vars, $script;
+	global $script;
 	$qm = get_qm();
 
 	//jquery ライブラリの読み込み
@@ -28,33 +29,27 @@ function plugin_select_fsize_convert()
 
 	//param
 	$args = func_get_args();
-	if (isset($args[0]))
-	{
+	if (isset($args[0])) {
 		if ($args[0] === 'notitle')
 			$text = '';
 		else
 			$text = trim($args[0]);
-	}
-	else
-	{
-		$text = $qm->m['plg_select_fsize']['lbl']. ':';
+	} else {
+		$text = $qm->m['plg_select_fsize']['lbl'] . ':';
 	}
 
-	if (isset($args[1]) && preg_match('/^(left|right|center)$/i', $args[1]))
-	{
+	if (isset($args[1]) && preg_match('/^(left|right|center)$/i', $args[1])) {
 		$align = $args[1];
-	}
-	else
-	{
+	} else {
 		$align = 'center';
 	}
 
 	//cookie path
 	$v = parse_url($script);
-	$path = str_replace('\\','', dirname($v['path'].'dummy') ); //windows iis対策
-	$path = $path=='/' ? $path : $path.'/';
+	$path = str_replace('\\', '', dirname($v['path'] . 'dummy')); //windows iis対策
+	$path = $path == '/' ? $path : $path . '/';
 
-	plugin_select_fsize_set_assets();
+	plugin_select_fsize_set_assets($path);
 
 	$ret = <<<EOD
 <p class="plg_select_fsize" style="text-align:{$align}">
@@ -68,13 +63,13 @@ EOD;
 	return $ret;
 }
 
-function plugin_select_fsize_set_assets()
+function plugin_select_fsize_set_assets($path)
 {
-	plugin_select_fsize_set_js();
+	plugin_select_fsize_set_js($path);
 	plugin_select_fsize_set_css();
 }
 
-function plugin_select_fsize_set_js()
+function plugin_select_fsize_set_js($path)
 {
 	$qt = get_qt();
 

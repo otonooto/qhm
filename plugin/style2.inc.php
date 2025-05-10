@@ -12,7 +12,7 @@ function plugin_style2_convert()
     } else {
         $body = array_pop($args);
     }
-    $options = array();
+    $options = [];
     foreach ($args as $arg) {
         list($key, $val) = explode('=', $arg, 2);
         $options[$key] = htmlspecialchars($val);

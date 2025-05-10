@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @author     lunt
  * @license    http://www.gnu.org/licenses/gpl.html GPL 2 or later
@@ -34,14 +35,17 @@ function plugin_secedit_action()
 	global $post;
 
 	switch (true) {
-	case isset($post['cancel']):
-		$action = 'Cancel'; break;
-	case isset($post['preview']):
-		$action = 'Preview'; break;
-	case isset($post['write']):
-		$action = 'Write'; break;
-	default:
-		$action = 'Edit';
+		case isset($post['cancel']):
+			$action = 'Cancel';
+			break;
+		case isset($post['preview']):
+			$action = 'Preview';
+			break;
+		case isset($post['write']):
+			$action = 'Write';
+			break;
+		default:
+			$action = 'Edit';
 	}
 
 	$action = 'Plugin_Secedit_' . $action;
@@ -80,7 +84,7 @@ class Plugin_Secedit
 		$this->anchor      = isset($vars['anchor']) ? $vars['anchor'] : '';
 		$this->level       = isset($vars['level']) ? true : false;
 		$this->postdata    = isset($post['msg']) ?
-			 preg_replace(PLUGIN_SECEDIT_FREEZE_REGEX, '', $post['msg']) : '';
+			preg_replace(PLUGIN_SECEDIT_FREEZE_REGEX, '', $post['msg']) : '';
 		$this->original    = isset($post['original']) ?
 			str_replace("\r", '', $post['original']) : '';
 		$this->digest      = isset($post['digest']) ? $post['digest'] : '';
@@ -101,9 +105,7 @@ class Plugin_Secedit
 		if (! $this->sections->is_valid_id($this->id)) die_message($qm->m['plg_secedit']['err_invalid_id']);
 	}
 
-	function process()
-	{
-	}
+	function process() {}
 
 	function redirect($page)
 	{
@@ -123,16 +125,15 @@ class Plugin_Secedit
 		$r_page      = rawurlencode($this->page);
 		$btn_preview = strpos(get_class($this), 'Preview') ? $qm->m['fmt_btn_repreview'] : $qm->m['fmt_btn_preview'];
 
-    $buttons_align = 'right';
-    if ( ! is_bootstrap_skin())
-    {
-        $buttons_align = 'left';
-        $beforescript = <<< EOD
+		$buttons_align = 'right';
+		if (! is_bootstrap_skin()) {
+			$buttons_align = 'left';
+			$beforescript = <<< EOD
     <script src="skin/bootstrap/js/bootstrap.min.js"></script>
     <link rel="stylesheet" href="skin/bootstrap/css/bootstrap-custom.min.css" />
 EOD;
-        $qt->appendv_once('plugin_secedit_edit', 'beforescript', $beforescript);
-    }
+			$qt->appendv_once('plugin_secedit_edit', 'beforescript', $beforescript);
+		}
 
 		$level = $this->level ? '<input type="hidden" name="level"  value="true" />' : '';
 
@@ -150,7 +151,7 @@ $pass_form
 EOD;
 		}
 
-		$helpstr = $qm->m['html']['view_help_message'];
+		$help = $qm->m['html']['view_help_message'];
 
 		$body = <<< EOD
 <div class="edit_form">
@@ -178,7 +179,7 @@ EOD;
 {$help}
 EOD;
 
-    $addscript = <<< EOD
+		$addscript = <<< EOD
 <script data-qhm-plugin="secedit">
 $(function(){
   if ($("#preview_body").length) {
@@ -194,7 +195,7 @@ $(function(){
 });
 </script>
 EOD;
-    $qt->appendv_once("plugin_secedit_script", "lastscript", $addscript);
+		$qt->appendv_once("plugin_secedit_script", "lastscript", $addscript);
 
 
 		// List of attached files to the page by hokuken.com
@@ -342,7 +343,7 @@ class Plugin_Secedit_Preview extends Plugin_Secedit
 		$addscript = '
 <script type="text/javascript">
 	$(function(){
-		$("div.toolbar_upper ul.toolbar_menu, div.toolbar_upper ul.toolbar_menu_min").prepend("<li class=\"preview_notice\">'. $qm->m['plg_edit']['label_preview'].'</li>")
+		$("div.toolbar_upper ul.toolbar_menu, div.toolbar_upper ul.toolbar_menu_min").prepend("<li class=\"preview_notice\">' . $qm->m['plg_edit']['label_preview'] . '</li>")
 			.children(":nth-child(2)").remove();
 		$("#preview_notice")
 		.css("cursor", "pointer")
@@ -354,11 +355,10 @@ class Plugin_Secedit_Preview extends Plugin_Secedit
 ';
 		$qt->appendv_once('plugin_secedit_preview_js', 'beforescript', $addscript);
 
-		$preview_notice = '<div id="preview_notice">'. $qm->m['fmt_msg_preview'] . '</div>' . "\n";
+		$preview_notice = '<div id="preview_notice">' . $qm->m['fmt_msg_preview'] . '</div>' . "\n";
 		$qt->appendv_once('plugin_secedit_preview_block', 'lastscript', $preview_notice);
 		$body = '';
-		if ($this->postdata == '')
-		{
+		if ($this->postdata == '') {
 			$body .= '<strong>' . $qm->m['fmt_msg_preview_delete'] . '</strong>';
 		}
 		$body .= '<br />' . "\n";
@@ -369,10 +369,10 @@ class Plugin_Secedit_Preview extends Plugin_Secedit
 			$src = drop_submit(convert_html($src));
 			$body .= $src;
 		}
-		$body = '<div id="preview_body">'."\n".$body."\n".'</div>';
+		$body = '<div id="preview_body">' . "\n" . $body . "\n" . '</div>';
 		$body .= $this->form();
 
-		return array('msg'=>$qm->m['fmt_title_preview'], 'body'=>$body);
+		return array('msg' => $qm->m['fmt_title_preview'], 'body' => $body);
 	}
 }
 
@@ -386,8 +386,7 @@ class Plugin_Secedit_Write extends Plugin_Secedit_Preview
 		$this->init();
 		$this->check();
 
-		if (substr($this->postdata, -1) !== "\n")
-		{
+		if (substr($this->postdata, -1) !== "\n") {
 			$this->postdata .= "\n";
 		}
 		$this->sections->set_section($this->id, $this->postdata, $this->level);
@@ -451,7 +450,7 @@ class Plugin_Secedit_Sections
 {
 	var $sections;
 
-	function Plugin_Secedit_Sections($text)
+	function __construct($text)
 	{
 		$this->sections = $this->_parse($text);
 	}
@@ -515,9 +514,10 @@ class Plugin_Secedit_Sections
 	function anchor2id($anchor)
 	{
 		foreach ($this->sections as $id => $section) {
-			if (preg_match('/^\*{1,3}.*?(?:\[#([A-Za-z][\w-]*)\]\s*)\n/', $section, $matches) &&
-				$anchor === $matches[1])
-			{
+			if (
+				preg_match('/^\*{1,3}.*?(?:\[#([A-Za-z][\w-]*)\]\s*)\n/', $section, $matches) &&
+				$anchor === $matches[1]
+			) {
 				return $id;
 			}
 		}
@@ -531,20 +531,22 @@ class Plugin_Secedit_Sections
 		$in_multiline = false;
 
 		foreach (explode("\n", $text) as $line) {
-			if (! PKWKEXP_DISABLE_MULTILINE_PLUGIN_HACK && ! $in_multiline &&
-				preg_match('/^#[^{]+(\{{2,})\s*$/', $line, $matches))
-			{
+			$close_multiline = '';
+			if (
+				! PKWKEXP_DISABLE_MULTILINE_PLUGIN_HACK && ! $in_multiline &&
+				preg_match('/^#[^{]+(\{{2,})\s*$/', $line, $matches)
+			) {
 				$in_multiline    = true;
 				$close_multiline = str_repeat('}', strlen($matches[1]));
 			} elseif ($in_multiline && $line === $close_multiline) {
 				$in_multiline = false;
 			}
-			if (! $in_multiline && (strpos($line, '*') === 0 OR strpos($line, '!') === 0)) {
+			if (! $in_multiline && (strpos($line, '*') === 0 or strpos($line, '!') === 0)) {
 				$sections[++$id] = '';
 			}
 			$sections[$id] .= $line . "\n";
 		}
-		$sections[count($sections)-1] = substr($sections[count($sections)-1], 0, -1);
+		$sections[count($sections) - 1] = substr($sections[count($sections) - 1], 0, -1);
 
 		return $sections;
 	}
@@ -577,8 +579,7 @@ function plugin_secedit_wrap(&$string, &$tag, &$param, &$id)
 
 	$page = isset($vars['page']) ? $vars['page'] : '';
 
-	if ($page !== $qblog_defaultpage && is_qblog())
-	{
+	if ($page !== $qblog_defaultpage && is_qblog()) {
 		return;
 	}
 
@@ -587,10 +588,11 @@ function plugin_secedit_wrap(&$string, &$tag, &$param, &$id)
 	}
 	list($dummy, $count, $secid) = explode('_', $id);
 
-	if (PKWK_READONLY || $plugin !== 'read' || ! $is_editable[$page] ||
+	if (
+		PKWK_READONLY || $plugin !== 'read' || ! $is_editable[$page] ||
 		($count > 1 && PLUGIN_SECEDIT_PAGE === $page) || // for MenuBar
-		(! PLUGIN_SECEDIT_ENABLE_ON_KEITAI_PROFILE && UA_PROFILE === 'keitai'))
-	{
+		(! PLUGIN_SECEDIT_ENABLE_ON_KEITAI_PROFILE && UA_PROFILE === 'keitai')
+	) {
 		return false;
 	}
 
@@ -609,5 +611,6 @@ function plugin_secedit_wrap(&$string, &$tag, &$param, &$id)
 	return str_replace(
 		array('$1', '$2', '$3', '$4'),
 		array($open, $string, $link, $close),
-		PLUGIN_SECEDIT_LINK_STYLE);
+		PLUGIN_SECEDIT_LINK_STYLE
+	);
 }

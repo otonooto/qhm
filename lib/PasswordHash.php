@@ -24,13 +24,14 @@
 # Obviously, since this code is in the public domain, the above are not
 # requirements (there can be none), but merely suggestions.
 #
-class PasswordHash {
+class PasswordHash
+{
 	var $itoa64;
 	var $iteration_count_log2;
 	var $portable_hashes;
 	var $random_state;
 
-	function PasswordHash($iteration_count_log2, $portable_hashes)
+	function __construct($iteration_count_log2, $portable_hashes)
 	{
 		$this->itoa64 = './0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 
@@ -48,8 +49,10 @@ class PasswordHash {
 	function get_random_bytes($count)
 	{
 		$output = '';
-		if (is_readable('/dev/urandom') &&
-		    ($fh = @fopen('/dev/urandom', 'rb'))) {
+		if (
+			is_readable('/dev/urandom') &&
+			($fh = @fopen('/dev/urandom', 'rb'))
+		) {
 			$output = fread($fh, $count);
 			fclose($fh);
 		}
@@ -58,9 +61,9 @@ class PasswordHash {
 			$output = '';
 			for ($i = 0; $i < $count; $i += 16) {
 				$this->random_state =
-				    md5(microtime() . $this->random_state);
+					md5(microtime() . $this->random_state);
 				$output .=
-				    pack('H*', md5($this->random_state));
+					pack('H*', md5($this->random_state));
 			}
 			$output = substr($output, 0, $count);
 		}
@@ -212,7 +215,7 @@ class PasswordHash {
 		if (CRYPT_BLOWFISH == 1 && !$this->portable_hashes) {
 			$random = $this->get_random_bytes(16);
 			$hash =
-			    crypt($password, $this->gensalt_blowfish($random));
+				crypt($password, $this->gensalt_blowfish($random));
 			if (strlen($hash) == 60)
 				return $hash;
 		}
@@ -221,7 +224,7 @@ class PasswordHash {
 			if (strlen($random) < 3)
 				$random = $this->get_random_bytes(3);
 			$hash =
-			    crypt($password, $this->gensalt_extended($random));
+				crypt($password, $this->gensalt_extended($random));
 			if (strlen($hash) == 20)
 				return $hash;
 		}
@@ -229,8 +232,10 @@ class PasswordHash {
 		if (strlen($random) < 6)
 			$random = $this->get_random_bytes(6);
 		$hash =
-		    $this->crypt_private($password,
-		    $this->gensalt_private($random));
+			$this->crypt_private(
+				$password,
+				$this->gensalt_private($random)
+			);
 		if (strlen($hash) == 34)
 			return $hash;
 
@@ -249,5 +254,3 @@ class PasswordHash {
 		return $hash == $stored_hash;
 	}
 }
-
-?>

@@ -37,7 +37,7 @@ function plugin_popular_convert()
 	$array = func_get_args();
 
 	//---- キャッシュのための処理を登録 -----
-	if($qt->create_cache) {
+	if ($qt->create_cache) {
 		$args = func_get_args();
 		return $qt->get_dynamic_plugin_mark(__FUNCTION__, $args);
 	}
@@ -45,19 +45,23 @@ function plugin_popular_convert()
 
 	$today = FALSE;
 	switch (func_num_args()) {
-	case 3: if ($array[2]) $today = get_date('Y/m/d');
-	case 2: $except = $array[1];
-	case 1: $max    = $array[0];
+		case 3:
+			if ($array[2]) $today = get_date('Y/m/d');
+		case 2:
+			$except = $array[1];
+		case 1:
+			$max    = $array[0];
 	}
 
-	$counters = array();
-	foreach (get_existpages(COUNTER_DIR, '.count') as $file=>$page) {
-		if (($except != '' && preg_match('/'.$except.'/', $page)) ||
-		    $page == $whatsnew || check_non_list($page) ||
-		    ! is_page($page))
+	$counters = [];
+	foreach (get_existpages(COUNTER_DIR, '.count') as $file => $page) {
+		if (($except != '' && preg_match('/' . $except . '/', $page)) ||
+			$page == $whatsnew || check_non_list($page) ||
+			! is_page($page)
+		)
 			continue;
 
-		$array = array_pad(file(COUNTER_DIR . $file), 3 , 0);
+		$array = array_pad(file(COUNTER_DIR . $file), 3, 0);
 		$count = rtrim($array[0]);
 		$date  = rtrim($array[1]);
 		$today_count = rtrim($array[2]);
@@ -82,7 +86,7 @@ function plugin_popular_convert()
 	if (! empty($counters)) {
 		$items = '<ul class="popular_list">' . "\n";
 
-		foreach ($counters as $page=>$count) {
+		foreach ($counters as $page => $count) {
 			$page = substr($page, 1);
 
 			$s_page = htmlspecialchars($page);
@@ -92,13 +96,15 @@ function plugin_popular_convert()
 
 			if ($page == $vars['page']) {
 				// No need to link itself, notifies where you just read
-				$pg_passage = get_pg_passage($page,FALSE);
+				$pg_passage = get_pg_passage($page, FALSE);
 				$items .= ' <li><span title="' . $s_page . ' ' . $pg_passage . '">' .
 					$s_page . '<span class="counter">(' . $count .
 					')</span></span></li>' . "\n";
 			} else {
-				$items .= ' <li>' . make_pagelink($page,
-					$s_page . '<span class="counter">(' . $count . ')</span>') .
+				$items .= ' <li>' . make_pagelink(
+					$page,
+					$s_page . '<span class="counter">(' . $count . ')</span>'
+				) .
 					'</li>' . "\n";
 			}
 		}

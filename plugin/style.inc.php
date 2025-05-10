@@ -10,7 +10,7 @@ function plugin_style_convert()
     } else {
         $body = array_pop($args);
     }
-    $options = array();
+    $options = [];
     foreach ($args as $arg) {
         list($key, $val) = explode('=', $arg, 2);
         $options[$key] = htmlspecialchars($val);
@@ -26,16 +26,14 @@ function plugin_style_convert()
 
     $ret = '<div class="ie5s">';
     $ret .= '<div';
-    if( isset($options['class'])){
+    if (isset($options['class'])) {
         $sty = plugin_style_getStyle($options['class']);
-        if($sty){
-            $ret .= ' style="'.$sty['style'].'" '.$sty['class'];
-        }
-        else{
+        if ($sty) {
+            $ret .= ' style="' . $sty['style'] . '" ' . $sty['class'];
+        } else {
             $ret .= ' class="qhm-plugin-style ' . $options['class'] . '"';
         }
-    }
-    else {
+    } else {
         $ret .= ' class="qhm-plugin-style"';
     }
     $ret .= isset($options['style']) ? ' style="' . $options['style'] . '"' : '';
@@ -47,13 +45,13 @@ function plugin_style_convert()
 }
 
 //半分、下位互換。CSSの記述を減らす役割も
-function plugin_style_getStyle($name){
-    $ms = array();
+function plugin_style_getStyle($name)
+{
+    $ms = [];
     $class_name = 'style_plugin';
     $class = 'class="qhm-plugin-style qhm-block ';
-    if(preg_match('/(.*)box[0-5]$/', $name))
-    {
-        switch($name){
+    if (preg_match('/(.*)box[0-5]$/', $name)) {
+        switch ($name) {
             case 'bluebox1':
                 $border = 'solid 1px #33a';
                 $bg_c = 'transparent';
@@ -124,16 +122,13 @@ function plugin_style_getStyle($name){
                 return false;
         }
         return array(
-            'class'=>$class.'"',
-            'style'=>"max-width:100%;border:{$border};background-color:{$bg_c};text-align:left;padding: 0px 10px;"
-            );
-
-    }
-    else if( preg_match('/^box_(.*)_(...)$/', $name, $ms) )
-    {
+            'class' => $class . '"',
+            'style' => "max-width:100%;border:{$border};background-color:{$bg_c};text-align:left;padding: 0px 10px;"
+        );
+    } else if (preg_match('/^box_(.*)_(...)$/', $name, $ms)) {
         //base color setting
         $base = $ms[1];
-        switch($base){
+        switch ($base) {
             case 'red':
                 $b_color = "#f00";
                 $bg_color_s = "#fee";
@@ -187,45 +182,46 @@ function plugin_style_getStyle($name){
         $tmpstr = $ms[2];
 
         //border setting
-        switch($tmpstr{0}){
+        switch ($tmpstr[0]) {
             case 's':
-                $b_type = 'border:solid 1px '.$b_color;
+                $b_type = 'border:solid 1px ' . $b_color;
                 break;
             case 'd':
-                $b_type = 'border:dashed 2px '.$b_color;
+                $b_type = 'border:dashed 2px ' . $b_color;
                 break;
             case 'n':
             default:
-                $b_type = 'border:solid 1px '.$bg_color_s;
+                $b_type = 'border:solid 1px ' . $bg_color_s;
         }
 
         //background color
-        if($tmpstr{1}=='s'){
-            $bg_style = 'background-color:'.$bg_color_s;
-        }
-        else{
+        if ($tmpstr[1] == 's') {
+            $bg_style = 'background-color:' . $bg_color_s;
+        } else {
             $bg_style = 'background-color:transparent';
             $class .= $class_name;
         }
 
         //width
-        switch($tmpstr{2}){
+        switch ($tmpstr[2]) {
             case 's':
-                $bg_w = '60%'; break;
+                $bg_w = '60%';
+                break;
             case 'm':
-                $bg_w = '80%'; break;
+                $bg_w = '80%';
+                break;
             case 'l':
             default:
                 $bg_w = 'auto';
         }
         $width = "max-width:{$bg_w};width:{$bg_w}";
 
-        $output_style = $b_type.';'.$bg_style.';'.$width.';text-align:left;padding:0 1.5em;margin:1em auto;';
+        $output_style = $b_type . ';' . $bg_style . ';' . $width . ';text-align:left;padding:0 1.5em;margin:1em auto;';
 
         return array(
-            'class'=>$class.'"',
-            'style'=>$output_style
-            );
+            'class' => $class . '"',
+            'style' => $output_style
+        );
     }
     return false;
 }

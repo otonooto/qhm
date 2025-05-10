@@ -1,5 +1,6 @@
 <?php
 /* vim: set expandtab sw=4 ts=4 sts=4: */
+
 /**
  *
  * @version $Id: zip.lib.php 10240 2007-04-01 11:02:46Z cybot_tm $
@@ -31,14 +32,14 @@ class zipfile
      *
      * @var  array    $datasec
      */
-    var $datasec      = array();
+    var $datasec      = [];
 
     /**
      * Central directory
      *
      * @var  array    $ctrl_dir
      */
-    var $ctrl_dir     = array();
+    var $ctrl_dir     = [];
 
     /**
      * End of central directory record
@@ -65,7 +66,8 @@ class zipfile
      *
      * @access private
      */
-    function unix2DosTime($unixtime = 0) {
+    function unix2DosTime($unixtime = 0)
+    {
         $timearray = ($unixtime == 0) ? getdate() : getdate($unixtime);
 
         if ($timearray['year'] < 1980) {
@@ -78,7 +80,7 @@ class zipfile
         } // end if
 
         return (($timearray['year'] - 1980) << 25) | ($timearray['mon'] << 21) | ($timearray['mday'] << 16) |
-                ($timearray['hours'] << 11) | ($timearray['minutes'] << 5) | ($timearray['seconds'] >> 1);
+            ($timearray['hours'] << 11) | ($timearray['minutes'] << 5) | ($timearray['seconds'] >> 1);
     } // end of the 'unix2DosTime()' method
 
 
@@ -97,9 +99,9 @@ class zipfile
 
         $dtime    = dechex($this->unix2DosTime($time));
         $hexdtime = '\x' . $dtime[6] . $dtime[7]
-                  . '\x' . $dtime[4] . $dtime[5]
-                  . '\x' . $dtime[2] . $dtime[3]
-                  . '\x' . $dtime[0] . $dtime[1];
+            . '\x' . $dtime[4] . $dtime[5]
+            . '\x' . $dtime[2] . $dtime[3]
+            . '\x' . $dtime[0] . $dtime[1];
         eval('$hexdtime = "' . $hexdtime . '";');
 
         $fr   = "\x50\x4b\x03\x04";
@@ -133,7 +135,7 @@ class zipfile
         //$fr .= pack('V', $unc_len);             // uncompressed filesize
 
         // add this entry to array
-        $this -> datasec[] = $fr;
+        $this->datasec[] = $fr;
 
         // now add to central directory record
         $cdrec = "\x50\x4b\x01\x02";
@@ -152,14 +154,14 @@ class zipfile
         $cdrec .= pack('v', 0);             // internal file attributes
         $cdrec .= pack('V', 32);            // external file attributes - 'archive' bit set
 
-        $cdrec .= pack('V', $this -> old_offset); // relative offset of local header
-        $this -> old_offset += strlen($fr);
+        $cdrec .= pack('V', $this->old_offset); // relative offset of local header
+        $this->old_offset += strlen($fr);
 
         $cdrec .= $name;
 
         // optional extra field, file comment goes here
         // save to central directory
-        $this -> ctrl_dir[] = $cdrec;
+        $this->ctrl_dir[] = $cdrec;
     } // end of the 'addFile()' method
 
 
@@ -172,19 +174,18 @@ class zipfile
      */
     function file()
     {
-        $data    = implode('', $this -> datasec);
-        $ctrldir = implode('', $this -> ctrl_dir);
+        $data    = implode('', $this->datasec);
+        $ctrldir = implode('', $this->ctrl_dir);
 
         return
             $data .
             $ctrldir .
-            $this -> eof_ctrl_dir .
-            pack('v', sizeof($this -> ctrl_dir)) .  // total # of entries "on this disk"
-            pack('v', sizeof($this -> ctrl_dir)) .  // total # of entries overall
+            $this->eof_ctrl_dir .
+            pack('v', sizeof($this->ctrl_dir)) .  // total # of entries "on this disk"
+            pack('v', sizeof($this->ctrl_dir)) .  // total # of entries overall
             pack('V', strlen($ctrldir)) .           // size of central dir
             pack('V', strlen($data)) .              // offset to start of central dir
             "\x00\x00";                             // .zip file comment length
     } // end of the 'file()' method
 
 } // end of the 'zipfile' class
-?>

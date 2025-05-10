@@ -25,19 +25,19 @@ function plugin_comment_action()
 
 	if (PKWK_READONLY) die_message($qm->m['fmt_err_pkwk_readonly']);
 
-	if (! isset($vars['msg'])) return array('msg'=>'', 'body'=>''); // Do nothing
+	if (! isset($vars['msg'])) return array('msg' => '', 'body' => ''); // Do nothing
 
 	$vars['msg'] = str_replace("\n", '', $vars['msg']); // Cut LFs
 	$head = '';
-	$match = array();
+	$match = [];
 	if (preg_match('/^(-{1,2})-*\s*(.*)/', $vars['msg'], $match)) {
-		$head        = & $match[1];
-		$vars['msg'] = & $match[2];
+		$head        = &$match[1];
+		$vars['msg'] = &$match[2];
 	}
-	if ($vars['msg'] == '') return array('msg'=>'', 'body'=>''); // Do nothing
+	if ($vars['msg'] == '') return array('msg' => '', 'body' => ''); // Do nothing
 
 	$comment  = str_replace('$msg', $vars['msg'], PLUGIN_COMMENT_FORMAT_MSG);
-	if(isset($vars['name']) || ($vars['nodate'] != '1')) {
+	if (isset($vars['name']) || ($vars['nodate'] != '1')) {
 		$_name = (! isset($vars['name']) || $vars['name'] == '') ? $qm->m['plg_comment']['no_name'] : $vars['name'];
 		$_name = ($_name == '') ? '' : str_replace('$name', $_name, PLUGIN_COMMENT_FORMAT_NAME);
 		$_now  = ($vars['nodate'] == '1') ? '' :
@@ -86,7 +86,7 @@ function plugin_comment_action()
 function plugin_comment_convert()
 {
 	global $vars, $digest;
-	static $numbers = array();
+	static $numbers = [];
 	static $comment_cols = PLUGIN_COMMENT_SIZE_MSG;
 	$qm = get_qm();
 
@@ -95,7 +95,7 @@ function plugin_comment_convert()
 	if (! isset($numbers[$vars['page']])) $numbers[$vars['page']] = 0;
 	$comment_no = $numbers[$vars['page']]++;
 
-	$options = func_num_args() ? func_get_args() : array();
+	$options = func_num_args() ? func_get_args() : [];
 	if (in_array('noname', $options)) {
 		$nametags = '<label for="_p_comment_comment_' . $comment_no . '">' .
 			$qm->m['plg_comment']['label'] . '</label>';
@@ -107,8 +107,7 @@ function plugin_comment_convert()
 			'" />' . "\n";
 	}
 	$nodate = in_array('nodate', $options) ? '1' : '0';
-	$above  = in_array('above',  $options) ? '1' :
-		(in_array('below', $options) ? '0' : PLUGIN_COMMENT_DIRECTION_DEFAULT);
+	$above  = in_array('above',  $options) ? '1' : (in_array('below', $options) ? '0' : PLUGIN_COMMENT_DIRECTION_DEFAULT);
 
 	$script = get_script_uri();
 	$s_page = htmlspecialchars($vars['page']);
@@ -131,4 +130,3 @@ EOD;
 
 	return $string;
 }
-?>

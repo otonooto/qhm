@@ -11,43 +11,52 @@
 define('PLUGIN_BUGTRACK_NUMBER_FORMAT', '%d'); // Like 'page/1'
 //define('PLUGIN_BUGTRACK_NUMBER_FORMAT', '%03d'); // Like 'page/001'
 
-function plugin_bugtrack_get($vname) {
+function plugin_bugtrack_get($vname)
+{
 	$ret = '';
 	$qm = get_qm();
-	
+
 	switch ($vname) {
 		case 'priority_list':
 			$ret = array(
-				$qm->m['plg_bugtrack']['pri1'], $qm->m['plg_bugtrack']['pri2'],
-				$qm->m['plg_bugtrack']['pri3'], $qm->m['plg_bugtrack']['pri4']
+				$qm->m['plg_bugtrack']['pri1'],
+				$qm->m['plg_bugtrack']['pri2'],
+				$qm->m['plg_bugtrack']['pri3'],
+				$qm->m['plg_bugtrack']['pri4']
 			);
 			break;
-			
+
 		case 'state_list':
 			$ret = array(
-				$qm->m['plg_bugtrack']['stt1'], $qm->m['plg_bugtrack']['stt2'],
-				$qm->m['plg_bugtrack']['stt3'], $qm->m['plg_bugtrack']['stt4'],
-				$qm->m['plg_bugtrack']['stt5'], $qm->m['plg_bugtrack']['stt6']
+				$qm->m['plg_bugtrack']['stt1'],
+				$qm->m['plg_bugtrack']['stt2'],
+				$qm->m['plg_bugtrack']['stt3'],
+				$qm->m['plg_bugtrack']['stt4'],
+				$qm->m['plg_bugtrack']['stt5'],
+				$qm->m['plg_bugtrack']['stt6']
 			);
 			break;
-			
+
 		case 'state_sort':
 			$ret = array(
-				$qm->m['plg_bugtrack']['stt2'], $qm->m['plg_bugtrack']['stt3'],
-				$qm->m['plg_bugtrack']['stt5'], $qm->m['plg_bugtrack']['stt4'],
-				$qm->m['plg_bugtrack']['stt1'], $qm->m['plg_bugtrack']['stt6']
+				$qm->m['plg_bugtrack']['stt2'],
+				$qm->m['plg_bugtrack']['stt3'],
+				$qm->m['plg_bugtrack']['stt5'],
+				$qm->m['plg_bugtrack']['stt4'],
+				$qm->m['plg_bugtrack']['stt1'],
+				$qm->m['plg_bugtrack']['stt6']
 			);
 			break;
-			
+
 		case 'state_bgcolor':
 			$ret = array('#ccccff', '#ffcc99', '#ccddcc', '#ccffcc', '#ffccff', '#cccccc', '#ff3333');
 			break;
-			
+
 		case 'header_bgcolor':
 			$ret = '#ffffcc';
 			break;
 	}
-	
+
 	return $ret;
 }
 
@@ -59,7 +68,7 @@ function plugin_bugtrack_convert()
 	if (PKWK_READONLY) return ''; // Show nothing
 
 	$base = $vars['page'];
-	$category = array();
+	$category = [];
 	if (func_num_args()) {
 		$category = func_get_args();
 		$_base    = get_fullname(strip_bracket(array_shift($category)), $base);
@@ -75,7 +84,7 @@ function plugin_bugtrack_print_form($base, $category)
 	$qm = get_qm();
 	$priority_list = plugin_bugtrack_get('priority_list');
 	$state_list = plugin_bugtrack_get('state_list');
-	
+
 
 	++$id;
 
@@ -182,9 +191,17 @@ function plugin_bugtrack_action()
 	if (PKWK_READONLY) die_message('PKWK_READONLY prohibits editing');
 	if ($post['mode'] != 'submit') return FALSE;
 
-	$page = plugin_bugtrack_write($post['base'], $post['pagename'], $post['summary'],
-		$post['name'], $post['priority'], $post['state'], $post['category'],
-		$post['version'], $post['body']);
+	$page = plugin_bugtrack_write(
+		$post['base'],
+		$post['pagename'],
+		$post['summary'],
+		$post['name'],
+		$post['priority'],
+		$post['state'],
+		$post['category'],
+		$post['version'],
+		$post['body']
+	);
 
 	pkwk_headers_sent();
 	header('Location: ' . get_script_uri() . '?' . rawurlencode($page));
@@ -198,8 +215,16 @@ function plugin_bugtrack_write($base, $pagename, $summary, $name, $priority, $st
 	$base     = strip_bracket($base);
 	$pagename = strip_bracket($pagename);
 
-	$postdata = plugin_bugtrack_template($base, $summary, $name, $priority,
-		$state, $category, $version, $body);
+	$postdata = plugin_bugtrack_template(
+		$base,
+		$summary,
+		$name,
+		$priority,
+		$state,
+		$category,
+		$version,
+		$body
+	);
 
 	$id = $jump = 1;
 	$page = $base . '/' . sprintf(PLUGIN_BUGTRACK_NUMBER_FORMAT, $id);
@@ -233,22 +258,22 @@ function plugin_bugtrack_template($base, $summary, $name, $priority, $state, $ca
 	global $WikiName;
 	$qm = get_qm();
 
-	if (! preg_match("/^$WikiName$$/",$base)) $base = '[[' . $base . ']]';
-	if ($name != '' && ! preg_match("/^$WikiName$$/",$name)) $name = '[[' . $name . ']]';
+	if (! preg_match("/^$WikiName$$/", $base)) $base = '[[' . $base . ']]';
+	if ($name != '' && ! preg_match("/^$WikiName$$/", $name)) $name = '[[' . $name . ']]';
 
 	if ($name    == '') $name    = $qm->m['plg_bugtrack']['noname'];
 	if ($summary == '') $summary = $qm->m['plg_bugtrack']['nosummary'];
 
-	 return <<<EOD
+	return <<<EOD
 * $summary
 
-- ${_plugin_bugtrack['base'    ]}: $base
-- ${_plugin_bugtrack['name'    ]}: $name
+- ${_plugin_bugtrack['base']}: $base
+- ${_plugin_bugtrack['name']}: $name
 - ${_plugin_bugtrack['priority']}: $priority
-- ${_plugin_bugtrack['state'   ]}: $state
+- ${_plugin_bugtrack['state']}: $state
 - ${_plugin_bugtrack['category']}: $category
-- ${_plugin_bugtrack['date'    ]}: now?
-- ${_plugin_bugtrack['version' ]}: $version
+- ${_plugin_bugtrack['date']}: now?
+- ${_plugin_bugtrack['version']}: $version
 
 ** ${_plugin_bugtrack['body']}
 $body
@@ -277,7 +302,7 @@ function plugin_bugtrack_list_convert()
 		if (is_pagename($_page)) $page = $_page;
 	}
 
-	$data = array();
+	$data = [];
 	$pattern = $page . '/';
 	$pattern_len = strlen($pattern);
 	foreach (get_existpages() as $page)
@@ -286,8 +311,8 @@ function plugin_bugtrack_list_convert()
 
 	$count_list = count($state_list);
 
-	$table = array();
-	for ($i = 0; $i <= $count_list + 1; ++$i) $table[$i] = array();
+	$table = [];
+	for ($i = 0; $i <= $count_list + 1; ++$i) $table[$i] = [];
 
 	foreach ($data as $line) {
 		list($page, $no, $summary, $name, $priority, $state, $category) = $line;
@@ -341,12 +366,12 @@ function plugin_bugtrack_list_pageinfo($page, $no = NULL, $recurse = TRUE)
 
 	// Check 'moved' page _just once_
 	$regex  = "/move\s*to\s*($WikiName|$InterWikiName|\[\[$BracketName\]\])/";
-	$match  = array();
+	$match  = [];
 	if ($recurse && preg_match($regex, $source[0], $match))
 		return plugin_bugtrack_list_pageinfo(strip_bracket($match[1]), $no, FALSE);
 
 	$body = join("\n", $source);
-	foreach(array('summary', 'name', 'priority', 'state', 'category') as $item) {
+	foreach (array('summary', 'name', 'priority', 'state', 'category') as $item) {
 		$regex = '/-\s*' . preg_quote($qm->m['plg_bugtrack'][$item], '/') . '\s*:(.*)/';
 		if (preg_match($regex, $body, $matches)) {
 			if ($item == 'name') {
@@ -355,7 +380,7 @@ function plugin_bugtrack_list_pageinfo($page, $no = NULL, $recurse = TRUE)
 				$$item = trim($matches[1]);
 			}
 		} else {
-				$$item = ''; // Data not found
+			$$item = ''; // Data not found
 		}
 	}
 
@@ -366,4 +391,3 @@ function plugin_bugtrack_list_pageinfo($page, $no = NULL, $recurse = TRUE)
 
 	return array($page, $no, $summary, $name, $priority, $state, $category);
 }
-?>

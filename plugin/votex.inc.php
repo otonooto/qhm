@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Yet Another Vote Plugin eXtension
  * 
@@ -21,19 +22,19 @@ class PluginVotex
     function PluginVotex()
     {
         // static
-        static $CONF = array();
+        static $CONF = [];
         $this->CONF = &$CONF;
         if (empty($this->CONF)) {
             $this->CONF['RECENT_PAGE']  = 'RecentVotes';
             $this->CONF['RECENT_LOG']   = CACHE_DIR . 'recentvotes.dat';
             $this->CONF['RECENT_LIMIT'] = 100;
-            $this->CONF['COOKIE_EXPIRED'] = 60*60*24*3;
+            $this->CONF['COOKIE_EXPIRED'] = 60 * 60 * 24 * 3;
             $this->CONF['BARCHART_LIB_FILE'] = LIB_DIR . 'barchart.cls.php';
             $this->CONF['BARCHART_COLOR_BAR'] = ' #0000cc';
             $this->CONF['BARCHART_COLOR_BG'] = 'transparent';
             $this->CONF['BARCHART_COLOR_BORDER'] = 'transparent';
         }
-        static $default_options = array();
+        static $default_options = [];
         $this->default_options = &$default_options;
         if (empty($this->default_options)) {
             $this->default_options['readonly'] = FALSE;
@@ -80,7 +81,7 @@ class PluginVotex
  + is placed at the beginning of a line that was newly added.<br />
  ! is placed at the beginning of a line that has possibly been updated.<br />
  Edit those lines, and submit again.');
-        
+
         if (method_exists('auth', 'check_role')) { // Plus!
             if (auth::check_role('readonly')) die_message('PKWK_READONLY prohibits editing');
         } else {
@@ -95,9 +96,9 @@ class PluginVotex
 
         if ($this->is_continuous_vote($page, $pcmd, $vote_id)) {
             return array(
-                         'msg'  => _('Error in vote'),
-                         'body' => _('Continuation vote cannot be performed.'),
-                         );
+                'msg'  => _('Error in vote'),
+                'body' => _('Continuation vote cannot be performed.'),
+            );
         }
 
         // parse contents of wiki page and get update
@@ -115,7 +116,7 @@ class PluginVotex
         if (md5($contents) !== $vars['digest']) {
             $msg  = $_title_collided;
             $body = $this->show_preview_form($_msg_collided, $newline);
-            return array('msg'=>$msg, 'body'=>$body);
+            return array('msg' => $msg, 'body' => $body);
         }
 
         page_write($page, $newcontents, TRUE); // notimestamp
@@ -141,7 +142,7 @@ class PluginVotex
  + is placed at the beginning of a line that was newly added.<br />
  ! is placed at the beginning of a line that has possibly been updated.<br />
  Edit those lines, and submit again.');
-        
+
         if (method_exists('auth', 'check_role')) { // Plus!
             if (auth::check_role('readonly')) die_message('PKWK_READONLY prohibits editing');
         } else {
@@ -155,12 +156,12 @@ class PluginVotex
         $choice_id    = $this->get_selected_choice_convert();
         $addchoice    = isset($vars['addchoice']) && $vars['addchoice'] !== ''
             ? $vars['addchoice'] : null;
-        
+
         if ($this->is_continuous_vote($page, $pcmd, $vote_id)) {
             return array(
-                         'msg'  => _('Error in vote'),
-                         'body' => _('Continuation vote cannot be performed.'),
-                         );
+                'msg'  => _('Error in vote'),
+                'body' => _('Continuation vote cannot be performed.'),
+            );
         }
 
         // parse contents of wiki page and get update
@@ -178,7 +179,7 @@ class PluginVotex
         if (md5($contents) !== $vars['digest']) {
             $msg  = $_title_collided;
             $body = $this->show_preview_form($_msg_collided, $newline);
-            return array('msg'=>$msg, 'body'=>$body);
+            return array('msg' => $msg, 'body' => $body);
         }
 
         page_write($page, $newcontents, TRUE); // notimestamp
@@ -201,7 +202,7 @@ class PluginVotex
      * @parram string $choice_id
      * @return array array($linenum, $updated_line, $updated_text, $updated_votes)
      */
-    function get_update_inline(&$lines, $vote_id, $choice_id) 
+    function get_update_inline(&$lines, $vote_id, $choice_id)
     {
         $contents = implode('', $lines);
 
@@ -256,13 +257,15 @@ class PluginVotex
      * @param string $addchoice
      * @return array array($linenum, $updated_line, $updated_text, $updated_votes)
      */
-    function get_update_convert(&$lines, $vote_id, $choice_id, $addchoice = null) 
+    function get_update_convert(&$lines, $vote_id, $choice_id, $addchoice = null)
     {
         $vote_count  = 0;
-        foreach($lines as $linenum => $line) {
-            $matches = array();
-            if (preg_match('/^#votex(?:\((.*)\)(.*))?$/i', $line, $matches)
-                && $vote_id == $vote_count++) {
+        foreach ($lines as $linenum => $line) {
+            $matches = [];
+            if (
+                preg_match('/^#votex(?:\((.*)\)(.*))?$/i', $line, $matches)
+                && $vote_id == $vote_count++
+            ) {
 
                 $args   = csv_explode(',', $matches[1]);
                 $remain = isset($matches[2]) ? $matches[2] : '';
@@ -323,7 +326,7 @@ class PluginVotex
         // RecentVoted
         $lines = get_source($this->CONF['RECENT_PAGE']);
         $anchor  = $this->get_anchor($pcmd, $vote_id);
-        $args = array();
+        $args = [];
         foreach ($votes as $vote) {
             list($choice, $count) = $vote;
             $args[] = $choice . '[' . $count . ']';
@@ -331,9 +334,9 @@ class PluginVotex
         $arg = csv_implode(',', $args);
         list($choice, $count) = $votes[$choice_id];
         $addline =
-            '-' . format_date($time) . 
+            '-' . format_date($time) .
             ' - [[' . $page . '#' . $vote_id . '>' . $page . '#' . $anchor . ']] ' .
-            $choice . 
+            $choice .
             ' (' . $arg . ')' .
             "\n";
         array_unshift($lines, $addline);
@@ -345,7 +348,7 @@ class PluginVotex
             $log_contents = file_get_contents($this->CONF['RECENT_LOG']);
             $logs = unserialize($log_contents);
         } else {
-            $logs = array();
+            $logs = [];
         }
         $addlog = array($time, $page, $pcmd, $vote_id, $choice_id, $votes);
         array_unshift($logs, $addlog);
@@ -372,9 +375,9 @@ class PluginVotex
             return true;
         }
         $_COOKIE[$votedkey] = 1;
-        $matches = array();
+        $matches = [];
         preg_match('!(.*/)!', $_SERVER['REQUEST_URI'], $matches);
-        setcookie($votedkey, 1, time()+$this->CONF['COOKIE_EXPIRED'], $matches[0]);
+        setcookie($votedkey, 1, time() + $this->CONF['COOKIE_EXPIRED'], $matches[0]);
         return false;
     }
 
@@ -413,7 +416,7 @@ class PluginVotex
     {
         return rawurlencode('vote_' . $pcmd . '_' . $vote_id);
     }
-     
+
     /**
      * Inline Plugin Main Function
      * @static
@@ -421,7 +424,7 @@ class PluginVotex
     function inline()
     {
         global $vars, $defaultpage;
-        static $number = array();
+        static $number = [];
 
         $page = isset($vars['page']) ? $vars['page'] : $defaultpage;
         if (! isset($number[$page])) $number[$page] = 0; // Init
@@ -477,7 +480,7 @@ class PluginVotex
                     '&amp;pcmd=inline' .
                     '&amp;refer=' . $r_page .
                     '&amp;digest=' . $r_digest .
-                    '&amp;vote_id=' . $r_vote_id . 
+                    '&amp;vote_id=' . $r_vote_id .
                     '&amp;choice_id=' . $r_choice_id .
                     '">' . $s_choice . '</a>' .
                     '<span>&nbsp;' . $s_count . '&nbsp;</span>';
@@ -494,7 +497,7 @@ class PluginVotex
     function convert()
     {
         global $vars, $defaultpage;
-        static $number = array();
+        static $number = [];
 
         $page = isset($vars['page']) ? $vars['page'] : $defaultpage;
         if (! isset($number[$page])) $number[$page] = 0; // Init
@@ -544,12 +547,12 @@ class PluginVotex
      */
     function &restore_args_convert(&$votes, &$options, &$default_options)
     {
-        $vote_args = array();
+        $vote_args = [];
         foreach ($votes as $vote) {
             list($choice, $count) = $vote;
             $vote_args[] = $choice . '[' . $count . ']';
         }
-        $opt_args = array();
+        $opt_args = [];
         foreach ($options as $key => $val) {
             if ($default_options[$key] !== $val) {
                 if (is_bool($val)) {
@@ -573,7 +576,7 @@ class PluginVotex
      */
     function parse_args_convert(&$args, &$default_options)
     {
-        $votes = array();
+        $votes = [];
         $options = $default_options;
         foreach ($args as $arg) {
             $arg = trim($arg);
@@ -582,7 +585,7 @@ class PluginVotex
                 $options[$key] = $val;
                 continue;
             }
-            $matches = array();
+            $matches = [];
             $choice  = $arg;
             $count   = 0;
             if (preg_match('/^(.+)\[(\d+)\]$/', $arg, $matches)) {
@@ -664,7 +667,9 @@ class PluginVotex
             $barchart->setColorBg($this->CONF['BARCHART_COLOR_BG']);
             $barchart->setColorBorder($this->CONF['BARCHART_COLOR_BORDER']);
 
-            $sum = 0; $max = 0; $argmax = 0;
+            $sum = 0;
+            $max = 0;
+            $argmax = 0;
             foreach ($votes as $choice_id => $vote) {
                 list($choice, $count) = $vote;
                 $sum += $count;
@@ -691,7 +696,7 @@ class PluginVotex
         $form .= '  <td align="right" class="vote_label" style="' . $countstyle . '"><strong>' . $vote_label . '</strong></td>' . "\n";
         $form .= '  <td align="right" class="vote_label" style="' . $buttonstyle . '"></td>' . "\n";
         $form .= ' </tr>' . "\n";
-        
+
         // Body
         foreach ($votes as $choice_id => $vote) {
             list($choice, $count) = $vote;
@@ -739,10 +744,10 @@ class PluginVotex
 
 ///////////////////// PHP Adapter
 if (! function_exists('_')) {
-    function &_($str) 
-        {
-            return $str;
-        }
+    function &_($str)
+    {
+        return $str;
+    }
 }
 if (! function_exists('file_put_contents')) {
     if (! defined('FILE_APPEND'))
@@ -810,7 +815,5 @@ function plugin_votex_write_after()
 }
 
 if (! defined('INIT_DIR')) // if not Plus! 
-    if (file_exists(DATA_HOME . 'init/votex.ini.php')) 
+    if (file_exists(DATA_HOME . 'init/votex.ini.php'))
         include_once(DATA_HOME . 'init/votex.ini.php');
-
-?>

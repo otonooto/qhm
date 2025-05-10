@@ -47,12 +47,12 @@ define('PLUGIN_REF2_USAGE', "([pagename/]attached-file-name[,parameters, ... ][,
 function plugin_ref2_inline()
 {
 	$qm = get_qm();
-	
+
 	$params = plugin_ref2_body(func_get_args());
 
 	if (isset($params['_error']) && $params['_error'] != '') {
 		// Error
-		return $qm->replace('fmt_err_iln', 'ref2', $params['_error']). ';';
+		return $qm->replace('fmt_err_iln', 'ref2', $params['_error']) . ';';
 	} else {
 		return $params['_body'];
 	}
@@ -61,7 +61,7 @@ function plugin_ref2_inline()
 function plugin_ref2_convert()
 {
 	$qm = get_qm();
-	
+
 	if (! func_num_args())
 		return '<p>' . $qm->m['plg_ref2']['err_usage'] . "</p>\n";
 
@@ -98,7 +98,6 @@ EOD;
 		$param_ard = ($params['_align'] == 'right') ? 'right' : 'left';
 		$style = "float:$param_ard";
 		$style_ard = "_" . $param_ard;
-		
 	} else {
 		$style = "text-align:{$params['_align']}";
 	}
@@ -112,7 +111,7 @@ function plugin_ref2_body($args)
 	global $script, $vars;
 	global $WikiName, $BracketName; // compat
 	$qm = get_qm();
-	
+
 	// 戻り値
 	$params = array(
 		'left'   => FALSE, // 左寄せ
@@ -130,7 +129,7 @@ function plugin_ref2_body($args)
 		'_w'     => 0,       // 幅
 		'_h'     => 0,       // 高さ
 		'_%'     => 0,     // 拡大率
-		'_args'  => array(),
+		'_args'  => [],
 		'_done'  => FALSE,
 		'_error' => ''
 	);
@@ -148,7 +147,7 @@ function plugin_ref2_body($args)
 	$name = array_shift($args);
 	$is_url = is_url($name);
 
-	if(! $is_url) {
+	if (! $is_url) {
 		$is_file = is_file($name);
 		$file = $name;
 
@@ -175,7 +174,7 @@ function plugin_ref2_body($args)
 	*/
 	$title = $url = $url2 = $info = '';
 	$width = $height = 0;
-	$matches = array();
+	$matches = [];
 
 	if ($is_url) {	// URL
 		if (PKWK_DISABLE_INLINE_IMAGE_FROM_URI) {
@@ -199,7 +198,6 @@ function plugin_ref2_body($args)
 				$info   = $size[3];
 			}
 		}
-
 	} else { // 添付ファイル
 
 		$title = htmlspecialchars($name);
@@ -221,22 +219,20 @@ function plugin_ref2_body($args)
 			}
 		} else {
 			$info = get_date('Y/m/d H:i:s', filemtime($file) - LOCALZONE) .
-				' ' . sprintf('%01.1f', round(filesize($file)/1024, 1)) . 'KB';
+				' ' . sprintf('%01.1f', round(filesize($file) / 1024, 1)) . 'KB';
 		}
 	}
 
 	// 拡張パラメータをチェック
 	if (! empty($params['_args'])) {
-		$_title = array();
+		$_title = [];
 		foreach ($params['_args'] as $arg) {
 			if (preg_match('/^([0-9]+)x([0-9]+)$/', $arg, $matches)) {
 				$params['_size'] = TRUE;
 				$params['_w'] = $matches[1];
 				$params['_h'] = $matches[2];
-
 			} else if (preg_match('/^([0-9.]+)%$/', $arg, $matches) && $matches[1] > 0) {
 				$params['_%'] = $matches[1];
-
 			} else {
 				$_title[] = $arg;
 			}
@@ -278,7 +274,7 @@ function plugin_ref2_body($args)
 	// アラインメント判定
 	$params['_align'] = PLUGIN_REF2_DEFAULT_ALIGN;
 	foreach (array('right', 'left', 'center') as $align) {
-		if ($params[$align])  {
+		if ($params[$align]) {
 			$params['_align'] = $align;
 			break;
 		}
@@ -286,13 +282,13 @@ function plugin_ref2_body($args)
 
 	if ($is_image) { // 画像
 		$mouseover = '';
-		if ( $params['change'] ){
+		if ($params['change']) {
 			$a_path = explode('.', $url);
-			$a_path[ (count($a_path)-2) ] .= '_onmouse';
+			$a_path[(count($a_path) - 2)] .= '_onmouse';
 			$mo_url = implode('.', $a_path);
 			$mouseover = " onMouseOver=\"this.src='{$mo_url}'\" onMouseOut=\"this.src='{$url}'\" ";
 		}
-	
+
 		$params['_body'] = "<img src=\"$url\" alt=\"$title\" title=\"$title\" $info $mouseover/>";
 		if (! $params['nolink'] && $url2)
 			$params['_body'] = "<a href=\"$url2\" title=\"$title\">{$params['_body']}</a>";
@@ -305,7 +301,7 @@ function plugin_ref2_body($args)
 }
 
 // オプションを解析する
-function ref2_check_arg($val, & $params)
+function ref2_check_arg($val, &$params)
 {
 	if ($val == '') {
 		$params['_done'] = TRUE;
@@ -330,38 +326,46 @@ function plugin_ref2_action()
 {
 	global $vars;
 	$qm = get_qm();
-	
+
 	if (! isset($vars['page']) || ! isset($vars['src']))
-		return array('msg'=>$qm->m['plg_ref']['title_invalid_args'], 'body'=>$qm->m['plg_ref2']['err_usage_action']);
+		return array('msg' => $qm->m['plg_ref']['title_invalid_args'], 'body' => $qm->m['plg_ref2']['err_usage_action']);
 
 	$page     = $vars['page'];
-	$filename = $vars['src'] ;
+	$filename = $vars['src'];
 
 	$ref = UPLOAD_DIR . encode($page) . '_' . encode(preg_replace('#^.*/#', '', $filename));
-	if(! file_exists($ref))
-		return array('msg'=>$qm->m['plg_ref']['title_notfound'], 'body'=>$qm->m['plg_ref2']['err_usage_action']);
+	if (! file_exists($ref))
+		return array('msg' => $qm->m['plg_ref']['title_notfound'], 'body' => $qm->m['plg_ref2']['err_usage_action']);
 
 	$got = @getimagesize($ref);
 	if (! isset($got[2])) $got[2] = FALSE;
 	switch ($got[2]) {
-	case 1: $type = 'image/gif' ; break;
-	case 2: $type = 'image/jpeg'; break;
-	case 3: $type = 'image/png' ; break;
-	case 4: $type = 'application/x-shockwave-flash'; break;
-	default:
-		return array('msg'=>$qm->m['plg_ref']['title_notimage'], 'body'=>$qm->m['plg_ref2']['err_usage_action']);
+		case 1:
+			$type = 'image/gif';
+			break;
+		case 2:
+			$type = 'image/jpeg';
+			break;
+		case 3:
+			$type = 'image/png';
+			break;
+		case 4:
+			$type = 'application/x-shockwave-flash';
+			break;
+		default:
+			return array('msg' => $qm->m['plg_ref']['title_notimage'], 'body' => $qm->m['plg_ref2']['err_usage_action']);
 	}
 
 	// Care for Japanese-character-included file name
 	if (LANG == 'ja') {
-		switch(UA_NAME . '/' . UA_PROFILE){
-		case 'Opera/default':
-			// Care for using _auto-encode-detecting_ function
-			$filename = mb_convert_encoding($filename, 'UTF-8', 'auto');
-			break;
-		case 'MSIE/default':
-			$filename = mb_convert_encoding($filename, 'SJIS', 'auto');
-			break;
+		switch (UA_NAME . '/' . UA_PROFILE) {
+			case 'Opera/default':
+				// Care for using _auto-encode-detecting_ function
+				$filename = mb_convert_encoding($filename, 'UTF-8', 'auto');
+				break;
+			case 'MSIE/default':
+				$filename = mb_convert_encoding($filename, 'SJIS', 'auto');
+				break;
 		}
 	}
 	$file = htmlspecialchars($filename);
@@ -375,4 +379,3 @@ function plugin_ref2_action()
 	@readfile($ref);
 	exit;
 }
-?>

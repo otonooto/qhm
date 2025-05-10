@@ -16,8 +16,8 @@ function plugin_counter_inline()
 {
 	$qt = get_qt();
 	//---- キャッシュのための処理を登録 -----
-    if($qt->create_cache) {
-    	$args = func_get_args();
+	if ($qt->create_cache) {
+		$args = func_get_args();
 		return $qt->get_dynamic_plugin_mark(__FUNCTION__, $args);
 	}
 	//------------------------------------
@@ -29,14 +29,15 @@ function plugin_counter_inline()
 
 	$arg = strtolower(array_shift($args));
 	switch ($arg) {
-	case ''     : $arg = 'total'; /*FALLTHROUGH*/
-	case 'total': /*FALLTHROUGH*/
-	case 'today': /*FALLTHROUGH*/
-	case 'yesterday':
-		$counter = plugin_counter_get_count($vars['page']);
-		return $counter[$arg];
-	default:
-		return '&counter([total|today|yesterday]);';
+		case '':
+			$arg = 'total'; /*FALLTHROUGH*/
+		case 'total': /*FALLTHROUGH*/
+		case 'today': /*FALLTHROUGH*/
+		case 'yesterday':
+			$counter = plugin_counter_get_count($vars['page']);
+			return $counter[$arg];
+		default:
+			return '&counter([total|today|yesterday]);';
 	}
 }
 
@@ -47,8 +48,8 @@ function plugin_counter_convert()
 	$qm = get_qm();
 
 	//---- キャッシュのための処理を登録 -----
-    if($qt->create_cache) {
-    	$args = func_get_args();
+	if ($qt->create_cache) {
+		$args = func_get_args();
 		return $qt->get_dynamic_plugin_mark(__FUNCTION__, $args);
 	}
 	//------------------------------------
@@ -68,7 +69,7 @@ EOD;
 function plugin_counter_get_count($page)
 {
 	global $vars;
-	static $counters = array();
+	static $counters = [];
 	static $default;
 	$qm = get_qm();
 
@@ -78,7 +79,8 @@ function plugin_counter_get_count($page)
 			'date'      => get_date('Y/m/d'),
 			'today'     => 0,
 			'yesterday' => 0,
-			'ip'        => '');
+			'ip'        => ''
+		);
 
 	if (! is_page($page)) return $default;
 	if (isset($counters[$page])) return $counters[$page];
@@ -89,11 +91,11 @@ function plugin_counter_get_count($page)
 
 	$file = COUNTER_DIR . encode($page) . PLUGIN_COUNTER_SUFFIX;
 	$fp = fopen($file, file_exists($file) ? 'r+' : 'w+')
-		or die('counter.inc.php: '. $qm->replace('fmt_err_open_counterdir', basename($file)));
+		or die('counter.inc.php: ' . $qm->replace('fmt_err_open_counterdir', basename($file)));
 	set_file_buffer($fp, 0);
 	flock($fp, LOCK_EX);
 	rewind($fp);
-	foreach ($default as $key=>$val) {
+	foreach ($default as $key => $val) {
 		// Update
 		$counters[$page][$key] = rtrim(fgets($fp, 256));
 		if (feof($fp)) break;
@@ -101,13 +103,12 @@ function plugin_counter_get_count($page)
 	if ($counters[$page]['date'] != $default['date']) {
 		// New day
 		$modify = TRUE;
-		$is_yesterday = ($counters[$page]['date'] == get_date('Y/m/d', time()-86400));
+		$is_yesterday = ($counters[$page]['date'] == get_date('Y/m/d', time() - 86400));
 		$counters[$page]['ip']        = $_SERVER['REMOTE_ADDR'];
 		$counters[$page]['date']      = $default['date'];
 		$counters[$page]['yesterday'] = $is_yesterday ? $counters[$page]['today'] : 0;
 		$counters[$page]['today']     = 1;
 		$counters[$page]['total']++;
-
 	} else if ($counters[$page]['ip'] != $_SERVER['REMOTE_ADDR']) {
 		// Not the same host
 		$modify = TRUE;
@@ -127,4 +128,3 @@ function plugin_counter_get_count($page)
 
 	return $counters[$page];
 }
-?>

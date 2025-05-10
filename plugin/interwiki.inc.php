@@ -11,7 +11,7 @@ function plugin_interwiki_action()
 
 	if (PKWK_SAFE_MODE) die_message($qm->m['plg_interwiki']['err_not_allowed']);
 
-	$match = array();
+	$match = [];
 	if (! preg_match("/^$InterWikiName$/", $vars['page'], $match))
 		return plugin_interwiki_invalid();
 
@@ -31,4 +31,3 @@ function plugin_interwiki_invalid()
 		'body' => $qm->replace('fmt_msg_invalidiwn', '', make_pagelink('InterWikiName'))
 	);
 }
-?>
