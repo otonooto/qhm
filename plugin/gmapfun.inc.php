@@ -80,7 +80,6 @@ function plugin_gmapfun_action()
 function plugin_gmapfun_convert()
 {
 	static $s_gmapfun_cnt = 0;
-	global $script, $googlemaps_apikey;
 	global $vars;
 
 	$qt = get_qt();

@@ -325,7 +325,7 @@ function download_tarfile($tempnam, $arc_kind)
 {
 	$size = filesize($tempnam);
 
-	$filename = strftime('tar%Y%m%d', time());
+	$filename = 'tar' . date('Ymd');
 	if ($arc_kind == 'tgz') {
 		$filename .= '.tar.gz';
 	} else {

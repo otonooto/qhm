@@ -1,4 +1,5 @@
 <?php
+
 /**
  *   QHM Footer plugin (Alias of Nav2 plugin)
  *   -------------------------------------------
@@ -18,8 +19,7 @@
 
 function plugin_footer_init()
 {
-    if ( ! exist_plugin('nav2'))
-    {
+    if (! exist_plugin('nav2')) {
         die('<strong>Fatal error:</strong><br>Cannot find nav2 plugin');
     }
 }

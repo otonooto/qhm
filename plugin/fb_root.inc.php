@@ -231,9 +231,9 @@ function plugin_fb_root_parse_args($args, $tmpl = [])
 {
 	$ret = $tmpl;
 
-	$init_href = FALSE;
+	$init_url = FALSE;
 
-	foreach ($args as $i => $arg) {
+	foreach ($args as $arg) {
 		$arg = trim($arg);
 
 		// href, site

@@ -49,17 +49,16 @@ function plugin_lookup_action()
 	$page  = isset($post['page'])  ? $post['page']  : '';
 	$inter = isset($post['inter']) ? $post['inter'] : '';
 	if ($page == '') return FALSE; // Do nothing
-	if ($inter == '') return array('msg'=>$qm->m['plg_lookup']['err_invalid_access'], 'body'=>'');
+	if ($inter == '') return array('msg' => $qm->m['plg_lookup']['err_invalid_access'], 'body' => '');
 
 	$url = get_interwiki_url($inter, $page);
 	if ($url === FALSE) {
 		$msg = $qm->replace('fmt_err_iw_not_found', $inter);
 		$msg = h($msg);
-		return array('msg'=>$qm->m['plg_lookup']['title_not_found'], 'body'=>$msg);
+		return array('msg' => $qm->m['plg_lookup']['title_not_found'], 'body' => $msg);
 	}
 
 	pkwk_headers_sent();
 	header('Location: ' . $url); // Publish as GET method
 	exit;
 }
-?>

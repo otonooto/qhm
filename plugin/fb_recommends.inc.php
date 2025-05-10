@@ -1,4 +1,5 @@
 <?php
+
 /**
  *   Facebook Recommendations Plugin
  *   -------------------------------------------
@@ -18,8 +19,7 @@
 
 function plugin_fb_recommends_init()
 {
-	if ( ! exist_plugin("fb_root"))
-	{
+	if (! exist_plugin("fb_root")) {
 		die('Fatal error: fb_root plugin not found');
 	}
 	do_plugin_init("fb_root");
@@ -28,17 +28,13 @@ function plugin_fb_recommends_init()
 
 function plugin_fb_recommends_convert()
 {
-	if ($alt = plugin_fb_root_is_deprecated('recommends'))
-	{
+	if ($alt = plugin_fb_root_is_deprecated('recommends')) {
 		$args = func_get_args();
 		return call_user_func_array($alt, $args);
 	}
 
 	global $script, $vars;
-	$page = $vars['page'];
-	$r_page = rawurlencode($page);
-	$qm = get_qm();
-	$qt = get_qt();
+	$page = isset($vars['page']) ? $vars['page'] : '';
 	$args = func_get_args();
 
 	// scaffold
@@ -57,8 +53,7 @@ function plugin_fb_recommends_convert()
 
 	$attrs = plugin_fb_root_parse_args($args, $def_attrs);
 	//default site set
-	if ($attrs['site'] == '')
-	{
+	if ($attrs['site'] == '') {
 		$parsed = parse_url($script);
 		$host = $parsed['host'];
 		$attrs['site'] = $host;
@@ -67,8 +62,7 @@ function plugin_fb_recommends_convert()
 	plugin_fb_root_set_jsapi(TRUE);
 	$body = plugin_fb_root_create_tag('fb-recommendations', $attrs);
 
-	if (edit_auth($page, FALSE, FALSE))
-	{
+	if (edit_auth($page, FALSE, FALSE)) {
 		$fb_pagebox_help = h(QHM_HOME . '?PageName');
 		$warning = <<< EOM
 			<div class="alert alert-warning">
@@ -77,7 +71,6 @@ function plugin_fb_recommends_convert()
 			</div>
 EOM;
 		$body = $warning . $body;
-
 	}
 
 	return $body;

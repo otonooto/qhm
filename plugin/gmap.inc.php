@@ -20,8 +20,6 @@
 
 function plugin_gmap_convert()
 {
-	$qt = get_qt();
-
 	$args = func_get_args();
 	$spots = array_pop($args);
 

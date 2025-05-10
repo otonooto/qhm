@@ -5,7 +5,10 @@
 // Freeze(Lock) plugin
 
 // Reserve 'Do nothing'. '^#freeze' is for internal use only.
-function plugin_freeze_convert() { return ''; }
+function plugin_freeze_convert()
+{
+	return '';
+}
 
 function plugin_freeze_action()
 {
@@ -13,9 +16,9 @@ function plugin_freeze_action()
 	global $_title_isfreezed, $_title_freezed, $_title_freeze;
 	global $_msg_invalidpass, $_msg_freezing, $_btn_freeze;
 	$qt = get_qt();
-	
-    //ƒLƒƒƒbƒVƒ…‚µ‚È‚¢
-    $qt->enable_cache = false;
+
+	//ï¿½Lï¿½ï¿½ï¿½bï¿½Vï¿½ï¿½ï¿½ï¿½ï¿½È‚ï¿½
+	$qt->enable_cache = false;
 
 	$page = isset($vars['page']) ? $vars['page'] : '';
 	if (! $function_freeze || ! is_page($page))
@@ -25,10 +28,12 @@ function plugin_freeze_action()
 	$msg = $body = '';
 	if (is_freeze($page)) {
 		// Freezed already
-		$msg  = & $_title_isfreezed;
-		$body = str_replace('$1', htmlspecialchars(strip_bracket($page)),
-			$_title_isfreezed);
-
+		$msg  = &$_title_isfreezed;
+		$body = str_replace(
+			'$1',
+			htmlspecialchars(strip_bracket($page)),
+			$_title_isfreezed
+		);
 	} else if ($pass !== NULL && pkwk_login($pass)) {
 		// Freeze
 		$postdata = get_source($page);
@@ -38,12 +43,11 @@ function plugin_freeze_action()
 		// Update
 		is_freeze($page, TRUE);
 		$vars['cmd'] = 'read';
-		$msg  = & $_title_freezed;
+		$msg  = &$_title_freezed;
 		$body = '';
-
 	} else {
 		// Show a freeze form
-		$msg    = & $_title_freeze;
+		$msg    = &$_title_freeze;
 		$s_page = htmlspecialchars($page);
 		$body   = ($pass === NULL) ? '' : "<p><strong>$_msg_invalidpass</strong></p>\n";
 		$body  .= <<<EOD
@@ -59,6 +63,5 @@ function plugin_freeze_action()
 EOD;
 	}
 
-	return array('msg'=>$msg, 'body'=>$body);
+	return array('msg' => $msg, 'body' => $body);
 }
-?>

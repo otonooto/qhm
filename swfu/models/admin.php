@@ -95,7 +95,7 @@ class CAdmin extends CModel
 	{
 		$conf = $this->findoneby('name', 'labels');
 		if ($conf) {
-			return explode($conf['value']);
+			return explode(',', $conf['value']);
 		} else {
 			return [];
 		}
@@ -105,7 +105,7 @@ class CAdmin extends CModel
 	{
 		$conf = $this->findoneby('name', 'labels');
 		if ($conf) {
-			$conf['value'] = $value;
+			// $conf['value'] = $value;
 			$action = 'update';
 		} else {
 			$conf = array(

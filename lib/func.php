@@ -884,11 +884,9 @@ if (! function_exists('md5_file')) {
 // sha1 -- Compute SHA-1 hash
 // (PHP 4 >= 4.3.0, PHP5)
 if (! function_exists('sha1')) {
-	if (extension_loaded('mhash')) {
-		function sha1($str)
-		{
-			return bin2hex(mhash(MHASH_SHA1, $str));
-		}
+	function sha1($str)
+	{
+		return bin2hex(hash('sha1', $str));
 	}
 }
 
@@ -1493,13 +1491,19 @@ if (!function_exists("json_encode")) {
 
 		#-- strings need some care
 		elseif (is_string($var)) {
-			if (!utf8_decode($var)) {
-				$var = utf8_encode($var);
+			if (!mb_check_encoding($var, 'UTF-8')) {
+				$var = mb_convert_encoding($var, 'UTF-8', 'ISO-8859-1');
 			}
-			$var = str_replace(array("\\", "\"", "/", "\b", "\f", "\n", "\r", "\t"), array("\\\\", "\\\"", "\\/", "\\b", "\\f", "\\n", "\\r", "\\t"), $var);
-			$var = json_encode_string($var);
+			$var = str_replace(
+				["\\", "\"", "/", "\b", "\f", "\n", "\r", "\t"],
+				["\\\\", "\\\"", "\\/", "\\b", "\\f", "\\n", "\\r", "\\t"],
+				$var
+			);
+			$var = json_encode($var, JSON_UNESCAPED_UNICODE);
 			$json = '"' . $var . '"';
 			//@COMPAT: for fully-fully-compliance   $var = preg_replace("/[\000-\037]/", "", $var);
+			// 互換性維持のため、不可視文字を除去
+			$var = preg_replace("/[\x00-\x1F]/", "", $var);
 		}
 
 		#-- basic types

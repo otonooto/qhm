@@ -239,6 +239,7 @@ function plugin_conversion_count($step, $group, $name, $pattern = '')
 function plugin_conversion_action()
 {
 	global $vars, $script;
+	$page = isset($vars['page']) ? $vars['page'] : '';
 	$qm = get_qm();
 	$msg = plugin_conversion_msg();
 

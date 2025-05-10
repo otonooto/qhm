@@ -1,4 +1,5 @@
 <?php
+
 /**
  *   Setting Logo Image Plugin
  *   -------------------------------------------
@@ -26,15 +27,15 @@ function plugin_logo_image_convert()
 		return '';
 	}
 	$url = $args[0];
-	$title = isset($args[1])? $args[1]: false;
+	$title = isset($args[1]) ? $args[1] : false;
 
-	if( preg_match('/.*\.(png|gif|jpg|jpeg)/i', $url) ){
+	if (preg_match('/.*\.(png|gif|jpg|jpeg)/i', $url)) {
 
 		$fp = fopen($url, 'r');
-		if($fp){			
+		if ($fp) {
 			$qt = get_qt();
 			$qt->setv('logo_image', $url);
-			
+
 			if ($title) {
 				$qt->setv('logo_title', $title);
 			}
@@ -44,5 +45,3 @@ function plugin_logo_image_convert()
 
 	return null;
 }
-
-?>

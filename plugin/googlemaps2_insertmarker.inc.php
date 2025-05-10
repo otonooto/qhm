@@ -18,7 +18,7 @@ define('PLUGIN_GOOGLEMAPS2_INSERTMARKER_URL_MAXLEN', 1024); //URLの最長の長
 
 function plugin_googlemaps2_insertmarker_action()
 {
-	global $script, $vars, $now;
+	global $vars;
 	$qm = get_qm();
 
 	if (PKWK_READONLY) die_message($qm->m['fmt_err_pkwk_readonly']);
@@ -162,7 +162,7 @@ function plugin_googlemaps2_insertmarker_convert()
 	$imprefix = "_p_googlemaps2_insertmarker_" . $s_page . "_" . $no;
 	$err_map_not_found = $qm->replace('plg_googlemaps2_insertmarker.err_map_not_found', $mapname);
 	$output = <<<EOD
-<form action="$script" id="${imprefix}_form" method="post">
+<form action="$script" id="{$imprefix}_form" method="post">
 <div style="padding:2px;">
   <input type="hidden" name="plugin"    value="googlemaps2_insertmarker" />
   <input type="hidden" name="refer"     value="$s_page" />
@@ -170,25 +170,25 @@ function plugin_googlemaps2_insertmarker_convert()
   <input type="hidden" name="no"        value="$no" />
   <input type="hidden" name="digest"    value="$digest" />
   <input type="hidden" name="map"       value="$mapname" />
-  <input type="hidden" name="zoom"      value="10" id="${imprefix}_zoom"/>
-  <input type="hidden" name="mtype"     value="0"  id="${imprefix}_mtype"/>
+  <input type="hidden" name="zoom"      value="10" id="{$imprefix}_zoom"/>
+  <input type="hidden" name="mtype"     value="0"  id="{$imprefix}_mtype"/>
 
-  {$qm->m['plg_googlemaps2_insertmarker']['label_latitude']}: <input type="text" name="lat" id="${imprefix}_lat" size="10" />
-  {$qm->m['plg_googlemaps2_insertmarker']['label_longitude']}: <input type="text" name="lng" id="${imprefix}_lng" size="10" />
+  {$qm->m['plg_googlemaps2_insertmarker']['label_latitude']}: <input type="text" name="lat" id="{$imprefix}_lat" size="10" />
+  {$qm->m['plg_googlemaps2_insertmarker']['label_longitude']}: <input type="text" name="lng" id="{$imprefix}_lng" size="10" />
   {$qm->m['plg_googlemaps2_insertmarker']['label_title']}:
-  <input type="text" name="title"    id="${imprefix}_title" size="20" />
+  <input type="text" name="title"    id="{$imprefix}_title" size="20" />
   {$qm->m['plg_googlemaps2_insertmarker']['label_icon']}:
-  <select name="icon" id ="${imprefix}_icon">
+  <select name="icon" id ="{$imprefix}_icon">
   <option value="Default">{$qm->m['plg_googlemaps2_insertmarker']['option_default']}</option>
   </select>
   <br />
   {$qm->m['plg_googlemaps2_insertmarker']['label_img']}:
-  <input type="text" name="image"    id="${imprefix}_image" size="20" />
+  <input type="text" name="image"    id="{$imprefix}_image" size="20" />
   {$qm->m['plg_googlemaps2_insertmarker']['label_maxurl']}:
-  <input type="text" name="maxurl"   id="${imprefix}_maxurl" size="20" />
+  <input type="text" name="maxurl"   id="{$imprefix}_maxurl" size="20" />
   <br />
   {$qm->m['plg_googlemaps2_insertmarker']['label_minzoom']}:
-  <select name="minzoom" id ="${imprefix}_minzoom">
+  <select name="minzoom" id ="{$imprefix}_minzoom">
   <option value="">--</option>
   <option value="0"> 0</option> <option value="1"> 1</option>
   <option value="2"> 2</option> <option value="3"> 3</option>
@@ -201,7 +201,7 @@ function plugin_googlemaps2_insertmarker_convert()
   <option value="16">16</option> <option value="17">17</option>
   </select>
   {$qm->m['plg_googlemaps2_insertmarker']['label_maxzoom']}:
-  <select name="maxzoom" id ="${imprefix}_maxzoom">
+  <select name="maxzoom" id ="{$imprefix}_maxzoom">
   <option value="">--</option>
   <option value="0"> 0</option> <option value="1"> 1</option>
   <option value="2"> 2</option> <option value="3"> 3</option>
@@ -215,7 +215,7 @@ function plugin_googlemaps2_insertmarker_convert()
   </select>
   <br />
   {$qm->m['plg_googlemaps2_insertmarker']['label_detail']}:
-  <textarea name="caption" id="${imprefix}_caption" rows="2" cols="55"></textarea>
+  <textarea name="caption" id="{$imprefix}_caption" rows="2" cols="55"></textarea>
   <input type="submit" name="Mark" value="{$qm->m['plg_googlemaps2_insertmarker']['btn_mark']}"/>
 </div>
 </form>
@@ -225,15 +225,15 @@ function plugin_googlemaps2_insertmarker_convert()
 onloadfunc.push(function() {
 	var map = googlemaps_maps['$s_page']['$map'];
 	if (!map) {
-		var form = document.getElementById("${imprefix}_form");
+		var form = document.getElementById("{$imprefix}_form");
 		form.innerHTML = '<div>$err_map_not_found</div>';
 	} else {
-		var lat   = document.getElementById("${imprefix}_lat");
-		var lng   = document.getElementById("${imprefix}_lng");
-		var zoom  = document.getElementById("${imprefix}_zoom");
-		var mtype = document.getElementById("${imprefix}_mtype");
-		var form  = document.getElementById("${imprefix}_form");
-		var icon  = document.getElementById("${imprefix}_icon");
+		var lat   = document.getElementById("{$imprefix}_lat");
+		var lng   = document.getElementById("{$imprefix}_lng");
+		var zoom  = document.getElementById("{$imprefix}_zoom");
+		var mtype = document.getElementById("{$imprefix}_mtype");
+		var form  = document.getElementById("{$imprefix}_form");
+		var icon  = document.getElementById("{$imprefix}_icon");
 
 		//地図がドラッグされたりするたびに動的にパラメータを代入する
 		GEvent.addListener(map, 'moveend', function() {
@@ -282,7 +282,7 @@ onloadfunc.push(function() {
 
 						var smz;
 						var options;
-						smz = document.getElementById("${imprefix}_minzoom")
+						smz = document.getElementById("{$imprefix}_minzoom")
 						options = smz.childNodes;
 						for (var j=0; j<options.length; j++) {
 							var option = options.item(j);
@@ -292,7 +292,7 @@ onloadfunc.push(function() {
 							}
 						}
 
-						smz = document.getElementById("${imprefix}_maxzoom")
+						smz = document.getElementById("{$imprefix}_maxzoom")
 						options = smz.childNodes;
 						for (var j=0; j<options.length; j++) {
 							var option = options.item(j);

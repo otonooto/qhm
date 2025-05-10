@@ -27,8 +27,12 @@ class CController extends CObject
 	var $debug			= false;
 
 
-	function CController() {}
+	function __construct() {}
 
+	public function __get($name)
+	{
+		return $this->m[$name] ?? $this->c[$name] ?? null;
+	}
 
 	function AddModel($path, $name = "")
 	{

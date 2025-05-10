@@ -14,6 +14,7 @@ class CModel extends CObject
 	var $validatefunc	= [];
 	var $validatemsg	= [];
 	var $validateresult	= [];
+	var $controller;
 
 
 	function CModel() {}

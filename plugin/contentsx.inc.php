@@ -311,7 +311,6 @@ class PluginContentsx
             $plistdepth[$page] = 0;
         }
         $metalines = [];
-        $this->hoge = [];
         foreach ($this->metalines as $metaline) {
             $page = $metaline['page'];
             if ($metaline['depth'] > $pdepth[$page]) {

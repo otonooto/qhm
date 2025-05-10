@@ -123,7 +123,7 @@ function plugin_googlemaps2_icon_output($name, $params)
 			array_push($coords, $p);
 		}
 	}
-	$coords = join($coords, ",");
+	$coords = join(",", $coords);
 	$page = $vars['page'];
 
 	// Output

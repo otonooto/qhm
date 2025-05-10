@@ -43,7 +43,7 @@ function plugin_list_array($pages)
 	$symbol = ' ';
 	$other = 'zz';
 	$list = [];
-	$cnd = 0;
+	$cnt = 0;
 	//並び替える
 	foreach ($pages as $file => $page) {
 		$pgdata = [];

@@ -1,4 +1,5 @@
 <?php
+
 /**
  *   Facebook LikeBox Plugin
  *   -------------------------------------------
@@ -18,8 +19,7 @@
 
 function plugin_fb_pagebox_init()
 {
-	if ( ! exist_plugin("fb_root"))
-	{
+	if (! exist_plugin("fb_root")) {
 		die('Fatal error: fb_root plugin not found');
 	}
 	do_plugin_init("fb_root");
@@ -27,11 +27,8 @@ function plugin_fb_pagebox_init()
 
 function plugin_fb_pagebox_convert()
 {
-	global $script, $vars;
+	global $vars;
 	$page = $vars['page'];
-	$r_page = rawurlencode($page);
-	$qm = get_qm();
-	$qt = get_qt();
 	$args = func_get_args();
 
 	// scaffold
@@ -47,8 +44,7 @@ function plugin_fb_pagebox_convert()
 
 	$attrs = plugin_fb_root_parse_args($args, $def_attrs);
 	//no URL error
-	if ($attrs['href'] === '')
-	{
+	if ($attrs['href'] === '') {
 		$errmsg = 'error - #fb_pagebox: no facebook page url';
 		return "<p>{$errmsg}</p>\n";
 	}

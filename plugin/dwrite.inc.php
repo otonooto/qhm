@@ -22,6 +22,8 @@ function plugin_dwrite_action()
 {
 	global $vars, $script;
 	$qm = get_qm();
+	$title = '';
+	$body = '';
 
 	//error
 	if ($vars['page'] == '') {
@@ -123,7 +125,6 @@ EOD;
 	} else if ($vars['mode'] == 'do_write') {
 
 		$code = $vars['code'];
-		$ms = [];
 
 		$new_data = '';
 		foreach (get_source($vars['page']) as $line) {
@@ -193,20 +194,16 @@ function plugin_dwrite_getContent($code, $line)
 		for ($i = 0; $i < $len; $i++) {
 
 			//stack trace
-			if ($str{
-			$i} == '{') {
+			if ($str[$i] == '{') {
 				$stuck++;
-			} else if ($i + 1 < $len && $str{
-			$i} . $str{
-			$i + 1} == '};') {
+			} else if ($i + 1 < $len && $str[$i] . $str[$i + 1] == '};') {
 				$stuck--;
 			}
 
 			if ($stuck == 0)
 				break;
 
-			$content .= $str{
-			$i};
+			$content .= $str[$i];
 		}
 
 		if ($content == '')

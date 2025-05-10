@@ -1,4 +1,5 @@
 <?php
+
 /**
  *   Output 1-Line HTML Plugin
  *   -------------------------------------------
@@ -21,7 +22,7 @@ function plugin_html2_convert()
 {
 	global $vars;
 	$qm = get_qm();
-	
+
 	$page = $vars['page'];
 	if (! (PKWK_READONLY > 0 or is_freeze($page) or plugin_html2_is_edit_auth($page))) {
 		return $qm->replace('fmt_msg_not_editable', '#html2', $page);
@@ -29,12 +30,12 @@ function plugin_html2_convert()
 
 	$args   = func_get_args();
 	$ret = array_shift($args);
-	
-	foreach($args as $tmpstr){
+
+	foreach ($args as $tmpstr) {
 		$ret .= ',';
 		$ret .= $tmpstr;
 	}
-	
+
 	return $ret;
 }
 
@@ -52,7 +53,7 @@ function plugin_html2_is_edit_auth($page, $user = '')
 		$target_str = join('', get_source($page)); // Its contents
 	}
 
-	foreach($edit_auth_pages as $regexp => $users) {
+	foreach ($edit_auth_pages as $regexp => $users) {
 		if (preg_match($regexp, $target_str)) {
 			if ($user == '' || in_array($user, explode(',', $users))) {
 				return TRUE;
@@ -61,4 +62,3 @@ function plugin_html2_is_edit_auth($page, $user = '')
 	}
 	return FALSE;
 }
-?>

@@ -10,7 +10,7 @@ define('PLUGIN_IMG_CLEAR', '<div style="clear:both"></div>' . "\n"); // Stop wor
 function plugin_img_convert()
 {
 	$qm = get_qm();
-	
+
 	if (PKWK_DISABLE_INLINE_IMAGE_FROM_URI)
 		return $qm->replace('fmt_err_deny_uri_img', '#img');
 
@@ -41,4 +41,3 @@ function plugin_img_convert()
 </div>$clear
 EOD;
 }
-?>

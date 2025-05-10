@@ -89,7 +89,7 @@ function make_backup($page, $delete = FALSE)
  * @param     String    $page        ページ名
  * @param     Integer   $age         バックアップの世代番号 省略時は全て
  *
- * @return    String    バックアップ       ($age != 0)
+ * @return    Array    バックアップ       ($age != 0)
  *            Array     バックアップの配列 ($age == 0)
  */
 function get_backup($page, $age = 0)

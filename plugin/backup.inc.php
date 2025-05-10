@@ -16,6 +16,7 @@ function plugin_backup_action()
 	global $vars, $do_backup, $hr, $script;
 	global $layout_pages, $style_name;
 	$qm = get_qm();
+	$page = $vars['page'];
 
 	$editable = edit_auth($page, FALSE, FALSE);
 	if (!$editable) {
@@ -162,7 +163,7 @@ function plugin_backup_action()
 // Delete backup
 function plugin_backup_delete($page)
 {
-	global $vars, $layout_pages;
+	global $vars, $layout_pages, $script;
 
 	$is_layout = FALSE;
 	if (isset($layout_pages) && isset($layout_pages[$page])) {
@@ -226,6 +227,7 @@ EOD;
 function plugin_backup_get_list($page)
 {
 	global $layout_pages;
+	$backups = [];
 
 	//レイアウト部品の場合、スタイルを変更する
 	$is_layout = FALSE;

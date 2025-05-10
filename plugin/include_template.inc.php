@@ -131,7 +131,7 @@ define('PLUGIN_INCLUDE_TEMPLATE_ALLOW_EVAL', FALSE);   // Default: FALSE(許可�
 
 function plugin_include_template_action()
 {
-	global $script, $vars, $get, $post, $menubar, $_msg_include_restrict;
+	global $vars, $get, $post, $menubar, $_msg_include_restrict;
 	static $included = [];
 	static $count = 1;
 	$qm = get_qm();
@@ -147,6 +147,7 @@ function plugin_include_template_action()
 	//	$ret = "<a href=\"$href\">[戻る]</a><br><p/>";
 	//	$body = $ret;
 	$body = '';
+	$ret = '';
 
 	$include_template = new include_template();
 
