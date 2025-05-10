@@ -34,7 +34,7 @@ function plugin_online_itself($type = 0)
 
 	if (! isset($count)) {
 		if (isset($_SERVER['REMOTE_ADDR'])) {
-			$host  = & $_SERVER['REMOTE_ADDR'];
+			$host  = &$_SERVER['REMOTE_ADDR'];
 		} else {
 			$host  = '';
 		}
@@ -54,7 +54,7 @@ function plugin_online_itself($type = 0)
 		if (! isset($base)) $base = basename(PLUGIN_ONLINE_USER_LIST);
 		$error = $qm->replace('plg_online.err_not_writable', $base);
 		if ($type == 0) {
-			$error = $qm->replace('plg_online.err_convert', $error). "\n";
+			$error = $qm->replace('plg_online.err_convert', $error) . "\n";
 		} else {
 			$error = $qm->replace('plg_online.err_inline', $error);
 		}
@@ -64,10 +64,12 @@ function plugin_online_itself($type = 0)
 
 // Check I am already online (recorded and not time-out)
 // & $count == Number of online users
-function plugin_online_check_online(& $count, $host = '')
+function plugin_online_check_online(&$count, $host = '')
 {
-	if (! file_exists(PLUGIN_ONLINE_USER_LIST) &&
-	    ! @touch(PLUGIN_ONLINE_USER_LIST))
+	if (
+		! file_exists(PLUGIN_ONLINE_USER_LIST) &&
+		! @touch(PLUGIN_ONLINE_USER_LIST)
+	)
 		return FALSE;
 
 	// Open
@@ -78,7 +80,7 @@ function plugin_online_check_online(& $count, $host = '')
 	// Init
 	$count   = 0;
 	$found   = FALSE;
-	$matches = array();
+	$matches = [];
 
 	flock($fp, LOCK_SH);
 
@@ -88,9 +90,11 @@ function plugin_online_check_online(& $count, $host = '')
 		if ($line === FALSE) continue;
 
 		// Ignore invalid-or-outdated lines
-		if (! preg_match(PLUGIN_ONLINE_LIST_REGEX, $line, $matches) ||
-		    ($matches[2] + PLUGIN_ONLINE_TIMEOUT) <= UTIME ||
-		    $matches[2] > UTIME) continue;
+		if (
+			! preg_match(PLUGIN_ONLINE_LIST_REGEX, $line, $matches) ||
+			($matches[2] + PLUGIN_ONLINE_TIMEOUT) <= UTIME ||
+			$matches[2] > UTIME
+		) continue;
 
 		++$count;
 		if (! $found && $matches[1] == $host) $found = TRUE;
@@ -98,7 +102,7 @@ function plugin_online_check_online(& $count, $host = '')
 
 	flock($fp, LOCK_UN);
 
-	if(! fclose($fp)) return FALSE;
+	if (! fclose($fp)) return FALSE;
 
 	if (! $found && $host != '') ++$count; // About you
 
@@ -118,23 +122,25 @@ function plugin_online_sweep_records($host = '')
 
 	// Read to check
 	$lines = @file(PLUGIN_ONLINE_USER_LIST);
-	if ($lines === FALSE) $lines = array();
+	if ($lines === FALSE) $lines = [];
 
 	// Need modify?
 	$line_count = $count = count($lines);
-	$matches = array();
+	$matches = [];
 	$dirty   = FALSE;
 	for ($i = 0; $i < $line_count; $i++) {
-		if (! preg_match(PLUGIN_ONLINE_LIST_REGEX, $lines[$i], $matches) ||
-		    ($matches[2] + PLUGIN_ONLINE_TIMEOUT) <= UTIME ||
-		    $matches[2] > UTIME ||
-		    $matches[1] == $host) {
+		if (
+			! preg_match(PLUGIN_ONLINE_LIST_REGEX, $lines[$i], $matches) ||
+			($matches[2] + PLUGIN_ONLINE_TIMEOUT) <= UTIME ||
+			$matches[2] > UTIME ||
+			$matches[1] == $host
+		) {
 			unset($lines[$i]); // Invalid or outdated or invalid date
 			--$count;
 			$dirty = TRUE;
 		}
 	}
-	if ($host != '' ) {
+	if ($host != '') {
 		// Add new, at the top of the record
 		array_unshift($lines, strtr($host, "\n", '') . '|' . UTIME . "\n");
 		++$count;
@@ -150,8 +156,7 @@ function plugin_online_sweep_records($host = '')
 
 	flock($fp, LOCK_UN);
 
-	if(! fclose($fp)) return FALSE;
+	if (! fclose($fp)) return FALSE;
 
 	return $count; // Number of lines == Number of users online
 }
-?>

@@ -62,11 +62,11 @@ $notify = $trackback = $referer = 0;
 require(LIB_DIR . 'init.php');
 
 // Load authorization library  QQQ
-require(LIB_DIR .'ss_authform.php');
+require(LIB_DIR . 'ss_authform.php');
 ss_auth_start();
 
 //strip session_name from $vars['page']
-if($vars['page'] === session_name().'='.session_id())
+if ($vars['page'] === session_name() . '=' . session_id())
 	$vars['page'] = $defaultpage;
 
 // Load optional libraries
@@ -89,21 +89,20 @@ if (!$qt->set_page) {
 }
 
 // haik テーマの場合、ナビ2 を フッターに変える
-if (strpos($style_name, 'haik_') === 0)
-{
-    $layout_pages['SiteNavigator2'] = 'フッター';
+if (strpos($style_name, 'haik_') === 0) {
+	$layout_pages['SiteNavigator2'] = 'フッター';
 }
 
 /////////////////////////////////////////////////
 // Main
 
-$retvars = array();
+$retvars = [];
 $is_cmd = FALSE;
 if (isset($vars['cmd'])) {
 	$is_cmd  = TRUE;
-	$plugin = & $vars['cmd'];
+	$plugin = &$vars['cmd'];
 } else if (isset($vars['plugin'])) {
-	$plugin = & $vars['plugin'];
+	$plugin = &$vars['plugin'];
 } else {
 	$plugin = '';
 }
@@ -123,8 +122,8 @@ if ($plugin != '') {
 		header('HTTP/1.1 501 Not Implemented');
 		$msg = 'plugin=' . h($plugin) .
 			' is not implemented.';
-		$retvars = array('msg'=>$msg,'body'=>$msg);
-		$base    = & $defaultpage;
+		$retvars = array('msg' => $msg, 'body' => $msg);
+		$base    = &$defaultpage;
 	}
 }
 
@@ -141,9 +140,9 @@ if (isset($retvars['msg']) && $retvars['msg'] != '') {
 //　　qhmloginへのアクセス以外、全部、「閉鎖中」を出す
 // 2009 6/18 (by hokuken.com)
 //------------------------------------------------------
-if( $site_close_all &&  !ss_admin_check() && $vars['phase'] != 'sssavepath'){
+if ($site_close_all &&  !ss_admin_check() && $vars['phase'] != 'sssavepath') {
 	$_SESSION['usr'] = null;
-	output_site_close_message($page_title, $script.'?cmd=qhmauth');
+	output_site_close_message($page_title, $script . '?cmd=qhmauth');
 	exit;
 }
 //--
@@ -152,23 +151,23 @@ if( $site_close_all &&  !ss_admin_check() && $vars['phase'] != 'sssavepath'){
 // そこで、SSL通信の場合、$scriptは、https://.. にするために、$script_sslを使うようにする
 // 独自SSLを導入している場合でも、対応できる ( lib/init.php で、$script_ssl を作っているので )
 // 　※ なお、convert_htmlが終わった時点で、元に戻す（このelseブロックの最後を参照）
-if( is_https() ){
+if (is_https()) {
 	$scr_tmp     = $script;
 	$script      = $script_ssl;
-	$script_ssl  = $scr_tmp;	
+	$script_ssl  = $scr_tmp;
 }
 
 if (isset($retvars['body']) && $retvars['body'] != '') {
-	$body = & $retvars['body'];
+	$body = &$retvars['body'];
 } else {
 	if ($base == '' || ! is_page($base)) {
-		$base  = & $defaultpage;
+		$base  = &$defaultpage;
 		$title = h(strip_bracket($base));
 		$page  = make_search($base);
 	}
 
 	$vars['cmd']  = 'read';
-	$vars['page'] = & $base;
+	$vars['page'] = &$base;
 
 	//--------------------------------------------------------------------------
 	//
@@ -184,20 +183,20 @@ if (isset($retvars['body']) && $retvars['body'] != '') {
 	//--------------------------------------------------------------------------
 
 	//編集状態の場合、強制的にキャッシュを無効
-	$qt->enable_cache = edit_auth($base, FALSE, FALSE)===TRUE ? false : $qt->enable_cache;
-	
+	$qt->enable_cache = edit_auth($base, FALSE, FALSE) === TRUE ? false : $qt->enable_cache;
+
 	//携帯の場合、強制的にキャッシュ機能をオフ。もし、転送設定があれば、転送する
-	if( preg_match('/keitai.skin.php$/', SKIN_FILE) ){
+	if (preg_match('/keitai.skin.php$/', SKIN_FILE)) {
 		$qt->enable_cache = false;
-		
-		if( is_url( $mobile_redirect ) ){
-		
-			if( isset($_GET[session_name()]) ){ //sessionを利用している場合
-				$mobile_redirect .= strpos($mobile_redirect, '?')===FALSE ? '?' : '&';
-				$mobile_redirect .= session_name().'='.session_id();
+
+		if (is_url($mobile_redirect)) {
+
+			if (isset($_GET[session_name()])) { //sessionを利用している場合
+				$mobile_redirect .= strpos($mobile_redirect, '?') === FALSE ? '?' : '&';
+				$mobile_redirect .= session_name() . '=' . session_id();
 			}
-			
-			header('Location: '. $mobile_redirect);
+
+			header('Location: ' . $mobile_redirect);
 			exit;
 		}
 	}
@@ -205,11 +204,11 @@ if (isset($retvars['body']) && $retvars['body'] != '') {
 	if (is_smart_phone()) {
 		$qt->enable_cache = false;
 	}
-	
+
 	//$scriptが変化している場合、キャッシュの有効期限をリフレッシュ
 	chk_script($script);
 
-	if( $qt->enable_cache ){ //キャッシュ有効
+	if ($qt->enable_cache) { //キャッシュ有効
 		//キャッシュを出力して終了
 		if ($qt->cache_is_available()) {
 			$qt->disp();
@@ -219,38 +218,35 @@ if (isset($retvars['body']) && $retvars['body'] != '') {
 			//出力の部分で保存します
 			$qt->create_cache = true;
 			$src = get_source($base);
-			
-			if (is_qblog())
-			{
+
+			if (is_qblog()) {
 				array_unshift($src, "#qblog_head\n");
 				array_push($src, "#qblog_foot\n", "#qblog_comment");
 			}
-			
+
 			$body = convert_html($src);
-			
+
 			if (!$qt->enable_cache) { //プラグインによってキャッシュを無効にされている場合
 				//動的プラグインを実行しておく
 				$qt->create_cache = false;
 				$body = $qt->replace_dynamic_plugin($body);
 			}
 		}
-	}
-	else{
+	} else {
 		$src = get_source($base);
-		
-		if (is_qblog())
-		{
+
+		if (is_qblog()) {
 			array_unshift($src, "#qblog_head\n");
 			array_push($src, "#qblog_foot\n", "#qblog_comment");
 		}
-		
+
 		$body = convert_html($src);
 	}
 	if (!$qt->getv('body_insert_mark')) {
 		$body = "\n<!-- BODYCONTENTS START -->\n" . $body . "\n<!-- BODYCONTENTS END -->\n";
 		$qt->setv('body_insert_mark', true);
 	}
-	
+
 	if ($trackback) $body .= tb_get_rdf($base); // Add TrackBack-Ping URI
 	if ($referer) ref_save($base);
 }
@@ -258,4 +254,3 @@ if (isset($retvars['body']) && $retvars['body'] != '') {
 // Output
 catbody($title, $page, $body);
 exit;
-?>

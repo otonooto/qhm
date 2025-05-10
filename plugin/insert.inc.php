@@ -23,7 +23,7 @@ function plugin_insert_action()
 	$insert_no = 0;
 
 
-	foreach($postdata_old as $line) {
+	foreach ($postdata_old as $line) {
 		if (! INSERT_INS) $postdata .= $line;
 		if (preg_match('/^#insert$/i', $line)) {
 			if ($insert_no == $vars['insert_no'])
@@ -70,7 +70,7 @@ function plugin_insert_convert()
 {
 	global $script, $vars, $digest;
 	$qm = get_qm();
-	static $numbers = array();
+	static $numbers = [];
 
 	if (PKWK_READONLY) return ''; // Show nothing
 
@@ -97,4 +97,3 @@ EOD;
 
 	return $string;
 }
-?>

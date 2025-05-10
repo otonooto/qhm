@@ -1,27 +1,27 @@
 <?php
 
-require_once( "config.php" );
-require_once( "cheetan/cheetan.php" );
+require_once("config.php");
+require_once("cheetan/cheetan.php");
 
-function action( &$c )
+function action(&$c)
 {
 	set_menu($c);
-	$c->set('_page_title','トップ');
-		
+	$c->set('_page_title', 'トップ');
+	$ssid = session_id();
+
 	$page_name = isset($_GET['page']) ? $_GET['page'] : '';
 	$c->set('page_name', $page_name);
-	
+
 	$config = $c->admin->getConfig();
-	if($config['overwrite']){
-		$c->set('overwrite_msg','上書き保存');
+	if ($config['overwrite']) {
+		$c->set('overwrite_msg', '上書き保存');
 		$overwrite = 1;
-	}
-	else{
-		$c->set('overwrite_msg','自動で別名保存');	
+	} else {
+		$c->set('overwrite_msg', '自動で別名保存');
 		$overwrite = 0;
 	}
 
-	
+
 	$_additional_head = <<<EOD
 <link rel="stylesheet" type="text/css" href="css/swfu.css" />
 <script type="text/javascript" src="swfupload/swfupload.js"></script>
@@ -92,7 +92,4 @@ function action( &$c )
 
 EOD;
 	$c->set('_additional_head', $_additional_head);
-	
 }
-
-?>

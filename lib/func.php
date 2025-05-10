@@ -19,17 +19,19 @@ function is_pagename($str)
 	global $BracketName;
 
 	$is_pagename = (! is_interwiki($str) &&
-		  preg_match('/^(?!\/)' . $BracketName . '$(?<!\/$)/', $str) &&
+		preg_match('/^(?!\/)' . $BracketName . '$(?<!\/$)/', $str) &&
 		! preg_match('#(^|/)\.{1,2}(/|$)#', $str));
 
 	if (defined('SOURCE_ENCODING')) {
-		switch(SOURCE_ENCODING){
-		case 'UTF-8': $pattern =
-			'/^(?:[\x00-\x7F]|(?:[\xC0-\xDF][\x80-\xBF])|(?:[\xE0-\xEF][\x80-\xBF][\x80-\xBF]))+$/';
-			break;
-		case 'EUC-JP': $pattern =
-			'/^(?:[\x00-\x7F]|(?:[\x8E\xA1-\xFE][\xA1-\xFE])|(?:\x8F[\xA1-\xFE][\xA1-\xFE]))+$/';
-			break;
+		switch (SOURCE_ENCODING) {
+			case 'UTF-8':
+				$pattern =
+					'/^(?:[\x00-\x7F]|(?:[\xC0-\xDF][\x80-\xBF])|(?:[\xE0-\xEF][\x80-\xBF][\x80-\xBF]))+$/';
+				break;
+			case 'EUC-JP':
+				$pattern =
+					'/^(?:[\x00-\x7F]|(?:[\x8E\xA1-\xFE][\xA1-\xFE])|(?:\x8F[\xA1-\xFE][\xA1-\xFE]))+$/';
+				break;
 		}
 		if (isset($pattern) && $pattern != '')
 			$is_pagename = ($is_pagename && preg_match($pattern, $str));
@@ -40,9 +42,9 @@ function is_pagename($str)
 
 function is_url($str, $only_http = FALSE, $omit_protocol = FALSE)
 {
-  	$scheme = $only_http ? 'https?' : 'https?|ftp|news';
-  	$scheme = $omit_protocol ? ('(('. $scheme . '):)?') : ('(' . $scheme . '):');
-  	return preg_match('/^(' . $scheme . ')(\/\/[-_.!~*\'()a-zA-Z0-9;\/?:\@&=+\$,%#]*)$/', $str);
+	$scheme = $only_http ? 'https?' : 'https?|ftp|news';
+	$scheme = $omit_protocol ? ('((' . $scheme . '):)?') : ('(' . $scheme . '):');
+	return preg_match('/^(' . $scheme . ')(\/\/[-_.!~*\'()a-zA-Z0-9;\/?:\@&=+\$,%#]*)$/', $str);
 }
 
 function is_image($str)
@@ -60,7 +62,7 @@ function is_page($page, $clearcache = FALSE)
 function is_editable($page)
 {
 	global $cantedit;
-	static $is_editable = array();
+	static $is_editable = [];
 
 	if (! isset($is_editable[$page])) {
 		$is_editable[$page] = (
@@ -76,9 +78,9 @@ function is_editable($page)
 function is_freeze($page, $clearcache = FALSE)
 {
 	global $function_freeze;
-	static $is_freeze = array();
+	static $is_freeze = [];
 
-	if ($clearcache === TRUE) $is_freeze = array();
+	if ($clearcache === TRUE) $is_freeze = [];
 	if (isset($is_freeze[$page])) return $is_freeze[$page];
 
 	if (! $function_freeze || ! is_page($page)) {
@@ -101,7 +103,8 @@ function is_freeze($page, $clearcache = FALSE)
 /**
  *   iPhone, iPod, android からのアクセスかどうか判定する
  */
-function is_smart_phone() {
+function is_smart_phone()
+{
 	return
 		strpos(UA_NAME, 'iPhone') !== FALSE ||
 		strpos(UA_NAME, 'iPod')   !== FALSE ||
@@ -116,8 +119,7 @@ function is_qblog($page = NULL)
 	global $vars, $qblog_defaultpage, $qblog_page_format;
 	static $is_qblog;
 
-	if (is_null($page))
-	{
+	if (is_null($page)) {
 		$page = $vars['page'];
 		if (isset($is_qblog))
 			return $is_qblog;
@@ -134,14 +136,17 @@ function is_qblog($page = NULL)
 	);
 	$re = preg_quote($qblog_page_format);
 	$re = str_replace(
-		array_keys($search_replaces), array_values($search_replaces),
-		$re);
+		array_keys($search_replaces),
+		array_values($search_replaces),
+		$re
+	);
 	$re = '/^' . $re . '$/';
 
-//var_dump($qblog_page_format, preg_match($qblog_page_format, $page), '/^QBlog\-\d{4}\d{2}\d{2}\-\d+$/', preg_match('/^QBlog\-\d{4}\d{2}\d{2}\-\d+$/', $page));
-	if ($page === $qblog_defaultpage OR
-		preg_match($re, $page))
-	{
+	//var_dump($qblog_page_format, preg_match($qblog_page_format, $page), '/^QBlog\-\d{4}\d{2}\d{2}\-\d+$/', preg_match('/^QBlog\-\d{4}\d{2}\d{2}\-\d+$/', $page));
+	if (
+		$page === $qblog_defaultpage or
+		preg_match($re, $page)
+	) {
 		$is_qblog = TRUE;
 		return $is_qblog;
 	}
@@ -153,15 +158,16 @@ function is_qblog($page = NULL)
 function is_ssl()
 {
 	static $is_ssl;
-	if ( is_null($is_ssl))
-	{
-		foreach(array(
+	if (is_null($is_ssl)) {
+		foreach (
+			array(
 				'HTTPS' => 'on',
 				'SERVER_PORT' => '443',
 				'HTTP_X_FORWARDED_PROTO' => 'https', //例 : ロリポップ
-			) as $k=>$v){
+			) as $k => $v
+		) {
 
-			if( isset($_SERVER[$k]) &&  $_SERVER[$k]==$v ){
+			if (isset($_SERVER[$k]) &&  $_SERVER[$k] == $v) {
 				$is_ssl = TRUE;
 				return $is_ssl;
 			}
@@ -191,7 +197,7 @@ function auto_template($page)
 	if (! $auto_template_func) return '';
 
 	$body = '';
-	$matches = array();
+	$matches = [];
 	foreach ($auto_template_rules as $rule => $template) {
 		$rule_pattrn = '/' . $rule . '/';
 
@@ -218,19 +224,22 @@ function auto_template($page)
 }
 
 // Expand all search-words to regexes and push them into an array
-function get_search_words($words = array(), $do_escape = FALSE)
+function get_search_words($words = [], $do_escape = FALSE)
 {
 	static $init, $mb_convert_kana, $pre, $post, $quote = '/';
 
 	if (! isset($init)) {
 		// function: mb_convert_kana() is for Japanese code only
 		if (LANG == 'ja' && function_exists('mb_convert_kana')) {
-			$mb_convert_kana = create_function('$str, $option',
-				'return mb_convert_kana($str, $option, SOURCE_ENCODING);');
+			$mb_convert_kana = function ($str, $option) {
+				return mb_convert_kana($str, $option, SOURCE_ENCODING);
+			};
 		} else {
-			$mb_convert_kana = create_function('$str, $option',
-				'return $str;');
+			$mb_convert_kana = function ($str, $option) {
+				return $str;
+			};
 		}
+
 		if (SOURCE_ENCODING == 'EUC-JP') {
 			// Perl memo - Correct pattern-matching with EUC-JP
 			// http://www.din.or.jp/~ohzaki/perl.htm#JP_Match (Japanese)
@@ -246,7 +255,7 @@ function get_search_words($words = array(), $do_escape = FALSE)
 	if (! is_array($words)) $words = array($words);
 
 	// Generate regex for the words
-	$regex = array();
+	$regex = [];
 	foreach ($words as $word) {
 		$word = trim($word);
 		if ($word == '') continue;
@@ -256,7 +265,7 @@ function get_search_words($words = array(), $do_escape = FALSE)
 		$nmlen   = mb_strlen($word_nm, SOURCE_ENCODING);
 
 		// Each chars may be served ...
-		$chars = array();
+		$chars = [];
 		for ($pos = 0; $pos < $nmlen; $pos++) {
 			$char = mb_substr($word_nm, $pos, 1, SOURCE_ENCODING);
 
@@ -292,13 +301,13 @@ function do_search($word, $type = 'AND', $non_format = FALSE, $base = '')
 	global $_msg_andresult, $_msg_orresult, $_msg_notfoundresult;
 	global $search_auth, $show_passage;
 
-	$retval = array();
+	$retval = [];
 
 	$b_type = ($type == 'AND'); // AND:TRUE OR:FALSE
 	$word = mb_convert_encoding($word, SOURCE_ENCODING, 'auto');
 	$word = mb_ereg_replace("　", " ", $word);
 	$keys = get_search_words(preg_split('/\s+/', $word, -1, PREG_SPLIT_NO_EMPTY));
-	foreach ($keys as $key=>$value)
+	foreach ($keys as $key => $value)
 		$keys[$key] = '/' . $value . '/S';
 
 	$pages = get_existpages();
@@ -361,8 +370,11 @@ function do_search($word, $type = 'AND', $non_format = FALSE, $base = '')
 	}
 	$retval .= '</ul>' . "\n";
 
-	$retval .= str_replace('$1', $s_word, str_replace('$2', count($pages),
-		str_replace('$3', $count, $b_type ? $_msg_andresult : $_msg_orresult)));
+	$retval .= str_replace('$1', $s_word, str_replace(
+		'$2',
+		count($pages),
+		str_replace('$3', $count, $b_type ? $_msg_andresult : $_msg_orresult)
+	));
 
 	return $retval;
 }
@@ -389,8 +401,7 @@ function decode($key)
 }
 
 // PHP 5.4.1 移行では組み込み関数
-if ( ! function_exists('hex2bin'))
-{
+if (! function_exists('hex2bin')) {
 	// Inversion of bin2hex()
 	function hex2bin($hex_string)
 	{
@@ -404,7 +415,7 @@ if ( ! function_exists('hex2bin'))
 // Remove [[ ]] (brackets)
 function strip_bracket($str)
 {
-	$match = array();
+	$match = [];
 	if (preg_match('/^\[\[(.*)\]\]$/', $str, $match)) {
 		return $match[1];
 	} else {
@@ -425,12 +436,12 @@ function page_list($pages, $cmd = 'read', $withfilename = FALSE)
 
 	$retval = '';
 
-	if($pagereading_enable) {
+	if ($pagereading_enable) {
 		mb_regex_encoding(SOURCE_ENCODING);
 		$readings = get_readings($pages);
 	}
 
-	$list = $matches = array();
+	$list = $matches = [];
 
 	// Shrink URI for read
 	if ($cmd == 'read') {
@@ -439,14 +450,14 @@ function page_list($pages, $cmd = 'read', $withfilename = FALSE)
 		$href = $script . '?cmd=' . $cmd . '&amp;page=';
 	}
 
-	foreach($pages as $file=>$page) {
+	foreach ($pages as $file => $page) {
 		$r_page  = rawurlencode($page);
 		$s_page  = htmlspecialchars($page, ENT_QUOTES);
 		$passage = get_pg_passage($page);
 
 		//customized by hokuken.com
 		$t_page = get_page_title($s_page);
-		$t_page = ($t_page == $s_page) ? '' : '('.$t_page.')';
+		$t_page = ($t_page == $s_page) ? '' : '(' . $t_page . ')';
 
 		$str = '   <li><a href="' . $href . $r_page . '">' .
 			$s_page . $t_page . '</a>' . $passage;
@@ -459,8 +470,8 @@ function page_list($pages, $cmd = 'read', $withfilename = FALSE)
 		$str .= '</li>';
 
 		// WARNING: Japanese code hard-wired
-		if($pagereading_enable) {
-			if(mb_ereg('^([A-Za-z])', mb_convert_kana($page, 'a'), $matches)) {
+		if ($pagereading_enable) {
+			if (mb_ereg('^([A-Za-z])', mb_convert_kana($page, 'a'), $matches)) {
 				$head = $matches[1];
 			} elseif (isset($readings[$page]) && mb_ereg('^([ァ-ヶ])', $readings[$page], $matches)) { // here
 				$head = $matches[1];
@@ -470,21 +481,20 @@ function page_list($pages, $cmd = 'read', $withfilename = FALSE)
 				$head = $other;
 			}
 		} else {
-			$head = (preg_match('/^([A-Za-z])/', $page, $matches)) ? $matches[1] :
-				(preg_match('/^([ -~])/', $page, $matches) ? $symbol : $other);
+			$head = (preg_match('/^([A-Za-z])/', $page, $matches)) ? $matches[1] : (preg_match('/^([ -~])/', $page, $matches) ? $symbol : $other);
 		}
 
 		$list[$head][$page] = $str;
 	}
 	ksort($list);
 
-	$tmparr1 = isset($list[$symbol])? $list[$symbol]: null;
+	$tmparr1 = isset($list[$symbol]) ? $list[$symbol] : null;
 	unset($list[$symbol]);
 	$list[$symbol] = $tmparr1;
 
 
 	$cnt = 0;
-	$arr_index = array();
+	$arr_index = [];
 	$retval .= '<ul>' . "\n";
 	foreach ($list as $head => $ppages) {
 		if (is_null($ppages)) {
@@ -513,7 +523,7 @@ function page_list($pages, $cmd = 'read', $withfilename = FALSE)
 	}
 	$retval .= '</ul>' . "\n";
 	if ($list_index && $cnt > 0) {
-		$top = array();
+		$top = [];
 		while (! empty($arr_index))
 			$top[] = join(' | ' . "\n", array_splice($arr_index, 0, 16)) . "\n";
 
@@ -546,11 +556,11 @@ function die_message($msg)
 EOD;
 
 	pkwk_common_headers();
-//	if(defined('SKIN_FILE') && file_exists(SKIN_FILE) && is_readable(SKIN_FILE)) {
-//		catbody($title, $page, $body);
-//	} else {
-		header('Content-Type: text/html; charset=utf-8');
-		print <<<EOD
+	//	if(defined('SKIN_FILE') && file_exists(SKIN_FILE) && is_readable(SKIN_FILE)) {
+	//		catbody($title, $page, $body);
+	//	} else {
+	header('Content-Type: text/html; charset=utf-8');
+	print <<<EOD
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
  <head>
@@ -562,7 +572,7 @@ EOD;
  </body>
 </html>
 EOD;
-//	}
+	//	}
 	exit;
 }
 
@@ -576,8 +586,11 @@ function getmicrotime()
 // Get the date
 function get_date($format, $timestamp = NULL)
 {
-	$format = preg_replace('/(?<!\\\)T/',
-		preg_replace('/(.)/', '\\\$1', ZONE), $format);
+	$format = preg_replace(
+		'/(?<!\\\)T/',
+		preg_replace('/(.)/', '\\\$1', ZONE),
+		$format
+	);
 
 	$time = ZONETIME + (($timestamp !== NULL) ? $timestamp : UTIME);
 
@@ -587,11 +600,13 @@ function get_date($format, $timestamp = NULL)
 function get_qblog_date($format, $page = '')
 {
 	global $qblog_page_re;
-	$format = preg_replace('/(?<!\\\)T/',
-		preg_replace('/(.)/', '\\\$1', ZONE), $format);
+	$format = preg_replace(
+		'/(?<!\\\)T/',
+		preg_replace('/(.)/', '\\\$1', ZONE),
+		$format
+	);
 
-	if (preg_match($qblog_page_re, $page, $mts))
-	{
+	if (preg_match($qblog_page_re, $page, $mts)) {
 		$y = $mts[1];
 		$m = $mts[2];
 		$d = $mts[3];
@@ -620,11 +635,11 @@ function format_date($val, $paren = FALSE)
 // Get short string of the passage, 'N seconds/minutes/hours/days/years ago'
 function get_passage($time, $paren = TRUE)
 {
-	static $units = array('m'=>60, 'h'=>24, 'd'=>1);
+	static $units = array('m' => 60, 'h' => 24, 'd' => 1);
 
 	$time = max(0, (UTIME - $time) / 60); // minutes
 
-	foreach ($units as $unit=>$card) {
+	foreach ($units as $unit => $card) {
 		if ($time < $card) break;
 		$time /= $card;
 	}
@@ -636,12 +651,15 @@ function get_passage($time, $paren = TRUE)
 // Hide <input type="(submit|button|image)"...>
 function drop_submit($str)
 {
-	return preg_replace('/<input([^>]+)type="(submit|button|image)"/i',
-		'<input$1type="hidden"', $str);
+	return preg_replace(
+		'/<input([^>]+)type="(submit|button|image)"/i',
+		'<input$1type="hidden"',
+		$str
+	);
 }
 
 // Generate AutoLink patterns (thx to hirofummy)
-function get_autolink_pattern(& $pages)
+function get_autolink_pattern(&$pages)
 {
 	global $WikiName, $autolink, $nowikiname;
 
@@ -654,7 +672,8 @@ function get_autolink_pattern(& $pages)
 
 	foreach ($pages as $page)
 		if (preg_match('/^' . $WikiName . '$/', $page) ?
-		    $nowikiname : strlen($page) >= $autolink)
+			$nowikiname : strlen($page) >= $autolink
+		)
 			$auto_pages[] = $page;
 
 	if (empty($auto_pages)) {
@@ -672,7 +691,7 @@ function get_autolink_pattern(& $pages)
 	return array($result, $result_a, $forceignorepages);
 }
 
-function get_autolink_pattern_sub(& $pages, $start, $end, $pos)
+function get_autolink_pattern_sub(&$pages, $start, $end, $pos)
 {
 	if ($end == 0) return '(?!)';
 
@@ -720,13 +739,13 @@ function get_script_uri($init_uri = '')
 
 		// SCRIPT_NAME が'/'で始まっていない場合(cgiなど) REQUEST_URIを使ってみる
 		$path    = SCRIPT_NAME;
-		if ($path{0} != '/') {
-			if (! isset($_SERVER['REQUEST_URI']) || $_SERVER['REQUEST_URI']{0} != '/')
+		if ($path[0] != '/') {
+			if (! isset($_SERVER['REQUEST_URI']) || $_SERVER['REQUEST_URI'][0] != '/')
 				die_message($msg);
 
 			// REQUEST_URIをパースし、path部分だけを取り出す
 			$parse_url = parse_url($script . $_SERVER['REQUEST_URI']);
-			if (! isset($parse_url['path']) || $parse_url['path']{0} != '/')
+			if (! isset($parse_url['path']) || $parse_url['path'][0] != '/')
 				die_message($msg);
 
 			$path = $parse_url['path'];
@@ -736,7 +755,6 @@ function get_script_uri($init_uri = '')
 		if (! is_url($script, TRUE) && php_sapi_name() == 'cgi')
 			die_message($msg);
 		unset($msg);
-
 	} else {
 		// Set manually
 		if (isset($script)) die_message('$script: Already init');
@@ -749,9 +767,12 @@ function get_script_uri($init_uri = '')
 		if (! file_exists($script_directory_index))
 			die_message('Directory index file not found: ' .
 				htmlspecialchars($script_directory_index));
-		$matches = array();
-		if (preg_match('#^(.+/)' . preg_quote($script_directory_index, '#') . '$#',
-			$script, $matches)) $script = $matches[1];
+		$matches = [];
+		if (preg_match(
+			'#^(.+/)' . preg_quote($script_directory_index, '#') . '$#',
+			$script,
+			$matches
+		)) $script = $matches[1];
 	}
 
 	return $script;
@@ -768,37 +789,32 @@ function get_script_uri($init_uri = '')
 //
 function input_filter($param)
 {
-	static $magic_quotes_gpc = NULL;
-	if ($magic_quotes_gpc === NULL)
-	    $magic_quotes_gpc = get_magic_quotes_gpc();
-
 	if (is_array($param)) {
 		return array_map('input_filter', $param);
 	} else {
-		$result = str_replace("\0", '', $param);
-		if ($magic_quotes_gpc) $result = stripslashes($result);
-		return $result;
+		return str_replace("\0", '', $param);
 	}
 }
 
 // Compat for 3rd party plugins. Remove this later
-function sanitize($param) {
+function sanitize($param)
+{
 	return input_filter($param);
 }
 
 // Explode Comma-Separated Values to an array
 function csv_explode($separator, $string)
 {
-	$retval = $matches = array();
+	$retval = $matches = [];
 
 	$_separator = preg_quote($separator, '/');
 	if (! preg_match_all('/("[^"]*(?:""[^"]*)*"|[^' . $_separator . ']*)' .
-	    $_separator . '/', $string . $separator, $matches))
-		return array();
+		$_separator . '/', $string . $separator, $matches))
+		return [];
 
 	foreach ($matches[1] as $str) {
 		$len = strlen($str);
-		if ($len > 1 && $str{0} == '"' && $str{$len - 1} == '"')
+		if ($len > 1 && $str[0] == '"' && $str[$len - 1] == '"')
 			$str = str_replace('""', '"', substr($str, 1, -1));
 		$retval[] = $str;
 	}
@@ -808,8 +824,8 @@ function csv_explode($separator, $string)
 // Implode an array with CSV data format (escape double quotes)
 function csv_implode($glue, $pieces)
 {
-	$_glue = ($glue != '') ? '\\' . $glue{0} : '';
-	$arr = array();
+	$_glue = ($glue != '') ? '\\' . $glue[0] : '';
+	$arr = [];
 	foreach ($pieces as $str) {
 		if (preg_match('/[' . '"' . "\n\r" . $_glue . ']/', $str))
 			$str = '"' . str_replace('"', '""', $str) . '"';
@@ -843,7 +859,7 @@ if (! function_exists('array_fill')) {
 
 	function array_fill($start_index, $num, $value)
 	{
-		$ret = array();
+		$ret = [];
 		while ($num-- > 0) $ret[$start_index++] = $value;
 		return $ret;
 	}
@@ -858,7 +874,7 @@ if (! function_exists('md5_file')) {
 		if (! file_exists($filename)) return FALSE;
 
 		$fd = fopen($filename, 'rb');
-		if ($fd === FALSE ) return FALSE;
+		if ($fd === FALSE) return FALSE;
 		$data = fread($fd, filesize($filename));
 		fclose($fd);
 		return md5($data);
@@ -868,11 +884,9 @@ if (! function_exists('md5_file')) {
 // sha1 -- Compute SHA-1 hash
 // (PHP 4 >= 4.3.0, PHP5)
 if (! function_exists('sha1')) {
-	if (extension_loaded('mhash')) {
-		function sha1($str)
-		{
-			return bin2hex(mhash(MHASH_SHA1, $str));
-		}
+	function sha1($str)
+	{
+		return bin2hex(hash('sha1', $str));
 	}
 }
 
@@ -891,22 +905,21 @@ function strip_adcode($str)
 
 	$adcode[] = QHM_SESSION_NAME;
 
-	$match = array();
+	$match = [];
 	$match = explode("&", $str);
 	$str = $match[0];
 
-	if($match != ''){
-		foreach($adcode as $var){
+	if ($match != '') {
+		foreach ($adcode as $var) {
 			$reg_str_2 = '/^' . $var . '=/';
 
-			if (preg_match($reg_str_2, $str)){
+			if (preg_match($reg_str_2, $str)) {
 				return $defaultpage;
 			}
 		}
 
 		return $match[0];
-	}
-	else{  // example.com/?abc=123&cde=456... の場合
+	} else {  // example.com/?abc=123&cde=456... の場合
 		return $str;
 	}
 }
@@ -917,7 +930,7 @@ function strip_adcode($str)
 function force_output_message($title, $page, $body)
 {
 	pkwk_common_headers();
-	if(defined('SKIN_FILE') && file_exists(SKIN_FILE) && is_readable(SKIN_FILE)) {
+	if (defined('SKIN_FILE') && file_exists(SKIN_FILE) && is_readable(SKIN_FILE)) {
 		catbody($title, $page, $body);
 	} else {
 		header('Content-Type: text/html; charset=utf-8');
@@ -937,11 +950,12 @@ EOD;
 	exit;
 }
 
-if( !function_exists('file_put_contents') ){
-	function file_put_contents($filename, $data, $flag=FALSE )
+if (!function_exists('file_put_contents')) {
+	function file_put_contents($filename, $data, $flag = FALSE)
 	{
 		$mode = $flag ? 'a' : 'w';
-		$fp = fopen($filename, $mode); if($fp===FALSE) return FALSE;
+		$fp = fopen($filename, $mode);
+		if ($fp === FALSE) return FALSE;
 		flock($fp, LOCK_EX);
 		fputs($fp, $data);
 		flock($fp, LOCK_UN);
@@ -951,7 +965,8 @@ if( !function_exists('file_put_contents') ){
 }
 
 //For qhm template engine & qhm cache engine
-function qhm_output_dtd($pkwk_dtd, $content_charset, $encode){
+function qhm_output_dtd($pkwk_dtd, $content_charset, $encode)
+{
 
 	// Output HTTP headers
 	pkwk_common_headers();
@@ -962,8 +977,7 @@ function qhm_output_dtd($pkwk_dtd, $content_charset, $encode){
 	// Output HTML DTD, <html>, and receive content-type
 	$meta_content_type = pkwk_output_dtd($pkwk_dtd);
 
-	if( $content_charset != $encode)
-	{
+	if ($content_charset != $encode) {
 		$meta_content_type = str_replace($content_charset, $encode, $meta_content_type);
 	}
 
@@ -974,7 +988,7 @@ function output_site_close_message($site_name, $login_url)
 {
 	global $qhm_adminmenu;
 
-	$qhm_sign = ($qhm_adminmenu < 2) ? '<a href="'. h($login_url) . '">HAIK</a>' : 'HAIK';
+	$qhm_sign = ($qhm_adminmenu < 2) ? '<a href="' . h($login_url) . '">QHM</a>' : 'QHM';
 
 	pkwk_common_headers();
 	$qm = get_qm();
@@ -1036,18 +1050,20 @@ EOD;
 	exit;
 }
 
-function wikiescape($string){
+function wikiescape($string)
+{
 	//今のところ、#html{{ と、 #html2 だけ
 	$ret = '';
 	$lines = explode("\n", $string);
-	foreach($lines as $line){
-		$ret .= preg_replace('/^(#)(html|beforescript|style|lastscript)/i', "$1 $2", $line) ."\n";
+	foreach ($lines as $line) {
+		$ret .= preg_replace('/^(#)(html|beforescript|style|lastscript)/i', "$1 $2", $line) . "\n";
 	}
 
 	return $ret;
 }
 
-function get_page_title($pagename, $lines=10){
+function get_page_title($pagename, $lines = 10)
+{
 	if (!file_exists(get_filename($pagename))) {
 		return '';
 	}
@@ -1055,9 +1071,9 @@ function get_page_title($pagename, $lines=10){
 	flock($fp, LOCK_SH);
 
 	$title = $pagename;
-	for($i=0; $i<$lines; $i++){
+	for ($i = 0; $i < $lines; $i++) {
 		$str = fgets($fp);
-		if( preg_match('/^TITLE:(.*)/', $str, $ms) ){
+		if (preg_match('/^TITLE:(.*)/', $str, $ms)) {
 			$title = $ms[1];
 			break;
 		}
@@ -1072,8 +1088,7 @@ function get_qblog_category($page, $lines = 10)
 {
 	global $qblog_default_cat;
 
-	if ( ! file_exists(get_filename($page)))
-	{
+	if (! file_exists(get_filename($page))) {
 		return '';
 	}
 
@@ -1085,16 +1100,25 @@ function get_qblog_category($page, $lines = 10)
 
 /**
  * ブログカテゴリー一覧を返す。
- * @return asoc {cat_name : num, ...}
+ * @return array [cat_name : num, ...]
  */
 function get_qblog_categories()
 {
-	$cat_list = explode("\n", file_get_contents(CACHEQBLOG_DIR . 'qblog_categories.dat'));
-	$categories = array();
-	foreach ($cat_list as $cat_data)
-	{
-		list($cat_name, $num) = explode("\t", $cat_data);
-		$categories[$cat_name] = $num;
+	$file_path = CACHEQBLOG_DIR . 'qblog_categories.dat';
+	// ファイルの存在確認
+	if (!file_exists($file_path)) {
+		return []; // ファイルがない場合は空の配列を返す
+	}
+	// 行単位でファイルを読み込む
+	$cat_list = file($file_path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+	$categories = [];
+
+	foreach ($cat_list as $cat_data) {
+		$parts = explode("\t", $cat_data);
+		if (count($parts) === 2) { // データが期待通りの形式かチェック
+			list($cat_name, $num) = $parts;
+			$categories[$cat_name] = (int) $num; // 数値を明示的に整数変換
+		}
 	}
 	return $categories;
 }
@@ -1102,8 +1126,7 @@ function get_qblog_categories()
 function get_qblog_post_data($page)
 {
 	$datafile = CACHEQBLOG_DIR . encode($page) . '.qbp.dat';
-	if ($page == '' OR ! file_exists($datafile))
-	{
+	if ($page == '' or ! file_exists($datafile)) {
 		return FALSE;
 	}
 
@@ -1116,24 +1139,23 @@ function send_qblog_ping()
 	global $script, $qblog_title, $page_title, $qblog_defaultpage;
 	global $qblog_ping, $qblog_enable_ping;
 
-	if ( ! $qblog_enable_ping)
-	{
+	if (! $qblog_enable_ping) {
 		return FALSE;
 	}
 
-	$site_name = $qblog_title .' - '. $page_title;
+	$site_name = $qblog_title . ' - ' . $page_title;
 	$site_url = $script . '?' . $qblog_defaultpage;
 
 	//create XML
-	$xml = '<'.'?xml version="1.0"?'.'>
+	$xml = '<' . '?xml version="1.0"?' . '>
 <methodCall>
 	<methodName>weblogUpdates.ping</methodName>
 	<params>
 		<param>
-			<value>'. h($site_name) .'</value>
+			<value>' . h($site_name) . '</value>
 		</param>
 		<param>
-			<value>'. h($site_url) .'</value>
+			<value>' . h($site_url) . '</value>
 		</param>
 	</params>
 </methodCall>';
@@ -1142,8 +1164,7 @@ function send_qblog_ping()
 
 	$ping_urls = explode("\n", $qblog_ping);
 
-	foreach ($ping_urls as $url)
-	{
+	foreach ($ping_urls as $url) {
 		$url = trim($url);
 		if ($url == '') continue;
 
@@ -1153,26 +1174,22 @@ function send_qblog_ping()
 
 		//create request
 		$req =
-		"POST $path HTTP/1.0\r\n"
-		. "Host: $host\r\n"
-		. "Content-Type: text/xml\r\n"
-		. "Content-Length: ". strlen($xml) . "\r\n"
-		. "\r\n"
-		. $xml;
+			"POST $path HTTP/1.0\r\n"
+			. "Host: $host\r\n"
+			. "Content-Type: text/xml\r\n"
+			. "Content-Length: " . strlen($xml) . "\r\n"
+			. "\r\n"
+			. $xml;
 
 		//send ping
 		$sock = @fsockopen($host, 80, $errno, $errstr, 2.0);
 		$result = "";
-		if ($sock)
-		{
+		if ($sock) {
 			fputs($sock, $req);
-			while (!feof($sock))
-			{
+			while (!feof($sock)) {
 				$result .= fread($sock, 1024);
 			}
 		}
-
-
 	}
 
 	return TRUE;
@@ -1185,15 +1202,14 @@ function sent_qblog_comment_notice($page, $data)
 	$r_page = rawurlencode($page);
 
 	//管理者メルアド必須
-	if (trim($admin_email) === '')
-	{
+	if (trim($admin_email) === '') {
 		return FALSE;
 	}
 
 	require(LIB_DIR . 'simplemail.php');
 	$smail = new SimpleMail();
 
-	$data['id'] = 'qbcomment_' . $data['id'];//for #hash
+	$data['id'] = 'qbcomment_' . $data['id']; //for #hash
 	$data['url'] = $script . '?' . $r_page;
 	$data['body'] = $data['msg'];
 	$data['datetime'] = date('Y年m月d日 H時i分s秒');
@@ -1253,55 +1269,51 @@ function redirect($url = '', $msg = '', $refresh_sec = 2)
 	global $script, $style_name, $vars;
 	$qt = get_qt();
 
-	if (is_url($url))
-	{
+	if (is_url($url)) {
 		//
-	}
-	else if (is_page($url))
-	{
+	} else if (is_page($url)) {
 		$url = $script . '?' . $url;
 	}
 	//デフォルトページ
-	else
-	{
+	else {
 		$url = $script;
 	}
 
-	if ($msg !== '')
-	{
+	if ($msg !== '') {
 		$style_name = '../';
 		$title = array_shift(explode("\n", $msg));
-		$head = '<meta http-equiv="refresh" content="'. h($refresh_sec) .';URL='. h($url) .'" />';
+		$head = '<meta http-equiv="refresh" content="' . h($refresh_sec) . ';URL=' . h($url) . '" />';
 		$qt->appendv('beforescript', $head);
 
 		$vars['disable_toolmenu'] = TRUE;
 
 		$body = convert_html('
-* '. $msg. '
+* ' . $msg . '
 
-'. $refresh_sec .'秒後に移動します。
-移動しない場合は[[ここをクリック>'. $url .']]
+' . $refresh_sec . '秒後に移動します。
+移動しない場合は[[ここをクリック>' . $url . ']]
 ');
 		force_output_message($title, '', $body);
-	}
-	else
-	{
+	} else {
 		header('Location: ' . $url);
 	}
 	exit;
 }
 
-function h($string, $flags = ENT_QUOTES){
+function h($string, $flags = ENT_QUOTES)
+{
 	return htmlspecialchars($string, $flags);
 }
 
-function h_decode($string){
+function h_decode($string)
+{
 	return htmlspecialchars_decode($string, ENT_QUOTES);
 }
 
-function qhm_get_script_path() {
+function qhm_get_script_path()
+{
 	$tmp_script = '';
-	preg_match("/(.*?php)/", basename( $_SERVER['PHP_SELF'] ), $ms);
+	preg_match("/(.*?php)/", basename($_SERVER['PHP_SELF']), $ms);
 	$tmp_script = $ms[1];
 	return $tmp_script;
 }
@@ -1311,98 +1323,129 @@ function qhm_get_script_path() {
  *
  */
 if (!function_exists("htmlspecialchars_decode")) {
-   if (!defined("ENT_COMPAT")) { define("ENT_COMPAT", 2); }
-   if (!defined("ENT_QUOTES")) { define("ENT_QUOTES", 3); }
-   if (!defined("ENT_NOQUOTES")) { define("ENT_NOQUOTES", 0); }
-   function htmlspecialchars_decode($string, $quotes=2) {
-      $d = $quotes & ENT_COMPAT;
-      $s = $quotes & ENT_QUOTES;
-      return str_replace(
-         array("&lt;", "&gt;", ($s ? "&quot;" : "&.-;"), ($d ? "&#039;" : "&.-;"), "&amp;"),
-         array("<",    ">",    "'",                      "\"",                     "&"),
-         $string
-      );
-   }
+	if (!defined("ENT_COMPAT")) {
+		define("ENT_COMPAT", 2);
+	}
+	if (!defined("ENT_QUOTES")) {
+		define("ENT_QUOTES", 3);
+	}
+	if (!defined("ENT_NOQUOTES")) {
+		define("ENT_NOQUOTES", 0);
+	}
+	function htmlspecialchars_decode($string, $quotes = 2)
+	{
+		$d = $quotes & ENT_COMPAT;
+		$s = $quotes & ENT_QUOTES;
+		return str_replace(
+			array("&lt;", "&gt;", ($s ? "&quot;" : "&.-;"), ($d ? "&#039;" : "&.-;"), "&amp;"),
+			array("<",    ">",    "'",                      "\"",                     "&"),
+			$string
+		);
+	}
 }
 
 /**
-* SWFUを持っているか（有効か？）をチェックして返す
-*/
-function has_swfu(){
-	if( file_exists(SWFU_TEXTSQL_PATH)
-	   	&&  file_exists(SWFU_IMAGEDB_PATH)
-	   	&&  is_writable(SWFU_IMAGEDB_PATH)
-	   	&&  is_writable(SWFU_IMAGE_DIR)
-	){
+ * SWFUを持っているか（有効か？）をチェックして返す
+ */
+function has_swfu()
+{
+	if (
+		file_exists(SWFU_TEXTSQL_PATH)
+		&&  file_exists(SWFU_IMAGEDB_PATH)
+		&&  is_writable(SWFU_IMAGEDB_PATH)
+		&&  is_writable(SWFU_IMAGE_DIR)
+	) {
 		return true;
-	}
-	else{
+	} else {
 		return false;
 	}
 }
 
 /**
-* 拡張子から、mime-typeを返す
-*/
-function get_mimetype($fname){
+ * 拡張子から、mime-typeを返す
+ */
+function get_mimetype($fname)
+{
 	$ext = strtolower(pathinfo($fname, PATHINFO_EXTENSION));
 
-	switch($ext){
+	switch ($ext) {
 
-		case 'txt' : return 'text/plain';
-		case 'csv' : return 'text/csv';
+		case 'txt':
+			return 'text/plain';
+		case 'csv':
+			return 'text/csv';
 		case 'html':
-		case 'htm' : return 'text/html';
+		case 'htm':
+			return 'text/html';
 
-		//
-		case 'pdf' : return 'application/pdf';
-		case 'css' : return 'text/css';
-		case 'js'  : return 'text/javascript';
+			//
+		case 'pdf':
+			return 'application/pdf';
+		case 'css':
+			return 'text/css';
+		case 'js':
+			return 'text/javascript';
 
-		//image
-		case 'jpg' :
-		case 'jpeg': return 'image/jpeg';
-		case 'png' : return 'image/png';
-		case 'gif' : return 'image/gif';
-		case 'bmp' : return 'image/bmp';
+			//image
+		case 'jpg':
+		case 'jpeg':
+			return 'image/jpeg';
+		case 'png':
+			return 'image/png';
+		case 'gif':
+			return 'image/gif';
+		case 'bmp':
+			return 'image/bmp';
 
-		//av
-		case 'mp3' : return 'audio/mpeg';
-		case 'm4a' : return 'audio/mp4';
-		case 'wav' : return 'audio/x-wav';
-		case 'mpg' :
-		case 'mpeg': return 'video/mpeg';
-		case 'wmv' : return 'video/x-ms-wmv';
-		case 'swf' : return 'application/x-shockwave-flash';
+			//av
+		case 'mp3':
+			return 'audio/mpeg';
+		case 'm4a':
+			return 'audio/mp4';
+		case 'wav':
+			return 'audio/x-wav';
+		case 'mpg':
+		case 'mpeg':
+			return 'video/mpeg';
+		case 'wmv':
+			return 'video/x-ms-wmv';
+		case 'swf':
+			return 'application/x-shockwave-flash';
 
-		//archives
-		case 'zip' : return 'application/zip';
-		case 'lha' :
-		case 'lzh' : return 'application/x-lzh';
-		case 'tar' :
-		case 'tgz' :
-		case 'gz'  : return 'application/x-tar';
+			//archives
+		case 'zip':
+			return 'application/zip';
+		case 'lha':
+		case 'lzh':
+			return 'application/x-lzh';
+		case 'tar':
+		case 'tgz':
+		case 'gz':
+			return 'application/x-tar';
 
 
-		//office files
-		case 'doc' :
-		case 'dot' : return 'application/msword';
-		case 'docx': return 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
-		case 'xls' :
-		case 'xlt' :
-		case 'xla' : return 'application/vnd.ms-excel';
-		case 'xlsx': return 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-		case 'ppt' :
-		case 'pot' :
-		case 'pps' :
-		case 'ppa' : return 'application/vnd.ms-powerpoint';
-		case 'pptx': return 'application/vnd.openxmlformats-officedocument.presentationml.presentation';
-
+			//office files
+		case 'doc':
+		case 'dot':
+			return 'application/msword';
+		case 'docx':
+			return 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+		case 'xls':
+		case 'xlt':
+		case 'xla':
+			return 'application/vnd.ms-excel';
+		case 'xlsx':
+			return 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+		case 'ppt':
+		case 'pot':
+		case 'pps':
+		case 'ppa':
+			return 'application/vnd.ms-powerpoint';
+		case 'pptx':
+			return 'application/vnd.openxmlformats-officedocument.presentationml.presentation';
 	}
 
 	return 'application/octet-stream';
-
-
 }
 
 /**
@@ -1418,81 +1461,83 @@ function get_mimetype($fname){
  * @return string      transformed into JSON equivalent
  */
 if (!function_exists("json_encode")) {
-   function json_encode($var, /*emu_args*/$obj=FALSE) {
+	function json_encode($var, /*emu_args*/ $obj = FALSE)
+	{
 
-      #-- prepare JSON string
-      $json = "";
+		#-- prepare JSON string
+		$json = "";
 
-      #-- add array entries
-      if (is_array($var) || ($obj=is_object($var))) {
+		#-- add array entries
+		if (is_array($var) || ($obj = is_object($var))) {
 
-         #-- check if array is associative
-         if (!$obj) foreach ((array)$var as $i=>$v) {
-            if (!is_int($i)) {
-               $obj = 1;
-               break;
-            }
-         }
+			#-- check if array is associative
+			if (!$obj) foreach ((array)$var as $i => $v) {
+				if (!is_int($i)) {
+					$obj = 1;
+					break;
+				}
+			}
 
-         #-- concat invidual entries
-         foreach ((array)$var as $i=>$v) {
-            $json .= ($json ? "," : "")    // comma separators
-                   . ($obj ? ("\"$i\":") : "")   // assoc prefix
-                   . (json_encode($v));    // value
-         }
+			#-- concat invidual entries
+			foreach ((array)$var as $i => $v) {
+				$json .= ($json ? "," : "")    // comma separators
+					. ($obj ? ("\"$i\":") : "")   // assoc prefix
+					. (json_encode($v));    // value
+			}
 
-         #-- enclose into braces or brackets
-         $json = $obj ? "{".$json."}" : "[".$json."]";
-      }
+			#-- enclose into braces or brackets
+			$json = $obj ? "{" . $json . "}" : "[" . $json . "]";
+		}
 
-      #-- strings need some care
-      elseif (is_string($var)) {
-         if (!utf8_decode($var)) {
-            $var = utf8_encode($var);
-         }
-         $var = str_replace(array("\\", "\"", "/", "\b", "\f", "\n", "\r", "\t"), array("\\\\", "\\\"", "\\/", "\\b", "\\f", "\\n", "\\r", "\\t"), $var);
-         $var = json_encode_string($var);
-         $json = '"' . $var . '"';
-         //@COMPAT: for fully-fully-compliance   $var = preg_replace("/[\000-\037]/", "", $var);
-      }
+		#-- strings need some care
+		elseif (is_string($var)) {
+			if (!mb_check_encoding($var, 'UTF-8')) {
+				$var = mb_convert_encoding($var, 'UTF-8', 'ISO-8859-1');
+			}
+			$var = str_replace(
+				["\\", "\"", "/", "\b", "\f", "\n", "\r", "\t"],
+				["\\\\", "\\\"", "\\/", "\\b", "\\f", "\\n", "\\r", "\\t"],
+				$var
+			);
+			$var = json_encode($var, JSON_UNESCAPED_UNICODE);
+			$json = '"' . $var . '"';
+			//@COMPAT: for fully-fully-compliance   $var = preg_replace("/[\000-\037]/", "", $var);
+			// 互換性維持のため、不可視文字を除去
+			$var = preg_replace("/[\x00-\x1F]/", "", $var);
+		}
 
-      #-- basic types
-      elseif (is_bool($var)) {
-         $json = $var ? "true" : "false";
-      }
-      elseif ($var === NULL) {
-         $json = "null";
-      }
-      elseif (is_int($var) || is_float($var)) {
-         $json = "$var";
-      }
+		#-- basic types
+		elseif (is_bool($var)) {
+			$json = $var ? "true" : "false";
+		} elseif ($var === NULL) {
+			$json = "null";
+		} elseif (is_int($var) || is_float($var)) {
+			$json = "$var";
+		}
 
-      #-- something went wrong
-      else {
-         trigger_error("json_encode: don't know what a '" .gettype($var). "' is.", E_USER_ERROR);
-      }
+		#-- something went wrong
+		else {
+			trigger_error("json_encode: don't know what a '" . gettype($var) . "' is.", E_USER_ERROR);
+		}
 
-      #-- done
-      return($json);
-   }
+		#-- done
+		return ($json);
+	}
 }
 
 
-function json_encode_string($in_str) {
+function json_encode_string($in_str)
+{
 	//fb($in_str, "json_encode_string");
-	$debug = 'before:'."\n" . $in_str;
+	$debug = 'before:' . "\n" . $in_str;
 	mb_internal_encoding("UTF-8");
 	$convmap = array(0x80, 0xFFFF, 0, 0xFFFF);
 	$str = "";
-	for($i=mb_strlen($in_str)-1; $i>=0; $i--)
-	{
+	for ($i = mb_strlen($in_str) - 1; $i >= 0; $i--) {
 		$mb_char = mb_substr($in_str, $i, 1);
-		if(mb_ereg("&#(\\d+);", mb_encode_numericentity($mb_char, $convmap, "UTF-8"), $match))
-		{
+		if (mb_ereg("&#(\\d+);", mb_encode_numericentity($mb_char, $convmap, "UTF-8"), $match)) {
 			$str = sprintf("\\u%04x", $match[1]) . $str;
-		}
-		else
-		{
+		} else {
 			$str = $mb_char . $str;
 		}
 	}
@@ -1501,247 +1546,239 @@ function json_encode_string($in_str) {
 	return $str;
 }
 
-if ( ! function_exists('json_decode'))
-{
-   function json_decode($json, $assoc=FALSE, /*emu_args*/$n=0,$state=0,$waitfor=0) {
+if (! function_exists('json_decode')) {
+	function json_decode($json, $assoc = FALSE, /*emu_args*/ $n = 0, $state = 0, $waitfor = 0)
+	{
 
-      #-- result var
-      $val = NULL;
-      static $lang_eq = array("true" => TRUE, "false" => FALSE, "null" => NULL);
-      static $str_eq = array("n"=>"\012", "r"=>"\015", "\\"=>"\\", '"'=>'"', "f"=>"\f", "b"=>"\b", "t"=>"\t", "/"=>"/");
+		#-- result var
+		$val = NULL;
+		static $lang_eq = array("true" => TRUE, "false" => FALSE, "null" => NULL);
+		static $str_eq = array("n" => "\012", "r" => "\015", "\\" => "\\", '"' => '"', "f" => "\f", "b" => "\b", "t" => "\t", "/" => "/");
 
-      #-- flat char-wise parsing
-      for (/*n*/; $n<strlen($json); /*n*/) {
-         $c = $json[$n];
+		#-- flat char-wise parsing
+		for (/*n*/; $n < strlen($json); /*n*/) {
+			$c = $json[$n];
 
-         #-= in-string
-         if ($state==='"') {
+			#-= in-string
+			if ($state === '"') {
 
-            if ($c == '\\') {
-               $c = $json[++$n];
-               // simple C escapes
-               if (isset($str_eq[$c])) {
-                  $val .= $str_eq[$c];
-               }
+				if ($c == '\\') {
+					$c = $json[++$n];
+					// simple C escapes
+					if (isset($str_eq[$c])) {
+						$val .= $str_eq[$c];
+					}
 
-               // here we transform \uXXXX Unicode (always 4 nibbles) references to UTF-8
-               elseif ($c == "u") {
-                  // read just 16bit (therefore value can't be negative)
-                  $hex = hexdec( substr($json, $n+1, 4) );
-                  $n += 4;
-                  // Unicode ranges
-                  if ($hex < 0x80) {    // plain ASCII character
-                     $val .= chr($hex);
-                  }
-                  elseif ($hex < 0x800) {   // 110xxxxx 10xxxxxx
-                     $val .= chr(0xC0 + $hex>>6) . chr(0x80 + $hex&63);
-                  }
-                  elseif ($hex <= 0xFFFF) { // 1110xxxx 10xxxxxx 10xxxxxx
-                     $val .= chr(0xE0 + $hex>>12) . chr(0x80 + ($hex>>6)&63) . chr(0x80 + $hex&63);
-                  }
-                  // other ranges, like 0x1FFFFF=0xF0, 0x3FFFFFF=0xF8 and 0x7FFFFFFF=0xFC do not apply
-               }
+					// here we transform \uXXXX Unicode (always 4 nibbles) references to UTF-8
+					elseif ($c == "u") {
+						// read just 16bit (therefore value can't be negative)
+						$hex = hexdec(substr($json, $n + 1, 4));
+						$n += 4;
+						// Unicode ranges
+						if ($hex < 0x80) {    // plain ASCII character
+							$val .= chr($hex);
+						} elseif ($hex < 0x800) {   // 110xxxxx 10xxxxxx
+							$val .= chr(0xC0 + $hex >> 6) . chr(0x80 + $hex & 63);
+						} elseif ($hex <= 0xFFFF) { // 1110xxxx 10xxxxxx 10xxxxxx
+							$val .= chr(0xE0 + $hex >> 12) . chr(0x80 + ($hex >> 6) & 63) . chr(0x80 + $hex & 63);
+						}
+						// other ranges, like 0x1FFFFF=0xF0, 0x3FFFFFF=0xF8 and 0x7FFFFFFF=0xFC do not apply
+					}
 
-               // no escape, just a redundant backslash
-               //@COMPAT: we could throw an exception here
-               else {
-                  $val .= "\\" . $c;
-               }
-            }
+					// no escape, just a redundant backslash
+					//@COMPAT: we could throw an exception here
+					else {
+						$val .= "\\" . $c;
+					}
+				}
 
-            // end of string
-            elseif ($c == '"') {
-               $state = 0;
-            }
+				// end of string
+				elseif ($c == '"') {
+					$state = 0;
+				}
 
-            // yeeha! a single character found!!!!1!
-            else/*if (ord($c) >= 32)*/ { //@COMPAT: specialchars check - but native json doesn't do it?
-               $val .= $c;
-            }
-         }
+				// yeeha! a single character found!!!!1!
+				else/*if (ord($c) >= 32)*/ { //@COMPAT: specialchars check - but native json doesn't do it?
+					$val .= $c;
+				}
+			}
 
-         #-> end of sub-call (array/object)
-         elseif ($waitfor && (strpos($waitfor, $c) !== false)) {
-            return array($val, $n);  // return current value and state
-         }
+			#-> end of sub-call (array/object)
+			elseif ($waitfor && (strpos($waitfor, $c) !== false)) {
+				return array($val, $n);  // return current value and state
+			}
 
-         #-= in-array
-         elseif ($state===']') {
-            list($v, $n) = json_decode($json, 0, $n, 0, ",]");
-            $val[] = $v;
-            if ($json[$n] == "]") { return array($val, $n); }
-         }
+			#-= in-array
+			elseif ($state === ']') {
+				list($v, $n) = json_decode($json, 0, $n, 0, ",]");
+				$val[] = $v;
+				if ($json[$n] == "]") {
+					return array($val, $n);
+				}
+			}
 
-         #-= in-object
-         elseif ($state==='}') {
-            list($i, $n) = json_decode($json, 0, $n, 0, ":");   // this allowed non-string indicies
-            list($v, $n) = json_decode($json, 0, $n+1, 0, ",}");
-            $val[$i] = $v;
-            if ($json[$n] == "}") { return array($val, $n); }
-         }
+			#-= in-object
+			elseif ($state === '}') {
+				list($i, $n) = json_decode($json, 0, $n, 0, ":");   // this allowed non-string indicies
+				list($v, $n) = json_decode($json, 0, $n + 1, 0, ",}");
+				$val[$i] = $v;
+				if ($json[$n] == "}") {
+					return array($val, $n);
+				}
+			}
 
-         #-- looking for next item (0)
-         else {
+			#-- looking for next item (0)
+			else {
 
-            #-> whitespace
-            if (preg_match("/\s/", $c)) {
-               // skip
-            }
+				#-> whitespace
+				if (preg_match("/\s/", $c)) {
+					// skip
+				}
 
-            #-> string begin
-            elseif ($c == '"') {
-               $state = '"';
-            }
+				#-> string begin
+				elseif ($c == '"') {
+					$state = '"';
+				}
 
-            #-> object
-            elseif ($c == "{") {
-               list($val, $n) = json_decode($json, $assoc, $n+1, '}', "}");
-//               if ($val && $n && !$assoc) {
-               if ($val && $n && $assoc === FALSE) {
-                  $obj = new stdClass();
-                  foreach ($val as $i=>$v) {
-                     $obj->{$i} = $v;
-                  }
-                  $val = $obj;
-                  unset($obj);
-               }
-            }
-            #-> array
-            elseif ($c == "[") {
-               list($val, $n) = json_decode($json, $assoc, $n+1, ']', "]");
-            }
+				#-> object
+				elseif ($c == "{") {
+					list($val, $n) = json_decode($json, $assoc, $n + 1, '}', "}");
+					//               if ($val && $n && !$assoc) {
+					if ($val && $n && $assoc === FALSE) {
+						$obj = new stdClass();
+						foreach ($val as $i => $v) {
+							$obj->{$i} = $v;
+						}
+						$val = $obj;
+						unset($obj);
+					}
+				}
+				#-> array
+				elseif ($c == "[") {
+					list($val, $n) = json_decode($json, $assoc, $n + 1, ']', "]");
+				}
 
-            #-> comment
-            elseif (($c == "/") && ($json[$n+1]=="*")) {
-               // just find end, skip over
-               ($n = strpos($json, "*/", $n+1)) or ($n = strlen($json));
-            }
+				#-> comment
+				elseif (($c == "/") && ($json[$n + 1] == "*")) {
+					// just find end, skip over
+					($n = strpos($json, "*/", $n + 1)) or ($n = strlen($json));
+				}
 
-            #-> numbers
-            elseif (preg_match("#^(-?\d+(?:\.\d+)?)(?:[eE]([-+]?\d+))?#", substr($json, $n), $uu)) {
-               $val = $uu[1];
-               $n += strlen($uu[0]) - 1;
-               if (strpos($val, ".")) {  // float
-                  $val = (float)$val;
-               }
-               elseif ($val[0] == "0") {  // oct
-                  $val = octdec($val);
-               }
-               else {
-                  $val = (int)$val;
-               }
-               // exponent?
-               if (isset($uu[2])) {
-                  $val *= pow(10, (int)$uu[2]);
-               }
-            }
+				#-> numbers
+				elseif (preg_match("#^(-?\d+(?:\.\d+)?)(?:[eE]([-+]?\d+))?#", substr($json, $n), $uu)) {
+					$val = $uu[1];
+					$n += strlen($uu[0]) - 1;
+					if (strpos($val, ".")) {  // float
+						$val = (float)$val;
+					} elseif ($val[0] == "0") {  // oct
+						$val = octdec($val);
+					} else {
+						$val = (int)$val;
+					}
+					// exponent?
+					if (isset($uu[2])) {
+						$val *= pow(10, (int)$uu[2]);
+					}
+				}
 
-            #-> boolean or null
-            elseif (preg_match("#^(true|false|null)\b#", substr($json, $n), $uu)) {
-               $val = $lang_eq[$uu[1]];
-               $n += strlen($uu[1]) - 1;
-            }
+				#-> boolean or null
+				elseif (preg_match("#^(true|false|null)\b#", substr($json, $n), $uu)) {
+					$val = $lang_eq[$uu[1]];
+					$n += strlen($uu[1]) - 1;
+				}
 
-            #-- parsing error
-            else {
-               // PHPs native json_decode() breaks here usually and QUIETLY
-              trigger_error("json_decode: error parsing '$c' at position $n", E_USER_WARNING);
-               return $waitfor ? array(NULL, 1<<30) : NULL;
-            }
+				#-- parsing error
+				else {
+					// PHPs native json_decode() breaks here usually and QUIETLY
+					trigger_error("json_decode: error parsing '$c' at position $n", E_USER_WARNING);
+					return $waitfor ? array(NULL, 1 << 30) : NULL;
+				}
+			} //state
 
-         }//state
+			#-- next char
+			if ($n === NULL) {
+				return NULL;
+			}
+			$n++;
+		} //for
 
-         #-- next char
-         if ($n === NULL) { return NULL; }
-         $n++;
-      }//for
-
-      #-- final result
-      return ($val);
-   }
+		#-- final result
+		return ($val);
+	}
 }
 
 if (!function_exists("gzopen") && function_exists("gzopen64")) {
-	function gzopen($file, $mode) {
+	function gzopen($file, $mode)
+	{
 		return gzopen64($file, $mode);
 	}
 }
 
-if ( ! function_exists('hv'))
-{
-    /**
-     * Print Haik-skin variable
-     *
-     * @param string $name name of custom-skin config
-     * @param boolean $return when true return value without print
-     * @return void|mixed when $return is true then return value (escaped)
-     */
-    function hv($name, $return = false)
-    {
-        global $style_name;
-        $skin_custom_vars = get_skin_custom_vars($style_name);
+if (! function_exists('hv')) {
+	/**
+	 * Print Haik-skin variable
+	 *
+	 * @param string $name name of custom-skin config
+	 * @param boolean $return when true return value without print
+	 * @return void|mixed when $return is true then return value (escaped)
+	 */
+	function hv($name, $return = false)
+	{
+		global $style_name;
+		$skin_custom_vars = get_skin_custom_vars($style_name);
 
-        $value = isset($skin_custom_vars[$name]) ? $skin_custom_vars[$name] : '';
-        if ($return)
-        {
-            return $value;
-        }
-        else
-        {
-            echo h($value, ENT_NOQUOTES);
-        }
-    }
+		$value = isset($skin_custom_vars[$name]) ? $skin_custom_vars[$name] : '';
+		if ($return) {
+			return $value;
+		} else {
+			echo h($value, ENT_NOQUOTES);
+		}
+	}
 }
 
-if ( ! function_exists('read_skin_config'))
-{
-    function read_skin_config($style_name)
-    {
-        static $saved_config = array();
-        if (isset($saved_config[$style_name]))
-        {
-            return $saved_config[$style_name];
-        }
+if (! function_exists('read_skin_config')) {
+	function read_skin_config($style_name)
+	{
+		static $saved_config = [];
+		if (isset($saved_config[$style_name])) {
+			return $saved_config[$style_name];
+		}
 
-        $config = array();
-        $skin_dir = SKIN_DIR . $style_name;
-        $config_path = $skin_dir . '/config.php';
-        if (is_dir($skin_dir) && file_exists($config_path))
-        {
-            $config = include($config_path);
-            $saved_config[$style_name] = $config;
-        }
+		$config = [];
+		$skin_dir = SKIN_DIR . $style_name;
+		$config_path = $skin_dir . '/config.php';
+		if (is_dir($skin_dir) && file_exists($config_path)) {
+			$config = include($config_path);
+			$saved_config[$style_name] = $config;
+		}
 
-        return $config;
-    }
-
+		return $config;
+	}
 }
 
-class QHM_SkinCustomVariables {
-	private static $saved_config = array();
+class QHM_SkinCustomVariables
+{
+	private static $saved_config = [];
 
 	public static function load($style_name)
 	{
-		$skin_custom_vars = array();
+		$skin_custom_vars = [];
 
 		$style_config = read_skin_config($style_name);
-		foreach ($style_config['custom_options'] as $name => $value)
-		{
-			$skin_custom_vars[$name] = $value['value'];
+		foreach ($style_config['custom_options'] as $name => $value) {
+			if (isset($value['value'])) {
+				$skin_custom_vars[$name] = $value['value'];
+			}
 		}
 
-		$custom_skin_file = CACHE_DIR.'custom_skin.'.$style_name.'.dat';
-		if (file_exists($custom_skin_file))
-		{
+		$custom_skin_file = CACHE_DIR . 'custom_skin.' . $style_name . '.dat';
+		if (file_exists($custom_skin_file)) {
 			$custom_skin_data = file_get_contents($custom_skin_file);
 			$custom_skin_data = unserialize($custom_skin_data);
 
-			if ($custom_skin_data)
-			{
-				foreach($custom_skin_data as $key => $value)
-				{
-					if (isset($skin_custom_vars[$key]))
-					{
+			if ($custom_skin_data) {
+				foreach ($custom_skin_data as $key => $value) {
+					if (isset($skin_custom_vars[$key])) {
 						$skin_custom_vars[$key] = trim($value);
 					}
 				}
@@ -1753,8 +1790,7 @@ class QHM_SkinCustomVariables {
 
 	public static function get($style_name)
 	{
-		if (isset(self::$saved_config[$style_name]))
-		{
+		if (isset(self::$saved_config[$style_name])) {
 			return self::$saved_config[$style_name];
 		}
 
@@ -1768,15 +1804,12 @@ class QHM_SkinCustomVariables {
 	public static function set($style_name, $key, $value = null)
 	{
 		$config = self::get($style_name);
-		if (!empty($config) && isset($config[$key]))
-		{
+		if (!empty($config) && isset($config[$key])) {
 			// reset
-			if ($value !== null)
-			{
+			if ($value !== null) {
 				$config[$key] = $value;
 				self::$saved_config[$style_name] = $config;
-			}
-			else {
+			} else {
 				$default_config = self::load($style_name);
 				self::$saved_config[$style_name][$key] = $default_config[$key];
 			}
@@ -1784,8 +1817,7 @@ class QHM_SkinCustomVariables {
 	}
 }
 
-if ( ! function_exists('get_skin_custom_vars'))
-{
+if (! function_exists('get_skin_custom_vars')) {
 	function get_skin_custom_vars($style_name)
 	{
 		return QHM_SkinCustomVariables::get($style_name);
@@ -1793,219 +1825,183 @@ if ( ! function_exists('get_skin_custom_vars'))
 }
 
 
-if ( ! function_exists('make_custom_css'))
-{
-    function make_custom_css($style_name)
-    {
-        $config = read_skin_config($style_name);
-        $css = '';
-        $skin_dir = SKIN_DIR . $style_name;
-        $custom_file_path = $skin_dir . '/custom.css.php';
-        if (file_exists($custom_file_path))
-        {
-            ob_start();
-            include($custom_file_path);
-            $css = ob_get_clean();
-        }
-        return $css;
-    }
+if (! function_exists('make_custom_css')) {
+	function make_custom_css($style_name)
+	{
+		$config = read_skin_config($style_name);
+		$css = '';
+		$skin_dir = SKIN_DIR . $style_name;
+		$custom_file_path = $skin_dir . '/custom.css.php';
+		if (file_exists($custom_file_path)) {
+			ob_start();
+			include($custom_file_path);
+			$css = ob_get_clean();
+		}
+		return $css;
+	}
 }
 
-if ( ! function_exists('get_file_path'))
-{
-    function get_file_path($filename)
-    {
-        if ($filename === '') return '';
+if (! function_exists('get_file_path')) {
+	function get_file_path($filename)
+	{
+		if ($filename === '') return '';
 
-        if (is_url($filename, FALSE, TRUE)) return $filename;
+		if (is_url($filename, FALSE, TRUE)) return $filename;
 
-        if (file_exists(SWFU_IMAGE_DIR . $filename))
-        {
-            return SWFU_IMAGE_DIR . $filename;
-        }
-        else if (file_exists(IMAGE_DIR . $filename))
-        {
-            return IMAGE_DIR . $filename;
-        }
+		if (file_exists(SWFU_IMAGE_DIR . $filename)) {
+			return SWFU_IMAGE_DIR . $filename;
+		} else if (file_exists(IMAGE_DIR . $filename)) {
+			return IMAGE_DIR . $filename;
+		}
 
-        return $filename;
-    }
+		return $filename;
+	}
 }
 
-if ( ! function_exists('is_bootstrap_skin'))
-{
-    function is_bootstrap_skin($specified_style_name = '')
-    {
-        global $style_name;
-        if ($specified_style_name === '')
-        {
-            $specified_style_name = $style_name;
-        }
-        $style_config = read_skin_config($specified_style_name);
+if (! function_exists('is_bootstrap_skin')) {
+	function is_bootstrap_skin($specified_style_name = '')
+	{
+		global $style_name;
+		if ($specified_style_name === '') {
+			$specified_style_name = $style_name;
+		}
+		$style_config = read_skin_config($specified_style_name);
 
-        return isset($style_config['bootstrap']) ? $style_config['bootstrap'] : false;
-    }
+		return isset($style_config['bootstrap']) ? $style_config['bootstrap'] : false;
+	}
 }
 
 function get_bs_style($color, $type = 'btn')
 {
-    $class = '';
-    $color = strtolower($color);
+	$class = '';
+	$color = strtolower($color);
 
-    $type = strtolower($type);
-    $type = ($type == 'button') ? 'btn' : $type;
+	$type = strtolower($type);
+	$type = ($type == 'button') ? 'btn' : $type;
 
-    switch ($color)
-    {
-    case 'primary':
-    case 'info':
-    case 'success':
-    case 'danger':
-    case 'warning':
-      	$class = $type . '-' .$color;
-      	break;
+	switch ($color) {
+		case 'primary':
+		case 'info':
+		case 'success':
+		case 'danger':
+		case 'warning':
+			$class = $type . '-' . $color;
+			break;
 
-    case 'blue':
-    case 'skyblue':
-        $class = $type . (($type == 'btn' && $color == 'blue') ? '-primary' : '-info');
-        break;
+		case 'blue':
+		case 'skyblue':
+			$class = $type . (($type == 'btn' && $color == 'blue') ? '-primary' : '-info');
+			break;
 
-    case 'green':
-        $class = $type . '-success';
-        break;
+		case 'green':
+			$class = $type . '-success';
+			break;
 
-    case 'red':
-    case 'error':
-        if ($type == 'btn' OR $type == 'progress' OR $type == 'alert')
-        {
-            $class = $type . '-danger';
-        }
-        else if ($type == 'label' OR $type == 'badge')
-        {
-            $class = $type . '-important';
-        }
-        break;
+		case 'red':
+		case 'error':
+			if ($type == 'btn' or $type == 'progress' or $type == 'alert') {
+				$class = $type . '-danger';
+			} else if ($type == 'label' or $type == 'badge') {
+				$class = $type . '-important';
+			}
+			break;
 
-    case 'orange':
-    case 'yellow':
-        if ($type != 'alert')
-        {
-            $class = $type . '-warning';
-        }
-        break;
+		case 'orange':
+		case 'yellow':
+			if ($type != 'alert') {
+				$class = $type . '-warning';
+			}
+			break;
 
-    case 'link':
-        if ($type == 'btn')
-        {
-            $class = $type . '-link';
-        }
-        break;
+		case 'link':
+			if ($type == 'btn') {
+				$class = $type . '-link';
+			}
+			break;
 
-    case 'theme':
-        $class = $type . '-theme';
-        break;
+		case 'theme':
+			$class = $type . '-theme';
+			break;
 
-    case 'default':
-    case 'normal':
-        $class = $type . '-default';
-        break;
-    }
+		case 'default':
+		case 'normal':
+			$class = $type . '-default';
+			break;
+	}
 
-    $class = ($class != '') ? ($type . ' ' . $class) : $type;
+	$class = ($class != '') ? ($type . ' ' . $class) : $type;
 
-    return $class;
+	return $class;
 }
 
-if (!function_exists('str_getcsv'))
-{
-    function str_getcsv($input, $delimiter = ',', $enclosure = '"', $escape = '\\', $eol = '\n')
-    {
-        if (is_string($input) && !empty($input))
-        {
-            $output = array();
-            $tmp    = preg_split("/".$eol."/",$input);
-            if (is_array($tmp) && !empty($tmp))
-            {
-                while (list($line_num, $line) = each($tmp))
-                {
-                    if (preg_match("/".$escape.$enclosure."/",$line))
-                    {
-                        while ($strlen = strlen($line))
-                        {
-                            $pos_delimiter       = strpos($line,$delimiter);
-                            $pos_enclosure_start = strpos($line,$enclosure);
-                            if (
-                                is_int($pos_delimiter) && is_int($pos_enclosure_start)
-                                && ($pos_enclosure_start < $pos_delimiter)
-                                )
-                                {
-                                $enclosed_str = substr($line,1);
-                                $pos_enclosure_end = strpos($enclosed_str,$enclosure);
-                                $enclosed_str = substr($enclosed_str,0,$pos_enclosure_end);
-                                $output[$line_num][] = $enclosed_str;
-                                $offset = $pos_enclosure_end+3;
-                            }
-                            else
-                            {
-                                if (empty($pos_delimiter) && empty($pos_enclosure_start))
-                                {
-                                    $output[$line_num][] = substr($line,0);
-                                    $offset = strlen($line);
-                                }
-                                else
-                                {
-                                    $output[$line_num][] = substr($line,0,$pos_delimiter);
-                                    $offset = (
-                                                !empty($pos_enclosure_start)
-                                                && ($pos_enclosure_start < $pos_delimiter)
-                                                )
-                                                ?$pos_enclosure_start
-                                                :$pos_delimiter+1;
-                                }
-                            }
-                            $line = substr($line,$offset);
-                        }
-                    }
-                    else
-                    {
-                        $line = preg_split("/".$delimiter."/",$line);
-                        /*
+if (!function_exists('str_getcsv')) {
+	function str_getcsv($input, $delimiter = ',', $enclosure = '"', $escape = '\\', $eol = '\n')
+	{
+		if (is_string($input) && !empty($input)) {
+			$output = [];
+			$tmp    = preg_split("/" . $eol . "/", $input);
+			if (is_array($tmp) && !empty($tmp)) {
+				foreach ($tmp as $line_num => $line) {
+					if (preg_match("/" . $escape . $enclosure . "/", $line)) {
+						while ($strlen = strlen($line)) {
+							$pos_delimiter       = strpos($line, $delimiter);
+							$pos_enclosure_start = strpos($line, $enclosure);
+							if (
+								is_int($pos_delimiter) && is_int($pos_enclosure_start)
+								&& ($pos_enclosure_start < $pos_delimiter)
+							) {
+								$enclosed_str = substr($line, 1);
+								$pos_enclosure_end = strpos($enclosed_str, $enclosure);
+								$enclosed_str = substr($enclosed_str, 0, $pos_enclosure_end);
+								$output[$line_num][] = $enclosed_str;
+								$offset = $pos_enclosure_end + 3;
+							} else {
+								if (empty($pos_delimiter) && empty($pos_enclosure_start)) {
+									$output[$line_num][] = substr($line, 0);
+									$offset = strlen($line);
+								} else {
+									$output[$line_num][] = substr($line, 0, $pos_delimiter);
+									$offset = (
+										!empty($pos_enclosure_start)
+										&& ($pos_enclosure_start < $pos_delimiter)
+									)
+										? $pos_enclosure_start
+										: $pos_delimiter + 1;
+								}
+							}
+							$line = substr($line, $offset);
+						}
+					} else {
+						$line = preg_split("/" . $delimiter . "/", $line);
+						/*
                          * Validating against pesky extra line breaks creating false rows.
                          */
-                        if (is_array($line) && !empty($line[0]))
-                        {
-                            $output[$line_num] = $line;
-                        }
-                    }
-                }
+						if (is_array($line) && !empty($line[0])) {
+							$output[$line_num] = $line;
+						}
+					}
+				}
 
-                if (count($output) === 1)
-                {
-                    return $output[0];
-                }
+				if (count($output) === 1) {
+					return $output[0];
+				}
 
-                return $output;
-            }
-            else
-            {
-                return false;
-            }
-        }
-        else
-        {
-            return false;
-        }
-    }
+				return $output;
+			} else {
+				return false;
+			}
+		} else {
+			return false;
+		}
+	}
 }
 
 function get_qhm_option($key = NULL)
 {
-	static $options = array();
-	if (empty($options))
-	{
+	static $options = [];
+	if (empty($options)) {
 		$option_statements = explode(';', QHM_OPTIONS);
-		foreach ($option_statements as $statement)
-		{
+		foreach ($option_statements as $statement) {
 			list($_key, $_value) = explode('=', $statement, 2);
 			$_key = trim($_key);
 			$_value = trim($_value);
@@ -2017,12 +2013,9 @@ function get_qhm_option($key = NULL)
 			$options[$_key] = $_value;
 		}
 	}
-	if ($key === NULL)
-	{
+	if ($key === NULL) {
 		return $options;
-	}
-	else if (array_key_exists($key, $options))
-	{
+	} else if (array_key_exists($key, $options)) {
 		return $options[$key];
 	}
 	return NULL;
@@ -2031,8 +2024,9 @@ function get_qhm_option($key = NULL)
 /**
  * XSS プロテクションを無効化するレスポンスヘッダーを出力する。
  */
-function cancel_xss_protection() {
-    header('X-XSS-Protection: 0');
+function cancel_xss_protection()
+{
+	header('X-XSS-Protection: 0');
 }
 
 /**
@@ -2041,10 +2035,22 @@ function cancel_xss_protection() {
  * @param [String] $js JavaScript
  * @param [String] $delimiter タグの前後に入れる区切り文字。デフォルトで改行
  */
-function wrap_script_tag($js, $delimiter = "\n") {
-	$lines = array();
+function wrap_script_tag($js, $delimiter = "\n")
+{
+	$lines = [];
 	$lines[] = '<script>';
 	$lines[] = $js;
 	$lines[] = '</script>';
 	return join($delimiter, $lines) . $delimiter;
+}
+
+function str_replace_deep($search, $replace, $subject)
+{
+	if (is_array($subject)) {
+		foreach ($subject as $key => $value) {
+			$subject[$key] = str_replace_deep($search, $replace, $value);
+		}
+		return $subject;
+	}
+	return str_replace($search, $replace, $subject);
 }

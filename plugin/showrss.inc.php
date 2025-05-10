@@ -50,12 +50,12 @@
 function plugin_showrss_action()
 {
 	$qm = get_qm();
-	
+
 	$xml_extension = extension_loaded('xml');
 	$mbstring_extension = extension_loaded('mbstring');
 
-	$xml_msg      = $xml_extension      ? $qm->m['plg_showrss']['ex_xml_loaded'] : 'COLOR(RED){'. $qm->m['plg_showrss']['err_ex_xml_load']. '}';
-	$mbstring_msg = $mbstring_extension ? $qm->m['plg_showrss']['ex_mbs_loaded'] : 'COLOR(RED){'. $qm->m['plg_showrss']['err_ex_mbs_load']. '}';
+	$xml_msg      = $xml_extension      ? $qm->m['plg_showrss']['ex_xml_loaded'] : 'COLOR(RED){' . $qm->m['plg_showrss']['err_ex_xml_load'] . '}';
+	$mbstring_msg = $mbstring_extension ? $qm->m['plg_showrss']['ex_mbs_loaded'] : 'COLOR(RED){' . $qm->m['plg_showrss']['err_ex_mbs_load'] . '}';
 
 	$showrss_info = '';
 	$showrss_info .= "| xml parser | $xml_msg |\n";
@@ -69,30 +69,27 @@ function plugin_showrss_convert()
 	global $script;
 	$qm = get_qm();
 	$qt = get_qt();
-	
-	if (func_num_args() == 0)
-	{
+
+	if (func_num_args() == 0) {
 		// 引数がない場合はエラー
 		return $qm->replace('fmt_err_cvt', 'showrss', $qm->m['plg_showrss']['err_noparams']);
 	}
-	if (!extension_loaded('xml'))
-	{
+	if (!extension_loaded('xml')) {
 		// xml 拡張機能が有効でない場合。
 		return $qm->replace('fmt_err_cvt', 'showrss', $qm->m['plg_showrss']['err_ex_xml_load']);
 	}
 
-    //---- キャッシュのための処理を登録 -----
-    if($qt->create_cache) {
-    	$args = func_get_args();
-    	return $qt->get_dynamic_plugin_mark(__FUNCTION__, $args);
-    }
-    //------------------------------------
+	//---- キャッシュのための処理を登録 -----
+	if ($qt->create_cache) {
+		$args = func_get_args();
+		return $qt->get_dynamic_plugin_mark(__FUNCTION__, $args);
+	}
+	//------------------------------------
 
 	$array = func_get_args();
 	$rssurl = $tmplname = $showline = $usecache = $usetimestamp = '';
 
-	switch (func_num_args())
-	{
+	switch (func_num_args()) {
 		case 5:
 			$usetimestamp = trim($array[4]);
 		case 4:
@@ -107,35 +104,30 @@ function plugin_showrss_convert()
 
 	//自己参照を防止する
 	$p = parse_url($rssurl);
-	if (strpos($p['query'], 'cmd=blog_rss') === FALSE && strpos(dirname($rssurl).'/index.php', $script) === 0)
-	{
+	if (strpos($p['query'], 'cmd=blog_rss') === FALSE && strpos(dirname($rssurl) . '/index.php', $script) === 0) {
 		return '<strong style="color:red">Error</strong><br />#showrss: 自分自身のRSSは読み込めません。#recent をお使いください。';
 	}
 
 	// RSS パスの値チェック
-	if (!is_url($rssurl))
-	{
+	if (!is_url($rssurl)) {
 		return $qm->replace('fmt_err_cvt', 'showrss', $qm->replace('plg_showrss.err_syntax', h($rssurl)));
 	}
 
 	$class = "ShowRSS_html_$tmplname";
-	if (!class_exists($class))
-	{
+	if (!class_exists($class)) {
 		$class = 'ShowRSS_html';
 	}
 
-	list($rss,$time) = plugin_showrss_get_rss($rssurl,$usecache);
-	if ($rss === FALSE)
-	{
+	list($rss, $time) = plugin_showrss_get_rss($rssurl, $usecache);
+	if ($rss === FALSE) {
 		return $qm->replace('fmt_err_cvt', 'showrss', $qm->m['plg_showrss.err_cannot_get']);
 	}
 
-	$obj = new $class($rss,$showline);
+	$obj = new $class($rss, $showline);
 
 	$timestamp = '';
-	if ($usetimestamp > 0)
-	{
-		$time = get_date('Y/m/d H:i:s',$time);
+	if ($usetimestamp > 0) {
+		$time = get_date('Y/m/d H:i:s', $time);
 		$timestamp = "<p style=\"font-size:10px; font-weight:bold\">Last-Modified:$time</p>";
 	}
 	return $obj->toString($timestamp);
@@ -143,17 +135,17 @@ function plugin_showrss_convert()
 // rss配列からhtmlを作る
 class ShowRSS_html
 {
-	var $items = array();
+	var $items = [];
 	var $class = '';
 	var $i = 0;
 
-	function ShowRSS_html($rss,$showlines)
+	function ShowRSS_html($rss, $showlines)
 	{
-		foreach ($rss as $date=>$items)
-		{
-			foreach ($items as $item)
-			{
-				if($showlines and $showlines <= $this->i){ break; }
+		foreach ($rss as $date => $items) {
+			foreach ($items as $item) {
+				if ($showlines and $showlines <= $this->i) {
+					break;
+				}
 				$link = $item['LINK'];
 				$title = $item['TITLE'];
 				$passage = get_passage($item['_TIMESTAMP']);
@@ -167,7 +159,7 @@ class ShowRSS_html
 	{
 		return "$link<br />\n";
 	}
-	function format_list($date,$str)
+	function format_list($date, $str)
 	{
 		return $str;
 	}
@@ -178,9 +170,8 @@ class ShowRSS_html
 	function toString($timestamp)
 	{
 		$retval = '';
-		foreach ($this->items as $date=>$items)
-		{
-			$retval .= $this->format_list($date,join('',$items));
+		foreach ($this->items as $date => $items) {
+			$retval .= $this->format_list($date, join('', $items));
 		}
 		$retval = $this->format_body($retval);
 		return <<<EOD
@@ -211,51 +202,46 @@ class ShowRSS_html_recent extends ShowRSS_html
 	{
 		return "<li>$link</li>\n";
 	}
-	function format_list($date,$str)
+	function format_list($date, $str)
 	{
 		return "<strong>$date</strong>\n<ul class=\"recent_list\">\n$str</ul>\n";
 	}
 }
 // rssを取得する
-function plugin_showrss_get_rss($target,$usecache)
+function plugin_showrss_get_rss($target, $usecache)
 {
 	$buf = '';
 	$time = NULL;
-	if ($usecache)
-	{
+	if ($usecache) {
 		// 期限切れのキャッシュをクリア
 		plugin_showrss_cache_expire($usecache);
 
 		// キャッシュがあれば取得する
 		$filename = CACHE_DIR . encode($target) . '.tmp';
-		if (is_readable($filename))
-		{
-			$buf = join('',file($filename));
+		if (is_readable($filename)) {
+			$buf = join('', file($filename));
 			$time = filemtime($filename) - LOCALZONE;
 		}
 	}
-	if ($time === NULL)
-	{
+	if ($time === NULL) {
 		// rss本体を取得
 		$data = http_request($target);
-		if ($data['rc'] !== 200)
-		{
-			return array(FALSE,0);
+		if ($data['rc'] !== 200) {
+			return array(FALSE, 0);
 		}
 		$buf = $data['data'];
 		$time = UTIME;
 		// キャッシュを保存
-		if ($usecache)
-		{
+		if ($usecache) {
 			$fp = fopen($filename, 'w');
-			fwrite($fp,$buf);
+			fwrite($fp, $buf);
 			fclose($fp);
 		}
 	}
 
 	// parse
 	$obj = new ShowRSS_XML();
-	return array($obj->parse($buf),$time);
+	return array($obj->parse($buf), $time);
 }
 // 期限切れのキャッシュをクリア
 function plugin_showrss_cache_expire($usecache)
@@ -263,17 +249,14 @@ function plugin_showrss_cache_expire($usecache)
 	$expire = $usecache * 60 * 60; // Hour
 
 	$dh = dir(CACHE_DIR);
-	while (($file = $dh->read()) !== FALSE)
-	{
-		if (substr($file,-4) != '.tmp')
-		{
+	while (($file = $dh->read()) !== FALSE) {
+		if (substr($file, -4) != '.tmp') {
 			continue;
 		}
-		$file = CACHE_DIR.$file;
+		$file = CACHE_DIR . $file;
 		$last = time() - filemtime($file);
 
-		if ($last > $expire)
-		{
+		if ($last > $expire) {
 			unlink($file);
 		}
 	}
@@ -290,22 +273,24 @@ class ShowRSS_XML
 	function parse($buf)
 	{
 		$qm = get_qm();
-		
+
 		// 初期化
-		$this->items = array();
-		$this->item = array();
+		$this->items = [];
+		$this->item = [];
 		$this->is_item = FALSE;
 		$this->tag = '';
 
 		$xml_parser = xml_parser_create();
-		xml_set_element_handler($xml_parser,array(&$this,'start_element'),array(&$this,'end_element'));
-		xml_set_character_data_handler($xml_parser,array(&$this,'character_data'));
+		xml_set_element_handler($xml_parser, array(&$this, 'start_element'), array(&$this, 'end_element'));
+		xml_set_character_data_handler($xml_parser, array(&$this, 'character_data'));
 
-		if (!xml_parse($xml_parser,$buf,1))
-		{
-			return $qm->replace('plg_showrss.err_xml',
+		if (!xml_parse($xml_parser, $buf, 1)) {
+			return $qm->replace(
+				'plg_showrss.err_xml',
 				xml_error_string(xml_get_error_code($xml_parser)),
-				xml_get_current_line_number($xml_parser), $buf);
+				xml_get_current_line_number($xml_parser),
+				$buf
+			);
 		}
 		xml_parser_free($xml_parser);
 
@@ -325,61 +310,50 @@ class ShowRSS_XML
 	}
 
 	// タグ開始
-	function start_element($parser,$name,$attrs)
+	function start_element($parser, $name, $attrs)
 	{
-		if ($this->is_item)
-		{
+		if ($this->is_item) {
 			$this->tag = $name;
-		}
-		else if ($name == 'ITEM')
-		{
+		} else if ($name == 'ITEM') {
 			$this->is_item = TRUE;
 		}
 	}
 	// タグ終了
-	function end_element($parser,$name)
+	function end_element($parser, $name)
 	{
-		if (!$this->is_item or $name != 'ITEM')
-		{
+		if (!$this->is_item or $name != 'ITEM') {
 			return;
 		}
-		$item = array_map(array(&$this,'escape'),$this->item);
+		$item = array_map(array(&$this, 'escape'), $this->item);
 
-		$this->item = array();
+		$this->item = [];
 
-		if (array_key_exists('DC:DATE',$item))
-		{
+		if (array_key_exists('DC:DATE', $item)) {
 			$time = plugin_showrss_get_timestamp($item['DC:DATE']);
-		}
-		else if (array_key_exists('PUBDATE',$item))
-		{
+		} else if (array_key_exists('PUBDATE', $item)) {
 			$time = plugin_showrss_get_timestamp($item['PUBDATE']);
-		}
-		else if (array_key_exists('DESCRIPTION',$item)
+		} else if (
+			array_key_exists('DESCRIPTION', $item)
 			and ($description = trim($item['DESCRIPTION'])) != ''
-			and ($time = strtotime($description)) != -1)
-		{
+			and ($time = strtotime($description)) != -1
+		) {
 			$time -= LOCALZONE;
-		}
-		else
-		{
+		} else {
 			$time = time() - LOCALZONE;
 		}
 		$item['_TIMESTAMP'] = $time;
-		$date = get_date('Y-m-d',$item['_TIMESTAMP']);
+		$date = get_date('Y-m-d', $item['_TIMESTAMP']);
 
 		$this->items[$date][] = $item;
 		$this->is_item = FALSE;
 	}
 	// キャラクタ
-	function character_data($parser,$data)
+	function character_data($parser, $data)
 	{
-		if (!$this->is_item)
-		{
+		if (!$this->is_item) {
 			return;
 		}
-		if (!array_key_exists($this->tag,$this->item))
-		{
+		if (!array_key_exists($this->tag, $this->item)) {
 			$this->item[$this->tag] = '';
 		}
 		$this->item[$this->tag] .= $data;
@@ -387,22 +361,18 @@ class ShowRSS_XML
 }
 function plugin_showrss_get_timestamp($str)
 {
-	if (($str = trim($str)) == '')
-	{
+	if (($str = trim($str)) == '') {
 		return UTIME;
 	}
-	if (!preg_match('/(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2}:\d{2})(([+-])(\d{2}):(\d{2}))?/',$str,$matches))
-	{
+	if (!preg_match('/(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2}:\d{2})(([+-])(\d{2}):(\d{2}))?/', $str, $matches)) {
 		$time = strtotime($str);
 		return ($time == -1) ? UTIME : $time - LOCALZONE;
 	}
 	$str = $matches[1];
-	$time = strtotime($matches[1].' '.$matches[2]);
-	if (!empty($matches[3]))
-	{
-		$diff = ($matches[5]*60+$matches[6])*60;
+	$time = strtotime($matches[1] . ' ' . $matches[2]);
+	if (!empty($matches[3])) {
+		$diff = ($matches[5] * 60 + $matches[6]) * 60;
 		$time += ($matches[4] == '-' ? $diff : -$diff);
 	}
 	return $time;
 }
-?>

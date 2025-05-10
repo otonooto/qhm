@@ -1,4 +1,5 @@
 <?php
+
 /**
  *   cols
  *   -------------------------------------------
@@ -28,7 +29,7 @@ function plugin_cols_convert()
 	$type = plugin_cols_type('get');
 
 	$msg = '';
-	$cols = array();
+	$cols = [];
 
 	$delim = "\r====\r";
 
@@ -62,28 +63,20 @@ function plugin_cols_convert()
 		/x
 EOR;
 
-	if (count($args) > 0)
-	{
+	if (count($args) > 0) {
 		$max = 12;
 		$total = 0;
 
-		for ($i = 0; $i < count($args); $i++)
-		{
-		  $args[$i] = trim($args[$i]);
+		for ($i = 0; $i < count($args); $i++) {
+			$args[$i] = trim($args[$i]);
 			if ($args[$i] === '') continue;
 
-			if ( ! preg_match($regex, $args[$i], $mts))
-			{
-				if (preg_match('/^class=(.+)$/', $args[$i], $mts))
-				{
+			if (! preg_match($regex, $args[$i], $mts)) {
+				if (preg_match('/^class=(.+)$/', $args[$i], $mts)) {
 					$row_class = " " . trim($mts[1]);
-				}
-				else if (preg_match('/^(left|center|right)$/i', $args[$i], $mts))
-				{
+				} else if (preg_match('/^(left|center|right)$/i', $args[$i], $mts)) {
 					$row_class = " text-" . trim($mts[1]);
-				}
-				else
-				{
+				} else {
 					$delim = "\r" . trim($args[$i]) . "\r";
 				}
 				continue;
@@ -93,25 +86,22 @@ EOR;
 			$col_offset = isset($mts[2]) ? (int)$mts[2] : 0;
 
 			$col_push = false;
-			if ($col_push_index === false && $col_pull_index === false && isset($mts[3]) && $mts[3] == 'r')
-			{
+			if ($col_push_index === false && $col_pull_index === false && isset($mts[3]) && $mts[3] == 'r') {
 				$col_push_index = count($cols);
 				$col_push = $col_push_num = $col_num;
 			}
 
 			$col_pull = false;
-			if ($col_push_index === false && $col_pull_index === false && isset($mts[3]) && $mts[3] == 'l')
-			{
+			if ($col_push_index === false && $col_pull_index === false && isset($mts[3]) && $mts[3] == 'l') {
 				$col_pull_index = count($cols);
 				$col_pull = $col_pull_num = $col_num;
 			}
 
 			# スクリーンサイズによる段組幅の切り替え設定
 			# e.g. @xs6@md6+3@lg10
-			$custom_cols = array();
+			$custom_cols = [];
 			if (isset($mts[4]) && strlen($mts[4]) > 0) {
-				foreach (explode('@', trim($mts[4], '@')) as $custom_col)
-				{
+				foreach (explode('@', trim($mts[4], '@')) as $custom_col) {
 					$key = substr($custom_col, 0, 2);
 					list($span, $offset) = explode('+', substr($custom_col, 2));
 					$custom_cols[$key] = array(
@@ -124,16 +114,17 @@ EOR;
 			$col_class = isset($mts[5]) ? $mts[5] : '';
 			$total += $col_num + $col_offset;
 			$cols[] = array(
-				'span'=>$col_num, 'offset' => $col_offset,
-				'push'=>$col_push, 'pull'=>$col_pull,
-				'custom' => $custom_cols, 'class'=>$col_class,
+				'span' => $col_num,
+				'offset' => $col_offset,
+				'push' => $col_push,
+				'pull' => $col_pull,
+				'custom' => $custom_cols,
+				'class' => $col_class,
 			);
 		}
 
-		if (ss_admin_check())
-		{
-			if ($max < $total)
-			{
+		if (ss_admin_check()) {
+			if ($max < $total) {
 				$msg = <<<EOD
 <div class="alert alert-danger">
 	<button type="button" class="close" data-dismiss="alert">&times;</button>
@@ -145,20 +136,18 @@ EOD;
 		}
 	}
 
-	if (count($cols) === 0)
-	{
+	if (count($cols) === 0) {
 		$data = explode($delim, $body);
 
 		$col_num = (int)(12 / count($data));
-		for ($i = 0; $i < count($data); $i++)
-		{
-			$cols[] = array('span'=>$col_num, 'offset'=>0, 'class'=>NULL, 'push'=>false, 'pull'=>false);
+		for ($i = 0; $i < count($data); $i++) {
+			$cols[] = array('span' => $col_num, 'offset' => 0, 'class' => NULL, 'push' => false, 'pull' => false);
 		}
 	}
 
 	if ($col_push_index !== false) {
 		$push_sum = 0;
-		for($i = count($cols)-1; $i > $col_push_index; $i--) {
+		for ($i = count($cols) - 1; $i > $col_push_index; $i--) {
 			$cols[$i]['pull'] = $col_push_num;
 			$push_sum += $cols[$i]['span'];
 		}
@@ -168,7 +157,7 @@ EOD;
 
 	if ($col_pull_index !== false) {
 		$pull_sum = 0;
-		for($i = 0; $i < $col_pull_index; $i++) {
+		for ($i = 0; $i < $col_pull_index; $i++) {
 			$cols[$i]['push'] = $col_pull_num;
 			$pull_sum += $cols[$i]['span'];
 		}
@@ -177,8 +166,7 @@ EOD;
 
 	$html = '<div class="row%s">';
 
-	if ($type === 'thumbnails')
-	{
+	if ($type === 'thumbnails') {
 		$html = '<div class="row">';
 	}
 
@@ -187,37 +175,33 @@ EOD;
 	$data = array_pad(explode($delim, $body, count($cols)), count($cols), '');
 
 	global $block_style, $block_class, $block_image;
-	if ( ! isset($block_style)) $block_style = '';
-	if ( ! isset($block_class)) $block_class = '';
-	if ( ! isset($block_image)) $block_image = '';
+	if (! isset($block_style)) $block_style = '';
+	if (! isset($block_class)) $block_class = '';
+	if (! isset($block_image)) $block_image = '';
 
-	for($i = 0; $i < count($cols); $i++)
-	{
+	for ($i = 0; $i < count($cols); $i++) {
 		$option = $cols[$i];
 		$offset = $option['offset'] ? (' col-sm-offset-' . $option['offset']) : '';
 		$col_class = $option['class'] ? str_replace('.', ' ', $option['class']) : '';
-		$col_push = $option['push'] ? (' col-sm-push-'.$option['push']) : '';
-		$col_pull = $option['pull'] ? (' col-sm-pull-'.$option['pull']) : '';
+		$col_push = $option['push'] ? (' col-sm-push-' . $option['push']) : '';
+		$col_pull = $option['pull'] ? (' col-sm-pull-' . $option['pull']) : '';
 
 		$screen_class = '';
-		foreach ($option['custom'] as $screen_size => $config)
-		{
+		foreach ($option['custom'] as $screen_size => $config) {
 			$screen_class .= " col-{$screen_size}-{$config['span']}";
 			if ($config['offset'])
 				$screen_class .= " col-{$screen_size}-offset-{$config['offset']}";
 		}
 
-		$open_tag = '<div class="col-sm-'.$option['span']. $offset . $col_push . $col_pull . $screen_class . $col_class . '%s" style="%s">';
+		$open_tag = '<div class="col-sm-' . $option['span'] . $offset . $col_push . $col_pull . $screen_class . $col_class . '%s" style="%s">';
 		$close_tag = '</div>';
-		if ($type === 'thumbnails')
-		{
-			$open_tag = '<div class="col-sm-'.$option['span']. $offset . ' %s" style="%s"><div class="thumbnail">%s<div class="caption">';
+		if ($type === 'thumbnails') {
+			$open_tag = '<div class="col-sm-' . $option['span'] . $offset . ' %s" style="%s"><div class="thumbnail">%s<div class="caption">';
 			$close_tag = '</div></div></div>';
 		}
 
 		$str = '';
-		if (isset($data[$i]))
-		{
+		if (isset($data[$i])) {
 			$str = str_replace("\r", "\n", str_replace("\r\n", "\n", $data[$i]));
 			$lines = explode("\n", $str);
 			$str = convert_html($lines);
@@ -227,28 +211,22 @@ EOD;
 		$block_class = $block_style = $block_image = '';
 	}
 
-	if ($type === 'thumbnails')
-	{
+	if ($type === 'thumbnails') {
 		$html .= '</div>';
-	}
-	else
-	{
+	} else {
 		$html .= '</div>';
 	}
 
-	return $msg.$html;
+	return $msg . $html;
 }
 
 function plugin_cols_type($action = 'get', $value = NULL)
 {
 	static $type = 'normal';
 
-	if ($action === 'get')
-	{
+	if ($action === 'get') {
 		return $type;
-	}
-	else
-	{
+	} else {
 		$type = $value;
 		return TRUE;
 	}

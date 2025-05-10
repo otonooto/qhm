@@ -51,7 +51,7 @@
 
 // Amazon associate ID
 //define('PLUGIN_AMAZON_AID',''); // None
-define('PLUGIN_AMAZON_AID','');
+define('PLUGIN_AMAZON_AID', '');
 
 // Expire caches per ? days
 define('PLUGIN_AMAZON_EXPIRE_IMAGECACHE',   1);
@@ -61,23 +61,23 @@ define('PLUGIN_AMAZON_EXPIRE_TITLECACHE', 356);
 define('PLUGIN_AMAZON_NO_IMAGE', IMAGE_DIR . 'noimage.png');
 
 // URI prefixes
-switch(LANG){
-case 'ja':
-	// Amazon shop
-	define('PLUGIN_AMAZON_SHOP_URI', 'http://www.amazon.co.jp/exec/obidos/ASIN/');
+switch (LANG) {
+	case 'ja':
+		// Amazon shop
+		define('PLUGIN_AMAZON_SHOP_URI', 'http://www.amazon.co.jp/exec/obidos/ASIN/');
 
-	// Amazon information inquiry (dev-t = default value in the manual)
-	define('PLUGIN_AMAZON_XML', 'http://xml.amazon.co.jp/onca/xml3?t=webservices-20&' .
-		'dev-t=GTYDRES564THU&type=lite&page=1&f=xml&locale=jp&AsinSearch=');
-	break;
-default:
-	// Amazon shop
-	define('PLUGIN_AMAZON_SHOP_URI', 'http://www.amazon.com/exec/obidos/ASIN/');
+		// Amazon information inquiry (dev-t = default value in the manual)
+		define('PLUGIN_AMAZON_XML', 'http://xml.amazon.co.jp/onca/xml3?t=webservices-20&' .
+			'dev-t=GTYDRES564THU&type=lite&page=1&f=xml&locale=jp&AsinSearch=');
+		break;
+	default:
+		// Amazon shop
+		define('PLUGIN_AMAZON_SHOP_URI', 'http://www.amazon.com/exec/obidos/ASIN/');
 
-	// Amazon information inquiry (dev-t = default value in the manual)
-	define('PLUGIN_AMAZON_XML', 'http://xml.amazon.com/onca/xml3?t=webservices-20&' .
-		'dev-t=GTYDRES564THU&type=lite&page=1&f=xml&locale=us&AsinSearch=');
-	break;
+		// Amazon information inquiry (dev-t = default value in the manual)
+		define('PLUGIN_AMAZON_XML', 'http://xml.amazon.com/onca/xml3?t=webservices-20&' .
+			'dev-t=GTYDRES564THU&type=lite&page=1&f=xml&locale=us&AsinSearch=');
+		break;
 }
 
 /////////////////////////////////////////////////
@@ -93,8 +93,8 @@ function plugin_amazon_init()
 	} else {
 		$amazon_aid = PLUGIN_AMAZON_AID . '/';
 	}
-	
-	
+
+
 	$amazon_body = <<<EOD
 -{$ms['review_author']}
 -{$ms['review_reviewer']}
@@ -120,7 +120,6 @@ function plugin_amazon_convert()
 
 		return '#amazon([ASIN-number][,left|,right]' .
 			'[,book-title|,image|,delimage|,deltitle|,delete])';
-
 	} else if (func_num_args() == 0) {
 		// レビュー作成
 		if (PKWK_READONLY) return ''; // Show nothing
@@ -171,8 +170,8 @@ EOD;
 			}
 		} elseif ($alt == 'delete') {
 			if ((unlink(CACHE_DIR . 'ASIN' . $asin . '.jpg') &&
-			     unlink(CACHE_DIR . 'ASIN' . $asin . '.tit'))) {
-			    return $qm->replace('plg_amazon.both_deleted', $asin);
+				unlink(CACHE_DIR . 'ASIN' . $asin . '.tit'))) {
+				return $qm->replace('plg_amazon.both_deleted', $asin);
 			} else {
 				return $qm->replace('plg_amazon.err_cannot_delete', $asin);
 			}
@@ -200,10 +199,9 @@ function plugin_amazon_action()
 
 	if (! is_asin()) {
 		$retvars['msg']   = $qm->m['plg_amazon']['review_title'];
-		$retvars['refer'] = & $s_page;
+		$retvars['refer'] = &$s_page;
 		$retvars['body']  = plugin_amazon_convert();
 		return $retvars;
-
 	} else {
 		$r_page     = $s_page . '/' . $asin;
 		$r_page_url = rawurlencode($r_page);
@@ -211,8 +209,8 @@ function plugin_amazon_action()
 
 		pkwk_headers_sent();
 		if ($edit_auth && ($auth_user == '' || ! isset($edit_auth_users[$auth_user]) ||
-		    $edit_auth_users[$auth_user] != $_SERVER['PHP_AUTH_PW'])) {
-		    	// Edit-auth failed. Just look the page
+			$edit_auth_users[$auth_user] != $_SERVER['PHP_AUTH_PW'])) {
+			// Edit-auth failed. Just look the page
 			header('Location: ' . get_script_uri() . '?' . $r_page_url);
 		} else {
 			$title = plugin_amazon_get_asin_title();
@@ -263,13 +261,12 @@ function plugin_amazon_print_object($align, $alt, $title)
 		$div  = '<div style="float:' . $align . ';margin:16px 16px 16px 16px;' . $center . '">' . "\n";
 		$div .= ' <a href="' . $url_shop . '"><img src="' . $url . '" alt="' . $alt . '" /></a>' . "\n";
 		$div .= '</div>' . "\n";
-
 	} else {
 		// Show image and title
 		$div  = '<div style="float:' . $align . ';padding:.5em 1.5em .5em 1.5em;' . $center . '">' . "\n";
 		$div .= ' <table style="width:110px;border:0;' . $center . '">' . "\n";
 		$div .= '  <tr><td style="' . $center . '">' . "\n";
-		$div .= '   <a href="' . $url_shop . '"><img src="' . $url . '" alt="' . $alt  .'" /></a></td></tr>' . "\n";
+		$div .= '   <a href="' . $url_shop . '"><img src="' . $url . '" alt="' . $alt  . '" /></a></td></tr>' . "\n";
 		$div .= '  <tr><td style="' . $center . '"><a href="' . $url_shop . '">' . $title . '</a></td></tr>' . "\n";
 		$div .= ' </table>' . "\n";
 		$div .= '</div>' . "\n";
@@ -292,17 +289,17 @@ function plugin_amazon_get_asin_title()
 	if (($title = plugin_amazon_cache_title_fetch(CACHE_DIR)) == FALSE) {
 		$nocache = 1; // キャッシュ見つからず
 		$body    = plugin_amazon_get_page($url); // しかたないので取りにいく
-		$tmpary  = array();
+		$tmpary  = [];
 		$body    = mb_convert_encoding($body, SOURCE_ENCODING, 'UTF-8');
 		preg_match('/<ProductName>([^<]*)</', $body, $tmpary);
 		$title     = trim($tmpary[1]);
-//		$tmpary[1] = '';
-//		preg_match('#<ImageUrlMedium>http://images-jp.amazon.com/images/P/[^.]+\.(..)\.#',
-//			$body, $tmpary);
-//		if ($tmpary[1] != '') {
-//			$asin_ext = $tmpary[1];
-//			$asin_all = $asin . $asin_ext;
-//		}
+		//		$tmpary[1] = '';
+		//		preg_match('#<ImageUrlMedium>http://images-jp.amazon.com/images/P/[^.]+\.(..)\.#',
+		//			$body, $tmpary);
+		//		if ($tmpary[1] != '') {
+		//			$asin_ext = $tmpary[1];
+		//			$asin_all = $asin . $asin_ext;
+		//		}
 	}
 
 	if ($title == '') {
@@ -332,8 +329,8 @@ function plugin_amazon_cache_title_fetch($dir)
 
 	if (($fp = @fopen($filename, 'r')) === FALSE) return FALSE;
 	$title = fgets($fp, 4096);
-//	$tmp_ext = fgets($fp, 4096);
-//	if ($tmp_ext != '') $asin_ext = $tmp_ext;
+	//	$tmp_ext = fgets($fp, 4096);
+	//	if ($tmp_ext != '') $asin_ext = $tmp_ext;
 	fclose($fp);
 
 	if (strlen($title) > 0) {
@@ -387,10 +384,10 @@ function plugin_amazon_cache_image_fetch($dir)
 			if ($body == '' || $size[1] <= 1) {
 				$fp = fopen(PLUGIN_AMAZON_NO_IMAGE, 'rb');
 				if (! $fp) return FALSE;
-				
+
 				$body = '';
 				while (! feof($fp)) $body .= fread($fp, 4096);
-				fclose ($fp);
+				fclose($fp);
 			}
 		}
 		plugin_amazon_cache_image_save($body, CACHE_DIR);
@@ -451,7 +448,7 @@ function is_asin()
 {
 	global $asin, $asin_ext, $asin_all;
 
-	$tmpary = array();
+	$tmpary = [];
 	if (preg_match('/^([A-Z0-9]{10}).?([0-9][0-9])?$/', $asin_all, $tmpary) == FALSE) {
 		return FALSE;
 	} else {
@@ -462,4 +459,3 @@ function is_asin()
 		return TRUE;
 	}
 }
-?>

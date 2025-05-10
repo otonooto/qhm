@@ -1,4 +1,5 @@
 <?php
+
 /**
  *   OpenGraphProtocol Plugin
  *   -------------------------------------------
@@ -25,12 +26,12 @@ function plugin_ogp_convert()
 
 	$qt = get_qt();
 	$data = $qt->getv('plugin_ogp_tags');
-	if ( ! $data) {
-		$data = array();
+	if (! $data) {
+		$data = [];
 	}
 
 	//管理者かどうか
-    $editable = edit_auth($page, FALSE, FALSE);
+	$editable = edit_auth($page, FALSE, FALSE);
 
 	//引数を解析する
 	$args = func_get_args();
@@ -38,53 +39,45 @@ function plugin_ogp_convert()
 	$desc = '';
 
 	$aliases = plugin_ogp_get_aliases();
-	foreach ($params as $i => $param)
-	{
-		if (preg_match('/^([\w:]+)=(.*)$/', $param, $mts))
-		{
+	foreach ($params as $i => $param) {
+		if (preg_match('/^([\w:]+)=(.*)$/', $param, $mts)) {
 			$key = $mts[1];
 			$val = $mts[2];
 
-			if (isset($aliases[$key]))
-			{
+			if (isset($aliases[$key])) {
 				$key = $aliases[$key];
 			}
 			$data[$key] = $val;
-		}
-		else
-		{
-			$desc .= $param. "\n";
+		} else {
+			$desc .= $param . "\n";
 		}
 	}
 
-	if (trim($desc) != '')
-	{
+	if (trim($desc) != '') {
 		$data['og:description'] = $desc;
 	}
 
-	if ( ! $qt->getv('plugin_ogp_tags'))
-	{
+	if (! $qt->getv('plugin_ogp_tags')) {
 		$qt->setv('plugin_ogp_tags', $data);
 	}
 
 	$html = '';
-	if ($editable)
-	{
-		$editlink = $script. '?cmd=edit&page='. rawurlencode($vars['page']);
-		$conflink = $script. '?cmd=qhmsetting&phase=sns&mode=form';
-		$fb_debugger_link = 'http://developers.facebook.com/tools/debug/og/object?q='. rawurlencode($script. '?'. rawurlencode($vars['page']));
+	if ($editable) {
+		$editlink = $script . '?cmd=edit&page=' . rawurlencode($vars['page']);
+		$conflink = $script . '?cmd=qhmsetting&phase=sns&mode=form';
+		$fb_debugger_link = 'http://developers.facebook.com/tools/debug/og/object?q=' . rawurlencode($script . '?' . rawurlencode($vars['page']));
 		$wiki = '
 ----
 \'\'【お知らせ】Open Graph Protocol タグが変更されています。\'\'
-変更するには[[このページを編集してください>'. $editlink. ']]
+変更するには[[このページを編集してください>' . $editlink . ']]
 
 例えばFacebook での表示は以下のようになります。
 #style(class=box_gray_ssm){{
 #{ogp_preview}
 }}
-※Facebook のチェックツールは[[こちら>'. $fb_debugger_link.']]
+※Facebook のチェックツールは[[こちら>' . $fb_debugger_link . ']]
 ※画像がない場合、OGP設定のサイト画像が表示されます。
-サイト画像の変更は[[こちら>'. $conflink. ']]
+サイト画像の変更は[[こちら>' . $conflink . ']]
 ----
 ';
 		$html .= str_replace('#{ogp_preview}', plugin_ogp_get_preview(), convert_html($wiki));
@@ -100,9 +93,8 @@ function plugin_ogp_set($ogp_tag_name, $value)
 {
 	$qt = get_qt();
 	$data = $qt->getv('plugin_ogp_tags');
-	if ( ! $data)
-	{
-		$data = array();
+	if (! $data) {
+		$data = [];
 	}
 	$data[$ogp_tag_name] = $value;
 	$qt->setv('plugin_ogp_tags', $data);
@@ -116,18 +108,14 @@ function plugin_ogp_get_defdata()
 
 	$url = $script;
 	$page = $vars['page'];
-	if ($defaultpage != $page)
-	{
+	if ($defaultpage != $page) {
 		$r_page = rawurlencode($vars['page']);
-		$url .= '?'. $r_page;
+		$url .= '?' . $r_page;
 		$this_page_title = $qt->getv('this_page_title');
-		if ($this_page_title === FALSE)
-		{
-			$this_page_title = $vars['page']. ' - '. $page_title;
+		if ($this_page_title === FALSE) {
+			$this_page_title = $vars['page'] . ' - ' . $page_title;
 		}
-	}
-	else
-	{
+	} else {
 		$this_page_title = $page_title;
 	}
 
@@ -137,16 +125,16 @@ function plugin_ogp_get_defdata()
 
 	$defdata = array(
 		//Facebook
-		'fb:app_id'      => $fb_app_id != ''? $fb_app_id: FALSE,
-		'fb:admins'      => $fb_admins != ''? $fb_admins: FALSE,
+		'fb:app_id'      => $fb_app_id != '' ? $fb_app_id : FALSE,
+		'fb:admins'      => $fb_admins != '' ? $fb_admins : FALSE,
 
 		//OGP
-		'og:locale'      => 'ja_JP',//TODO: conf
-		'og:type'        => $type,//website, article, blog
-		'og:title'       => $this_page_title,//this_page_title
-		'og:url'         => $url,//
-		'og:site_name'   => $page_title,//page_title
-		'og:description' => $og_description != ''? $og_description: $description,
+		'og:locale'      => 'ja_JP', //TODO: conf
+		'og:type'        => $type, //website, article, blog
+		'og:title'       => $this_page_title, //this_page_title
+		'og:url'         => $url, //
+		'og:site_name'   => $page_title, //page_title
+		'og:description' => $og_description != '' ? $og_description : $description,
 		'og:image'       => FALSE,
 	);
 
@@ -180,56 +168,47 @@ function plugin_ogp_set_template()
 {
 	global $ogp_tag, $add_xmlns;
 
-	if ( ! $ogp_tag) {
+	if (! $ogp_tag) {
 		return;
 	}
 
 	$qt = get_qt();
 
-    $editable = edit_auth($page, FALSE, FALSE);
+	$editable = edit_auth($page, FALSE, FALSE);
 
 	$defdata = plugin_ogp_get_defdata();
 
 	//先にセットしたデータを取得
-	if ($data = $qt->getv('plugin_ogp_tags'))
-	{
+	if ($data = $qt->getv('plugin_ogp_tags')) {
 		$data = array_merge($defdata, $data);
-	}
-	else
-	{
+	} else {
 		$data = $defdata;
 	}
 
 	//画像（og:image）がなければ、showプラグインで使った最初の画像を探す。
-	if ( ! isset($data['og:image']) OR $data['og:image'] === FALSE)
-	{
-		if ($fimg = $qt->getv('first_image'))
-		{
+	if (! isset($data['og:image']) or $data['og:image'] === FALSE) {
+		if ($fimg = $qt->getv('first_image')) {
 			$data['og:image'] = $fimg;
-		}
-		else
-		{
+		} else {
 			$data['og:image'] = plugin_ogp_get_defaultimage();
 		}
 	}
 
 	//set ogp tags
 	$beforescript = '';
-	foreach ($data as $prop => $content)
-	{
+	foreach ($data as $prop => $content) {
 		if ($content !== FALSE)
-			$beforescript .= '<meta property="'. h($prop). '" content="'. h($content). '" />'. "\n";
+			$beforescript .= '<meta property="' . h($prop) . '" content="' . h($content) . '" />' . "\n";
 	}
 
 	$qt->appendv('beforescript', $beforescript);
-
 }
 
 function plugin_ogp_get_preview()
 {
 	global $ogp_tag, $add_xmlns;
 
-	if ( ! $ogp_tag) {
+	if (! $ogp_tag) {
 		return '';
 	}
 
@@ -238,23 +217,17 @@ function plugin_ogp_get_preview()
 	$defdata = plugin_ogp_get_defdata();
 
 	//先にセットしたデータを取得
-	if ($data = $qt->getv('plugin_ogp_tags'))
-	{
+	if ($data = $qt->getv('plugin_ogp_tags')) {
 		$data = array_merge($defdata, $data);
-	}
-	else
-	{
+	} else {
 		$data = $defdata;
 	}
 
 	//デフォルト画像を使うかどうか
 	$use_firstimg = TRUE;
-	if ($data['og:image'] === FALSE)
-	{
+	if ($data['og:image'] === FALSE) {
 		$data['og:image'] = plugin_ogp_get_defaultimage();
-	}
-	else
-	{
+	} else {
 		$use_firstimg = FALSE;
 	}
 
@@ -267,19 +240,17 @@ function plugin_ogp_get_preview()
 </div>
 <div style="clear:both;"></div>
 ';
-	$ptns = array();
-	$rpls = array();
+	$ptns = [];
+	$rpls = [];
 
-	foreach ($data as $prop => $content)
-	{
-		$ptns[] = h('#{$'. $prop. '}');
+	foreach ($data as $prop => $content) {
+		$ptns[] = h('#{$' . $prop . '}');
 		$rpls[] = nl2br($content);
 	}
 
 	$preview = str_replace($ptns, $rpls, $preview_fmt);
 
-	if ($use_firstimg)
-	{
+	if ($use_firstimg) {
 		$beforescript = '
 <script type="text/javascript">
 $(function(){
@@ -301,13 +272,10 @@ $(function(){
 function plugin_ogp_get_defaultimage()
 {
 	global $script, $og_image;
-	if ( ! is_null($og_image) && $og_image != '')
-	{
+	if (! is_null($og_image) && $og_image != '') {
 		return $og_image;
-	}
-	else
-	{
-		return dirname($script). '/image/hokuken/ogp_default.png';
+	} else {
+		return dirname($script) . '/image/hokuken/ogp_default.png';
 	}
 }
 

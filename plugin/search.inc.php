@@ -18,7 +18,7 @@ function plugin_search_convert()
 	$qm = get_qm();
 
 	if (isset($done)) {
-		return $qm->replace('fmt_err_already_called', '#search'). "\n";
+		return $qm->replace('fmt_err_already_called', '#search') . "\n";
 	} else {
 		$done = TRUE;
 		$args = func_get_args();
@@ -55,16 +55,16 @@ function plugin_search_action()
 		$body = '<br />' . "\n" . $qm->m['plg_search']['note'] . "\n";
 	}
 
-	
+
 
 	// Show search form
-	$bases = ($base == '') ? array() : array($base);
+	$bases = ($base == '') ? [] : array($base);
 	$body .= plugin_search_search_form($s_word, $type, $bases);
 
-	return array('msg'=>$msg, 'body'=>$body);
+	return array('msg' => $msg, 'body' => $body);
 }
 
-function plugin_search_search_form($s_word = '', $type = '', $bases = array())
+function plugin_search_search_form($s_word = '', $type = '', $bases = [])
 {
 	global $script;
 	$qm = get_qm();
@@ -81,14 +81,14 @@ function plugin_search_search_form($s_word = '', $type = '', $bases = array())
 		$base_msg = '';
 		$_num = 0;
 		$check = ' checked="checked"';
-		foreach($bases as $base) {
+		foreach ($bases as $base) {
 			++$_num;
 			if (PLUGIN_SEARCH_MAX_BASE < $_num) break;
 			$label_id = '_p_search_base_id_' . $_num;
 			$s_base   = htmlspecialchars($base);
 			$base_str = '<strong>' . $s_base . '</strong>';
 			$base_label = str_replace('$1', $base_str, $qm->m['plg_search']['search_pages']);
-			$base_msg  .=<<<EOD
+			$base_msg  .= <<<EOD
  <div>
   <input type="radio" name="base" id="$label_id" value="$s_base" $check />
   <label for="$label_id">$base_label</label>
@@ -96,7 +96,7 @@ function plugin_search_search_form($s_word = '', $type = '', $bases = array())
 EOD;
 			$check = '';
 		}
-		$base_msg .=<<<EOD
+		$base_msg .= <<<EOD
   <input type="radio" name="base" id="_p_search_base_id_all" value="" />
   <label for="_p_search_base_id_all">{$qm->m['plg_search']['search_all']}</label>
 EOD;
@@ -136,14 +136,14 @@ function plugin_search_do_search($word, $type = 'AND', $non_format = FALSE, $bas
 	global $search_auth, $show_passage;
 	$qm = get_qm();
 
-	$retval = array();
+	$retval = [];
 
 	$b_type = ($type == 'AND'); // AND:TRUE OR:FALSE
 	mb_language('Japanese');
-	$word = mb_convert_encoding($word,SOURCE_ENCODING,"UTF-8,EUC-JP,SJIS,ASCII,JIS");
+	$word = mb_convert_encoding($word, SOURCE_ENCODING, "UTF-8,EUC-JP,SJIS,ASCII,JIS");
 	$word = mb_ereg_replace("　", " ", $word);
 	$keys = get_search_words(preg_split('/\s+/', $word, -1, PREG_SPLIT_NO_EMPTY));
-	foreach ($keys as $key=>$value)
+	foreach ($keys as $key => $value)
 		$keys[$key] = '/' . $value . '/S';
 
 	$pages = get_existpages();
@@ -198,21 +198,19 @@ function plugin_search_do_search($word, $type = 'AND', $non_format = FALSE, $bas
 	$retval = '<ul>' . "\n";
 	foreach (array_keys($pages) as $page) {
 		$s_page  = get_page_title($page);
-		
+
 		$r_page  = rawurlencode($page);
 		$passage = $show_passage ? ' ' . get_passage(get_filetime($page)) : '';
-		
+
 		$tmp_li = ' <li><a href="' . $script . '?cmd=read&amp;page=' .
 			$r_page . '&amp;word=' . $r_word . '">' . $s_page .
 			'</a>' . $passage . '</li>' . "\n";
-		
+
 		$retval .= $tmp_li;
 	}
 	$retval .= '</ul>' . "\n";
 
-	$retval .= $qm->replace(($b_type? 'fmt_msg_andresult': 'fmt_msg_orresult'), $s_word, count($pages), $count);
+	$retval .= $qm->replace(($b_type ? 'fmt_msg_andresult' : 'fmt_msg_orresult'), $s_word, count($pages), $count);
 
 	return $retval;
 }
-
-?>

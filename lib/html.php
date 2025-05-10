@@ -55,7 +55,7 @@ function catbody($title, $page, $body)
 	if (! file_exists(SKIN_FILE) || ! is_readable(SKIN_FILE))
 		die_message('SKIN_FILE is not found');
 
-	$_LINK = $_IMAGE = array();
+	$_LINK = $_IMAGE = [];
 
 	// Add JavaScript header when ...
 	if ($trackback && $trackback_javascript) $javascript = 1; // Set something If you want
@@ -94,7 +94,7 @@ function catbody($title, $page, $body)
 	$_LINK['rss10']    = "$script?cmd=rss&amp;ver=1.0"; // Same as 'rdf'
 	$_LINK['rss20']    = "$script?cmd=rss&amp;ver=2.0";
 	$_LINK['search']   = "$script?cmd=search";
-	$_LINK['top']      = dirname($script . 'dummy.php'). '/';
+	$_LINK['top']      = dirname($script . 'dummy.php') . '/';
 
 	if ($trackback) {
 		$tb_id = tb_get_id($_page);
@@ -103,7 +103,7 @@ function catbody($title, $page, $body)
 	$_LINK['unfreeze'] = "$script?cmd=unfreeze&amp;page=$r_page";
 	$_LINK['upload']   = "$script?plugin=attach&amp;pcmd=upload&amp;page=$r_page";
 	$_LINK['menuadmin']   = "$script?" . rawurlencode($menuadmin);  //Hokuken.com original
-	$_LINK['qhm_adminmenu'] = qhm_get_script_path()."?cmd=qhmauth";
+	$_LINK['qhm_adminmenu'] = qhm_get_script_path() . "?cmd=qhmauth";
 	$_LINK['qhm_logout'] = "$script?cmd=qhmlogout";
 	$_LINK['qhm_setting'] = "$script?cmd=qhmsetting";
 	$_LINK['edit_menu'] = "$script?cmd=edit&amp;page=MenuBar";
@@ -114,40 +114,40 @@ function catbody($title, $page, $body)
 	$_LINK['yetlist']     = "$script?cmd=yetlist";
 
 	// Compat: Skins for 1.4.4 and before
-	$link_add       = & $_LINK['add'];
-	$link_new       = & $_LINK['new'];	// New!
-	$link_edit      = & $_LINK['edit'];
-	$link_diff      = & $_LINK['diff'];
-	$link_top       = & $_LINK['top'];
-	$link_list      = & $_LINK['list'];
-	$link_filelist  = & $_LINK['filelist'];
-	$link_search    = & $_LINK['search'];
-	$link_whatsnew  = & $_LINK['recent'];
-	$link_backup    = & $_LINK['backup'];
-	$link_help      = & $_LINK['help'];
-	$link_trackback = & $_LINK['trackback'];	// New!
-	$link_rdf       = & $_LINK['rdf'];		// New!
-	$link_rss       = & $_LINK['rss'];
-	$link_rss10     = & $_LINK['rss10'];		// New!
-	$link_rss20     = & $_LINK['rss20'];		// New!
-	$link_freeze    = & $_LINK['freeze'];
-	$link_unfreeze  = & $_LINK['unfreeze'];
-	$link_upload    = & $_LINK['upload'];
-	$link_template  = & $_LINK['copy'];
-	$link_refer     = & $_LINK['refer'];	// New!
-	$link_rename    = & $_LINK['rename'];
-	$link_delete    = & $_LINK['delete'];
-	$link_menuadmin = & $_LINK['menuadmin']; //Hokuken.com original
-	$link_copy      = & $_LINK['copy'];
-	$link_qhm_adminmenu = & $_LINK['qhm_adminmenu']; //Hokuken.com original
-	$link_qhm_logout = & $_LINK['qhm_logout']; //Hokuken.com original
-	$link_qhm_setting = & $_LINK['qhm_setting']; //Hokuken.com original
-	$link_edit_menu = & $_LINK['edit_menu']; //Hokuken.com original
-	$link_edit_menu2 = & $_LINK['edit_menu2'];
-	$link_edit_navi = & $_LINK['edit_navi']; //Hokuken.com original
-	$link_edit_navi2 = & $_LINK['edit_navi2']; //Hokuken.com original
-	$link_edit_header = & $_LINK['edit_header']; //Hokuken.com original
-	$link_yetlist = & $_LINK['yetlist']; //Hokuken.com original
+	$link_add       = &$_LINK['add'];
+	$link_new       = &$_LINK['new'];	// New!
+	$link_edit      = &$_LINK['edit'];
+	$link_diff      = &$_LINK['diff'];
+	$link_top       = &$_LINK['top'];
+	$link_list      = &$_LINK['list'];
+	$link_filelist  = &$_LINK['filelist'];
+	$link_search    = &$_LINK['search'];
+	$link_whatsnew  = &$_LINK['recent'];
+	$link_backup    = &$_LINK['backup'];
+	$link_help      = &$_LINK['help'];
+	$link_trackback = &$_LINK['trackback'];	// New!
+	$link_rdf       = &$_LINK['rdf'];		// New!
+	$link_rss       = &$_LINK['rss'];
+	$link_rss10     = &$_LINK['rss10'];		// New!
+	$link_rss20     = &$_LINK['rss20'];		// New!
+	$link_freeze    = &$_LINK['freeze'];
+	$link_unfreeze  = &$_LINK['unfreeze'];
+	$link_upload    = &$_LINK['upload'];
+	$link_template  = &$_LINK['copy'];
+	$link_refer     = &$_LINK['refer'];	// New!
+	$link_rename    = &$_LINK['rename'];
+	$link_delete    = &$_LINK['delete'];
+	$link_menuadmin = &$_LINK['menuadmin']; //Hokuken.com original
+	$link_copy      = &$_LINK['copy'];
+	$link_qhm_adminmenu = &$_LINK['qhm_adminmenu']; //Hokuken.com original
+	$link_qhm_logout = &$_LINK['qhm_logout']; //Hokuken.com original
+	$link_qhm_setting = &$_LINK['qhm_setting']; //Hokuken.com original
+	$link_edit_menu = &$_LINK['edit_menu']; //Hokuken.com original
+	$link_edit_menu2 = &$_LINK['edit_menu2'];
+	$link_edit_navi = &$_LINK['edit_navi']; //Hokuken.com original
+	$link_edit_navi2 = &$_LINK['edit_navi2']; //Hokuken.com original
+	$link_edit_header = &$_LINK['edit_header']; //Hokuken.com original
+	$link_yetlist = &$_LINK['yetlist']; //Hokuken.com original
 
 	// Init flags
 	$is_page = (is_pagename($_page) && $_page != $whatsnew);
@@ -170,7 +170,7 @@ function catbody($title, $page, $body)
 	$notes = ! empty($foot_explain) ? $note_hr . join("\n", $foot_explain) : '';
 
 	// Tags will be inserted into <head></head>
-	$head_tag = ! empty($head_tags) ? join("\n", $head_tags) ."\n" : '';
+	$head_tag = ! empty($head_tags) ? join("\n", $head_tags) . "\n" : '';
 
 	// 1.3.x compat
 	// Last modification date (UNIX timestamp) of the page
@@ -187,27 +187,23 @@ function catbody($title, $page, $body)
 		$words = array_splice($words, 0, 10); // Max: 10 words
 		$words = array_flip($words);
 
-		$keys = array();
-		foreach ($words as $word=>$id) $keys[$word] = strlen($word);
+		$keys = [];
+		foreach ($words as $word => $id) $keys[$word] = strlen($word);
 		arsort($keys, SORT_NUMERIC);
 		$keys = get_search_words(array_keys($keys), TRUE);
 		$id = 0;
-		foreach ($keys as $key=>$pattern) {
-			$s_key    = htmlspecialchars($key);
+		foreach ($keys as $key => $pattern) {
 			$pattern  = '/' .
 				'<textarea[^>]*>.*?<\/textarea>' .	// Ignore textareas
 				'|' . '<[^>]*>' .			// Ignore tags
 				'|' . '&[^;]+;' .			// Ignore entities
 				'|' . '(' . $pattern . ')' .		// $matches[1]: Regex for a search word
 				'/sS';
-			$decorate_Nth_word = create_function(
-				'$matches',
-				'return (isset($matches[1])) ? ' .
-					'\'<strong class="word' .
-						$id .
-					'">\' . $matches[1] . \'</strong>\' : ' .
-					'$matches[0];'
-			);
+			$decorate_Nth_word = function ($matches) use ($id) {
+				return isset($matches[1])
+					? '<strong class="word' . $id . '">' . $matches[1] . '</strong>'
+					: $matches[0];
+			};
 			$body  = preg_replace_callback($pattern, $decorate_Nth_word, $body);
 			$notes = preg_replace_callback($pattern, $decorate_Nth_word, $notes);
 			++$id;
@@ -226,19 +222,19 @@ function catbody($title, $page, $body)
 
 
 	//----------------- 携帯の場合の処理 --------------------------------------
-	if( preg_match('/keitai.skin.php$/', SKIN_FILE) ){
-		require(LIB_DIR.'qhm_init.php');
-		require(LIB_DIR.'qhm_init_main.php');
+	if (preg_match('/keitai.skin.php$/', SKIN_FILE)) {
+		require(LIB_DIR . 'qhm_init.php');
+		require(LIB_DIR . 'qhm_init_main.php');
 		require(SKIN_FILE);
 		return;
 	}
 	//------------------- IF UA is mobile, end here -----------------------
 
 	//---------- KILLERPAGE: でもKILLERPAGE2:に統合 いつか消したい --------------
-	if( $killer_fg != '' ){
+	if ($killer_fg != '') {
 
 		//load common setting and output header
-		require(LIB_DIR.'qhm_init.php');
+		require(LIB_DIR . 'qhm_init.php');
 
 		$killer_page2['fg'] = $killer_fg;
 		$killer_page2['bg'] = $killer_bg;
@@ -247,7 +243,7 @@ function catbody($title, $page, $body)
 		$killer_page2['bg_body'] = '#fff';
 		$killer_page2['fg_body'] = '#000';
 
-		require(LIB_DIR.'qhm_init_killer.php');
+		require(LIB_DIR . 'qhm_init_killer.php');
 
 		$longtaketime = getmicrotime() - MUTIME;
 		$taketime = sprintf('%01.03f', $longtaketime);
@@ -262,17 +258,15 @@ function catbody($title, $page, $body)
 	//
 
 	//common setting
-	require(LIB_DIR.'qhm_init.php');
+	require(LIB_DIR . 'qhm_init.php');
 	$qt->enable_cache = $qt->getv('editable') ? false : $qt->enable_cache;
 
 	$qt->set_encode(($shiftjis || $eucjp) ? true : false);
-	if( $shiftjis ){
+	if ($shiftjis) {
 		$output_encode = 'Shift_JIS';
-	}
-	else if( $eucjp ){
+	} else if ($eucjp) {
 		$output_encode = 'EUC-JP';
-	}
-	else{
+	} else {
 		$output_encode = CONTENT_CHARSET;
 	}
 
@@ -282,26 +276,24 @@ function catbody($title, $page, $body)
 	$qt->setv('meta_content_type', qhm_output_dtd($pkwk_dtd, CONTENT_CHARSET, $output_encode));
 
 	//------- KILLERPAGE2: セールスレター型デザイン -------------------
-	if( isset($killer_page2['fg']) != ''){
-		require(LIB_DIR.'qhm_init_killer.php');
+	if (isset($killer_page2['fg']) != '') {
+		require(LIB_DIR . 'qhm_init_killer.php');
 
-	//JQuery Include
-	$jquery_script = '';
-	$jquery_cookie_script = '';
+		//JQuery Include
+		$jquery_script = '';
+		$jquery_cookie_script = '';
 
-	if ($qt->getv('jquery_include'))
-	{
-		$jquery_script = '<script type="text/javascript" src="js/jquery.js"></script>';
-		$jquery_cookie_script = '<script type="text/javascript" src="js/jquery.cookie.js"></script>';
-	}
-	$bootstrap_style = $bootstrap_script = '';
-	if ($qt->getv('bootstrap_script'))
-	{
-		$bootstrap_style = $qt->getv('bootstrap_style');
-		$bootstrap_script = $qt->getv('bootstrap_script');
-	}
-	$qt->setv('jquery_script', ($bootstrap_style. $jquery_script . $bootstrap_script));
-	$qt->setv('jquery_cookie_script', $jquery_cookie_script);
+		if ($qt->getv('jquery_include')) {
+			$jquery_script = '<script type="text/javascript" src="js/jquery.js"></script>';
+			$jquery_cookie_script = '<script type="text/javascript" src="js/jquery.cookie.js"></script>';
+		}
+		$bootstrap_style = $bootstrap_script = '';
+		if ($qt->getv('bootstrap_script')) {
+			$bootstrap_style = $qt->getv('bootstrap_style');
+			$bootstrap_script = $qt->getv('bootstrap_script');
+		}
+		$qt->setv('jquery_script', ($bootstrap_style . $jquery_script . $bootstrap_script));
+		$qt->setv('jquery_cookie_script', $jquery_cookie_script);
 
 
 
@@ -316,20 +308,18 @@ function catbody($title, $page, $body)
 
 
 	// ---- include main design skin file ----
-	if (isset($_SESSION['temp_skin']) && strlen($_SESSION['temp_skin']) > 0 )
-	{
+	if (isset($_SESSION['temp_skin']) && strlen($_SESSION['temp_skin']) > 0) {
 		$style_type =  $_SESSION['temp_style_type'];
 	}
 
 	//pluginでデザインが指定されている場合
-	if ($include_skin_file_path!='')
-	{
+	if ($include_skin_file_path != '') {
 		$style_name = $include_skin_file_path;
 	}
-	require(LIB_DIR.'qhm_init_main.php');
+	require(LIB_DIR . 'qhm_init_main.php');
 
 	// meta:GENERATOR
-	$generator_tag = '<meta name="GENERATOR" content="Quick Homepage Maker; version='. QHM_VERSION. '; haik='.(is_bootstrap_skin() ? 'true' : 'false').'" />' . "\n";
+	$generator_tag = '<meta name="GENERATOR" content="Quick Homepage Maker; version=' . QHM_VERSION . '; qhm=' . (is_bootstrap_skin() ? 'true' : 'false') . '" />' . "\n";
 	$qt->prependv_once('generator_tag', 'beforescript', $generator_tag);
 
 	//-------------------------------------------------
@@ -341,36 +331,28 @@ function catbody($title, $page, $body)
 
 	//独自のテンプレートファイルをチェック
 	$skin_file = SKIN_DIR . "{$style_name}/pukiwiki.skin.php";
-	if ($qt->getv('layout_name'))
-	{
-		$layout_file = $qt->getv('layout_name').'.skin.php';
+	if ($qt->getv('layout_name')) {
+		$layout_file = $qt->getv('layout_name') . '.skin.php';
 		$layout_path = SKIN_DIR . "{$style_name}/{$layout_file}";
-		if (file_exists($layout_path))
-		{
+		if (file_exists($layout_path)) {
 			$skin_file = $layout_path;
 		}
-	}
-	else
-	{
+	} else {
 		$layout_prefix = 'content';
-		if ($_page === $defaultpage)
-		{
+		if ($_page === $defaultpage) {
 			$layout_prefix = 'default';
-		}
-		else if (is_qblog())
-		{
+		} else if (is_qblog()) {
 			$layout_prefix = 'article';
 		}
 
 		$layout_name = isset($style_config["{$layout_prefix}_layout"]) ? $style_config["{$layout_prefix}_layout"] : "";
 		$layout_path = SKIN_DIR . "{$style_name}/{$layout_name}.skin.php";
-		if (file_exists($layout_path))
-		{
+		if (file_exists($layout_path)) {
 			$skin_file = $layout_path;
 		}
 	}
 
-	if( ! file_exists($skin_file)){
+	if (! file_exists($skin_file)) {
 		$skin_file = SKIN_FILE;  //デフォルトの位置
 	}
 
@@ -381,50 +363,40 @@ function catbody($title, $page, $body)
 	$custom_css = make_custom_css($style_name);
 	$qt->prependv('beforescript', $custom_css);
 
-	if (isset($style_config['bootstrap']) && $style_config['bootstrap'] !== false)
-	{
+	if (isset($style_config['bootstrap']) && $style_config['bootstrap'] !== false) {
 		$qt->setv('jquery_include', true);
 	}
 
 	// Default Eyecatch
-	if (isset($skin_custom_vars['default_eyecatch'])
-	&& $skin_custom_vars['default_eyecatch']
-	&& $qt->getv('main_visual') === ''
-	&& exist_plugin('eyecatch'))
-	{
+	if (
+		isset($skin_custom_vars['default_eyecatch'])
+		&& $skin_custom_vars['default_eyecatch']
+		&& $qt->getv('main_visual') === ''
+		&& exist_plugin('eyecatch')
+	) {
 		$bg_image = $color = '';
-		if (isset($skin_custom_vars['eyecatch_bgimage']))
-		{
+		if (isset($skin_custom_vars['eyecatch_bgimage'])) {
 			$bg_image = $skin_custom_vars['eyecatch_bgimage'];
 			$bg_image = (is_url($bg_image, TRUE, TRUE) || file_exists(get_file_path($bg_image))) ? $bg_image : '';
 		}
-		if (isset($skin_custom_vars['enable_eyecatch_bgimage']) && ! $skin_custom_vars['enable_eyecatch_bgimage'])
-		{
+		if (isset($skin_custom_vars['enable_eyecatch_bgimage']) && ! $skin_custom_vars['enable_eyecatch_bgimage']) {
 			$bg_image = '';
 		}
-		if (isset($skin_custom_vars['eyecatch_color']))
-		{
-			$color = 'color='.$skin_custom_vars['eyecatch_color'];
+		if (isset($skin_custom_vars['eyecatch_color'])) {
+			$color = 'color=' . $skin_custom_vars['eyecatch_color'];
 		}
-		if (is_qblog())
-		{
+		if (is_qblog()) {
 			$title_copy = $qblog_title;
-		}
-		else
-		{
-			if (isset($skin_custom_vars['eyecatch_title_type']) &&
-					trim($skin_custom_vars['eyecatch_title_type']) == 'site')
-			{
+		} else {
+			if (
+				isset($skin_custom_vars['eyecatch_title_type']) &&
+				trim($skin_custom_vars['eyecatch_title_type']) == 'site'
+			) {
 				$title_copy = $page_title;
-			}
-			else
-			{
-				if ($_page === $defaultpage)
-				{
+			} else {
+				if ($_page === $defaultpage) {
 					$title_copy = $page_title;
-				}
-				else
-				{
+				} else {
 					$title_copy = get_page_title($_page);
 				}
 			}
@@ -436,16 +408,14 @@ EOD;
 		plugin_eyecatch_convert($bg_image, $color, '__default', $content);
 	}
 
-	if ($qt->getv('no_eyecatch'))
-	{
+	if ($qt->getv('no_eyecatch')) {
 		$qt->setv('main_visual', "<!-- no eyecatch -->");
 	}
 
 	// Determine emptiness of eyecatch
 	$qt->setv('eyecatch_is_empty', ($qt->getv('no_eyecatch') || $qt->getv('main_visual') === ''));
 
-	if (isset($skin_custom_vars['palette_color']) && trim($skin_custom_vars['palette_color']))
-	{
+	if (isset($skin_custom_vars['palette_color']) && trim($skin_custom_vars['palette_color'])) {
 		$qt->setv('palette_color', trim($skin_custom_vars['palette_color']));
 		$qt->setv(
 			'palette_color_class',
@@ -456,13 +426,11 @@ EOD;
 	//JQuery Include
 	$jquery_script = '';
 	$jquery_cookie_script = '';
-	if ($qt->getv('jquery_include'))
-	{
+	if ($qt->getv('jquery_include')) {
 		$jquery_script = '<script type="text/javascript" src="js/jquery.js"></script>';
 		$jquery_cookie_script = '<script type="text/javascript" src="js/jquery.cookie.js"></script>';
 	}
-	if ($qt->getv('bootstrap_script'))
-	{
+	if ($qt->getv('bootstrap_script')) {
 		$bootstrap_script = $qt->getv('bootstrap_script');
 	}
 	$qt->setv('jquery_script', ($jquery_script . $bootstrap_script));
@@ -474,20 +442,19 @@ EOD;
 	$qt->setv('taketime', $taketime);
 
 	//UniversalAnalytics Tracking Code
-	if ($code = $qt->getv('ga_universal_analytics'))
-	{
-	    $qt->appendv('beforescript', $code);
+	if ($code = $qt->getv('ga_universal_analytics')) {
+		$qt->appendv('beforescript', $code);
 	}
 
 
 	//------------------------------------------------------------------
 	// WordPressデザイン
-	if( $enable_wp_theme &&
-		($vars['cmd']!='qhmsetting' && $vars['plugin']!='qhmsetting')
-	)
-	{
-		define('TEMPLATEPATH', 'skin/wordpress/'.$enable_wp_theme_name);
-		include(LIB_DIR.'wp_adapter.php');
+	if (
+		$enable_wp_theme &&
+		($vars['cmd'] != 'qhmsetting' && $vars['plugin'] != 'qhmsetting')
+	) {
+		define('TEMPLATEPATH', 'skin/wordpress/' . $enable_wp_theme_name);
+		include(LIB_DIR . 'wp_adapter.php');
 
 		wp_load_functions();
 
@@ -498,13 +465,13 @@ EOD;
 	//-------------------------------------------------------------------
 	// 	プレビュー用のskinファイルを表示
 	$tmpfilename = '';
-	if (isset($_SESSION['temp_skin']) && strlen($_SESSION['temp_skin']) > 0 )
-// && ($vars['cmd']!='qhmsetting' && $vars['plugin']!='qhmsetting'))
+	if (isset($_SESSION['temp_skin']) && strlen($_SESSION['temp_skin']) > 0)
+	// && ($vars['cmd']!='qhmsetting' && $vars['plugin']!='qhmsetting'))
 	{
 		$tmpfilename = $skin_file = tempnam(realpath(CACHEQHM_DIR), 'qhmdesign');
 		file_put_contents($skin_file, $_SESSION['temp_skin']);
 
-		$qt->setv('default_css', $bootstrap_css.$_SESSION['temp_css']);
+		$qt->setv('default_css', $bootstrap_css . $_SESSION['temp_css']);
 		$qt->setv('style_path', $_SESSION['temp_style_path']);
 	}
 	//-------------------------------------------------------------------
@@ -513,8 +480,7 @@ EOD;
 	$qt->read($skin_file, $_page);
 
 	// 一時ファイルの削除
-	if (file_exists($tmpfilename) && strpos(basename($tmpfilename), 'qhmdesign') === 0)
-	{
+	if (file_exists($tmpfilename) && strpos(basename($tmpfilename), 'qhmdesign') === 0) {
 		unlink($tmpfilename);
 	}
 }
@@ -531,9 +497,9 @@ function edit_form($page, $postdata, $digest = FALSE, $b_template = TRUE)
 	$qt = get_qt();
 
 	//accesskey setting
-	$accesskey = array();
-	foreach(array('r','p','s','c') as $v){
-		$accesskey[$v] = $qhm_access_key ? 'accesskey="'.$v.'"' : '';
+	$accesskey = [];
+	foreach (array('r', 'p', 's', 'c') as $v) {
+		$accesskey[$v] = $qhm_access_key ? 'accesskey="' . $v . '"' : '';
 	}
 
 
@@ -542,22 +508,22 @@ function edit_form($page, $postdata, $digest = FALSE, $b_template = TRUE)
 
 	$refer = $template = $headertitle = '';
 
- 	// Add plugin
+	// Add plugin
 	$addtag = $add_top = '';
-	if(isset($vars['add'])) {
+	if (isset($vars['add'])) {
 		global $_btn_addtop;
 		$addtag  = '<input type="hidden" name="add"    value="true" />';
 		$add_top = isset($vars['add_top']) ? ' checked="checked"' : '';
 		$add_top = '<input type="checkbox" name="add_top" ' .
 			'id="_edit_form_add_top" value="true"' . $add_top . ' />' . "\n" .
 			'  <label for="_edit_form_add_top" class="checkbox">' .
-				'<span class="small">' . $_btn_addtop . '</span>' .
+			'<span class="small">' . $_btn_addtop . '</span>' .
 			'</label>';
 	}
 
-	if($load_template_func && $b_template) {
-		$pages  = array();
-		foreach(get_existpages() as $_page) {
+	if ($load_template_func && $b_template) {
+		$pages  = [];
+		foreach (get_existpages() as $_page) {
 			if ($_page == $whatsnew || check_non_list($_page))
 				continue;
 			$s_page = htmlspecialchars($_page);
@@ -574,13 +540,10 @@ $s_pages
   <input type="submit" name="template" value="$_btn_load" {$accesskey['r']} />
   <br />
 EOD;
-
-
 	}
 	//新規作成の場合、ページ名を大見出しとして挿入する
-	if (isset($vars['refer']) && $vars['refer'] != '')
-	{
-		$headertitle = "\n\n". '* ' . strip_bracket($page) . "\n\n";
+	if (isset($vars['refer']) && $vars['refer'] != '') {
+		$headertitle = "\n\n" . '* ' . strip_bracket($page) . "\n\n";
 	}
 
 	$r_page      = rawurlencode($page);
@@ -611,13 +574,10 @@ EOD;
 
 	$buttons_align = 'left';
 	$blog_cancel_button = 'right';
-	if (is_bootstrap_skin())
-	{
+	if (is_bootstrap_skin()) {
 		$buttons_align = 'right';
 		$blog_cancel_button = 'left';
-	}
-	else
-	{
+	} else {
 		//Bootstrap の読み込み
 		$include_bs = '
 <link rel="stylesheet" href="skin/bootstrap/css/bootstrap-custom.min.css" />
@@ -626,8 +586,7 @@ EOD;
 	}
 
 	// !ブログ用編集フォーム
-	if ($page !== $qblog_defaultpage && is_qblog())
-	{
+	if ($page !== $qblog_defaultpage && is_qblog()) {
 		//メタデータを取得
 		$data = get_qblog_post_data($page);
 		$data['title'] = isset($vars['title']) ? $vars['title'] : $data['title'];
@@ -635,8 +594,7 @@ EOD;
 		$data['image'] = isset($vars['image']) ? $vars['image'] : $data['image'];
 
 		$date = get_qblog_date($date_format, $page);
-		if (isset($vars['qblog_date']) && $date !== trim($vars['qblog_date']))
-		{
+		if (isset($vars['qblog_date']) && $date !== trim($vars['qblog_date'])) {
 			$dates = array_pad(explode('-', $vars['qblog_date'], 3), 3, 0);
 			$valid = checkdate($dates[1], $dates[2], $dates[0]);
 			$date = $valid ? trim($vars['qblog_date']) : $date;
@@ -647,16 +605,14 @@ EOD;
 		$qblog_cat_json = json_encode($qblog_categories);
 		$h_qblog_cat_json = h(json_encode($qblog_categories));
 		$qblog_cat_list = '<ul id="qblog_categories_selector" class="qblog_categories collapse">';
-		foreach ($qblog_categories as $cat)
-		{
+		foreach ($qblog_categories as $cat) {
 			$qblog_cat_list .= '<li>' . h($cat) . '</li>';
 		}
 		$qblog_cat_list .= '</ul>';
 
 		$h2title = '新規投稿';
-		if (is_page($page))
-		{
-			$h2title = $data['title'].'の編集';
+		if (is_page($page)) {
+			$h2title = $data['title'] . 'の編集';
 		}
 		$s_h2title = h($h2title);
 		$s_blog_title = h($data['title']);
@@ -764,8 +720,7 @@ $template
 EOD;
 	}
 	// !標準編集フォーム
-	else
-	{
+	else {
 		$body = <<< EOD
 
 <div class="edit_form">
@@ -794,7 +749,6 @@ $template
  <div style="clear:both;"></div>
 </div>
 EOD;
-
 	}
 
 
@@ -831,13 +785,13 @@ $(function(){
 });
 </script>
 EOD;
-    $qt->appendv_once("plugin_edit_form_script", 'lastscript', $addscript);
+	$qt->appendv_once("plugin_edit_form_script", 'lastscript', $addscript);
 
-    // List of attached files to the page by hokuken.com
-    $attaches = (exist_plugin_action('attach')) ?
-    attach_filelist(true) : '';
-    if ($attaches !== '') {
-        $body .= <<< EOD
+	// List of attached files to the page by hokuken.com
+	$attaches = (exist_plugin_action('attach')) ?
+		attach_filelist(true) : '';
+	if ($attaches !== '') {
+		$body .= <<< EOD
 <script type="text/javascript" src="js/yahoo.js"></script>
 <script type="text/javascript" src="js/event.js"></script>
 <script type="text/javascript" src="js/dom.js"></script>
@@ -888,16 +842,14 @@ EOD;
 </script>
 EOD;
 
-	$body .= '<br /><div id="attachlist" style="border: 2px dashed #666;padding:5px 10px;background-color:#eee">' . $attaches . '</div>';
-
-}
+		$body .= '<br /><div id="attachlist" style="border: 2px dashed #666;padding:5px 10px;background-color:#eee">' . $attaches . '</div>';
+	}
 
 	$qm = get_qm();
 	$helpstr = $qm->m['html']['view_help_message'];
 
 	//list up swfu files
-	if( has_swfu() )
-	{
+	if (has_swfu()) {
 		require_once(SWFU_TEXTSQL_PATH);
 		$db = new CTextDB(SWFU_IMAGEDB_PATH);
 
@@ -906,15 +858,15 @@ EOD;
 		$attcstr = $qm->m['html']['attach_message'];
 
 		//! swfuの画像データを取得して表示をする
-		$rs = $db->select('$page_name=="'.$page.'"', 'created desc');
+		$rs = $db->select('$page_name=="' . $page . '"', 'created desc');
 
-		if(count($rs) > 0){
+		if (count($rs) > 0) {
 			$body .= '<div id="swfulist" style="border:1px #aaa dashed;margin-top:10px;padding:10px;font-size:12px">';
-			$body .= '<b><a href="./swfu/index_child.php?page=FrontPage&KeepThis=true&TB_iframe=true&height=450&width=650" class="thickbox">' .$attcstr. '(SWFU)</a> : </b>';
+			$body .= '<b><a href="./swfu/index_child.php?page=FrontPage&KeepThis=true&TB_iframe=true&height=450&width=650" class="thickbox">' . $attcstr . '(SWFU)</a> : </b>';
 
-			foreach($rs as $k=>$v){
-				$path = SWFU_IMAGE_DIR.$v['name'];
-				$prop = SWFU_DIR.'view.php?id='.$v['id'].'&page=FrontPage&KeepThis=true&TB_iframe=true&height=450&width=650';
+			foreach ($rs as $k => $v) {
+				$path = SWFU_IMAGE_DIR . $v['name'];
+				$prop = SWFU_DIR . 'view.php?id=' . $v['id'] . '&page=FrontPage&KeepThis=true&TB_iframe=true&height=450&width=650';
 
 				$body .= '<span style="padding:2px;margin-right:5px">';
 
@@ -922,16 +874,14 @@ EOD;
 				$atitle2 = $qm->replace("html.ar_insert_title", $v['name']);
 
 
-				if( preg_match('/\.(png|jpeg|jpg|gif)$/i', $v['name']) )
-				{
+				if (preg_match('/\.(png|jpeg|jpg|gif)$/i', $v['name'])) {
 					$title = h($v['name']);
-					$body .= '<a href="'.$prop.'" url="'.$path.'" rel="attachhref" class="thickbox" title="'.$title.'"><img src="image/file.png" width="20" height="20" alt="file" style="border-width:0" />'.$v['name'].'</a>';
+					$body .= '<a href="' . $prop . '" url="' . $path . '" rel="attachhref" class="thickbox" title="' . $title . '"><img src="image/file.png" width="20" height="20" alt="file" style="border-width:0" />' . $v['name'] . '</a>';
 					$body .= <<<EOD
 <a href="#" title="$atitle1" onclick="javascript:jQuery.clickpad.cpInsert('&show({$v['name']},,{$v['description']});'); return false;"><img src="image/ins-img.png" alt="$imgtitle"/></a><a href="#" title="$atitle2" onclick="javascript:jQuery.clickpad.cpInsert('\\n#show({$v['name']},aroundl,{$v['description']})\\n'); return false;"><img src="image/ins-img2.png" alt="$imgtitle2" /></a>
 EOD;
-				}
-				else{
-					$body .= '<a href="'.$path.'"><img src="image/file.png" width="20" height="20" alt="file" style="border-width:0" />'.$v['name'].'</a>';
+				} else {
+					$body .= '<a href="' . $path . '"><img src="image/file.png" width="20" height="20" alt="file" style="border-width:0" />' . $v['name'] . '</a>';
 					$body .= <<<EOD
 <a href="#" title="{$v['name']}" onclick="javascript:insert('&dlbutton({$path});'); return false;"><img src="image/ins-btn.png" alt="$imgtitle"/></a>
 EOD;
@@ -939,9 +889,7 @@ EOD;
 				$body .= '</span>';
 			}
 
-		$body .= '</div>';
-
-
+			$body .= '</div>';
 		}
 	}
 
@@ -963,15 +911,15 @@ function make_related($page, $tag = '')
 		arsort($links);
 	}
 
-	$_links = array();
-	foreach ($links as $page=>$lastmod) {
+	$_links = [];
+	foreach ($links as $page => $lastmod) {
 		if (check_non_list($page)) continue;
 
 		$r_page   = rawurlencode($page);
 
 		//customized by hokuken.com
 		$s_page = get_page_title($page);
-//		$s_page   = htmlspecialchars($page);
+		//		$s_page   = htmlspecialchars($page);
 		$passage  = get_passage($lastmod);
 		$_links[] = $tag ?
 			'<a href="' . $script . '?' . $r_page . '" title="' .
@@ -1003,8 +951,12 @@ function make_line_rules($str)
 	static $pattern, $replace;
 
 	if (! isset($pattern)) {
-		$pattern = array_map(create_function('$a',
-			'return \'/\' . $a . \'/\';'), array_keys($line_rules));
+		$pattern = array_map(
+			function ($a) {
+				return '/' . $a . '/';
+			},
+			array_keys($line_rules)
+		);
 		$replace = array_values($line_rules);
 		unset($line_rules);
 	}
@@ -1053,16 +1005,16 @@ function make_search($page)
 }
 
 // Make heading string (remove heading-related decorations from Wiki text)
-function make_heading(& $str, $strip = TRUE)
+function make_heading(&$str, $strip = TRUE)
 {
 	global $NotePattern;
 
 	// Cut fixed-heading anchors
 	$id = '';
-	$matches = array();
+	$matches = [];
 	if (preg_match('/^(!|\*{0,3})(.*?)\[#([A-Za-z][\w-]+)\](.*?)$/m', $str, $matches)) {
 		$str = $matches[2] . $matches[4];
-		$id  = & $matches[3];
+		$id  = &$matches[3];
 	} else {
 		$str = preg_replace('/^(?:\*{0,3}|!)/', '', $str);
 	}
@@ -1090,10 +1042,10 @@ function anchor_explode($page, $strict_editable = FALSE)
 	$s_page = substr($page, 0, $pos);
 	$anchor = substr($page, $pos + 1);
 
-	if($strict_editable === TRUE &&  preg_match('/^[a-z][a-f0-9]{7}$/', $anchor)) {
-		return array ($s_page, $anchor, TRUE); // Seems fixed-anchor
+	if ($strict_editable === TRUE &&  preg_match('/^[a-z][a-f0-9]{7}$/', $anchor)) {
+		return array($s_page, $anchor, TRUE); // Seems fixed-anchor
 	} else {
-		return array ($s_page, $anchor, FALSE);
+		return array($s_page, $anchor, FALSE);
 	}
 }
 
@@ -1120,10 +1072,12 @@ function pkwk_common_headers()
 {
 	if (! PKWK_OPTIMISE) pkwk_headers_sent();
 
-	if(defined('PKWK_ZLIB_LOADABLE_MODULE')) {
-		$matches = array();
-		if(ini_get('zlib.output_compression') &&
-			preg_match('/\b(gzip|deflate)\b/i', $_SERVER['HTTP_ACCEPT_ENCODING'], $matches)) {
+	if (defined('PKWK_ZLIB_LOADABLE_MODULE')) {
+		$matches = [];
+		if (
+			ini_get('zlib.output_compression') &&
+			preg_match('/\b(gzip|deflate)\b/i', $_SERVER['HTTP_ACCEPT_ENCODING'], $matches)
+		) {
 			// Bug #29350 output_compression compresses everything _without header_ as loadable module
 			// http://bugs.php.net/bug.php?id=29350
 			header('Content-Encoding: ' . $matches[1]);
@@ -1158,40 +1112,41 @@ function pkwk_output_dtd($pkwk_dtd = PKWK_DTD_XHTML_1_1, $charset = CONTENT_CHAR
 	$type = PKWK_DTD_TYPE_XHTML;
 	$option = '';
 	$html5 = FALSE;
-	switch($pkwk_dtd){
-	case PKWK_DTD_HTML_5:
-		$type = PKWK_DTD_TYPE_HTML;
-		$html5 = TRUE;
-		break;
-	case PKWK_DTD_XHTML_1_1             :
-		$version = '1.1' ;
-		$dtd     = 'http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd';
-		break;
-	case PKWK_DTD_XHTML_1_0_STRICT      :
-		$version = '1.0' ;
-		$option  = 'Strict';
-		$dtd     = 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd';
-		break;
-	case PKWK_DTD_XHTML_1_0_TRANSITIONAL:
-		$version = '1.0' ;
-		$option  = 'Transitional';
-		$dtd     = 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd';
-		break;
+	switch ($pkwk_dtd) {
+		case PKWK_DTD_HTML_5:
+			$type = PKWK_DTD_TYPE_HTML;
+			$html5 = TRUE;
+			break;
+		case PKWK_DTD_XHTML_1_1:
+			$version = '1.1';
+			$dtd     = 'http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd';
+			break;
+		case PKWK_DTD_XHTML_1_0_STRICT:
+			$version = '1.0';
+			$option  = 'Strict';
+			$dtd     = 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd';
+			break;
+		case PKWK_DTD_XHTML_1_0_TRANSITIONAL:
+			$version = '1.0';
+			$option  = 'Transitional';
+			$dtd     = 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd';
+			break;
 
-	case PKWK_DTD_HTML_4_01_STRICT      :
-		$type    = PKWK_DTD_TYPE_HTML;
-		$version = '4.01';
-		$dtd     = 'http://www.w3.org/TR/html4/strict.dtd';
-		break;
-	case PKWK_DTD_HTML_4_01_TRANSITIONAL:
-		$type    = PKWK_DTD_TYPE_HTML;
-		$version = '4.01';
-		$option  = 'Transitional';
-		$dtd     = 'http://www.w3.org/TR/html4/loose.dtd';
-		break;
+		case PKWK_DTD_HTML_4_01_STRICT:
+			$type    = PKWK_DTD_TYPE_HTML;
+			$version = '4.01';
+			$dtd     = 'http://www.w3.org/TR/html4/strict.dtd';
+			break;
+		case PKWK_DTD_HTML_4_01_TRANSITIONAL:
+			$type    = PKWK_DTD_TYPE_HTML;
+			$version = '4.01';
+			$option  = 'Transitional';
+			$dtd     = 'http://www.w3.org/TR/html4/loose.dtd';
+			break;
 
-	default: die('DTD not specified or invalid DTD');
-		break;
+		default:
+			die('DTD not specified or invalid DTD');
+			break;
 	}
 
 	$charset = htmlspecialchars($charset);
@@ -1200,11 +1155,9 @@ function pkwk_output_dtd($pkwk_dtd = PKWK_DTD_XHTML_1_1, $charset = CONTENT_CHAR
 	/*if ($type == PKWK_DTD_TYPE_XHTML) echo '<?xml version="1.0" encoding="' . $charset . '" ?>' . "\n";*/
 
 	// Output doctype
-	if ($pkwk_dtd == PKWK_DTD_HTML_5)
-	{
+	if ($pkwk_dtd == PKWK_DTD_HTML_5) {
 		echo '<!DOCTYPE html>' . "\n";
-	}
-	else {
+	} else {
 		echo '<!DOCTYPE html PUBLIC "-//W3C//DTD ' .
 			($type == PKWK_DTD_TYPE_XHTML ? 'XHTML' : 'HTML') . ' ' .
 			$version .
@@ -1216,38 +1169,29 @@ function pkwk_output_dtd($pkwk_dtd = PKWK_DTD_XHTML_1_1, $charset = CONTENT_CHAR
 
 	// Output <html> start tag
 	echo '<html';
-	if ($type == PKWK_DTD_TYPE_XHTML)
-	{
+	if ($type == PKWK_DTD_TYPE_XHTML) {
 		echo ' xmlns="http://www.w3.org/1999/xhtml"'; // dir="ltr" /* LeftToRight */
 		echo ' xml:lang="' . LANG . '"';
-		if ($ogp_tag === 1)
-		{
+		if ($ogp_tag === 1) {
 			echo ' xmlns:og="http://ogp.me/ns#"';
 		}
 		//Internet Explorer に必要なxmlns を吐き出す
 		$fb_xmlns = 'xmlns:fb="http://ogp.me/ns/fb#"';
-		if (strtoupper(UA_NAME) === 'MSIE' && ( ! isset($add_xmlns) OR stripos($add_xmlns, $fb_xmlns) === FALSE))
-		{
+		if (strtoupper(UA_NAME) === 'MSIE' && (! isset($add_xmlns) or stripos($add_xmlns, $fb_xmlns) === FALSE)) {
 			echo ' ', $fb_xmlns;
 		}
-		if (isset($add_xmlns))
-		{
+		if (isset($add_xmlns)) {
 			echo $add_xmlns;
 		}
 		if ($version == '1.0') echo ' lang="' . LANG . '"'; // Only XHTML 1.0
-	}
-	else
-	{
+	} else {
 		echo ' lang="' . LANG . '"'; // HTML
 	}
 	echo '>' . "\n"; // <html>
 
-	if ($html5)
-	{
+	if ($html5) {
 		return '<meta charset="UTF-8">' . "\n";
-	}
-	else
-	{
+	} else {
 		return '<meta http-equiv="content-type" content="text/html; charset=' . $charset . '">' . "\n";
 	}
 }

@@ -6,27 +6,29 @@
 
 function plugin_vote_action()
 {
-	global $vars, $script, $cols,$rows;
+	global $vars, $script, $cols, $rows;
 	$qm = get_qm();
-	
+
 	if (PKWK_READONLY) die_message('PKWK_READONLY prohibits editing');
 
 	$postdata_old  = get_source($vars['refer']);
 
 	$vote_no = 0;
 	$title = $body = $postdata = $postdata_input = $vote_str = '';
-	$matches = array();
-	foreach($postdata_old as $line) {
+	$matches = [];
+	foreach ($postdata_old as $line) {
 
-		if (! preg_match('/^#vote(?:\((.*)\)(.*))?$/i', $line, $matches) ||
-		    $vote_no++ != $vars['vote_no']) {
+		if (
+			! preg_match('/^#vote(?:\((.*)\)(.*))?$/i', $line, $matches) ||
+			$vote_no++ != $vars['vote_no']
+		) {
 			$postdata .= $line;
 			continue;
 		}
 		$args  = explode(',', $matches[1]);
 		$lefts = isset($matches[2]) ? $matches[2] : '';
 
-		foreach($args as $arg) {
+		foreach ($args as $arg) {
 			$cnt = 0;
 			if (preg_match('/^(.+)\[(\d+)\]$/', $arg, $matches)) {
 				$arg = $matches[1];
@@ -68,17 +70,17 @@ EOD;
 
 	$vars['page'] = $vars['refer'];
 
-	return array('msg'=>$title, 'body'=>$body);
+	return array('msg' => $title, 'body' => $body);
 }
 
 function plugin_vote_convert()
 {
 	global $script, $vars,  $digest;
-	static $number = array();
+	static $number = [];
 	$qm = get_qm();
 
 	$page = isset($vars['page']) ? $vars['page'] : '';
-	
+
 	// Vote-box-id in the page
 	if (! isset($number[$page])) $number[$page] = 0; // Init
 	$vote_no = $number[$page]++;
@@ -113,8 +115,8 @@ function plugin_vote_convert()
 EOD;
 
 	$tdcnt = 0;
-	$matches = array();
-	foreach($args as $arg) {
+	$matches = [];
+	foreach ($args as $arg) {
 		$cnt = 0;
 
 		if (preg_match('/^(.+)\[(\d+)\]$/', $arg, $matches)) {
@@ -146,4 +148,3 @@ EOD;
 
 	return $body;
 }
-?>

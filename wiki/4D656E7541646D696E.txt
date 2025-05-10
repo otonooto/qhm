@@ -1,4 +1,3 @@
-#freeze
 TITLE:メニュー管理画面
 [[トップへ>FrontPage]] 
 
@@ -10,7 +9,6 @@ TITLE:メニュー管理画面
 
 * メニューを編集する [#d246e355]
 
-#ref2(image/structure.png,nolink,around,right,Quick Homepage Makerの構造)
 
 : ''&edit(SiteNavigator){ナビ編集};'' | ロゴ部分の下にある水平のメニュー。箇条書きで書きましょう
 

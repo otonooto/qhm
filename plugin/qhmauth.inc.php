@@ -1,7 +1,8 @@
 <?php
+
 /**
-* QHM Auth プラグイン
-*/
+ * QHM Auth プラグイン
+ */
 
 function plugin_qhmauth_inline()
 {
@@ -12,26 +13,25 @@ function plugin_qhmauth_inline()
 	$text = $text === '' ? 'QHM' : $text;
 
 	$redirect_to = $script . '?cmd=qhmauth';
-	return '<a href="'.h($redirect_to).'">'.$text.'</a>';
+	return '<a href="' . h($redirect_to) . '">' . $text . '</a>';
 }
 
 function plugin_qhmauth_convert()
 {
 	global $script;
-	header('Location: '.$script.'?cmd=qhmauth');
+	header('Location: ' . $script . '?cmd=qhmauth');
 	exit;
 }
 
 
 function plugin_qhmauth_action()
 {
-	global $script, $auth_method_type, $auth_users, $edit_auth_pages;
+	global $script, $vars, $auth_method_type, $auth_users, $edit_auth_pages;
 	$qm = get_qm();
 
 	$page = isset($vars['page']) ? $vars['page'] : '';
 
 	$msg = $qm->m['plg_qhmauth']['title'];
-
 
 	// Checked by:
 	$target_str = '';
@@ -41,12 +41,12 @@ function plugin_qhmauth_action()
 		$target_str = join('', get_source($page)); // Its contents
 	}
 
-	$user_list = array();
-	foreach($edit_auth_pages as $key=>$val)
+	$user_list = [];
+	foreach ($edit_auth_pages as $key => $val)
 		if (preg_match($key, $target_str))
 			$user_list = array_merge($user_list, explode(',', $val));
 
-	if (empty($user_list)) return array('msg'=>$msg, 'body'=>"<p>{$qm->m['plg_qhmauth']['err_pkwk_ini']}</p>"); //TRUE; // No limit
+	if (empty($user_list)) return array('msg' => $msg, 'body' => "<p>{$qm->m['plg_qhmauth']['err_pkwk_ini']}</p>"); //TRUE; // No limit
 
 
 	//--------------------------------------------
@@ -54,19 +54,19 @@ function plugin_qhmauth_action()
 	//Session Auth instead of Basic Auth
 	//Thanks & Refer SiteDev + AT by AKKO
 
-	 if(array_key_exists($_SESSION['usr'],$auth_users)){
-		return array('msg'=>$msg, 'body'=>"<p>". $qm->replace('plg_qhmauth.err_has_auth', $_SESSION['usr'], $script). "</p>");
+	if (array_key_exists($_SESSION['usr'], $auth_users)) {
+		return array('msg' => $msg, 'body' => "<p>" . $qm->replace('plg_qhmauth.err_has_auth', $_SESSION['usr'], $script) . "</p>");
 
 		//return TRUE;
 	}
 
-    $fg = FALSE;
+	$fg = FALSE;
 
-	$fg = ss_chkusr($qm->m['plg_qhmauth']['title'],$auth_users);
-	if($fg){
+	$fg = ss_chkusr($msg, $auth_users);
+	if ($fg) {
 		$_SESSION['usr'] = $_POST['username'];
 
-		header( 'Location: '.$script );
+		header('Location: ' . $script);
 		exit;
 	}
 

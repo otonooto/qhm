@@ -1,4 +1,5 @@
 <?php
+
 /**
  *   Switch Design Layout Plugin
  *   -------------------------------------------
@@ -18,13 +19,11 @@
 
 function plugin_layout_convert()
 {
-    global $vars, $include_skin_file_path, $style_name;
     $qm = get_qm();
     $qt = get_qt();
 
     $args = func_get_args();
-    if (count($args)<1)
-    {
+    if (count($args) < 1) {
         return $qm->replace('必ずレイアウト名を指定してください。');
     }
 

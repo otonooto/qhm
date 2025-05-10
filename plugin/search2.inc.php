@@ -1,4 +1,5 @@
 <?php
+
 /**
  *   Search2 Plugin
  *   -------------------------------------------
@@ -54,13 +55,13 @@ function plugin_search2_action()
     }
 
     // Show search form
-    $bases = ($base == '') ? array() : array($base);
+    $bases = ($base == '') ? [] : array($base);
     $body .= plugin_search2_form($s_word, $type, $bases);
 
-    return array('msg'=>$msg, 'body'=>$body);
+    return array('msg' => $msg, 'body' => $body);
 }
 
-function plugin_search2_form($s_word = '', $type = '', $bases = array())
+function plugin_search2_form($s_word = '', $type = '', $bases = [])
 {
     global $script;
     $qm = get_qm();
@@ -71,11 +72,9 @@ function plugin_search2_form($s_word = '', $type = '', $bases = array())
     $show_type_selector = false;
     $btn_type = 'default';
     $form_type = '';
-    foreach ($bases as $base)
-    {
+    foreach ($bases as $base) {
         $base = trim($base);
-        switch ($base)
-        {
+        switch ($base) {
             case 'showtype':
                 $show_type_selector = true;
                 break;
@@ -98,8 +97,7 @@ function plugin_search2_form($s_word = '', $type = '', $bases = array())
     }
 
     $width_class = 'col-sm-' . $cols;
-    if ($offset)
-    {
+    if ($offset) {
         $width_class .= ' col-sm-offset-' . $offset;
     }
 
@@ -111,8 +109,7 @@ function plugin_search2_form($s_word = '', $type = '', $bases = array())
     }
 
     $type_selector_html = '<input type="hidden" name="type" value="AND" />';
-    if ($show_type_selector)
-    {
+    if ($show_type_selector) {
         $type_selector_html = <<< EOD
 <div class="form-group">
   <label class="radio-inline" style="display:inline-block;">
@@ -125,39 +122,35 @@ function plugin_search2_form($s_word = '', $type = '', $bases = array())
 EOD;
     }
 
-    if ($form_type === 'compact')
-    {
-        $html ='
-<form action="'.$script.'" method="get" class="qhm-search2 form-inline" data-plugin="search2">
+    if ($form_type === 'compact') {
+        $html = '
+<form action="' . $script . '" method="get" class="qhm-search2 form-inline" data-plugin="search2">
   <input type="hidden" name="cmd" value="search2" />
   <input type="hidden" name="type" value="AND" />
   <div class="form-group">
     <i class="fas fa-search"></i>
-    <input type="text"  name="word" value="'.h($s_word).'" class="form-control" placeholder="検索ワード" />
+    <input type="text"  name="word" value="' . h($s_word) . '" class="form-control" placeholder="検索ワード" />
   </div>
 </form>
 ';
-    }
-    else
-    {
+    } else {
         $html = '
-<form action="'.$script.'" method="get" class="qhm-search2 form-inline" data-plugin="search2">
+<form action="' . $script . '" method="get" class="qhm-search2 form-inline" data-plugin="search2">
   <input type="hidden" name="cmd" value="search2" />
-  <div class="input-group '.$width_class.'">
+  <div class="input-group ' . $width_class . '">
     <i class="fas fa-search"></i>
-    <input type="text"  name="word" value="'.h($s_word).'" class="form-control" placeholder="検索ワード" />
+    <input type="text"  name="word" value="' . h($s_word) . '" class="form-control" placeholder="検索ワード" />
     <div class="input-group-btn">
-      <input class="btn btn-'.$btn_type.'" type="submit" value="検索" />
+      <input class="btn btn-' . $btn_type . '" type="submit" value="検索" />
     </div>
   </div>
-  '.$type_selector_html.'
+  ' . $type_selector_html . '
 </form>
 ';
     }
 
     $style = '';
-    if (exist_plugin('icon'))
-    {
+    if (exist_plugin('icon')) {
         plugin_icon_set_font_awesome();
         $style = <<< HTML
 <style>
@@ -192,7 +185,6 @@ HTML;
 
 
     return $html;
-
 }
 
 // 'Search' main function
@@ -202,14 +194,14 @@ function plugin_search2_do_search($word, $type = 'AND', $non_format = FALSE, $ba
     global $search_auth, $show_passage, $username, $vars;
     $qm = get_qm();
 
-    $retval = array();
+    $retval = [];
 
     $b_type = ($type == 'AND'); // AND:TRUE OR:FALSE
     mb_language('Japanese');
-    $word = mb_convert_encoding($word,SOURCE_ENCODING,"UTF-8,EUC-JP,SJIS,ASCII,JIS");
+    $word = mb_convert_encoding($word, SOURCE_ENCODING, "UTF-8,EUC-JP,SJIS,ASCII,JIS");
     $word = mb_ereg_replace("　", " ", $word);
     $keys = get_search_words(preg_split('/\s+/', $word, -1, PREG_SPLIT_NO_EMPTY));
-    foreach ($keys as $key=>$value)
+    foreach ($keys as $key => $value)
         $keys[$key] = '/' . $value . '/S';
 
     $pages = get_existpages();
@@ -228,13 +220,12 @@ function plugin_search2_do_search($word, $type = 'AND', $non_format = FALSE, $ba
     // Search for page contents
     global $ignore_plugin, $strip_plugin, $strip_plugin_inline;
 
-    $titles = array();
-    $head10s = array();
+    $titles = [];
+    $head10s = [];
 
     // 一時的に認証を外す
     $user_name = null;
-    if (isset($_SESSION['usr']))
-    {
+    if (isset($_SESSION['usr'])) {
         $user_name = $_SESSION['usr'];
         unset($_SESSION['usr']);
     }
@@ -244,7 +235,7 @@ function plugin_search2_do_search($word, $type = 'AND', $non_format = FALSE, $ba
         $b_match = FALSE;
 
         // Search auth for page contents
-        if ( ! check_readable($page, false, false, TRUE)) {
+        if (! check_readable($page, false, false, TRUE)) {
             unset($pages[$page]);
             continue;
         }
@@ -252,36 +243,31 @@ function plugin_search2_do_search($word, $type = 'AND', $non_format = FALSE, $ba
         $lines = get_source($page, TRUE, FALSE);
 
         //--- 検索専用のデータの作成、更新 ---
-        $srh_fname = CACHE_DIR . encode($page).'_search.txt';
+        $srh_fname = CACHE_DIR . encode($page) . '_search.txt';
 
-        if ( ! file_exists($srh_fname) ||
-            ( filemtime($srh_fname) < filemtime(get_filename($page))))
-        {
+        if (
+            ! file_exists($srh_fname) ||
+            (filemtime($srh_fname) < filemtime(get_filename($page)))
+        ) {
             $p_title = $page;
             $p_heads = '';
-            foreach($lines as $k => $l)
-            {
-                if (preg_match($ignore_plugin, $l))
-                {// 省く
-                    $lines = array();
+            foreach ($lines as $k => $l) {
+                if (preg_match($ignore_plugin, $l)) { // 省く
+                    $lines = [];
                     break;
                 }
-                if(preg_match($strip_plugin, $l, $ms))
-                {// 省く
+                if (preg_match($strip_plugin, $l, $ms)) { // 省く
                     unset($lines[$k]);
                 }
-                if (preg_match('/^TITLE:(.*)/', $l, $ms))
-                {
+                if (preg_match('/^TITLE:(.*)/', $l, $ms)) {
                     $p_title = trim($ms[1]);
-                    if ($p_title !== $page)
-                    {
-                        $p_title = $p_title.' '.$page;
+                    if ($p_title !== $page) {
+                        $p_title = $p_title . ' ' . $page;
                     }
                     unset($lines[$k]);
                 }
-                if (preg_match('/^(?:!|(\*){1,3})(.*)\[#\w+\]\s?/', $l, $ms))
-                {
-                    $p_heads .=  trim($ms[2]).' ';
+                if (preg_match('/^(?:!|(\*){1,3})(.*)\[#\w+\]\s?/', $l, $ms)) {
+                    $p_heads .=  trim($ms[2]) . ' ';
                     unset($lines[$k]);
                 }
             }
@@ -291,17 +277,14 @@ function plugin_search2_do_search($word, $type = 'AND', $non_format = FALSE, $ba
             $html = preg_replace('/<(script|style)[^>]*>.*?<\/\1>/i', '', $html);
             $html = preg_replace('/<img\b[^>]*alt="(.*?)"[^>]*>/i', '\1', $html);
             $p_body = trim(strip_tags($html));
-            foreach ($foot_explain as $id => $note)
-            {
+            foreach ($foot_explain as $id => $note) {
                 $p_body .= "\n" . strip_tags($note);
             }
-            $foot_explain = array();
+            $foot_explain = [];
 
-            $p_body = (count($lines) > 0) ? $p_title."\n".$p_heads."\n".$p_body : '';
+            $p_body = (count($lines) > 0) ? $p_title . "\n" . $p_heads . "\n" . $p_body : '';
             file_put_contents($srh_fname, $p_body);
-        }
-        else
-        {
+        } else {
             $fp = fopen($srh_fname, "r");
             flock($fp, LOCK_SH);
             $lines = file($srh_fname);
@@ -327,91 +310,94 @@ function plugin_search2_do_search($word, $type = 'AND', $non_format = FALSE, $ba
         $match_body = 0;
 
         //--- ページタイトル検索 ---
-        $point = 0; $ok = false;
-        if ( ! $non_format) {
+        $point = 0;
+        $ok = false;
+        if (! $non_format) {
 
             foreach ($keys as $key) {
                 $b_match = preg_match($key, $p_title);
-                if( ! $b_match){
-                    $ok = false; break;
-                }
-                else{
-                    $ok = true;    $point += 15;
+                if (! $b_match) {
+                    $ok = false;
+                    break;
+                } else {
+                    $ok = true;
+                    $point += 15;
                 }
             }
-            if($ok){ $match_title = $point; }
+            if ($ok) {
+                $match_title = $point;
+            }
         }
 
         //--- ヘッダー検索 ---
-        $point = 0; $ok = false;
+        $point = 0;
+        $ok = false;
         foreach ($keys as $key) {
             $b_match = preg_match_all($key, $p_title, $ms);
-            if(!$b_match){
-                $ok = false; break;
-            }
-            else{
-                $ok = true;    $point += 10;
+            if (!$b_match) {
+                $ok = false;
+                break;
+            } else {
+                $ok = true;
+                $point += 10;
             }
         }
-        if($ok){ $match_heads = $point; }
+        if ($ok) {
+            $match_heads = $point;
+        }
 
         //--- コンテンツ検索 ---
         foreach ($keys as $key) {
             $b_match = preg_match_all($key, $p_body, $ms);
-            if(!$b_match){
-                $ok = false; break;
-            }
-            else{
-                $ok = true;    $point += count($ms[0]);
+            if (!$b_match) {
+                $ok = false;
+                break;
+            } else {
+                $ok = true;
+                $point += count($ms[0]);
             }
         }
-        if($ok){ $match_body = $point; }
+        if ($ok) {
+            $match_body = $point;
+        }
 
         //検索結果
         $total = $match_title + $match_heads + $match_body;
 
-        if ($total == 0)
-        {
+        if ($total == 0) {
             unset($pages[$page]); // Miss
-        }
-        else
-        {
+        } else {
             $pages[$page] = $total;
             $titles[$page] = $p_title;
-            $head10s[$page] = mb_substr($p_body, 0 , 60*3);
+            $head10s[$page] = mb_substr($p_body, 0, 60 * 3);
         }
     }
 
-    if ($user_name !== null)
-    {
+    if ($user_name !== null) {
         $_SESSION['usr'] = $user_name;
     }
 
     $vars['page'] = '';
 
     //注釈の削除
-    $foot_explain = array();
+    $foot_explain = [];
 
     if ($non_format) return array_keys($pages);
 
     $r_word = rawurlencode($word);
     $s_word = h($word);
-    if (empty($pages))
-    {
+    if (empty($pages)) {
         return str_replace('$1', $s_word, '$1 を含むページは見つかりませんでした。');
     }
 
     arsort($pages);
 
     $retval = '<div class="container-fluid"><div class="list-group">' . "\n";
-    foreach ($pages as $page=>$v)
-    {
+    foreach ($pages as $page => $v) {
         $title  = $titles[$page];
-        if ($title !== $page)
-        {
+        if ($title !== $page) {
             $rpos = strrpos($title, $page);
-            if ($rpos !== FALSE)
-            {
+            if ($rpos !== FALSE) {
                 $title = trim(substr($title, 0, $rpos));
             }
             $title = $title . ' - ' . $page;
@@ -419,14 +405,17 @@ function plugin_search2_do_search($word, $type = 'AND', $non_format = FALSE, $ba
         $r_page  = rawurlencode($page);
 
         $tmp_li = '  <div class="list-group-item" style="border-style:none;"><a class="list-group-item-heading" href="' . $script . '?cmd=read&amp;page=' .
-        $r_page . '&amp;word=' . $r_word . '" style="font-weight:bold;">' .h($title).
-            '</a><p class="list-group-item-text text-muted" style="margin: 5px 0;">'.$head10s[$page].'</p></div>' . "\n";
+            $r_page . '&amp;word=' . $r_word . '" style="font-weight:bold;">' . h($title) .
+            '</a><p class="list-group-item-text text-muted" style="margin: 5px 0;">' . $head10s[$page] . '</p></div>' . "\n";
 
         $retval .= $tmp_li;
     }
     $retval .= '</div><p>' . "\n";
-    $retval .= str_replace('$1', $s_word, str_replace('$2', count($pages),
-        str_replace('$3', $count, $b_type ? '$1 のすべてを含むページは <strong>$3</strong> ページ中、 <strong>$2</strong> ページ見つかりました。' : '$1 のいずれかを含むページは <strong>$3</strong> ページ中、 <strong>$2</strong> ページ見つかりました。')));
+    $retval .= str_replace('$1', $s_word, str_replace(
+        '$2',
+        count($pages),
+        str_replace('$3', $count, $b_type ? '$1 のすべてを含むページは <strong>$3</strong> ページ中、 <strong>$2</strong> ページ見つかりました。' : '$1 のいずれかを含むページは <strong>$3</strong> ページ中、 <strong>$2</strong> ページ見つかりました。')
+    ));
     $retval .= '</p></div>';
 
     return $retval;

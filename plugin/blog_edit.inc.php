@@ -56,7 +56,7 @@ function plugin_blog_edit_action()
 EOD;
 	}
 
-	return array('msg'=>$qm->m['fmt_title_edit'], 'body'=>edit_form($page, $postdata));
+	return array('msg' => $qm->m['fmt_title_edit'], 'body' => edit_form($page, $postdata));
 }
 
 // Preview
@@ -100,7 +100,7 @@ function plugin_blog_edit_preview()
 	}
 	$body .= edit_form($page, $vars['msg'], $vars['digest'], FALSE);
 
-	return array('msg'=>$qm->m['fmt_title_preview'], 'body'=>$body);
+	return array('msg' => $qm->m['fmt_title_preview'], 'body' => $body);
 }
 
 // Inline: Show edit (or unfreeze text) link
@@ -122,12 +122,18 @@ function plugin_blog_edit_inline()
 	$page    = array_shift($args);
 	if ($page == NULL) $page = '';
 	$_noicon = $_nolabel = FALSE;
-	foreach($args as $arg){
-		switch(strtolower($arg)){
-		case ''       :                   break;
-		case 'nolabel': $_nolabel = TRUE; break;
-		case 'noicon' : $_noicon  = TRUE; break;
-		default       : return $usage;
+	foreach ($args as $arg) {
+		switch (strtolower($arg)) {
+			case '':
+				break;
+			case 'nolabel':
+				$_nolabel = TRUE;
+				break;
+			case 'noicon':
+				$_noicon  = TRUE;
+				break;
+			default:
+				return $usage;
 		}
 	}
 
@@ -210,9 +216,9 @@ function plugin_blog_edit_write()
 	$digest = isset($vars['digest']) ? $vars['digest'] : '';
 
 	$vars['msg'] = preg_replace(PLUGIN_EDIT_FREEZE_REGEX, '', $vars['msg']);
-	$msg = & $vars['msg']; // Reference
+	$msg = &$vars['msg']; // Reference
 
-	$retvars = array();
+	$retvars = [];
 
 	// Collision Detection
 	$oldpagesrc = join('', get_source($page));
@@ -223,7 +229,7 @@ function plugin_blog_edit_write()
 		$original = isset($vars['original']) ? $vars['original'] : '';
 		list($postdata_input, $auto) = do_update_diff($oldpagesrc, $msg, $original);
 
-		$retvars['msg' ] = $qm->m['fmt_title_collided'];
+		$retvars['msg'] = $qm->m['fmt_title_collided'];
 		$retvars['body'] = ($auto ? $qm->m['fmt_msg_collided_auto'] : $qm->m['fmt_msg_collided']) . "\n";
 		$retvars['body'] .= $do_update_diff_table;
 		$retvars['body'] .= edit_form($page, $postdata_input, $oldpagemd5, FALSE);
@@ -240,13 +246,13 @@ function plugin_blog_edit_write()
 		}
 	} else {
 		// Edit or Remove
-		$postdata = & $msg; // Reference
+		$postdata = &$msg; // Reference
 	}
 
 	// NULL POSTING, OR removing existing page
 	if ($postdata == '') {
 		page_write($page, $postdata);
-		$retvars['msg' ] = $qm->m['fmt_title_deleted'];
+		$retvars['msg'] = $qm->m['fmt_title_deleted'];
 		$retvars['body'] = $qm->replace('fmt_title_deleted', h($page));
 
 		if ($trackback) tb_delete($page);
@@ -277,5 +283,3 @@ function plugin_blog_edit_cancel()
 	header('Location: ' . get_script_uri() . '?' . rawurlencode($vars['page']));
 	exit;
 }
-
-?>

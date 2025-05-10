@@ -47,7 +47,7 @@ define('PLUGIN_NAVI_LINK_TAGS', FALSE);	// FALSE, TRUE
 function plugin_navi_convert()
 {
 	global $vars, $script, $head_tags;
-	static $navi = array();
+	static $navi = [];
 	$qm = get_qm();
 
 	$current = $vars['page'];
@@ -59,9 +59,11 @@ function plugin_navi_convert()
 		$is_home = ($home == $current);
 		if (! is_page($home)) {
 			return $qm->replace('plg_navi.err_not_page', h($home));
-		} else if (! $is_home &&
-		    ! preg_match('/^' . preg_quote($home, '/') . '/', $current)) {
-		    return $qm->replace('plg_navi.err_not_child', h($home), h(basename($current)));
+		} else if (
+			! $is_home &&
+			! preg_match('/^' . preg_quote($home, '/') . '/', $current)
+		) {
+			return $qm->replace('plg_navi.err_not_child', h($home), h(basename($current)));
 		}
 		$reverse = (strtolower($reverse) == 'reverse');
 	} else {
@@ -69,25 +71,27 @@ function plugin_navi_convert()
 		$is_home = TRUE; // $home == $current
 	}
 
-	$pages  = array();
+	$pages  = [];
 	$footer = isset($navi[$home]); // The first time: FALSE, the second: TRUE
 	if (! $footer) {
 		$navi[$home] = array(
-			'up'   =>'',
-			'prev' =>'',
-			'prev1'=>'',
-			'next' =>'',
-			'next1'=>'',
-			'home' =>'',
-			'home1'=>'',
+			'up'   => '',
+			'prev' => '',
+			'prev1' => '',
+			'next' => '',
+			'next1' => '',
+			'home' => '',
+			'home1' => '',
 		);
 
 		$pages = preg_grep('/^' . preg_quote($home, '/') .
 			'($|\/)/', get_existpages());
 		if (PLUGIN_NAVI_EXCLUSIVE_REGEX != '') {
 			// If old PHP could use preg_grep(,,PREG_GREP_INVERT)...
-			$pages = array_diff($pages,
-				preg_grep(PLUGIN_NAVI_EXCLUSIVE_REGEX, $pages));
+			$pages = array_diff(
+				$pages,
+				preg_grep(PLUGIN_NAVI_EXCLUSIVE_REGEX, $pages)
+			);
 		}
 		$pages[] = $current; // Sentinel :)
 		$pages   = array_unique($pages);
@@ -108,24 +112,30 @@ function plugin_navi_convert()
 			$navi[$home]['up']    = make_pagelink($up, $qm->m['plg_navi']['up']);
 		}
 		if (! $is_home) {
-			$navi[$home]['prev']  = make_pagelink($prev, get_page_title($prev) );
+			$navi[$home]['prev']  = make_pagelink($prev, get_page_title($prev));
 			$navi[$home]['prev1'] = make_pagelink($prev, $qm->m['plg_navi']['prev']);
 		}
 		if ($next != '') {
-			$navi[$home]['next']  = make_pagelink($next, get_page_title($next) );
+			$navi[$home]['next']  = make_pagelink($next, get_page_title($next));
 			$navi[$home]['next1'] = make_pagelink($next, $qm->m['plg_navi']['next']);
 		}
-//		$navi[$home]['home']  = make_pagelink($home);
+		//		$navi[$home]['home']  = make_pagelink($home);
 		$navi[$home]['home']  = make_pagelink($home, get_page_title($home));
 		$navi[$home]['home1'] = make_pagelink($home, $qm->m['plg_navi']['home']);
 
-//var_dump($navi);
+		//var_dump($navi);
 
 		// Generate <link> tag: start next prev(previous) parent(up)
 		// Not implemented: contents(toc) search first(begin) last(end)
 		if (PLUGIN_NAVI_LINK_TAGS) {
-			foreach (array('start'=>$home, 'next'=>$next,
-			    'prev'=>$prev, 'up'=>$up) as $rel=>$_page) {
+			foreach (
+				array(
+					'start' => $home,
+					'next' => $next,
+					'prev' => $prev,
+					'up' => $up
+				) as $rel => $_page
+			) {
 				if ($_page != '') {
 					$s_page = h($_page);
 					$r_page = rawurlencode($_page);
@@ -156,7 +166,6 @@ function plugin_navi_convert()
 					$ret .= ' <li>' . make_pagelink($page) . '</li>';
 			$ret .= '</ul>';
 		}
-
 	} else if (! $footer) {
 		// Header
 		$ret = <<<EOD
@@ -167,7 +176,6 @@ function plugin_navi_convert()
 </ul>
 <hr class="full_hr" />
 EOD;
-
 	} else {
 		// Footer
 		$ret = <<<EOD
@@ -181,4 +189,3 @@ EOD;
 	}
 	return $ret;
 }
-?>

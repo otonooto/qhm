@@ -8,13 +8,14 @@
 // Page title's date format
 //  * See PHP date() manual for detail
 //  * '$\w' = weeklabel defined in $_msg_week
-define('PLUGIN_CALENDAR_VIEWER_DATE_FORMAT',
+define(
+	'PLUGIN_CALENDAR_VIEWER_DATE_FORMAT',
 	//	FALSE         // 'pagename/2004-02-09' -- As is
 	//	'D, d M, Y'   // 'Mon, 09 Feb, 2004'
 	//	'F d, Y'      // 'February 09, 2004'
 	//	'[Y-m-d]'     // '[2004-02-09]'
-		'Y/n/j ($\w)' // '2004/2/9 (Mon)'
-	);
+	'Y/n/j ($\w)' // '2004/2/9 (Mon)'
+);
 
 /*
  ** pagename
@@ -48,7 +49,7 @@ function plugin_calendar_viewer_convert()
 	global $vars, $get, $post, $script, $weeklabels;
 	$qm = get_qm();
 
-	static $viewed = array();
+	static $viewed = [];
 
 	if (func_num_args() < 2)
 		return $qm->replace('fmt_err_cvt', 'calendar_viewer', $qm->m['plg_calendar_viewer']['err_usage']);
@@ -65,7 +66,7 @@ function plugin_calendar_viewer_convert()
 	$date_sep    = '-';	// 日付のセパレータ calendar2なら '-', calendarなら ''
 
 	// Check $func_args[1]
-	$matches = array();
+	$matches = [];
 	if (preg_match('/[0-9]{4}' . $date_sep . '[0-9]{2}/', $func_args[1])) {
 		// 指定年月の一覧表示
 		$page_YM     = $func_args[1];
@@ -117,11 +118,11 @@ function plugin_calendar_viewer_convert()
 	}
 
 	// ページリストの取得
-	$pagelist = array();
+	$pagelist = [];
 	if ($dir = @opendir(DATA_DIR)) {
 		$_date = get_date('Y' . $date_sep . 'm' . $date_sep . 'd');
 		$page_date  = '';
-		while($file = readdir($dir)) {
+		while ($file = readdir($dir)) {
 			if ($file == '..' || $file == '.') continue;
 			if (substr($file, 0, $filepattern_len) != $filepattern) continue;
 
@@ -133,8 +134,9 @@ function plugin_calendar_viewer_convert()
 			// Future-mode hates the past.
 			if ((plugin_calendar_viewer_isValidDate($page_date, $date_sep) == FALSE) ||
 				($page_date > $_date && ($mode == 'past')) ||
-				($page_date < $_date && ($mode == 'future')))
-					continue;
+				($page_date < $_date && ($mode == 'future'))
+			)
+				continue;
 
 			$pagelist[] = $page;
 		}
@@ -175,10 +177,10 @@ function plugin_calendar_viewer_convert()
 			} else {
 				$week   = $weeklabels[date('w', $time)];
 				$s_page = htmlspecialchars(str_replace(
-						array('$w' ),
-						array($week),
-						date(PLUGIN_CALENDAR_VIEWER_DATE_FORMAT, $time)
-					));
+					array('$w'),
+					array($week),
+					date(PLUGIN_CALENDAR_VIEWER_DATE_FORMAT, $time)
+				));
 			}
 		} else {
 			$s_page = htmlspecialchars($page);
@@ -248,7 +250,6 @@ function plugin_calendar_viewer_convert()
 		} else {
 			$left_YM   = $limit_base - $limit_pitch . '*' . $limit_pitch;
 			$left_text = sprintf($qm->m['plg_calendar_viewer']['left'], $limit_pitch);
-
 		}
 		if ($limit_base + $limit_pitch >= count($pagelist)) {
 			$right_YM = ''; // 表示しない (それより後の項目はない)
@@ -274,7 +275,7 @@ function plugin_calendar_viewer_convert()
 		$return_body .=
 			'<div class="calendar_viewer">' .
 			'<span class="calendar_viewer_left">'  . $left_link  . '</span>';
-		if ($left_link != '' ) $return_body .= ' | ';
+		if ($left_link != '') $return_body .= ' | ';
 		$return_body .=
 			'<span class="calendar_viewer_right">' . $right_link . '</span>' .
 			'</div>';
@@ -291,7 +292,7 @@ function plugin_calendar_viewer_action()
 
 	$date_sep = '-';
 
-	$return_vars_array = array();
+	$return_vars_array = [];
 
 	$page = strip_bracket($vars['page']);
 	$vars['page'] = '*';
@@ -321,14 +322,13 @@ function plugin_calendar_viewer_action()
 
 function plugin_calendar_viewer_isValidDate($aStr, $aSepList = '-/ .')
 {
-	$matches = array();
+	$matches = [];
 	if ($aSepList == '') {
 		// yyymmddとしてチェック（手抜き(^^;）
 		return checkdate(substr($aStr, 4, 2), substr($aStr, 6, 2), substr($aStr, 0, 4));
-	} else if (preg_match("/^([0-9]{2,4})[$aSepList]([0-9]{1,2})[$aSepList]([0-9]{1,2})$/", $aStr, $matches) ) {
+	} else if (preg_match("/^([0-9]{2,4})[$aSepList]([0-9]{1,2})[$aSepList]([0-9]{1,2})$/", $aStr, $matches)) {
 		return checkdate($matches[2], $matches[3], $matches[1]);
 	} else {
 		return FALSE;
 	}
 }
-?>

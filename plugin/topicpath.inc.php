@@ -40,12 +40,12 @@ function plugin_topicpath_inline()
 		array_pop($parts); // Remove the page itself
 	}
 
-	$topic_path = array();
+	$topic_path = [];
 	while (! empty($parts)) {
 		$_landing = join('/', $parts);
 		$landing  = rawurlencode($_landing);
 		$element = htmlspecialchars(array_pop($parts));
-		if (! $b_link)  {
+		if (! $b_link) {
 			// This page ($_landing == $page)
 			$b_link = TRUE;
 			$topic_path[] = $element;
@@ -64,4 +64,3 @@ function plugin_topicpath_inline()
 
 	return join(PLUGIN_TOPICPATH_TOP_SEPARATOR, array_reverse($topic_path));
 }
-?>

@@ -47,31 +47,31 @@
  */
 
 global $googlemaps_apikey;
-define ('PLUGIN_GOOGLEMAPS2_DEF_KEY', $googlemaps_apikey);
+define('PLUGIN_GOOGLEMAPS2_DEF_KEY', $googlemaps_apikey);
 
-define ('PLUGIN_GOOGLEMAPS2_DEF_MAPNAME', 'googlemaps2');     //Map名
-define ('PLUGIN_GOOGLEMAPS2_DEF_WIDTH'  , '400px');           //横幅
-define ('PLUGIN_GOOGLEMAPS2_DEF_HEIGHT' , '400px');           //縦幅
-define ('PLUGIN_GOOGLEMAPS2_DEF_LAT'    ,  35.036198);        //経度
-define ('PLUGIN_GOOGLEMAPS2_DEF_LNG'    ,  135.732103);       //緯度
-define ('PLUGIN_GOOGLEMAPS2_DEF_ZOOM'   ,  13);       //ズームレベル
-define ('PLUGIN_GOOGLEMAPS2_DEF_TYPE'   ,  'normal'); //マップのタイプ(normal, satellite, hybrid)
-define ('PLUGIN_GOOGLEMAPS2_DEF_MAPCTRL',  'normal'); //マップコントロール(none,smallzoom,small,normal,large)
-define ('PLUGIN_GOOGLEMAPS2_DEF_TYPECTRL'    ,'normal'); //maptype切替コントロール(none, normal)
-define ('PLUGIN_GOOGLEMAPS2_DEF_SCALECTRL'   ,'none');   //スケールコントロール(none, normal)
-define ('PLUGIN_GOOGLEMAPS2_DEF_OVERVIEWCTRL','none');   //オーバービューマップ(none, hide, show)
-define ('PLUGIN_GOOGLEMAPS2_DEF_CROSSCTRL'   ,'none');   //センタークロスコントロール(none, show)
-define ('PLUGIN_GOOGLEMAPS2_DEF_OVERVIEWWIDTH', '150');  //オーバービューマップの横幅
-define ('PLUGIN_GOOGLEMAPS2_DEF_OVERVIEWHEIGHT','150');  //オーバービューマップの縦幅
-define ('PLUGIN_GOOGLEMAPS2_DEF_API', 2);                //APIの後方互換用フラグ(1=1系, 2=2系). 廃止予定。
-define ('PLUGIN_GOOGLEMAPS2_DEF_TOGGLEMARKER', false);     //マーカーの表示切替チェックの表示
-define ('PLUGIN_GOOGLEMAPS2_DEF_NOICONNAME'  , 'Unnamed'); //アイコン無しマーカーのラベル
-define ('PLUGIN_GOOGLEMAPS2_DEF_DBCLICKZOOM'  , true);     //ダブルクリックでズームする(true, false)
-define ('PLUGIN_GOOGLEMAPS2_DEF_CONTINUOUSZOOM', true);    //滑らかにズームする(true, false)
-define ('PLUGIN_GOOGLEMAPS2_DEF_GEOXML', '');              //読み込むKML, GeoRSSのURL
-define ('PLUGIN_GOOGLEMAPS2_DEF_GOOGLEBAR', false);        //GoogleBarの表示
-define ('PLUGIN_GOOGLEMAPS2_DEF_IMPORTICON', '');          //アイコンを取得するPukiwikiページ
-define ('PLUGIN_GOOGLEMAPS2_DEF_BACKLINKMARKER', false);    //バックリンクでマーカーを集める
+define('PLUGIN_GOOGLEMAPS2_DEF_MAPNAME', 'googlemaps2');     //Map名
+define('PLUGIN_GOOGLEMAPS2_DEF_WIDTH', '400px');           //横幅
+define('PLUGIN_GOOGLEMAPS2_DEF_HEIGHT', '400px');           //縦幅
+define('PLUGIN_GOOGLEMAPS2_DEF_LAT',  35.036198);        //経度
+define('PLUGIN_GOOGLEMAPS2_DEF_LNG',  135.732103);       //緯度
+define('PLUGIN_GOOGLEMAPS2_DEF_ZOOM',  13);       //ズームレベル
+define('PLUGIN_GOOGLEMAPS2_DEF_TYPE',  'normal'); //マップのタイプ(normal, satellite, hybrid)
+define('PLUGIN_GOOGLEMAPS2_DEF_MAPCTRL',  'normal'); //マップコントロール(none,smallzoom,small,normal,large)
+define('PLUGIN_GOOGLEMAPS2_DEF_TYPECTRL', 'normal'); //maptype切替コントロール(none, normal)
+define('PLUGIN_GOOGLEMAPS2_DEF_SCALECTRL', 'none');   //スケールコントロール(none, normal)
+define('PLUGIN_GOOGLEMAPS2_DEF_OVERVIEWCTRL', 'none');   //オーバービューマップ(none, hide, show)
+define('PLUGIN_GOOGLEMAPS2_DEF_CROSSCTRL', 'none');   //センタークロスコントロール(none, show)
+define('PLUGIN_GOOGLEMAPS2_DEF_OVERVIEWWIDTH', '150');  //オーバービューマップの横幅
+define('PLUGIN_GOOGLEMAPS2_DEF_OVERVIEWHEIGHT', '150');  //オーバービューマップの縦幅
+define('PLUGIN_GOOGLEMAPS2_DEF_API', 2);                //APIの後方互換用フラグ(1=1系, 2=2系). 廃止予定。
+define('PLUGIN_GOOGLEMAPS2_DEF_TOGGLEMARKER', false);     //マーカーの表示切替チェックの表示
+define('PLUGIN_GOOGLEMAPS2_DEF_NOICONNAME', 'Unnamed'); //アイコン無しマーカーのラベル
+define('PLUGIN_GOOGLEMAPS2_DEF_DBCLICKZOOM', true);     //ダブルクリックでズームする(true, false)
+define('PLUGIN_GOOGLEMAPS2_DEF_CONTINUOUSZOOM', true);    //滑らかにズームする(true, false)
+define('PLUGIN_GOOGLEMAPS2_DEF_GEOXML', '');              //読み込むKML, GeoRSSのURL
+define('PLUGIN_GOOGLEMAPS2_DEF_GOOGLEBAR', false);        //GoogleBarの表示
+define('PLUGIN_GOOGLEMAPS2_DEF_IMPORTICON', '');          //アイコンを取得するPukiwikiページ
+define('PLUGIN_GOOGLEMAPS2_DEF_BACKLINKMARKER', false);    //バックリンクでマーカーを集める
 
 //Pukiwikiは1.4.5から携帯電話などのデバイスごとにプロファイルを用意して
 //UAでスキンを切り替えて表示できるようになったが、この定数ではGoogleMapsを
@@ -81,9 +81,10 @@ define ('PLUGIN_GOOGLEMAPS2_DEF_BACKLINKMARKER', false);    //バックリンク
 //ユーザーが追加したプロファイルがあり、それもGoogleMapsが表示可能なデバイスなら追加すること。
 //またデフォルトのプロファイルを"default"以外の名前にしている場合も変更すること。
 //注:GoogleMapsは携帯電話で表示できない。
-define ('PLUGIN_GOOGLEMAPS2_PROFILE', 'default');
+define('PLUGIN_GOOGLEMAPS2_PROFILE', 'default');
 
-function plugin_googlemaps2_is_supported_profile () {
+function plugin_googlemaps2_is_supported_profile()
+{
 	if (defined("UA_PROFILE")) {
 		return in_array(UA_PROFILE, preg_split('/[\s,]+/', PLUGIN_GOOGLEMAPS2_PROFILE));
 	} else {
@@ -91,7 +92,8 @@ function plugin_googlemaps2_is_supported_profile () {
 	}
 }
 
-function plugin_googlemaps2_get_default () {
+function plugin_googlemaps2_get_default()
+{
 	global $vars;
 	return array(
 		'mapname'        => PLUGIN_GOOGLEMAPS2_DEF_MAPNAME,
@@ -121,48 +123,50 @@ function plugin_googlemaps2_get_default () {
 	);
 }
 
-function plugin_googlemaps2_convert() {
+function plugin_googlemaps2_convert()
+{
 	static $init = true;
 	$args = func_get_args();
-	$ret = "<div>".plugin_googlemaps2_output($init, $args)."</div>";
+	$ret = "<div>" . plugin_googlemaps2_output($init, $args) . "</div>";
 	$init = false;
 	return $ret;
 }
 
-function plugin_googlemaps2_inline() {
+function plugin_googlemaps2_inline()
+{
 	static $init = true;
 	$args = func_get_args();
 	array_pop($args);
 	$ret = plugin_googlemaps2_output($init, $args);
 	$init = false;
 	return $ret;
-	
 }
 
-function plugin_googlemaps2_action() {
+function plugin_googlemaps2_action()
+{
 	global $vars;
 	$qm = get_qm();
 	$action = isset($vars['action']) ? $vars['action'] : '';
 	$page = isset($vars['page']) ? $vars['page'] : '';
 
-	switch($action) {
+	switch ($action) {
 		case '':
 			break;
 		// maxContent用のレイアウトスタイルでページのbodyを出力
 		case 'showbody':
 			if (is_page($page)) {
-				$body = convert_html(get_source($page));	
+				$body = convert_html(get_source($page));
 			} else {
 				if ($page == '') {
-					$page = '('. $qm->m['plg_googlemaps2']['empty_page_name']. ')';
+					$page = '(' . $qm->m['plg_googlemaps2']['empty_page_name'] . ')';
 				}
 				$body = h($page);
-				$body .= '<br />'. $qm->m['plg_googlemaps2']['err_unknown_page'];
+				$body .= '<br />' . $qm->m['plg_googlemaps2']['err_unknown_page'];
 			}
 			pkwk_common_headers();
 			header('Cache-control: no-cache');
 			header('Pragma: no-cache');
-			header('Content-Type: text/html; charset='.CONTENT_CHARSET);
+			header('Content-Type: text/html; charset=' . CONTENT_CHARSET);
 			print <<<EOD
 <div>
 $body
@@ -173,19 +177,24 @@ EOD;
 	exit;
 }
 
-function plugin_googlemaps2_getbool($val) {
+function plugin_googlemaps2_getbool($val)
+{
 	if ($val == false) return false;
-	if (!strcasecmp ($val, "false") || 
-		!strcasecmp ($val, "no"))
+	if (
+		!strcasecmp($val, "false") ||
+		!strcasecmp($val, "no")
+	)
 		return false;
 	return true;
 }
 
-function plugin_googlemaps2_addprefix($page, $name) {
-	return "pukiwikigooglemaps2_".$page.'_'.$name;
+function plugin_googlemaps2_addprefix($page, $name)
+{
+	return "pukiwikigooglemaps2_" . $page . '_' . $name;
 }
 
-function plugin_googlemaps2_output($doInit, $params) {
+function plugin_googlemaps2_output($doInit, $params)
+{
 	global $vars;
 	$qm = get_qm();
 
@@ -193,26 +202,32 @@ function plugin_googlemaps2_output($doInit, $params) {
 		return $qm->m['plg_googlemaps2']['err_unsupport_dev'];
 	}
 	$defoptions = plugin_googlemaps2_get_default();
-	
-	$inoptions = array();
+
+	$inoptions = [];
 	$isSetZoom = false;
 	foreach ($params as $param) {
 		$pos = strpos($param, '=');
 		if ($pos == false) continue;
 		$index = trim(substr($param, 0, $pos));
-		$value = htmlspecialchars(trim(substr($param, $pos+1)));
+		$value = htmlspecialchars(trim(substr($param, $pos + 1)));
 		$inoptions[$index] = $value;
-		if ($index == 'cx') {$cx = (float)$value;}//for old api
-		if ($index == 'cy') {$cy = (float)$value;}//for old api
-		if ($index == 'zoom') {$isSetZoom = true;}//for old api
+		if ($index == 'cx') {
+			$cx = (float)$value;
+		} //for old api
+		if ($index == 'cy') {
+			$cy = (float)$value;
+		} //for old api
+		if ($index == 'zoom') {
+			$isSetZoom = true;
+		} //for old api
 	}
 
 	if (array_key_exists('define', $inoptions)) {
 		$vars['googlemaps2'][$inoptions['define']] = $inoptions;
 		return "";
 	}
-	
-	$coptions = array();
+
+	$coptions = [];
 	if (array_key_exists('class', $inoptions)) {
 		$class = $inoptions['class'];
 		if (array_key_exists($class, $vars['googlemaps2'])) {
@@ -226,7 +241,7 @@ function plugin_googlemaps2_output($doInit, $params) {
 	$height         = $options['height'];
 	$lat            = (float)$options['lat'];
 	$lng            = (float)$options['lng'];
-	$zoom           = (integer)$options['zoom'];
+	$zoom           = (int)$options['zoom'];
 	$mapctrl        = $options['mapctrl'];
 	$type           = $options['type'];
 	$typectrl       = $options['typectrl'];
@@ -235,20 +250,20 @@ function plugin_googlemaps2_output($doInit, $params) {
 	$crossctrl      = $options['crossctrl'];
 	$overviewwidth  = $options['overviewwidth'];
 	$overviewheight = $options['overviewheight'];
-	$api            = (integer)$options['api'];
+	$api            = (int)$options['api'];
 	$noiconname     = $options['noiconname'];
 	$togglemarker   = plugin_googlemaps2_getbool($options['togglemarker']);
 	$dbclickzoom    = plugin_googlemaps2_getbool($options['dbclickzoom']);
 	$continuouszoom = plugin_googlemaps2_getbool($options['continuouszoom']);
 	$geoxml         = preg_replace("/&amp;/i", '&', $options['geoxml']);
-    $googlebar      = plugin_googlemaps2_getbool($options['googlebar']);
-    $importicon     = $options['importicon'];
-    $backlinkmarker = plugin_googlemaps2_getbool($options['backlinkmarker']);
+	$googlebar      = plugin_googlemaps2_getbool($options['googlebar']);
+	$importicon     = $options['importicon'];
+	$backlinkmarker = plugin_googlemaps2_getbool($options['backlinkmarker']);
 
 
 	$page = $vars['page'];
 	//apiのチェック
-	if ( ! (is_numeric($api) && $api >= 0 && $api <= 2) ) {
+	if (! (is_numeric($api) && $api >= 0 && $api <= 2)) {
 		$api = 2;
 	}
 	//古い1系APIとの互換性のためcx, cyが渡された場合lng, latに代入する。
@@ -265,14 +280,18 @@ function plugin_googlemaps2_output($doInit, $params) {
 		if (isset($cx)) $lng = $cx;
 		if (isset($cy)) $lat = $cy;
 	}
-	
+
 	// zoomレベル
 	if ($api < 2 && $isSetZoom) {
 		$zoom = 17 - $zoom;
 	}
 	// width, heightの値チェック
-	if (is_numeric($width)) { $width = (int)$width . "px"; }
-	if (is_numeric($height)) { $height = (int)$height . "px"; }
+	if (is_numeric($width)) {
+		$width = (int)$width . "px";
+	}
+	if (is_numeric($height)) {
+		$height = (int)$height . "px";
+	}
 
 	// Mapタイプの名前を正規化
 	$type = plugin_googlemaps2_get_maptype($type);
@@ -327,7 +346,7 @@ GEvent.addListener(marker_mgr, "changed", function(bounds, markerCount) {
 
 EOD;
 	// Show Map Control/Zoom 
-	switch($mapctrl) {
+	switch ($mapctrl) {
 		case "small":
 			$output .= "map.addControl(new GSmallMapControl());\n";
 			break;
@@ -341,17 +360,17 @@ EOD;
 			$output .= "map.addControl(new GLargeMapControl());\n";
 			break;
 	}
-	
+
 	// Scale
 	if ($scalectrl != "none") {
 		$output .= "map.addControl(new GScaleControl());\n";
 	}
-	
+
 	// Show Map Type Control and Center
 	if ($typectrl != "none") {
 		$output .= "map.addControl(new GMapTypeControl(true));\n";
 	}
-	
+
 	// Double click zoom
 	if ($dbclickzoom) {
 		$output .= "map.enableDoubleClickZoom();\n";
@@ -365,7 +384,7 @@ EOD;
 	} else {
 		$output .= "map.disableContinuousZoom();\n";
 	}
-	
+
 	// OverviewMap
 	if ($overviewctrl != "none") {
 		$ovw = preg_replace("/(\d+).*/i", "\$1", $overviewwidth);
@@ -376,7 +395,7 @@ EOD;
 		$output .= "map.addControl(ovctrl);\n";
 
 		if ($overviewctrl == "hide") {
-		$output .= "ovctrl.hide(true);\n";
+			$output .= "ovctrl.hide(true);\n";
 		}
 	}
 
@@ -387,11 +406,11 @@ EOD;
 		$output .= "map.addControl(geoxml);\n";
 		$output .= "} catch (e) {}\n";
 	}
-	
+
 	// GoogleBar
 	if ($googlebar) {
-        $output .= "map.enableGoogleBar();\n";
-    }
+		$output .= "map.enableGoogleBar();\n";
+	}
 
 	// Center Cross Custom Control
 	if ($crossctrl != "none") {
@@ -424,58 +443,71 @@ EOD;
 	$output .= "});\n";
 	$output .= "//]]>\n";
 	$output .= "</script>\n";
-    
-    // 指定されたPukiwikiページからアイコンを収集する
-    if ($importicon != "") {
-        $lines = get_source($importicon);
-        foreach ($lines as $line) {
-            $ismatch = preg_match('/googlemaps2_icon\(.*?\)/i', $line, $matches);
-            if ($ismatch) {
-                $output .= convert_html("#" . $matches[0]) . "\n";
-            }
-        }
-    }
 
-    // このページのバックリンクからマーカーを収集する。
-    if ($backlinkmarker) {
-        $links = links_get_related_db($vars['page']);
-        if (! empty($links)) {
-            $output .= "<ul>\n";
-            foreach(array_keys($links) as $page) {
-                $ismatch = preg_match('/#googlemaps2_mark\(([^, \)]+), *([^, \)]+)(.*?)\)/i', 
-                    get_source($page, TRUE, TRUE), $matches);
-                if ($ismatch) {
-                    $markersource = "&googlemaps2_mark(" . 
-                        $matches[1] . "," . $matches[2] . 
-                        ", title=" . $page . ", maxcontent=" . $page;
-                    if ($matches[3] != "") {
-                        preg_match('/caption=[^,]+/', $matches[3], $m_caption);
-                        if ($m_caption) $markersource .= "," . $m_caption[0];
-                        preg_match('/icon=[^,]+/', $matches[3], $m_icon);
-                        if ($m_icon) $markersource .= "," . $m_icon[0];
-                    }
-                    $markersource .= ");";
-                    $output .= "<li>" . make_link($markersource) . "</li>\n";
-                }
-            }
-            $output .= "</ul>\n";
-        }
-    }
+	// 指定されたPukiwikiページからアイコンを収集する
+	if ($importicon != "") {
+		$lines = get_source($importicon);
+		foreach ($lines as $line) {
+			$ismatch = preg_match('/googlemaps2_icon\(.*?\)/i', $line, $matches);
+			if ($ismatch) {
+				$output .= convert_html("#" . $matches[0]) . "\n";
+			}
+		}
+	}
+
+	// このページのバックリンクからマーカーを収集する。
+	if ($backlinkmarker) {
+		$links = links_get_related_db($vars['page']);
+		if (! empty($links)) {
+			$output .= "<ul>\n";
+			foreach (array_keys($links) as $page) {
+				$ismatch = preg_match(
+					'/#googlemaps2_mark\(([^, \)]+), *([^, \)]+)(.*?)\)/i',
+					get_source($page, TRUE, TRUE),
+					$matches
+				);
+				if ($ismatch) {
+					$markersource = "&googlemaps2_mark(" .
+						$matches[1] . "," . $matches[2] .
+						", title=" . $page . ", maxcontent=" . $page;
+					if ($matches[3] != "") {
+						preg_match('/caption=[^,]+/', $matches[3], $m_caption);
+						if ($m_caption) $markersource .= "," . $m_caption[0];
+						preg_match('/icon=[^,]+/', $matches[3], $m_icon);
+						if ($m_icon) $markersource .= "," . $m_icon[0];
+					}
+					$markersource .= ");";
+					$output .= "<li>" . make_link($markersource) . "</li>\n";
+				}
+			}
+			$output .= "</ul>\n";
+		}
+	}
 
 	return $output;
 }
 
-function plugin_googlemaps2_get_maptype($type) {
+function plugin_googlemaps2_get_maptype($type)
+{
 	switch (strtolower(substr($type, 0, 1))) {
-		case "n": $type = 'G_NORMAL_MAP'   ; break;
-		case "s": $type = 'G_SATELLITE_MAP'; break;
-		case "h": $type = 'G_HYBRID_MAP'   ; break;
-		default:  $type = 'G_NORMAL_MAP'   ; break;
+		case "n":
+			$type = 'G_NORMAL_MAP';
+			break;
+		case "s":
+			$type = 'G_SATELLITE_MAP';
+			break;
+		case "h":
+			$type = 'G_HYBRID_MAP';
+			break;
+		default:
+			$type = 'G_NORMAL_MAP';
+			break;
 	}
 	return $type;
 }
 
-function plugin_googlemaps2_init_output($key, $noiconname) {
+function plugin_googlemaps2_init_output($key, $noiconname)
+{
 	global $vars;
 	$qm = get_qm();
 	$page = $vars['page'];
@@ -1054,5 +1086,3 @@ window.onunload = function () {
 </script>\n
 EOD;
 }
-
-?>

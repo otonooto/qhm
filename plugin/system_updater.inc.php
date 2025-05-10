@@ -8,12 +8,11 @@ function plugin_system_updater_action()
 {
 	global $script, $vars, $style_name;
 
-	if ( ! ss_admin_check())
-	{
+	if (! ss_admin_check()) {
 		redirect($script, 'この機能には、管理者のみアクセス可能です。');
 	}
 
-	if (($errmsg=plugin_system_updater_check()) !== '') {
+	if (($errmsg = plugin_system_updater_check()) !== '') {
 		redirect($script, $errmsg);
 	}
 
@@ -35,28 +34,24 @@ function plugin_system_updater_clean()
 	if (isset($_SESSION['system_updater'])) {
 		unlink($_SESSION['system_updater']['save_to']);
 		plugin_system_updater_rmdir($_SESSION['system_updater']['extract_to']);
-		$_SESSION['system_updater'] = array();
+		$_SESSION['system_updater'] = [];
 		unset($_SESSION['system_updater']);
 	}
 }
 
 function plugin_system_updater_rmdir($dir)
 {
-	if ( ! file_exists($dir)) return;
+	if (! file_exists($dir)) return;
 
 	$files = new RecursiveIteratorIterator(
 		new RecursiveDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS),
 		RecursiveIteratorIterator::CHILD_FIRST
 	);
 
-	foreach ($files as $file)
-	{
-		if ($file->isDir() === true)
-		{
+	foreach ($files as $file) {
+		if ($file->isDir() === true) {
 			rmdir($file->getPathname());
-		}
-		else
-		{
+		} else {
 			unlink($file->getPathname());
 		}
 	}
@@ -75,7 +70,7 @@ function plugin_system_updater_unzip_strategy()
 }
 function plugin_system_updater_unzip($zip_file, $extract_to)
 {
-	if ( ! file_exists($zip_file)) return;
+	if (! file_exists($zip_file)) return;
 
 	$strategy = plugin_system_updater_unzip_strategy();
 	if ($strategy === 'ZipArchive') {
@@ -92,8 +87,8 @@ function plugin_system_updater_unzip($zip_file, $extract_to)
 }
 
 /**
-* アップロード画面を表示する。
-*/
+ * アップロード画面を表示する。
+ */
 function plugin_system_updater_action_upload()
 {
 	plugin_system_updater_clean();
@@ -105,19 +100,19 @@ function plugin_system_updater_action_upload()
 }
 
 /**
-* 確認画面を表示する。
-* 最新版を利用できるかどうか表示する。
-*/
+ * 確認画面を表示する。
+ * 最新版を利用できるかどうか表示する。
+ */
 function plugin_system_updater_action_confirm()
 {
 	$errmsg = '';
 
 	$version = plugin_system_updater_get_latest_version();
 
-	if ( ! $version) {
+	if (! $version) {
 		$errmsg = '最新版の情報が取得できません';
 	}
-	if ( ! version_compare($version, '6.0.0', '>=')) {
+	if (! version_compare($version, '6.0.0', '>=')) {
 		$errmsg = 'QHM v6 が公開されていません';
 	}
 
@@ -139,20 +134,18 @@ function plugin_system_updater_action_confirm()
 		'msg'  => 'アップデートの確認',
 		'body' => $html,
 	);
-
 }
 
 /**
-* システムファイルを移動し、完了画面を表示する。
-*/
+ * システムファイルを移動し、完了画面を表示する。
+ */
 function plugin_system_updater_action_complete()
 {
 	$errmsg = '';
-	$data = array();
+	$data = [];
 
-	if ( ! (isset($_SESSION['system_updater'])
-		&& $_SESSION['system_updater']['phase'] === 'complete'))
-	{
+	if (! (isset($_SESSION['system_updater'])
+		&& $_SESSION['system_updater']['phase'] === 'complete')) {
 		$errmsg = 'この操作は不正です。';
 	}
 
@@ -169,7 +162,8 @@ function plugin_system_updater_action_complete()
 		// 移動させる
 		$errmsg = plugin_system_updater_move(
 			$extract_to,
-			'.');
+			'.'
+		);
 
 		$data['errmsg'] = $errmsg;
 	}
@@ -204,7 +198,7 @@ function plugin_system_updater_get_latest_version()
 	$context = stream_context_create($opts);
 	$json = file_get_contents($api_url, false, $context);
 
-	if ( ! $json) return false;
+	if (! $json) return false;
 
 	# バージョンを取得
 	$init_file_data = json_decode($json, true);
@@ -222,7 +216,7 @@ function plugin_system_updater_move($source, $dist)
 	if (file_exists($dist) && ! is_dir($dist)) {
 		return "アップロード先 {$dist} がフォルダではありません。";
 	} else {
-		if ( ! file_exists($dist)) {
+		if (! file_exists($dist)) {
 			mkdir($dist);
 		}
 
@@ -234,8 +228,7 @@ function plugin_system_updater_move($source, $dist)
 		$base_path = '';
 		$index = 0;
 
-		foreach ($files as $file)
-		{
+		foreach ($files as $file) {
 			if ($base_path === '') {
 				$base_path = $file->getPathname() . '/';
 				$index = strlen($base_path);
@@ -274,7 +267,7 @@ function plugin_system_updater_move($source, $dist)
 	}
 }
 
-function plugin_system_updater_render($view, $data = array())
+function plugin_system_updater_render($view, $data = [])
 {
 	global $script;
 	$template_dir = PLUGIN_DIR . 'system_updater/';
@@ -293,7 +286,7 @@ function plugin_system_updater_render($view, $data = array())
 function plugin_system_updater_check()
 {
 	# TODO: 全てのフォルダの書き込み権限チェック
-	if ( ! is_writable(CACHEQHM_DIR)) {
+	if (! is_writable(CACHEQHM_DIR)) {
 		return CACHEQHM_DIR . ' に書き込み権限がありません';
 	}
 	return '';

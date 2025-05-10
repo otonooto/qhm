@@ -1,4 +1,5 @@
 <?php
+
 /**
  *   Embed Video Plugin
  *   -------------------------------------------
@@ -50,10 +51,10 @@ function plugin_video_convert()
     return plugin_video_body($args);
 }
 
-function plugin_video_body($args = array(), $body = "")
+function plugin_video_body($args = [], $body = "")
 {
     static $num = 0;
-    static $called_sources = array();
+    static $called_sources = [];
     $num++;
 
     $id = "qhm_plugin_video_{$num}";
@@ -61,13 +62,12 @@ function plugin_video_body($args = array(), $body = "")
     $qt = get_qt();
     $qt->setv("jquery_include", TRUE);
 
-    if (exist_plugin("icon"))
-    {
+    if (exist_plugin("icon")) {
         plugin_icon_set_font_awesome();
     }
 
     $embed_url = $popup = FALSE;
-    $sources = array();
+    $sources = [];
     $poster = FALSE;
     $aspect_ratio = "16by9";
 
@@ -80,11 +80,9 @@ function plugin_video_body($args = array(), $body = "")
 
     $rel = true;  // 関連動画の表示（youtube）
 
-    foreach ($args as $arg)
-    {
+    foreach ($args as $arg) {
         $arg = trim($arg);
-        switch ($arg)
-        {
+        switch ($arg) {
             case "16:9":
             case "4:3":
                 list($aspect_width, $aspect_height) = explode(':', $arg);
@@ -103,17 +101,16 @@ function plugin_video_body($args = array(), $body = "")
             case (preg_match('/\Aytpreview=(.+)\z/', $arg, $mts) ? TRUE : FALSE):
                 // YouTube thumbnail type
                 $_types = array('thumb-default', 'thumb-1', 'thumb-2', 'thumb-3', 'default', 'medium', 'high');
-                if (in_array($mts[1], $_types))
-                {
+                if (in_array($mts[1], $_types)) {
                     $youtube_thumbnail_type = $mts[1];
                 }
                 break;
 
-            case (preg_match('/^(.+\.(png|jpeg|jpg|gif))\z/i', $arg, $mts) ? TRUE: FALSE):
+            case (preg_match('/^(.+\.(png|jpeg|jpg|gif))\z/i', $arg, $mts) ? TRUE : FALSE):
                 $poster = get_file_path($mts[1]);
                 break;
 
-            case (preg_match('/^(.+\.mp4)\z/i', $arg, $mts) ? TRUE: FALSE):
+            case (preg_match('/^(.+\.mp4)\z/i', $arg, $mts) ? TRUE : FALSE):
                 $sources[PLUGIN_VIDEO_MIMETYPE_MP4] = get_file_path($mts[1]);
                 break;
             case "ted":
@@ -129,13 +126,13 @@ function plugin_video_body($args = array(), $body = "")
     $mediaelement_path = 'js/mediaelementplayer/';
 
     $include_mediaelement = '
-<link rel="stylesheet" href="'.$mediaelement_path.'mediaelementplayer.min.css">
-<script src="'.$mediaelement_path.'mediaelement-and-player.min.js"></script>
+<link rel="stylesheet" href="' . $mediaelement_path . 'mediaelementplayer.min.css">
+<script src="' . $mediaelement_path . 'mediaelement-and-player.min.js"></script>
 ';
     $qt->appendv_once("include_mediaelement", "beforescript", $include_mediaelement);
 
     $addstyle = '
-<link rel="stylesheet" href="'.$mediaelement_path.'mejs-skins.css">
+<link rel="stylesheet" href="' . $mediaelement_path . 'mejs-skins.css">
 <link rel="stylesheet" href="' . PLUGIN_DIR . 'video/video.min.css">
 ';
     $qt->appendv_once("plugin_video_style", "beforescript", $addstyle);
@@ -143,20 +140,15 @@ function plugin_video_body($args = array(), $body = "")
     $qt->appendv_once(
         "plugin_video_script",
         "beforescript",
-        '<script src="'.PLUGIN_DIR.'video/video.min.js"></script>'
+        '<script src="' . PLUGIN_DIR . 'video/video.min.js"></script>'
     );
 
     $popup_html = $popup_style = '';
-    if ($popup)
-    {
-        if ($body == '')
-        {
-            if ($poster !== FALSE)
-            {
-                $body = '<img src="'. h($poster) . '">';
-            }
-            else
-            {
+    if ($popup) {
+        if ($body == '') {
+            if ($poster !== FALSE) {
+                $body = '<img src="' . h($poster) . '">';
+            } else {
                 $body = '<i class="fa fa-play-circle-o"></i>';
             }
         }
@@ -165,55 +157,40 @@ function plugin_video_body($args = array(), $body = "")
 EOD;
     }
 
-    if ($embed_url !== FALSE)
-    {
+    if ($embed_url !== FALSE) {
         return $popup_html . plugin_video_embed($embed_url, $id, $aspect_ratio, $body, $popup, $poster, $youtube_thumbnail_type, $rel);
     }
 
-    if ( ! isset($sources[PLUGIN_VIDEO_MIMETYPE_MP4]))
-    {
-        return '<p>Usage: #video(video.mp4)</p>'."\n";
-    }
-    else
-    {
-        if (is_url($sources[PLUGIN_VIDEO_MIMETYPE_MP4]))
-        {
+    if (! isset($sources[PLUGIN_VIDEO_MIMETYPE_MP4])) {
+        return '<p>Usage: #video(video.mp4)</p>' . "\n";
+    } else {
+        if (is_url($sources[PLUGIN_VIDEO_MIMETYPE_MP4])) {
             $sources[PLUGIN_VIDEO_MIMETYPE_WEBM] = substr($sources[PLUGIN_VIDEO_MIMETYPE_MP4], 0, -3) . "webm";
-        }
-        else if (file_exists($sources[PLUGIN_VIDEO_MIMETYPE_MP4]))
-        {
+        } else if (file_exists($sources[PLUGIN_VIDEO_MIMETYPE_MP4])) {
             $webm_path = substr($sources[PLUGIN_VIDEO_MIMETYPE_MP4], 0, -3) . "webm";
-            if (file_exists($webm_path))
-            {
+            if (file_exists($webm_path)) {
                 $sources[PLUGIN_VIDEO_MIMETYPE_WEBM] = $webm_path;
             }
         }
     }
 
-    foreach ($sources as $mime_type => $url)
-    {
-        if (isset($called_sources[$url]))
-        {
+    foreach ($sources as $mime_type => $url) {
+        if (isset($called_sources[$url])) {
             $called_sources[$url] += 1;
             $sources[$mime_type] = $url . '?' . $called_sources[$url];
-        }
-        else
-        {
+        } else {
             $called_sources[$url] = 1;
         }
     }
 
-    if ($poster !== FALSE)
-    {
-        if (! is_url($poster) &&  ! file_exists($poster))
-        {
+    if ($poster !== FALSE) {
+        if (! is_url($poster) &&  ! file_exists($poster)) {
             $poster = FALSE;
         }
     }
 
     $sources_html = '';
-    foreach ($sources as $type => $source)
-    {
+    foreach ($sources as $type => $source) {
         $sources_html .= <<< EOD
   <source src="{$source}" type="{$type}">
 EOD;
@@ -230,25 +207,20 @@ EOD;
         'data-aspect-ratio' => $aspect_ratio_float
     );
 
-    if ($theme !== FALSE)
-    {
+    if ($theme !== FALSE) {
         $params['class'] = "mejs-{$theme}";
     }
 
-    if ($popup)
-    {
+    if ($popup) {
         $params['data-popup'] = 'popup';
     }
 
-    $attrs = array();
-    foreach ($params as $key => $val)
-    {
-        if ($val === FALSE)
-        {
+    $attrs = [];
+    foreach ($params as $key => $val) {
+        if ($val === FALSE) {
             continue;
         }
-        if ($val === TRUE)
-        {
+        if ($val === TRUE) {
             $attrs[] = $key;
             continue;
         }
@@ -260,8 +232,7 @@ EOD;
     $not_support_html = '<p>動画を再生するには、videoタグをサポートしたブラウザが必要です。</p>';
 
     $poster_html = '';
-    if ($poster !== FALSE)
-    {
+    if ($poster !== FALSE) {
         $poster_html =  <<< EOD
         <img src="{$poster}" width="320" height="240" title="No video playback capabilities">
 EOD;
@@ -281,8 +252,7 @@ EOD;
   </div>
 EOD;
 
-    if ($popup)
-    {
+    if ($popup) {
         $html = <<< EOD
 {$popup_html}
 <div id="{$id}_modal" class="qhm-plugin-video modal fade" data-type="video">
@@ -293,9 +263,7 @@ EOD;
   </div>
 </div>
 EOD;
-    }
-    else
-    {
+    } else {
         $html = <<< EOD
 <div id="{$id}" class="qhm-plugin-video embed-responsive embed-responsive-{$aspect_ratio}" $popup_style>
   {$video_html}
@@ -315,19 +283,18 @@ function plugin_video_embed($url, $id, $aspect_ratio, $body, $popup = FALSE, $po
     $data = plugin_video_embed_data($url);
 
     $html = '';
-    switch ($data["type"])
-    {
+    switch ($data["type"]) {
         case "youtube":
             $data_popup = $popup ? 'data-popup="popup"' : '';
             $data_rel = $rel ? 'true' : 'false';
             $html = '
 <div class="pretty-embed"
-     data-pe-videoid="'.h($data['id']).'"
+     data-pe-videoid="' . h($data['id']) . '"
      data-pe-fitvids="true"
-     data-pe-custom-preview-image="'.h($poster).'"
-     data-pe-preview-size="'.$youtube_thumbnail_type.'"
-     data-pe-show-related="'.$data_rel.'"
-     '.$data_popup.'></div>';
+     data-pe-custom-preview-image="' . h($poster) . '"
+     data-pe-preview-size="' . $youtube_thumbnail_type . '"
+     data-pe-show-related="' . $data_rel . '"
+     ' . $data_popup . '></div>';
 
             $addscript = '
 <script src="js/jquery.prettyembed.min.js"></script>
@@ -336,18 +303,17 @@ function plugin_video_embed($url, $id, $aspect_ratio, $body, $popup = FALSE, $po
             break;
 
         case "vimeo":
-            $html = '<iframe class="embed-responsive-item" src="'. h($data['url']) .'" allowfullscreen></iframe>';
+            $html = '<iframe class="embed-responsive-item" src="' . h($data['url']) . '" allowfullscreen></iframe>';
 
             $qt->appendv_once(
-                  "plugin_video_viemo_script",
-                  "beforescript",
-                  '<script src="//f.vimeocdn.com/js/froogaloop2.min.js"></script>'
+                "plugin_video_viemo_script",
+                "beforescript",
+                '<script src="//f.vimeocdn.com/js/froogaloop2.min.js"></script>'
             );
             break;
     }
 
-    if ($popup)
-    {
+    if ($popup) {
         $html =  <<< EOD
 <div id="{$id}_modal" class="qhm-plugin-video modal fade" data-type="{$data["type"]}">
   <div class="modal-dialog modal-lg">
@@ -360,13 +326,10 @@ function plugin_video_embed($url, $id, $aspect_ratio, $body, $popup = FALSE, $po
 </div>
 
 EOD;
-    }
-    else
-    {
+    } else {
         $html = <<< EOD
 <div id="{$id}" class="qhm-plugin-video embed-responsive embed-responsive-{$aspect_ratio}">{$html}</div>
 EOD;
-
     }
 
     return $html;
@@ -384,22 +347,20 @@ function plugin_video_embed_data($url)
     $type = '';
     $vid = '';
 
-    if (preg_match('|^https?://www\.youtube\.com/watch\?v=([-\w]+)|', $url, $mts)
-            OR preg_match('|^https?://youtu\.be/([-\w]+)|', $url, $mts))
-    {
+    if (
+        preg_match('|^https?://www\.youtube\.com/watch\?v=([-\w]+)|', $url, $mts)
+        or preg_match('|^https?://youtu\.be/([-\w]+)|', $url, $mts)
+    ) {
         $vid = $mts[1];
         $type = 'youtube';
         $embed_url = '//www.youtube.com/embed/' . $vid . PLUGIN_VIDEO_YOUTUBE_EMBEDED_OPTION;
     }
     //Vimeo
-    else if (preg_match('|^https?://vimeo\.com/(\d+)$|', $url, $mts))
-    {
+    else if (preg_match('|^https?://vimeo\.com/(\d+)$|', $url, $mts)) {
         $vid = $mts[1];
         $type = 'vimeo';
-        $embed_url = '//player.vimeo.com/video/'. $vid . '?title=0&portrait=0&byline=0&api=1';
-    }
-    else
-    {
+        $embed_url = '//player.vimeo.com/video/' . $vid . '?title=0&portrait=0&byline=0&api=1';
+    } else {
         return FALSE;
     }
 

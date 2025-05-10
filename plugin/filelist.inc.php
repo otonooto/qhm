@@ -7,12 +7,11 @@
 
 function plugin_filelist_action()
 {
-    global $script, $vars;
-        // check editable
-    if(!ss_admin_check()){
-		$vars['cmd'] = 'list';
-    }
-    
-	return do_plugin_action('list');
+  global $vars;
+  // check editable
+  if (!ss_admin_check()) {
+    $vars['cmd'] = 'list';
+  }
+
+  return do_plugin_action('list');
 }
-?>

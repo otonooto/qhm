@@ -18,7 +18,6 @@ function plugin_calendar_edit_convert()
 	if (! function_exists('plugin_calendar_convert')) return FALSE;
 
 	$command = 'edit';
-	$args = func_num_args() ? func_get_args() : array();
+	$args = func_num_args() ? func_get_args() : [];
 	return call_user_func_array('plugin_calendar_convert', $args);
 }
-?>

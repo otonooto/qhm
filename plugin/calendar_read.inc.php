@@ -14,11 +14,10 @@ function plugin_calendar_read_convert()
 
 	if (! file_exists(PLUGIN_DIR . 'calendar.inc.php')) return FALSE;
 
-	require_once PLUGIN_DIR.'calendar.inc.php';
+	require_once PLUGIN_DIR . 'calendar.inc.php';
 	if (! function_exists('plugin_calendar_convert')) return FALSE;
 
 	$command = 'read';
-	$args = func_num_args() ? func_get_args() : array();
+	$args = func_num_args() ? func_get_args() : [];
 	return call_user_func_array('plugin_calendar_convert', $args);
 }
-?>

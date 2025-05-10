@@ -1,4 +1,5 @@
 <?php
+
 /**
  *   convert haik to qhm
  *   -------------------------------------------
@@ -18,35 +19,30 @@
  */
 function plugin_convert_haik_init()
 {
-    if ( ! exist_plugin('qhmsetting'))
-    {
+    if (! exist_plugin('qhmsetting')) {
         die("error: There is no qhmsetting.");
     }
 }
- 
+
 function plugin_convert_haik_action()
 {
     global $vars, $script;
 
-    if ( ! ss_admin_check())
-    {
+    if (! ss_admin_check()) {
         redirect($script, '管理者以外利用できません。');
     }
-    if ( ! file_exists('haik-contents') OR ! is_dir('haik-contents'))
-    {
+    if (! file_exists('haik-contents') or ! is_dir('haik-contents')) {
         redirect($script, 'この機能はご利用いただけません。');
     }
 
     //確認画面
-    if ( ! isset($vars['adminpass']) OR ! pkwk_login($vars['adminpass']))
-    {
+    if (! isset($vars['adminpass']) or ! pkwk_login($vars['adminpass'])) {
 
         $msg = 'haik データ移行';
         $info = plugin_convert_haik_get_info();
         $warning = plugin_convert_haik_get_warning();
         $danger = '';
-        if (isset($vars['adminpass']))
-        {
+        if (isset($vars['adminpass'])) {
             $danger = <<< EOD
 <div class="alert alert-danger">
   管理者パスワードが正しくありません。
@@ -87,17 +83,17 @@ EOD;
 
     //3．haik-contents/wiki/*.txt を wiki/ へコピーする
     plugin_convert_haik_move_wiki();
-    
+
     //4．haik と qhm で名前が異なるプラグインを変換する
     plugin_convert_haik_replace_plugin();
-    
+
     //5．haik-contents/meta/*.php を解釈して書式をソースへ追加する
     plugin_convert_haik_set_meta();
 
     plugin_convert_haik_write_log('');
 
     $log_text = file_get_contents(CACHE_DIR . 'convert_haik.log');
-    $url = dirname($script."dummy"). '/swfu/check.php';
+    $url = dirname($script . "dummy") . '/swfu/check.php';
     $body = <<< EOD
 <h2>移行が完了しました</h2>
 <p>
@@ -127,28 +123,25 @@ EOD;
 </div>
 
 EOD;
-    $body .= '<iframe src="'.$url.'" width="0" height="0"></iframe>';
+    $body .= '<iframe src="' . $url . '" width="0" height="0"></iframe>';
     return array('msg' => 'complete', 'body' => $body);
 }
 
 function plugin_convert_haik_move_inifile()
 {
-    if ( ! file_exists('haik-contents/config/haik.ini.php'))
-    {
+    if (! file_exists('haik-contents/config/haik.ini.php')) {
         return false;
     }
-    
+
     include('haik-contents/config/haik.ini.php');
-    
-    $_SESSION['qhmsetting'] = array();
-    foreach ($config as $key => $val)
-    {
-        switch($key)
-        {
+
+    $_SESSION['qhmsetting'] = [];
+    foreach ($config as $key => $val) {
+        switch ($key) {
             case 'display_login':
                 $_SESSION['qhmsetting']['qhm_adminmenu'] = $val;
                 break;
-            case 'site_title': 
+            case 'site_title':
                 $_SESSION['qhmsetting']['page_title'] = $val;
                 break;
             case 'user_head':
@@ -157,11 +150,11 @@ function plugin_convert_haik_move_inifile()
             case 'tracking_script':
                 $_SESSION['qhmsetting']['accesstag'] = $val;
                 break;
-            case 'username': 
+            case 'username':
                 $_SESSION['qhmsetting']['admin_email'] = $_SESSION['qhmsetting']['username'] = $val;
                 break;
             case 'logo_image':
-            case 'passwd': 
+            case 'passwd':
             case 'script':
             case 'script_ssl':
             case 'enable_cache':
@@ -179,7 +172,7 @@ function plugin_convert_haik_move_inifile()
                 break;
         }
     }
-    
+
     plugin_qhmsetting_update_ini();
     plugin_convert_haik_write_log("サイトの設定を移行しました");
 
@@ -193,14 +186,11 @@ function plugin_convert_haik_move_uploadfile()
     $src = 'haik-contents/upload';
     $dst = 'swfu/d';
 
-    $dir = opendir($src); 
-    while (false !== ( $file = readdir($dir)))
-    {
-        if (strpos($file, '.') !== 0)
-        {
-            if ( ! is_dir($src.'/'.$file))
-            { 
-                copy($src.'/'.$file, $dst.'/'.$file); 
+    $dir = opendir($src);
+    while (false !== ($file = readdir($dir))) {
+        if (strpos($file, '.') !== 0) {
+            if (! is_dir($src . '/' . $file)) {
+                copy($src . '/' . $file, $dst . '/' . $file);
             }
         }
     }
@@ -214,31 +204,24 @@ function plugin_convert_haik_move_wiki()
 {
     $src = 'haik-contents/wiki';
     $dst = DATA_DIR;
-    
-    $footer_file = encode('SiteFooter').'.txt';
-    $footer_dstfile = encode('SiteNavigator2'). '.txt';
+
+    $footer_file = encode('SiteFooter') . '.txt';
+    $footer_dstfile = encode('SiteNavigator2') . '.txt';
 
     $dir = opendir($src);
-    while (false !== ( $file = readdir($dir)))
-    {
-        if (strpos($file, '.') !== 0)
-        {
-            if ( ! is_dir($src.'/'.$file))
-            {
-                if ($file === $footer_file)
-                {
-                    copy($src.'/'.$file, $dst.'/'.$footer_dstfile); 
+    while (false !== ($file = readdir($dir))) {
+        if (strpos($file, '.') !== 0) {
+            if (! is_dir($src . '/' . $file)) {
+                if ($file === $footer_file) {
+                    copy($src . '/' . $file, $dst . '/' . $footer_dstfile);
+                } else {
+                    copy($src . '/' . $file, $dst . '/' . $file);
                 }
-                else
-                {
-                    copy($src.'/'.$file, $dst.'/'.$file); 
-                }
-            
             }
         }
     }
     closedir($dir);
-    
+
     return true;
 }
 
@@ -246,13 +229,12 @@ function plugin_convert_haik_replace_plugin()
 {
     $pages = get_existpages();
 
-    foreach ($pages as $page)
-    {
+    foreach ($pages as $page) {
         $pagefile = get_filename($page);
 
         $src = get_source($page, TRUE, TRUE);
         $src = plugin_convert_haik_replace_source($src);
-        
+
         file_put_contents($pagefile, $src, LOCK_EX);
         plugin_convert_haik_write_log("[{$page}] プラグインの移行をしました");
     }
@@ -304,62 +286,53 @@ function plugin_convert_haik_replace_source($src)
     //menu_stacked → リスト化
     $lines = explode("\n", $src);
     $start = $close = false;
-    foreach ($lines as $i => $line)
-    {
-        if (preg_match('/^#menu_stacked(\{{2,})/', $line, $matches))
-        {
+    foreach ($lines as $i => $line) {
+        if (preg_match('/^#menu_stacked(\{{2,})/', $line, $matches)) {
             $start = true;
             $close = str_repeat('}', strlen($matches[1]));
             unset($lines[$i]);
         }
-        
-        if ($start && $line === $close)
-        {
+
+        if ($start && $line === $close) {
             unset($lines[$i]);
             $start = $close = false;
         }
     }
     $src = join("\n", $lines);
 
-    return $src;    
-    
+    return $src;
 }
 
 function plugin_convert_haik_set_meta()
 {
     $pages = get_existpages();
 
-    foreach ($pages as $page)
-    {
-        $data = array();
+    foreach ($pages as $page) {
+        $data = [];
         $title = '';
-        
+
         $pagefile = get_filename($page);
-        
-        $metafile = 'haik-contents/meta/'.encode($page).'.php';
+
+        $metafile = 'haik-contents/meta/' . encode($page) . '.php';
         include($metafile);
-        
-        foreach ($meta as $key => $val)
-        {
-            switch ($key)
-            {
+
+        foreach ($meta as $key => $val) {
+            switch ($key) {
                 case 'title':
-                    $title = 'TITLE:'.$val;
+                    $title = 'TITLE:' . $val;
                     break;
                 case 'description':
                 case 'keywords':
-                    $data[$key] = '#'.$key.'('.$val.')';
+                    $data[$key] = '#' . $key . '(' . $val . ')';
                     break;
 
                 case 'user_head':
                     $data[$key] = "#beforescript{{\n{$val}\n}}\n";
                     break;
             }
-            
         }
 
-        switch ($meta['close'])
-        {
+        switch ($meta['close']) {
             case 'closed':
                 $data[$key] = "#close";
                 break;
@@ -371,25 +344,24 @@ function plugin_convert_haik_set_meta()
                 $data[$key] = "#redirect({$meta['redirect']}{$status})";
                 break;
         }
-        
+
         array_unshift($data, $title);
-        $src = join("\n", $data). "\n\n";
+        $src = join("\n", $data) . "\n\n";
         $src .= get_source($page, TRUE, TRUE);
-        
+
         file_put_contents($pagefile, $src, LOCK_EX);
         plugin_convert_haik_write_log("[{$page}]ページ情報の移行をしました");
     }
-    
+
     return true;
 }
 
 function plugin_convert_haik_write_log($msg = '')
 {
-    $logfile = CACHE_DIR.'convert_haik.log';
+    $logfile = CACHE_DIR . 'convert_haik.log';
     $fp = fopen($logfile, 'a');
-    if ($fp)
-    {
-        fwrite($fp, $msg. "\n");
+    if ($fp) {
+        fwrite($fp, $msg . "\n");
     }
     fclose($fp);
 }
@@ -403,10 +375,8 @@ function plugin_convert_haik_get_info()
     $file_cnt = 0;
     $upload_dir = 'haik-contents/upload';
     $dir = opendir($upload_dir);
-    while ($entry = readdir($dir))
-    {
-        if ( ! is_dir($upload_dir . '/' . $entry))
-        {
+    while ($entry = readdir($dir)) {
+        if (! is_dir($upload_dir . '/' . $entry)) {
             $file_cnt++;
         }
     }
@@ -414,10 +384,8 @@ function plugin_convert_haik_get_info()
     $page_cnt = 0;
     $data_dir = 'haik-contents/meta';
     $dir = opendir($data_dir);
-    while ($entry = readdir($dir))
-    {
-        if (preg_match('/\.php$/', $entry))
-        {
+    while ($entry = readdir($dir)) {
+        if (preg_match('/\.php$/', $entry)) {
             $page_cnt++;
         }
     }
@@ -435,7 +403,7 @@ EOD;
 function plugin_convert_haik_get_warning()
 {
     $log_file = CACHE_DIR . 'convert_haik.log';
-    if ( ! file_exists($log_file)) return '';
+    if (! file_exists($log_file)) return '';
 
     $last_modified = date('Y年m月d日', filemtime($log_file));
     $log_text = file_get_contents($log_file);

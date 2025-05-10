@@ -34,33 +34,27 @@ function make_link($string, $page = '')
 // Converters of inline element
 class InlineConverter
 {
-	var $converters; // as array()
+	var $converters; // as []
 	var $pattern;
 	var $pos;
 	var $result;
+	private $page;
 
-	function get_clone($obj) {
-		static $clone_func;
-
-		if (! isset($clone_func)) {
-			if (version_compare(PHP_VERSION, '5.0.0', '<')) {
-				$clone_func = create_function('$a', 'return $a;');
-			} else {
-				$clone_func = create_function('$a', 'return clone $a;');
-			}
-		}
-		return $clone_func($obj);
+	function get_clone($obj)
+	{
+		return clone $obj;
 	}
 
-	function __clone() {
-		$converters = array();
-		foreach ($this->converters as $key=>$converter) {
+	function __clone()
+	{
+		$converters = [];
+		foreach ($this->converters as $key => $converter) {
 			$converters[$key] = $this->get_clone($converter);
 		}
 		$this->converters = $converters;
 	}
 
-	function InlineConverter($converters = NULL, $excludes = NULL)
+	function __construct($converters = NULL, $excludes = NULL)
 	{
 		if ($converters === NULL) {
 			$converters = array(
@@ -80,7 +74,7 @@ class InlineConverter
 		if ($excludes !== NULL)
 			$converters = array_diff($converters, $excludes);
 
-		$this->converters = $patterns = array();
+		$this->converters = $patterns = [];
 		$start = 1;
 
 		foreach ($converters as $name) {
@@ -100,10 +94,13 @@ class InlineConverter
 	function convert($string, $page)
 	{
 		$this->page   = $page;
-		$this->result = array();
+		$this->result = [];
 
-		$string = preg_replace_callback('/' . $this->pattern . '/x',
-			array(& $this, 'replace'), $string);
+		$string = preg_replace_callback(
+			'/' . $this->pattern . '/x',
+			array(&$this, 'replace'),
+			$string
+		);
 
 		$arr = explode("\x08", make_line_rules(htmlspecialchars($string)));
 		$retval = '';
@@ -125,7 +122,7 @@ class InlineConverter
 
 	function get_objects($string, $page)
 	{
-		$matches = $arr = array();
+		$matches = $arr = [];
 		preg_match_all('/' . $this->pattern . '/x', $string, $matches, PREG_SET_ORDER);
 		foreach ($matches as $match) {
 			$obj = $this->get_converter($match);
@@ -138,13 +135,13 @@ class InlineConverter
 		return $arr;
 	}
 
-	function & get_converter(& $arr)
+	function get_converter(array $arr): mixed
 	{
 		foreach (array_keys($this->converters) as $start) {
 			if ($arr[$start] == $arr[0])
 				return $this->converters[$start];
 		}
-		return NULL;
+		return null;
 	}
 }
 
@@ -161,7 +158,7 @@ class Link
 	var $alias;
 
 	// Constructor
-	function Link($start)
+	function __construct($start)
 	{
 		$this->start = $start;
 	}
@@ -177,7 +174,7 @@ class Link
 
 	function toString() {}
 
-	// Private: Get needed parts from a matched array()
+	// Private: Get needed parts from a matched []
 	function splice($arr)
 	{
 		$count = $this->get_count() + 1;
@@ -195,8 +192,10 @@ class Link
 		$this->name = $name;
 		$this->body = $body;
 		$this->type = $type;
-		if (! PKWK_DISABLE_INLINE_IMAGE_FROM_URI &&
-			is_url($alias) && preg_match('/\.(gif|png|jpe?g)$/i', $alias)) {
+		if (
+			! PKWK_DISABLE_INLINE_IMAGE_FROM_URI &&
+			is_url($alias) && preg_match('/\.(gif|png|jpe?g)$/i', $alias)
+		) {
 			$alias = '<img src="' . htmlspecialchars($alias) . '" alt="' . $name . '" />';
 		} else if ($alias != '') {
 			if ($converter === NULL)
@@ -217,11 +216,11 @@ class Link
 class Link_plugin extends Link
 {
 	var $pattern;
-	var $plain,$param;
+	var $plain, $param;
 
-	function Link_plugin($start)
+	function __construct($start)
 	{
-		parent::Link($start);
+		parent::__construct($start);
 	}
 
 	function get_pattern()
@@ -273,9 +272,11 @@ EOD;
 		list($all, $this->plain, $name, $this->param, $body) = $this->splice($arr);
 
 		// Re-get true plugin name and patameters (for PHP 4.1.2)
-		$matches = array();
-		if (preg_match('/^' . $this->pattern . '/x', $all, $matches)
-			&& $matches[1] != $this->plain)
+		$matches = [];
+		if (
+			preg_match('/^' . $this->pattern . '/x', $all, $matches)
+			&& $matches[1] != $this->plain
+		)
 			list(, $this->plain, $name, $this->param) = $matches;
 
 		return parent::setParam($page, $name, $body, 'plugin');
@@ -303,9 +304,9 @@ EOD;
 // Footnotes
 class Link_note extends Link
 {
-	function Link_note($start)
+	function __construct($start)
 	{
-		parent::Link($start);
+		parent::__construct($start);
 	}
 
 	function get_pattern()
@@ -371,9 +372,9 @@ EOD;
 // URLs
 class Link_url extends Link
 {
-	function Link_url($start)
+	function __construct($start)
 	{
-		parent::Link($start);
+		parent::__construct($start);
 	}
 
 	function get_pattern()
@@ -398,9 +399,14 @@ EOD;
 
 	function set($arr, $page)
 	{
-		list(, , $alias, $name) = $this->splice($arr);
-		return parent::setParam($page, htmlspecialchars($name),
-			'', 'url', $alias == '' ? $name : $alias);
+		list(,, $alias, $name) = $this->splice($arr);
+		return parent::setParam(
+			$page,
+			htmlspecialchars($name),
+			'',
+			'url',
+			$alias == '' ? $name : $alias
+		);
 	}
 
 	function toString()
@@ -417,9 +423,9 @@ EOD;
 // URLs (InterWiki definition on "InterWikiName")
 class Link_url_interwiki extends Link
 {
-	function Link_url_interwiki($start)
+	function __construct($start)
 	{
-		parent::Link($start);
+		parent::__construct($start);
 	}
 
 	function get_pattern()
@@ -457,9 +463,9 @@ class Link_mailto extends Link
 {
 	var $is_image, $image;
 
-	function Link_mailto($start)
+	function __construct($start)
 	{
-		parent::Link($start);
+		parent::__construct($start);
 	}
 
 	function get_pattern()
@@ -499,9 +505,9 @@ class Link_interwikiname extends Link
 	var $param  = '';
 	var $anchor = '';
 
-	function Link_interwikiname($start)
+	function __construct($start)
 	{
-		parent::Link($start);
+		parent::__construct($start);
 	}
 
 	function get_pattern()
@@ -536,9 +542,9 @@ EOD;
 	{
 		global $script;
 
-		list(, $alias, , $name, $this->param) = $this->splice($arr);
+		list(, $alias,, $name, $this->param) = $this->splice($arr);
 
-		$matches = array();
+		$matches = [];
 		if (preg_match('/^([^#]+)(#[A-Za-z][\w-]*)$/', $this->param, $matches))
 			list(, $this->param, $this->anchor) = $matches;
 
@@ -568,9 +574,9 @@ class Link_bracketname extends Link
 {
 	var $anchor, $refer;
 
-	function Link_bracketname($start)
+	function __construct($start)
 	{
-		parent::Link($start);
+		parent::__construct($start);
 	}
 
 	function get_pattern()
@@ -602,7 +608,7 @@ EOD;
 	{
 		global $WikiName;
 
-		list(, $alias, , $name, $this->anchor) = $this->splice($arr);
+		list(, $alias,, $name, $this->anchor) = $this->splice($arr);
 		if ($name == '' && $this->anchor == '') return FALSE;
 
 		if ($name == '' || ! preg_match('/^' . $WikiName . '$/', $name)) {
@@ -630,9 +636,9 @@ EOD;
 // WikiNames
 class Link_wikiname extends Link
 {
-	function Link_wikiname($start)
+	function __construct($start)
 	{
-		parent::Link($start);
+		parent::__construct($start);
 	}
 
 	function get_pattern()
@@ -667,15 +673,15 @@ class Link_wikiname extends Link
 // AutoLinks
 class Link_autolink extends Link
 {
-	var $forceignorepages = array();
+	var $forceignorepages = [];
 	var $auto;
 	var $auto_a; // alphabet only
 
-	function Link_autolink($start)
+	function __construct($start)
 	{
 		global $autolink;
 
-		parent::Link($start);
+		parent::__construct($start);
 
 		if (! $autolink || ! file_exists(CACHE_DIR . 'autolink.dat'))
 			return;
@@ -717,9 +723,9 @@ class Link_autolink extends Link
 
 class Link_autolink_a extends Link_autolink
 {
-	function Link_autolink_a($start)
+	function __construct($start)
 	{
-		parent::Link_autolink($start);
+		parent::__construct($start);
 	}
 
 	function get_pattern()
@@ -787,7 +793,7 @@ function get_fullname($name, $refer)
 	if ($name == '' || $name == './') return $refer;
 
 	// Absolute path
-	if ($name{0} == '/') {
+	if ($name[0] == '/') {
 		$name = substr($name, 1);
 		return ($name == '') ? $defaultpage : $name;
 	}
@@ -808,8 +814,7 @@ function get_fullname($name, $refer)
 			array_shift($arrn);
 			array_pop($arrp);
 		}
-		$name = ! empty($arrp) ? join('/', array_merge($arrp, $arrn)) :
-			(! empty($arrn) ? $defaultpage . '/' . join('/', $arrn) : $defaultpage);
+		$name = ! empty($arrp) ? join('/', array_merge($arrp, $arrn)) : (! empty($arrn) ? $defaultpage . '/' . join('/', $arrn) : $defaultpage);
 	}
 
 	return $name;
@@ -820,14 +825,17 @@ function get_interwiki_url($name, $param)
 {
 	global $WikiName, $interwiki;
 	static $interwikinames;
-	static $encode_aliases = array('sjis'=>'SJIS', 'euc'=>'EUC-JP', 'utf8'=>'UTF-8');
+	static $encode_aliases = array('sjis' => 'SJIS', 'euc' => 'EUC-JP', 'utf8' => 'UTF-8');
 
 	if (! isset($interwikinames)) {
-		$interwikinames = $matches = array();
+		$interwikinames = $matches = [];
 		foreach (get_source($interwiki) as $line)
-			if (preg_match('/\[(' . '(?:(?:https?|ftp|news):\/\/|\.\.?\/)' .
-			    '[!~*\'();\/?:\@&=+\$,%#\w.-]*)\s([^\]]+)\]\s?([^\s]*)/',
-			    $line, $matches))
+			if (preg_match(
+				'/\[(' . '(?:(?:https?|ftp|news):\/\/|\.\.?\/)' .
+					'[!~*\'();\/?:\@&=+\$,%#\w.-]*)\s([^\]]+)\]\s?([^\s]*)/',
+				$line,
+				$matches
+			))
 				$interwikinames[$matches[2]] = array($matches[1], $matches[3]);
 	}
 
@@ -838,30 +846,30 @@ function get_interwiki_url($name, $param)
 	// Encoding
 	switch ($opt) {
 
-	case '':    /* FALLTHROUGH */
-	case 'std': // Simply URL-encode the string, whose base encoding is the internal-encoding
-		$param = rawurlencode($param);
-		break;
+		case '':    /* FALLTHROUGH */
+		case 'std': // Simply URL-encode the string, whose base encoding is the internal-encoding
+			$param = rawurlencode($param);
+			break;
 
-	case 'asis': /* FALLTHROUGH */
-	case 'raw' : // Truly as-is
-		break;
+		case 'asis': /* FALLTHROUGH */
+		case 'raw': // Truly as-is
+			break;
 
-	case 'yw': // YukiWiki
-		if (! preg_match('/' . $WikiName . '/', $param))
-			$param = '[[' . mb_convert_encoding($param, 'SJIS', SOURCE_ENCODING) . ']]';
-		break;
+		case 'yw': // YukiWiki
+			if (! preg_match('/' . $WikiName . '/', $param))
+				$param = '[[' . mb_convert_encoding($param, 'SJIS', SOURCE_ENCODING) . ']]';
+			break;
 
-	case 'moin': // MoinMoin
-		$param = str_replace('%', '_', rawurlencode($param));
-		break;
+		case 'moin': // MoinMoin
+			$param = str_replace('%', '_', rawurlencode($param));
+			break;
 
-	default:
-		// Alias conversion of $opt
-		if (isset($encode_aliases[$opt])) $opt = & $encode_aliases[$opt];
+		default:
+			// Alias conversion of $opt
+			if (isset($encode_aliases[$opt])) $opt = &$encode_aliases[$opt];
 
-		// Encoding conversion into specified encode, and URLencode
-		$param = rawurlencode(mb_convert_encoding($param, $opt, SOURCE_ENCODING));
+			// Encoding conversion into specified encode, and URLencode
+			$param = rawurlencode(mb_convert_encoding($param, $opt, SOURCE_ENCODING));
 	}
 
 	// Replace or Add the parameter
@@ -876,4 +884,3 @@ function get_interwiki_url($name, $param)
 
 	return $url;
 }
-?>

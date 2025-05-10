@@ -22,21 +22,16 @@ function plugin_edit_action()
 	$prefix = '';
 
 	//メニューやナビの編集はスタイルを変える
-    if (array_key_exists($page, $layout_pages) && ! isset($vars['preview']))
-    {
-        $prefix = '<h2 class="title">'. h($layout_pages[$page]) .'の編集</h2>';
+	if (array_key_exists($page, $layout_pages) && ! isset($vars['preview'])) {
+		$prefix = '<h2 class="title">' . h($layout_pages[$page]) . 'の編集</h2>';
 
-        if (is_bootstrap_skin())
-        {
-            if (exist_plugin("noeyecatch"))
-            {
-                do_plugin_convert("noeyecatch");
-            }
-        }
-        else
-        {
-            $style_name = '../';
-            $addscript = <<< EOD
+		if (is_bootstrap_skin()) {
+			if (exist_plugin("noeyecatch")) {
+				do_plugin_convert("noeyecatch");
+			}
+		} else {
+			$style_name = '../';
+			$addscript = <<< EOD
 <script type="text/javascript">
 \$(function(){
 
@@ -67,9 +62,9 @@ function plugin_edit_action()
 });
 </script>
 EOD;
-            $qt->appendv('beforescript', $addscript);
-        }
-    }
+			$qt->appendv('beforescript', $addscript);
+		}
+	}
 
 	check_editable($page, true, true);
 
@@ -85,7 +80,7 @@ EOD;
 	$postdata = @join('', get_source($page));
 	if ($postdata == '') $postdata = auto_template($page);
 
-	return array('msg'=>$qm->m['fmt_title_edit'], 'body'=> $prefix . edit_form($page, $postdata));
+	return array('msg' => $qm->m['fmt_title_edit'], 'body' => $prefix . edit_form($page, $postdata));
 }
 
 // Preview
@@ -101,8 +96,7 @@ function plugin_edit_preview()
 	$page = isset($vars['page']) ? $vars['page'] : '';
 
 	$layout_name = '';
-	if (array_key_exists($page, $layout_pages))
-	{
+	if (array_key_exists($page, $layout_pages)) {
 		$layout_name = $layout_pages[$page];
 	}
 
@@ -158,8 +152,7 @@ function plugin_edit_preview()
 </style>
 ';
 
-	if ($layout_name !== '')
-	{
+	if ($layout_name !== '') {
 		$msgstyle .= '
 <style type="text/css">
 	#preview_body {
@@ -167,7 +160,6 @@ function plugin_edit_preview()
 	}
 </style>
 ';
-
 	}
 
 	$qt->appendv_once('plugin_edit_preview', 'beforescript', $msgstyle);
@@ -175,7 +167,7 @@ function plugin_edit_preview()
 	$addscript = '
 <script type="text/javascript">
 	$(function(){
-		$("div.toolbar_upper ul.toolbar_menu, div.toolbar_upper ul.toolbar_menu_min").prepend("<li class=\"preview_notice\">'. $qm->m['plg_edit']['label_preview'].'</li>")
+		$("div.toolbar_upper ul.toolbar_menu, div.toolbar_upper ul.toolbar_menu_min").prepend("<li class=\"preview_notice\">' . $qm->m['plg_edit']['label_preview'] . '</li>")
 			.children(":nth-child(2)").remove();
 		$("#preview_notice")
 		.css("cursor", "pointer")
@@ -186,12 +178,11 @@ function plugin_edit_preview()
 </script>
 ';
 
-	if ($layout_name !== '')
-	{
+	if ($layout_name !== '') {
 		$addscript .= '
 <script type="text/javascript">
 $(function(){
-	var $layout = $("div.preview_highlight").parent(), $div = $("<div></div>"), $div2 = $("<div>'. h($layout_name) .'のプレビュー</div>");
+	var $layout = $("div.preview_highlight").parent(), $div = $("<div></div>"), $div2 = $("<div>' . h($layout_name) . 'のプレビュー</div>");
 	var paddingWidth = parseInt($layout.css("padding-left").match(/\d+/)[0]) + parseInt($layout.css("padding-right").match(/\d+/)[0]),
 		paddingHeight = parseInt($layout.css("padding-top").match(/\d+/)[0]) + parseInt($layout.css("padding-bottom").match(/\d+/)[0]);
 	$div.css({
@@ -234,7 +225,7 @@ $(function(){
 	}
 	$qt->appendv_once('plugin_edit_preview_js', 'beforescript', $addscript);
 
-	$preview_notice = '<div id="preview_notice">'. $qm->m['fmt_msg_preview'] . '</div>' . "\n";
+	$preview_notice = '<div id="preview_notice">' . $qm->m['fmt_msg_preview'] . '</div>' . "\n";
 	$qt->appendv_once('plugin_edit_preview_block', 'lastscript', $preview_notice);
 	$body = '<div id="preview_body">';
 	if ($postdata == '')
@@ -242,8 +233,7 @@ $(function(){
 	$body .= '<br />' . "\n";
 
 	if ($postdata) {
-		if ($page !== $qblog_defaultpage && is_qblog())
-		{
+		if ($page !== $qblog_defaultpage && is_qblog()) {
 			$postdata = "#qblog_head\n" . $postdata;
 		}
 		$postdata = make_str_rules($postdata);
@@ -251,10 +241,10 @@ $(function(){
 		$postdata = drop_submit(convert_html($postdata));
 		$body .= $postdata;
 	}
-	$body .= '</div>'. "\n";
+	$body .= '</div>' . "\n";
 	$body .= edit_form($page, $vars['msg'], $vars['digest'], FALSE);
 
-	return array('msg'=>$qm->m['fmt_title_preview'], 'body'=>$body);
+	return array('msg' => $qm->m['fmt_title_preview'], 'body' => $body);
 }
 
 // Inline: Show edit (or unfreeze text) link
@@ -274,12 +264,18 @@ function plugin_edit_inline()
 	$page    = array_shift($args);
 	if ($page == NULL) $page = '';
 	$_noicon = $_nolabel = FALSE;
-	foreach($args as $arg){
-		switch(strtolower($arg)){
-		case ''       :                   break;
-		case 'nolabel': $_nolabel = TRUE; break;
-		case 'noicon' : $_noicon  = TRUE; break;
-		default       : return $qm->m['plg_edit']['err_usage'];
+	foreach ($args as $arg) {
+		switch (strtolower($arg)) {
+			case '':
+				break;
+			case 'nolabel':
+				$_nolabel = TRUE;
+				break;
+			case 'noicon':
+				$_noicon  = TRUE;
+				break;
+			default:
+				return $qm->m['plg_edit']['err_usage'];
 		}
 	}
 
@@ -363,10 +359,10 @@ function plugin_edit_write()
 	$digest = isset($vars['digest']) ? $vars['digest'] : '';
 
 	$vars['msg'] = preg_replace(PLUGIN_EDIT_FREEZE_REGEX, '', $vars['msg']);
-	$msg = & $vars['msg']; // Reference
+	$msg = &$vars['msg']; // Reference
 
 
-	$retvars = array();
+	$retvars = [];
 
 	// Collision Detection
 	$oldpagesrc = join('', get_source($page));
@@ -378,7 +374,7 @@ function plugin_edit_write()
 		$original = isset($vars['original']) ? $vars['original'] : '';
 		list($postdata_input, $auto) = do_update_diff($oldpagesrc, $msg, $original);
 
-		$retvars['msg' ] = $qm->m['fmt_title_collided'];
+		$retvars['msg'] = $qm->m['fmt_title_collided'];
 		$retvars['body'] = ($auto ? $qm->m['fmt_msg_collided_auto'] : $qm->m['fmt_msg_collided']) . "\n";
 		$retvars['body'] .= $do_update_diff_table;
 		$retvars['body'] .= edit_form($page, $postdata_input, $oldpagemd5, FALSE);
@@ -395,28 +391,26 @@ function plugin_edit_write()
 		}
 	} else {
 		// Edit or Remove
-		$postdata = & $msg; // Reference
+		$postdata = &$msg; // Reference
 	}
 
 	//ブログの時は、タイトルを足す
-	if ($page !== $qblog_defaultpage && is_qblog())
-	{
+	if ($page !== $qblog_defaultpage && is_qblog()) {
 		global $qblog_default_cat;
 		$title = trim($vars['title']);
 		$image = trim($vars['image']);
 		$cat   = trim($vars['category']);
 		$cat   = ($cat === '') ? $qblog_default_cat : $cat;
 
-		if ($postdata !== '')
-		{
-			$postdata = 'TITLE:'. $title . "\n" . $postdata;
+		if ($postdata !== '') {
+			$postdata = 'TITLE:' . $title . "\n" . $postdata;
 		}
 	}
 
 	// NULL POSTING, OR removing existing page
 	if ($postdata == '') {
 		page_write($page, $postdata);
-		$retvars['msg' ] = $qm->m['fmt_title_deleted'];
+		$retvars['msg'] = $qm->m['fmt_title_deleted'];
 		$retvars['body'] = str_replace('$1', htmlspecialchars($page), $qm->m['fmt_title_deleted']);
 
 		if ($trackback) tb_delete($page);
@@ -436,30 +430,24 @@ function plugin_edit_write()
 	page_write($page, $postdata, $notimeupdate != 0 && $notimestamp);
 
 	//ブログの場合
-	if ($page !== $qblog_defaultpage && is_qblog())
-	{
+	if ($page !== $qblog_defaultpage && is_qblog()) {
 		// 日付の変更があったら、ページ名の変更
 		$page_date = get_qblog_date($date_format, $page);
-		if ($page_date AND $vars['qblog_date'] != $page_date)
-		{
+		if ($page_date and $vars['qblog_date'] != $page_date) {
 			// ページ名の変更
-			if (exist_plugin('rename'))
-			{
+			if (exist_plugin('rename')) {
 				// ! renameのために $vasの値を変更
 				$vars['page'] = $newpage = qblog_get_newpage($vars['qblog_date']);
 				$vars['refer'] = $refer = $page;
 				$vars['exist'] = 1;
 
-				$pages = array();
+				$pages = [];
 				$pages[encode($refer)] = encode($newpage);
 				$files = plugin_rename_get_files($pages);
-				$exists = array();
-				foreach ($files as $_page => $arr)
-				{
-					foreach ($arr as $old => $new)
-					{
-						if (file_exists($new))
-						{
+				$exists = [];
+				foreach ($files as $_page => $arr) {
+					foreach ($arr as $old => $new) {
+						if (file_exists($new)) {
 							$exists[$_page][$old] = $new;
 						}
 					}
@@ -469,10 +457,8 @@ function plugin_edit_write()
 				//保留コメントリスト内のページ名を変更
 				$datafile = CACHEQBLOG_DIR . 'qblog_pending_comments.dat';
 				$pending_comments = unserialize(file_get_contents($datafile));
-				foreach ($pending_comments as $i => $comment)
-				{
-					if ($comment['page'] == $page)
-					{
+				foreach ($pending_comments as $i => $comment) {
+					if ($comment['page'] == $page) {
 						$pending_comments[$i]['page'] = $newpage;
 					}
 				}
@@ -492,8 +478,7 @@ function plugin_edit_write()
 		qblog_update_post($force, $page, $option);
 
 		//Ping送信を行う
-		if ( ! $notimestamp)
-		{
+		if (! $notimestamp) {
 			send_qblog_ping();
 		}
 	}
@@ -501,17 +486,13 @@ function plugin_edit_write()
 	pkwk_headers_sent();
 
 	//ブログメニューの場合、ブログトップへ移動する
-	if ($page === $qblog_menubar)
-	{
+	if ($page === $qblog_menubar) {
 		header('Location: ' . get_script_uri() . '?' . $qblog_defaultpage);
 	}
 	//メニューやナビの場合はFrontPage へ
-	else if (array_key_exists($page, $layout_pages))
-	{
+	else if (array_key_exists($page, $layout_pages)) {
 		header('Location: ' . get_script_uri());
-	}
-	else
-	{
+	} else {
 		header('Location: ' . get_script_uri() . '?' . rawurlencode($page));
 	}
 
@@ -524,20 +505,13 @@ function plugin_edit_cancel()
 	global $vars, $layout_pages, $qblog_menubar, $qblog_defaultpage;
 	pkwk_headers_sent();
 
-	if ($vars['page'] === $qblog_menubar)
-	{
+	if ($vars['page'] === $qblog_menubar) {
 		header('Location: ' . get_script_uri() . '?' . $qblog_defaultpage);
-	}
-	else if (is_qblog($vars['page']) && ! is_page($vars['page']))
-	{
+	} else if (is_qblog($vars['page']) && ! is_page($vars['page'])) {
 		header('Location: ' . get_script_uri() . '?' . $qblog_defaultpage);
-	}
-	else if (array_key_exists($vars['page'], $layout_pages) OR count(get_source($vars['page'])) == 0)
-	{
+	} else if (array_key_exists($vars['page'], $layout_pages) or count(get_source($vars['page'])) == 0) {
 		header('Location: ' . get_script_uri());
-	}
-	else
-	{
+	} else {
 		header('Location: ' . get_script_uri() . '?' . rawurlencode($vars['page']));
 	}
 	exit;

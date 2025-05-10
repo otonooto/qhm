@@ -14,7 +14,7 @@ define('PKWK_PLUGIN_NAMESPACE', 'QHM\\Plugin\\');
 // Set global variables for plugins
 function set_plugin_messages($messages)
 {
-	foreach ($messages as $name=>$val)
+	foreach ($messages as $name => $val)
 		if (! isset($GLOBALS[$name]))
 			$GLOBALS[$name] = $val;
 }
@@ -22,7 +22,7 @@ function set_plugin_messages($messages)
 // Get plugin prefix with namespace
 function get_plugin_prefix($name)
 {
-	static $prefixes = array();
+	static $prefixes = [];
 	if (isset($prefixes[$name])) {
 		return $prefixes[$name];
 	}
@@ -44,17 +44,17 @@ function get_plugin_prefix($name)
 function exist_plugin($name)
 {
 	global $vars;
-	static $exist = array(), $count = array();
+	static $exist = [], $count = [];
 
 	$name = strtolower($name);
-	if(isset($exist[$name])) {
+	if (isset($exist[$name])) {
 		if (++$count[$name] > PKWK_PLUGIN_CALL_TIME_LIMIT)
 			die('Alert: plugin "' . htmlspecialchars($name) .
-			'" was called over ' . PKWK_PLUGIN_CALL_TIME_LIMIT .
-			' times. SPAM or someting?<br />' . "\n" .
-			'<a href="' . get_script_uri() . '?cmd=edit&amp;page='.
-			rawurlencode($vars['page']) . '">Try to edit this page</a><br />' . "\n" .
-			'<a href="' . get_script_uri() . '">Return to frontpage</a>');
+				'" was called over ' . PKWK_PLUGIN_CALL_TIME_LIMIT .
+				' times. SPAM or someting?<br />' . "\n" .
+				'<a href="' . get_script_uri() . '?cmd=edit&amp;page=' .
+				rawurlencode($vars['page']) . '">Try to edit this page</a><br />' . "\n" .
+				'<a href="' . get_script_uri() . '">Return to frontpage</a>');
 		return $exist[$name];
 	}
 
@@ -63,10 +63,12 @@ function exist_plugin($name)
 	if (version_compare(PHP_VERSION, 5.3, '<')) {
 		$regex = '/^\w{1,64}$/';
 	}
-	if (preg_match($regex, $name) &&
-		file_exists(PLUGIN_DIR . $name . '.inc.php')) {
-			$exist[$name] = TRUE;
-			$count[$name] = 1;
+	if (
+		preg_match($regex, $name) &&
+		file_exists(PLUGIN_DIR . $name . '.inc.php')
+	) {
+		$exist[$name] = TRUE;
+		$count[$name] = 1;
 		require_once(PLUGIN_DIR . $name . '.inc.php');
 		return TRUE;
 	} else {
@@ -77,30 +79,33 @@ function exist_plugin($name)
 }
 
 // Check if plugin API 'action' exists
-function exist_plugin_action($name) {
+function exist_plugin_action($name)
+{
 	$func = get_plugin_prefix($name) . 'action';
-	return	function_exists($func) ? TRUE : exist_plugin($name) ?
-		function_exists($func) : FALSE;
+	return	function_exists($func) ? TRUE : (exist_plugin($name) ?
+		function_exists($func) : FALSE);
 }
 
 // Check if plugin API 'convert' exists
-function exist_plugin_convert($name) {
+function exist_plugin_convert($name)
+{
 	$func = get_plugin_prefix($name) . 'convert';
-	return	function_exists($func) ? TRUE : exist_plugin($name) ?
-		function_exists($func) : FALSE;
+	return	function_exists($func) ? TRUE : (exist_plugin($name) ?
+		function_exists($func) : FALSE);
 }
 
 // Check if plugin API 'inline' exists
-function exist_plugin_inline($name) {
+function exist_plugin_inline($name)
+{
 	$func = get_plugin_prefix($name) . 'inline';
-	return	function_exists($func) ? TRUE : exist_plugin($name) ?
-		function_exists($func) : FALSE;
+	return	function_exists($func) ? TRUE : (exist_plugin($name) ?
+		function_exists($func) : FALSE);
 }
 
 // Do init the plugin
 function do_plugin_init($name)
 {
-	static $checked = array();
+	static $checked = [];
 
 	if (isset($checked[$name])) return $checked[$name];
 
@@ -118,9 +123,9 @@ function do_plugin_init($name)
 // Call API 'action' of the plugin
 function do_plugin_action($name)
 {
-	if (! exist_plugin_action($name)) return array();
+	if (! exist_plugin_action($name)) return [];
 
-	if(do_plugin_init($name) === FALSE)
+	if (do_plugin_init($name) === FALSE)
 		die_message('Plugin init failed: ' . $name);
 
 	$retvar = call_user_func(get_plugin_prefix($name) . 'action');
@@ -139,7 +144,7 @@ function do_plugin_convert($name, $args = '')
 {
 	global $digest;
 
-	if(do_plugin_init($name) === FALSE)
+	if (do_plugin_init($name) === FALSE)
 		return '[Plugin init failed: ' . $name . ']';
 
 	if (! PKWKEXP_DISABLE_MULTILINE_PLUGIN_HACK) {
@@ -152,12 +157,12 @@ function do_plugin_convert($name, $args = '')
 	}
 
 	if ($args === '') {
-		$aryargs = array();                 // #plugin()
+		$aryargs = [];                 // #plugin()
 	} else {
 		$aryargs = csv_explode(',', $args); // #plugin(A,B,C,D)
 	}
 	if (! PKWKEXP_DISABLE_MULTILINE_PLUGIN_HACK) {
-		if (isset($body)) $aryargs[] = & $body;     // #plugin(){{body}}
+		if (isset($body)) $aryargs[] = &$body;     // #plugin(){{body}}
 	}
 
 	$_digest = $digest;
@@ -178,27 +183,27 @@ function do_plugin_convert($name, $args = '')
 }
 
 // Call API 'inline' of the plugin
-function do_plugin_inline($name, $args, & $body)
+function do_plugin_inline($name, $args, &$body)
 {
 	global $digest;
 
-	if(do_plugin_init($name) === FALSE)
+	if (do_plugin_init($name) === FALSE)
 		return '[Plugin init failed: ' . $name . ']';
 
 	if ($args !== '') {
 		$aryargs = csv_explode(',', $args);
 	} else {
-		$aryargs = array();
+		$aryargs = [];
 	}
 
 	// NOTE: A reference of $body is always the last argument
-	$aryargs[] = & $body; // func_num_args() != 0
+	$aryargs[] = &$body; // func_num_args() != 0
 
 	$_digest = $digest;
 	$retvar  = call_user_func_array(get_plugin_prefix($name) . 'inline', $aryargs);
 	$digest  = $_digest; // Revert
 
-	if($retvar === FALSE) {
+	if ($retvar === FALSE) {
 		// Do nothing
 		return htmlspecialchars('&' . $name . ($args ? '(' . $args . ')' : '') . ';');
 	} else {
