@@ -1,0 +1,33 @@
+name: Create Release
+on:
+  pull_request:
+    branches: [main]
+    types: [closed]
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    if: contains(github.event.pull_request.labels.*.name, 'release') && github.event.pull_request.merged == true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup vars
+        id: vars
+        run: |
+          echo "release_version=$(echo ${GITHUB_HEAD_REF} | cut -d '-' -f 2)" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: "v${{ steps.vars.outputs.release_version }}"
+          release_name: "Release v${{ steps.vars.outputs.release_version }}"
+          body: |
+            PR: #${{ github.event.pull_request.number }}
+
+            ## Included Pull Requests
+            ${{ github.event.pull_request.body }}
+          draft: false
+          prerelease: false
