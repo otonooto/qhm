@@ -34,7 +34,7 @@ jobs:
           GIT_PR_RELEASE_BRANCH_STAGING: ${{ steps.vars.outputs.branch_name }}
           GIT_PR_RELEASE_LABELS: release
           GIT_PR_RELEASE_TITLE: "Release v${{ steps.vars.outputs.release_version }}"
-          GIT_PR_RELEASE_TEMPLATE: .github/release-pr-template
+          GIT_PR_RELEASE_TEMPLATE: .github/git-pr-release-template
         run: |
           gem install -N git-pr-release
           git-pr-release --no-fetch
