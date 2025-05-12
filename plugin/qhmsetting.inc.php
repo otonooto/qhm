@@ -28,9 +28,7 @@ function plugin_qhmsetting_action()
 <script type="text/javascript" src="skin/bootstrap/js/bootstrap.min.js"></script>';
 	$qt->appendv_once('include_bootstrap_pub', 'beforescript', $include_bs);
 
-	$head = '
-<link rel="stylesheet" href="skin/hokukenstyle/qhm.css" />
-';
+	$head = '';
 	$qt->appendv('beforescript', $head);
 
 	//check admin, setting
@@ -66,10 +64,10 @@ function plugin_qhmsetting_action()
 			$ret = $_SESSION['flash_msg'] . $ret;
 		} else {
 			$ret = '
-<div style="background-color:#fee;border:1px solid #c99;padding: 10px;">
-	' . $_SESSION['flash_msg'] . '
-</div>
-' . $ret;
+				<div style="background-color:#fee;border:1px solid #c99;padding: 10px;">
+					' . $_SESSION['flash_msg'] . '
+				</div>
+			' . $ret;
 		}
 		unset($_SESSION['flash_msg']);
 	}
@@ -238,17 +236,11 @@ EOD;
 	$update_showcase = '';
 	if (get_qhm_option('banner')) {
 		$update_showcase = <<< EOD
-			<style>
-			.qhmsetting-update-showcase {
-				width: 100%;
-				margin: 10px auto 50px;
-				padding: 0 40px;
-			}
-			</style>
 			<h3>お知らせ</h3>
 			<div class="qhmsetting-update-showcase">
 				<p>現在新しいお知らせはありません。</p>
-				<a href="https://github.com/otonooto/qhm/">GitHub</a>
+				<p><a href="https://github.com/otonooto/qhm/">GitHub</a></p>
+				<hr>
 			</div>
 EOD;
 
@@ -268,31 +260,30 @@ EOD;
 {$update_showcase}
 <p>以下の項目から、変更したいものをクリックしてください。</p>
 
-<table class="table table-bordered">
+<div class="setting__list">
 EOD;
 
 	$scnt = 0;
 	foreach ($setlist as $set) {
 		if ($scnt % 2 == 0) {
 			$html .= '
-	<tr>';
+	<div>';
 		}
 
 		if ($set['limited']) {
 			$html .= '
-		<td style="background-color:#e0e0e0;"><p>
-			<span style="font-weight:bold;color:#666;">' . $set['title'] . '</span>
-		</p><span style="color:#888;">' . $set['subtitle'] . '</span></td>';
+		<h2><span style="font-weight:bold;color:#666;">' . $set['title'] . '</span></h2>
+		<p><span style="color:#888;">' . $set['subtitle'] . '</span></p>';
 		} else {
 			$html .= '
-		<td><p>
+		<h2>
 			<a href="' . $set['url'] . '" style="font-weight:bold;">' . $set['title'] . '</a>' . $set['help'] . '
-		</p>' . $set['subtitle'] . '</td>';
+		</h2><p>' . $set['subtitle'] . '</p>';
 		}
 
 		if ($scnt % 2 == 1) {
 			$html .= '
-	</tr>';
+	</div>';
 		}
 
 		$scnt++;
@@ -300,7 +291,7 @@ EOD;
 
 
 	$html .= '
-</table>
+</div>
 ';
 
 	return $html;
@@ -336,18 +327,17 @@ function plugin_qhmsetting_design_form($error = '')
 	global $logo_image, $script, $vars, $style_name;
 	global $enable_wp_theme, $enable_wp_theme_name, $wp_add_css;
 	global $other_plugins;
-	global $smart_name;
 
 	$qt = get_qt();
 	$addcsv = '
 <style type="text/css">
-#designList td, #smartDesignList td {
+#designList td {
 	padding: 2px;
 }
 td label {
 	cursor: pointer;
 }
-input[name="qhmsetting[style_name]"], input[name="qhmsetting[smart_name]"],
+input[name="qhmsetting[style_name]"],
 #designList input[name=design] {
 	display:none;
 }
@@ -432,19 +422,6 @@ EOD;
 	closedir($hd);
 	sort($wp_dirs);
 
-	//スマートフォンデザインのスキャン
-
-	$hd = opendir(SMART_DIR);
-	$smart_dirs = [];
-	while ($entry = readdir($hd)) {
-		if (is_dir(SMART_DIR . $entry) && ($entry != '.') && ($entry != '..') && (file_exists(SMART_DIR . $entry . '/smart.css'))) {
-			$smart_dirs[] = $entry;
-		}
-	}
-	closedir($hd);
-	sort($smart_dirs);
-
-
 	//ここから
 	$body = $body_msg;
 	$body .= '<h2>デザインの設定' . $hlp_design . '</h2>';
@@ -461,7 +438,6 @@ EOD;
 	<ul class="list2">
 		<li><a href="#qhmdesign">専用デザインの設定</a></li>
 		{$wp_index}
-		<li><a href="#smartdesign">スマートフォンのデザイン設定</a></li>
 	</ul>
 </li>
 </ul>
@@ -807,106 +783,6 @@ EOD;
 </div>
 ';
 	}
-
-	//======================================================
-	// !スマートフォン デザイン設定
-	//======================================================
-	if (count($smart_dirs)) {
-		$body .= '<br /><br /><br /><h2 id="smartdesign">スマートフォンのデザイン設定</h2>' . "\n";
-		$body .= <<<EOD
-<div class="well">
-	<script type="text/javascript">
-	$(function(){
-		$("input:checkbox[name='qhmsetting[enable_smart_style]']")
-		.click(function(){
-			if (this.checked)
-			{
-				$("#smartDesignList").parent().slideDown("normal");
-			}
-			else
-			{
-				//設定を外した時は保存する
-				if ($(this).data("default"))
-				{
-					$(this).closest("form").submit();
-				}
-				else
-				{
-					$("#smartDesignList").parent().slideUp("normal");
-				}
-			}
-		})
-		.each(function(){
-			$(this).data("default", this.checked);
-			if ( ! this.checked)
-			{
-				$("#smartDesignList").parent().hide();
-			}
-
-		});
-
-		// !change bgcolor on select
-		$("#smartDesignList input:radio").click(function(){
-			$(this).closest("form").submit();
-		})
-			.closest("td").hover(
-				function(){
-					$(this).css({"outline" : "5px solid #CBE86B"});
-				},
-				function(){
-					$(this).css({"outline" : ""});
-				}
-			);
-	});
-	</script>
-	<p>
-		「スマートフォンデザインを利用する」にチェックを入れて、スマートフォンのデザインを選択して下さい。<br />
-		デザインをクリックすると反映されます。
-	</p>
-	<form method="post" action="{$script}">
-EOD;
-
-		$checked = ($params['enable_smart_style'] == '1') ? ' checked="checked"' : '';
-		$body .= '
-	<p><input type="hidden" name="qhmsetting[enable_smart_style]" value="0" />
-<label><input type="checkbox" name="qhmsetting[enable_smart_style]" value="1"' . $checked . ' />スマートフォンデザインを利用する</label></p>
-';
-		$body .= '<div><table id="smartDesignList">';
-		$smart_cnt = ceil(count($smart_dirs) / 3) * 3;
-		for ($i = 0; $i < $smart_cnt; $i++) {
-			if ($i % 3 == 0) {
-				$body .= '<tr>';
-			}
-			if (isset($smart_dirs[$i])) {
-				$dir = $smart_dirs[$i];
-				$thumb = file_exists(SMART_DIR . $dir . '/thumbnail.png') ? SMART_DIR . $dir . '/thumbnail.png' : SMART_DIR . $dir . '/thumbnail.jpg';
-				$ckd = ($dir == $params['smart_name']) ? ' checked="checked" class="currentStyle"' : '';
-				$ckd_msg = $ckd == '' ? '' : ' (現在の設定)';
-				$body .= '<td width="33%"><label>
-		<img src="' . $thumb . '" alt="' . $dir . 'サムネール" width="153" height="200" /><br />
-		<input type="radio" name="qhmsetting[smart_name]" value="' . $dir . '"' . $ckd . ' />' . $dir . $ckd_msg . '
-	</label></td>
-	';
-			}
-			if ($i % 3 == 2) {
-				$body .= '</tr>';
-			}
-		}
-		$body .= '</table></div>
-<input type="hidden" name="phase" value="design" />
-<input type="hidden" name="mode" value="confirm" />
-<input type="hidden" name="from" value="design_form" />
-<input type="hidden" name="plugin" value="qhmsetting" />
-<input type="hidden" name="pcmd"   value="post" />
-</form>
-</div>
-';
-	}
-
-	$body .= '<br />';
-	$body .= $body_msg;
-
-
 	return $body;
 }
 
@@ -974,55 +850,6 @@ function plugin_qhmsetting_design_confirm()
 	<input type="hidden" name="qhmsetting[enable_wp_theme]" value="1" />
 	</form>
 EOD;
-	}
-	///////////////////////////////////////////////////////////////////
-	//
-	// スマートフォンデザイン設定
-	//
-	else if (isset($vars['qhmsetting']['smart_name']) && $vars['qhmsetting']['smart_name'] != '') {
-
-		$enable_smart_style = $vars['qhmsetting']['enable_smart_style'];
-		$use_smart = 'スマートフォンデザイン：' . (($enable_smart_style == '1') ? '利用する' : '利用しない');
-
-		//design template setting
-		$smart_name = $vars['qhmsetting']['smart_name'];
-
-		//search thumnail image file
-		$style_thumb = SMART_DIR . $smart_name . '/thumbnail';
-		$style_img = '';
-		if (file_exists($style_thumb . '.jpg'))
-			$style_img = $style_thumb . '.jpg';
-		else if (file_exists($style_thumb . '.png'))
-			$style_img = $style_thumb . '.png';
-		else if (file_exists($style_thumb . '.gif'))
-			$style_img = $style_thumb . '.gif';
-
-		$style_img = ($style_img != '') ? '<img src="' . $style_img . '" title="Thumbnail" />' : '';
-
-		$vars['from'] = 'design_form';
-		$vars['smart_name_setting'] = 1;
-		return plugin_qhmsetting_design_msg();
-
-
-		// ---------------------------------------------
-		// Output confirmation contents
-		//
-		$body = '<h2>スマートフォンデザイン設定の確認</h2>';
-		$body .= '<p>' . $use_smart . '</p>';
-		if ($enable_smart_style == '1') {
-			$body .= '<p><b>テンプレート</b><br />' . $smart_name . '<br />' . $style_img . '</p>';
-		}
-		$body .= '
-	<form method="post" action="' . $script . '">
-	<p style="text-align:center"><input type="submit" value="設定する" class="btn btn-primary" /></p>
-	<input type="hidden" name="phase" value="design" />
-	<input type="hidden" name="mode" value="msg" />
-	<input type="hidden" name="plugin" value="qhmsetting" />
-	<input type="hidden" name="from" value="design_form" />
-	<input type="hidden" name="qhmsetting[enable_smart_style]" value="' . $enable_smart_style . '" />
-	<input type="hidden" name="qhmsetting[smart_name]" value="' . $smart_name . '" />
-	</form>
-';
 	}
 	///////////////////////////////////////////////////////////////////
 	//
@@ -1213,14 +1040,8 @@ function plugin_qhmsetting_design_msg()
 		$_SESSION['temp_style_path']
 	);
 
-	if (isset($vars['smart_name_setting'])) {
-		$to = $script . '?cmd=qhmsetting&mode=form&phase=design';
-		$_SESSION['flash_msg'] = 'スマートフォンのデザイン設定を変更しました';
-		$msg = '';
-	} else {
-		$to = '';
-		$msg = 'デザインの変更を完了しました';
-	}
+	$to = '';
+	$msg = 'デザインの変更を完了しました';
 
 	//goto top
 	redirect($to, $msg);
@@ -4133,8 +3954,6 @@ function plugin_qhmsetting_getparams($update = TRUE, $inifile = '')
 		'mobile_redirect',
 		'googlemaps_apikey',
 		'exclude_to_name',
-		'enable_smart_style',
-		'smart_name',
 		'check_login',
 		'enable_fitvids',
 		'unload_confirm',
@@ -4177,8 +3996,6 @@ function plugin_qhmsetting_getparams($update = TRUE, $inifile = '')
 		'enable_wp_theme'  => '0',
 		'wp_add_css'       => '',
 		'exclude_to_name'  => '0',
-		'enable_smart_style' => '0',
-		'smart_name'       => 'blue',
 		'check_login'      => '1',
 		'enable_fitvids'   => '1',
 		'unload_confirm'   => '1',

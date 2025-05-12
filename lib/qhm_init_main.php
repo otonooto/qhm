@@ -359,39 +359,6 @@ $w3c_tagstr = <<<EOD
 EOD;
 $qt->setv('w3c_tag', $w3c_tagstr);
 
-
-// iPhone, iPod, android デザイン
-if ($enable_smart_style && is_smart_phone() && !is_bootstrap_skin()) {
-    if (exist_plugin('use_smart')) {
-        $qt->appendv('site_navigator2', do_plugin_convert('use_smart'));
-    }
-
-    if (plugin_use_smart_is_enable()) {
-        $smart_css = ' <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<link rel="stylesheet" href="' . SMART_DIR . $smart_name . '/smart.css" media="screen" text/css="text/css">
-';
-        $smart_lastscript .= '
-<script type="text/javascript" charset="utf-8">
-if (typeof window.onload === "undefined") {
-    window.onload = function(){
-        setTimeout(function(){window.scrollTo(0,1);},100);
-    };
-} else {
-    var olfunc = window.onload;
-    window.onload = function(){
-        if (typeof olfunc === "function") olfunc();
-        setTimeout(function(){window.scrollTo(0,1);},100);
-    };
-}
-</script>
-';
-
-        $qt->setv('default_css', $smart_css);
-        $qt->appendv('lastscript', $smart_lastscript);
-    }
-}
-
 // Fit videos to screen
 if ($enable_fitvids) {
     $ignore_list = $qt->getv('fitvids_ignore_list');
