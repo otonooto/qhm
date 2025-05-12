@@ -158,8 +158,10 @@ for ($i = 0; $i < count($matches[0]); $i++) {
 }
 $qt->setv('body', ($pairs == null) ? $body : strtr($body, $pairs));
 
-//qhmsetting の場合、ナビやメニューは不要
-if ($vars['plugin'] == 'qhmsetting' or $vars['cmd'] == 'qhmsetting') return;
+//qhmsetting の場合、ナビやメニューは不要のため、早期リターンする
+if ($vars['plugin'] == 'qhmsetting' || $vars['cmd'] == 'qhmsetting') {
+    return;
+};
 
 //-------------------------------------------------
 //
@@ -167,6 +169,8 @@ if ($vars['plugin'] == 'qhmsetting' or $vars['cmd'] == 'qhmsetting') return;
 //
 //-------------------------------------------------
 
+// no_menusが設定されていない場合に表示する
+// （qblog, qhmsetting以外は表示）
 if (! $qt->getv('no_menus')) {
     $scripturi = $script . '\?' . rawurlencode($vars['page']);
     $ptn = '|<li>(.+href="(' . $scripturi . ')".+)?</li>|';
