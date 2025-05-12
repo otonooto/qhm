@@ -1,4 +1,5 @@
-@import url("hokukenstyle/qhm.css");
+/* TODO: 影響範囲を確認して、不要であれば import は完全に削除する */
+/* @import url("hokukenstyle/qhm.css"); */
 
 body {
 background-color:#E7E7E7;
@@ -51,7 +52,7 @@ border:1px solid #A1A1A1;
 margin:1px auto 1em auto;
 padding:8px 18px;
 text-align:left;
-width:650px;
+max-width:650px;
 }
 
 #summary {
@@ -866,7 +867,7 @@ width:80%;
 div.contents:before {
 background-color:#999;
 color:#fff;
-content:"������";
+content:"������";
 display:block;
 font-size:12px;
 font-weight:700;
