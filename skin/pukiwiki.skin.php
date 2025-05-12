@@ -15,7 +15,7 @@
 </head>
 
 <body>
-  #{$fb_init}
+  #{$example_script}
   #{$toolkit_upper}
   <div id="wrapper"><!-- ■BEGIN id:wrapper -->
     <!-- ◆ Content ◆ ========================================================= -->

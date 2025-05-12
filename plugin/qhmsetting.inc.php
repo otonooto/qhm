@@ -13,7 +13,12 @@ function plugin_qhmsetting_action()
 {
 	global $vars, $username, $style_name, $script;
 	$qt = get_qt();
-	$qt->setv('no_menus', TRUE); //メニューやナビ等をconvertしない
+
+	// 'no_menus', TRUEは削除しても問題なさそう。
+	// qhm_init_main.phpで、varsが[qhmsetting]の場合は、
+	// 早期リターンでメニューやナビ等をコンバートしない設定になっている。
+	// 本ファイルで明示的にno_menusを宣言するためのもの？
+	$qt->setv('no_menus', TRUE);
 
 	// XSS-Protection を無効化
 	cancel_xss_protection();
@@ -25,9 +30,7 @@ function plugin_qhmsetting_action()
 
 	$head = '
 <link rel="stylesheet" href="skin/hokukenstyle/qhm.css" />
-<style type="text/css">
-body {background-color: #E7E7E7;}
-</style>';
+';
 	$qt->appendv('beforescript', $head);
 
 	//check admin, setting
@@ -71,8 +74,6 @@ body {background-color: #E7E7E7;}
 		unset($_SESSION['flash_msg']);
 	}
 
-
-
 	$style_name = '..';
 	return array('msg' => "サイト情報設定", 'body' => $ret);
 }
@@ -80,10 +81,11 @@ body {background-color: #E7E7E7;}
 function plugin_qhmsetting_default()
 {
 
-	global $script, $other_plugins;
+	global $script;
 	$qt = get_qt();
 
 	$scrt = $script . '?plugin=qhmsetting&amp;mode=form&amp;phase=';
+	$edit_uri = $script . '?cmd=edit&page=';
 
 	$setlist = array(
 		'design'    => array(
@@ -184,14 +186,20 @@ function plugin_qhmsetting_default()
 			'subtitle' => 'SNSの連携設定をします。',
 			'limited' => true,
 		),
-		// アップデーターを非表示にする
-		// 'update'       => array(
-		// 	'help' => 'HowToUseUpdatePlugin',
-		// 	'url'  => $script . '?cmd=system_updater',
-		// 	'title' => 'アップデート',
-		// 	'subtitle' => 'アップデートを行います。',
-		// 	'limited' => true,
-		// ),
+		'ナビ編集'       => array(
+			'help' => 'SiteNavigator',
+			'url'  => $edit_uri . 'SiteNavigator',
+			'title' => 'ナビ編集',
+			'subtitle' => 'ナビの編集',
+			'limited' => false,
+		),
+		'logout'       => array(
+			'help' => 'Logout',
+			'url'  => $script . '?cmd=qhmlogout',
+			'title' => 'ログアウト',
+			'subtitle' => 'ログアウトします',
+			'limited' => false,
+		),
 	);
 
 	foreach ($setlist as $setname => $set) {
@@ -226,11 +234,9 @@ EOD;
 		}
 	}
 
+	// お知らせの表示
 	$update_showcase = '';
-	/*
-	if (get_qhm_option('banner'))
-	{
-		$update_list_url = h('//ensmall.net/update/index.php?cmd=hkn_upinfo&cat=openqhm');
+	if (get_qhm_option('banner')) {
 		$update_showcase = <<< EOD
 			<style>
 			.qhmsetting-update-showcase {
@@ -241,27 +247,26 @@ EOD;
 			</style>
 			<h3>お知らせ</h3>
 			<div class="qhmsetting-update-showcase">
-				<div class="fb-page" data-href="https://www.facebook.com/open.qhm" data-width="500" data-height="300" data-small-header="true" data-adapt-container-width="true" data-hide-cover="true" data-show-facepile="false" data-show-posts="true"><div class="fb-xfbml-parse-ignore"><blockquote cite="https://www.facebook.com/open.qhm"><a href="https://www.facebook.com/open.qhm">Open QHM</a></blockquote></div></div>
+				<p>現在新しいお知らせはありません。</p>
+				<a href="https://github.com/otonooto/qhm/">GitHub</a>
 			</div>
 EOD;
-		$fb_init = <<< EOD
-			<div id="fb-root"></div>
-			<script>(function(d, s, id) {
-			var js, fjs = d.getElementsByTagName(s)[0];
-			if (d.getElementById(id)) return;
-			js = d.createElement(s); js.id = id;
-			js.src = "//connect.facebook.net/ja_JP/sdk.js#xfbml=1&version=v2.4&appId=182764055138172";
-			fjs.parentNode.insertBefore(js, fjs);
-			}(document, 'script', 'facebook-jssdk'));</script>
-EOD;
-		$qt->setv('fb_init', $fb_init);
+
+		// テンプレートで設定した変数に渡す
+		// 		$example_script = <<< EOD
+		// 			<script>
+		// 			alert("This message is in file qhmsetting.inc.php");			
+		// 			</script>
+		// EOD;
+		// 例えば、pukiwiki.skin.php に以下が設定されている場合
+		// #{$example_script}
+		// $example_scriptの内容がそのまま挿入されます
+		// $qt->setv('example_script', $example_script);
 	}
-*/
 	// HTML生成
 	$html .= <<<EOD
-<p>以下の項目から、変更したいものをクリックしてください。</p>
-
 {$update_showcase}
+<p>以下の項目から、変更したいものをクリックしてください。</p>
 
 <table class="table table-bordered">
 EOD;
@@ -4492,6 +4497,7 @@ function plugin_qhmsetting_post($url, $data, $optional_headers = null)
 		}
 
 		$response = @stream_get_contents($fp);
+
 		//echo '<br />';
 		//読み込み失敗
 		if ($response === false) {
