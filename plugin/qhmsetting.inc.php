@@ -53,7 +53,7 @@ function plugin_qhmsetting_action()
 	} else {
 
 		$title = '
-<p><a href="' . $script . '">トップ</a> &gt; here</p>'
+			<p><a href="' . $script . '">トップ</a> &gt; here</p>'
 			. plugin_qhmsetting_phpversion_block()
 			. '<h2>QHM v' . QHM_VERSION . ' 設定</h2>';
 		$ret = $title . plugin_qhmsetting_default();
@@ -78,136 +78,243 @@ function plugin_qhmsetting_action()
 
 function plugin_qhmsetting_default()
 {
-
 	global $script;
 	$qt = get_qt();
 
 	$scrt = $script . '?plugin=qhmsetting&amp;mode=form&amp;phase=';
 	$edit_uri = $script . '?cmd=edit&page=';
 
-	$setlist = array(
-		'design'    => array(
-			'help' => 'ChangeDesign',
-			'url'  => $scrt . 'design',
-			'title' => 'デザインの変更',
-			'subtitle' => 'ロゴ画像の設定、ロゴ部分の文字、テンプレートの設定を行います。',
-			'limited' => false,
-		),
-		'info'      => array(
-			'help' => 'SiteConfig',
-			'url'  => $scrt . 'info',
-			'title' => 'サイト情報の設定',
-			'subtitle' => 'キーワード、サイト説明、ヘッダー、フッター、アクセス解析タグなどの設定を行います。',
-			'limited' => false,
-		),
-		'admin'     => array(
-			'help' => 'SetPassword',
-			'url'  => $scrt . 'admin',
-			'title' => 'ユーザー名、パスワードの変更',
-			'subtitle' => '編集用のユーザー名、パスワードの設定を行います。',
-			'limited' => false,
-		),
-		'qblog' => array(
-			'help' => 'BlogSetting',
-			'url' => $script . '?cmd=qblog',
-			'title' => 'ブログ設定',
-			'subtitle' => 'ブログの設定を行います。',
-			'limited' => false,
-		),
-		'useradmin' => array(
-			'help' => 'UserAuthSetting',
-			'url'  => $scrt . 'user',
-			'title' => 'アクセス権限設定',
-			'subtitle' => '特定のページにアクセス権限を設定し、アクセスできるユーザーを追加設定できます。',
-			'limited' => true,
-		),
-		'clear'     => array(
-			'help' => 'SettingCache',
-			'url'  => $scrt . 'clear',
-			'title' => '高速化設定、キャッシュの初期化',
-			'subtitle' => '表示を高速化するためのキャッシュ機能を設定、キャッシュの初期化、テンプレートを初期化を行います。',
-			'limited' => false,
-		),
-		'back'      => array(
-			'help' => 'EasyBackup',
-			'url'  => $script . '?cmd=dump',
-			'title' => 'バックアップ',
-			'subtitle' => 'バックアップをダウンロードできます。フルバックアップ、重要ファイルのみのバックアップなど可能です。',
-			'limited' => true,
-		),
-		'counter'   => array(
-			'help' => 'Counter',
-			'url'  => $scrt . 'counter',
-			'title' => 'アクセスカウンター',
-			'subtitle' => 'アクセスカウンターをリセットします。',
-			'limited' => false,
-		),
-		'chmod'     => array(
-			'help' => 'UserAuthSetting',
-			'url'  => $scrt . 'chmod',
-			'title' => 'ファイル権限設定',
-			'subtitle' => '削除できない、FTPエラーが起こる原因である「ファイル権限」を設定、チェックします。',
-			'limited' => true,
-		),
-		'mail'      => array(
-			'help' => 'MailSetting',
-			'url'  => $scrt . 'mail',
-			'title' => 'メール送信設定',
-			'subtitle' => '送信メールサーバーを設定できます（SMTP送信、GoogleAppsなどの場合）',
-			'limited' => true,
-		),
-		'close'     => array(
-			'help' => 'SettingCloseSite',
-			'url'  => $scrt . 'close',
-			'title' => 'サイトの閉鎖／公開',
-			'subtitle' => '全ページを閉鎖します。閉鎖後は、管理者権限でログインすることで編集、閲覧が可能です。',
-			'limited' => true,
-		),
-		'mobile'    => array(
-			'help' => 'RedirectMobile',
-			'url'  => $scrt . 'mobile',
-			'title' => '携帯アクセス転送',
-			'subtitle' => '携帯端末からのアクセスを携帯専用サイトなどに転送します。',
-			'limited' => false,
-		),
-		'gmap'      => array(
-			'help' => 'GoogleMapsKey',
-			'url'  => $scrt . 'gmap',
-			'title' => 'Googleマップキー',
-			'subtitle' => 'QHMでGoogleマップを使うためのキーを設定します。',
-			'limited' => false,
-		),
-		'sns'       => array(
-			'help' => 'SettingOGP',
-			'url'  => $scrt . 'sns',
-			'title' => 'ソーシャル連携',
-			'subtitle' => 'SNSの連携設定をします。',
-			'limited' => true,
-		),
-		'ナビ編集'       => array(
-			'help' => 'SiteNavigator',
-			'url'  => $edit_uri . 'SiteNavigator',
-			'title' => 'ナビ編集',
-			'subtitle' => 'ナビの編集',
-			'limited' => false,
-		),
-		'logout'       => array(
-			'help' => 'Logout',
-			'url'  => $script . '?cmd=qhmlogout',
-			'title' => 'ログアウト',
-			'subtitle' => 'ログアウトします',
-			'limited' => false,
-		),
-	);
+	$setlist = [
+		'search' => [
+			'slug' => 'search',
+			'name' => '検索',
+			'items' => [
+				[
+					'slug' => 'search',
+					'url'  => $script . '?cmd=search',
+					'title' => '単語検索',
+					'subtitle' => '単語検索',
+					'limited' => false,
+				]
+			],
+		],
+		'page' => [
+			'slug' => 'page',
+			'name' => '固定ページ',
+			'items' => [
+				[
+					'slug' => 'newpage',
+					'url'  => $script . '?plugin=newpage',
+					'title' => '新規ページ',
+					'subtitle' => '新規ページの追加',
+					'limited' => false,
+				],
+				[
+					'slug' => 'filelist',
+					'url'  => $script . '?cmd=filelist',
+					'title' => 'ページ一覧',
+					'subtitle' => 'ページ一覧',
+					'limited' => false,
+				],
+				[
+					'slug' => 'recentchanges',
+					'url'  => $script . '?RecentChanges',
+					'title' => '更新履歴',
+					'subtitle' => '更新履歴',
+					'limited' => false,
+				],
+				[
+					'slug' => 'yetlist',
+					'url'  => $script . '?cmd=yetlist',
+					'title' => 'リンク切れ',
+					'subtitle' => 'リンク切れ',
+					'limited' => false,
+				],
+			],
+		],
+		'post' => [
+			'slug' => 'post',
+			'name' => 'ブログ',
+			'items' => [
+				[
+					'slug' => 'addpost',
+					'url' => $script . '?cmd=qblog&mode=addpost',
+					'title' => 'ブログ記事の新規追加',
+					'subtitle' => 'ブログ記事の新規追加を行います。',
+					'limited' => false,
+				],
+				[
+					'slug' => 'qblog',
+					'url' => $script . '?cmd=qblog',
+					'title' => 'ブログ設定',
+					'subtitle' => 'ブログの設定を行います。',
+					'limited' => false,
+				],
+				[
+					'slug' => 'qblogmenubar',
+					'url' => $edit_uri . '?page=QBlogMenuBar',
+					'title' => 'ブログメニュー',
+					'subtitle' => 'ブログメニューの修正を行います。',
+					'limited' => false,
+				],
+				[
+					'slug' => 'qblogtop',
+					'url' => $script . '?QBlog', // TODO: 汎用的な記述に変更
+					'title' => 'ブログトップ',
+					'subtitle' => 'ブログのトップへ',
+					'limited' => false,
+				],
+			],
+		],
+		'general' => [
+			'slug' => 'general',
+			'name' => 'サイトの設定',
+			'items'      => [
+				[
+					'slug' => 'info',
+					'url'  => $scrt . 'info',
+					'title' => 'サイト全般',
+					'subtitle' => 'キーワード、サイト説明、ヘッダー、フッター、アクセス解析タグなどの設定を行います。',
+					'limited' => false,
+				],
+				[
+					'slug' => 'sitenavigator',
+					'url'  => $edit_uri . 'SiteNavigator',
+					'title' => 'ナビ編集',
+					'subtitle' => 'ナビの編集',
+					'limited' => false,
+				],
+				[
+					'slug' => 'menubar',
+					'url'  => $edit_uri . 'MenuBar',
+					'title' => 'メニュー編集',
+					'subtitle' => 'メニューの編集',
+					'limited' => false,
+				],
+				[
+					'slug' => 'sitenavigator2',
+					'url'  => $edit_uri . 'SiteNavigator2',
+					'title' => 'フッター編集',
+					'subtitle' => 'フッターの編集',
+					'limited' => false,
+				],
+				[
+					'slug' => 'design',
+					'url'  => $scrt . 'design',
+					'title' => 'デザインの変更',
+					'subtitle' => 'ロゴ画像の設定、ロゴ部分の文字、テンプレートの設定を行います。',
+					'limited' => false,
+				],
+				[
+					'slug' => 'close',
+					'url'  => $scrt . 'close',
+					'title' => 'サイトの閉鎖／公開',
+					'subtitle' => '全ページを閉鎖します。閉鎖後は、管理者権限でログインすることで編集、閲覧が可能です。',
+					'limited' => true,
+				],
+			],
+		],
+		'tool' => [
+			'slug' => 'tool',
+			'name' => 'ツール',
+			'items'     => [
+				[
+					'slug' => 'clear',
+					'url'  => $scrt . 'clear',
+					'title' => '高速化設定、キャッシュの初期化',
+					'subtitle' => '表示を高速化するためのキャッシュ機能を設定、キャッシュの初期化、テンプレートを初期化を行います。',
+					'limited' => false,
+				],
+				[
+					'slug' => 'chmod',
+					'url'  => $scrt . 'chmod',
+					'title' => 'ファイル権限設定',
+					'subtitle' => '削除できない、FTPエラーが起こる原因である「ファイル権限」を設定、チェックします。',
+					'limited' => true,
+				],
+				[
+					'slug' => 'back',
+					'url'  => $script . '?cmd=dump',
+					'title' => 'バックアップ',
+					'subtitle' => 'バックアップをダウンロードできます。フルバックアップ、重要ファイルのみのバックアップなど可能です。',
+					'limited' => true,
+				],
+				[
+					'slug' => 'sns',
+					'url'  => $scrt . 'sns',
+					'title' => 'ソーシャル連携',
+					'subtitle' => 'SNSの連携設定をします。',
+					'limited' => true,
+				],
+				[
+					'slug' => 'counter',
+					'url'  => $scrt . 'counter',
+					'title' => 'アクセスカウンター',
+					'subtitle' => 'アクセスカウンターをリセットします。',
+					'limited' => false,
+				],
+				[
+					'slug' => 'mail',
+					'url'  => $scrt . 'mail',
+					'title' => 'メール送信設定',
+					'subtitle' => '送信メールサーバーを設定できます（SMTP送信、GoogleAppsなどの場合）',
+					'limited' => true,
+				],
+				[
+					'slug' => 'mobile',
+					'url'  => $scrt . 'mobile',
+					'title' => '携帯アクセス転送',
+					'subtitle' => '携帯端末からのアクセスを携帯専用サイトなどに転送します。',
+					'limited' => false,
+				],
+				[
+					'slug' => 'gmap',
+					'url'  => $scrt . 'gmap',
+					'title' => 'Googleマップキー',
+					'subtitle' => 'QHMでGoogleマップを使うためのキーを設定します。',
+					'limited' => false,
+				],
+			],
+		],
+		'account' => [
+			'slug' => 'account',
+			'name' => 'アカウント',
+			'items'     => [
+				[
+					'slug' => 'admin',
+					'url'  => $scrt . 'admin',
+					'title' => 'ユーザー名、パスワードの変更',
+					'subtitle' => '編集用のユーザー名、パスワードの設定を行います。',
+					'limited' => false,
+				],
+				[
+					'slug' => 'useradmin',
+					'url'  => $scrt . 'user',
+					'title' => 'アクセス権限設定',
+					'subtitle' => '特定のページにアクセス権限を設定し、アクセスできるユーザーを追加設定できます。',
+					'limited' => true,
+				],
+				[
+					'slug' => 'logout',
+					'url'  => $script . '?cmd=qhmlogout',
+					'title' => 'ログアウト',
+					'subtitle' => 'ログアウトします',
+					'limited' => false,
+				],
+			],
+		],
+	];
 
-	foreach ($setlist as $setname => $set) {
-		$setlist[$setname]['help'] = '';
-		//--<LimitedSetting>--
-		if ($set['limited']) {
-			$setlist[$setname]['limited'] = false;
-		}
-		//--</LimitedSetting>--
-	}
+	// foreach ($setlist as $cat) {
+	// 	foreach ($cat as $setname => $set) {
+	// 		$cat[$setname]['help'] = '';
+	// 		//--<LimitedSetting>--
+	// 		if ($set['limited']) {
+	// 			$cat[$setname]['limited'] = false;
+	// 		}
+	// 	}
+	// 	//--</LimitedSetting>--
+	// }
 	//--<UnlimitBackup>--
 	//--</UnlimitBackup>--
 
@@ -257,42 +364,36 @@ EOD;
 	}
 	// HTML生成
 	$html .= <<<EOD
-{$update_showcase}
-<p>以下の項目から、変更したいものをクリックしてください。</p>
-
-<div class="setting__list">
-EOD;
+		{$update_showcase}
+		<div id="setting__list">
+	EOD;
 
 	$scnt = 0;
-	foreach ($setlist as $set) {
-		if ($scnt % 2 == 0) {
-			$html .= '
-	<div>';
-		}
+	foreach ($setlist as $cat) {
+		$html .= $cat['name'];
+		$html .= '<ul class="cat__' . $cat['slug'] . '">';
 
-		if ($set['limited']) {
+		// if ($set['limited']) {
+		// 	$html .= '
+		// <h2><span style="font-weight:bold;color:#666;">' . $set['title'] . '</span></h2>
+		// <p><span style="color:#888;">' . $set['subtitle'] . '</span></p>';
+		// } else {
+		$items = $cat['items'];
+		foreach ($items as $item) {
 			$html .= '
-		<h2><span style="font-weight:bold;color:#666;">' . $set['title'] . '</span></h2>
-		<p><span style="color:#888;">' . $set['subtitle'] . '</span></p>';
-		} else {
-			$html .= '
-		<h2>
-			<a href="' . $set['url'] . '" style="font-weight:bold;">' . $set['title'] . '</a>' . $set['help'] . '
-		</h2><p>' . $set['subtitle'] . '</p>';
+			<li><a href="' . $item['url'] . '"><span class="icon icon__' . $item['slug'] . '">' . $item['title'] . '</span></a></li>';
 		}
+		// }
+		$html .= '</ul>';
 
-		if ($scnt % 2 == 1) {
-			$html .= '
-	</div>';
-		}
+		// if ($scnt % 2 == 1) {
+		// 	$html .= '</div>';
+		// }
 
 		$scnt++;
 	}
 
-
-	$html .= '
-</div>
-';
+	$html .= '</div>';
 
 	return $html;
 }
@@ -3654,7 +3755,7 @@ function fill_link(){
 // -->
 </script>
 <h2>リンク設定</h2>
-<p>ドメイン名、パス、リンクのための情報を設定します。{$help_link}<p/>
+<p>ドメイン名、パス、リンクのための情報を設定します。<p/>
 
 <p style="color:red">{$error}</p>
 <form method="post" action="" id="frm_script" name="frm_script">

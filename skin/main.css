@@ -1206,3 +1206,136 @@ border-radius: 5px;
 padding: 3px;
 width: 260px;
 }
+
+#setting__list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+#setting__list ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-radius: 20px;
+  border: 1px solid #333;
+  overflow: hidden;
+}
+#setting__list li {
+  border-bottom: 1px solid #333;
+}
+#setting__list li:last-child {
+  border-bottom: none;
+}
+#setting__list li a {
+  color: #333;
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  text-decoration: none;
+  font-weight: bold;
+}
+#setting__list li a:hover {
+  background-color: #eee;
+}
+#setting__list li a:after {
+  background-image: url('../image/icons/KeyboardArrowRight.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  content: '';
+  display: block;
+  width: 24px;
+  height: 24px;
+}
+span.icon {
+  display: flex;
+  gap: 10px;
+  justify-content: start;
+  align-items: center;
+}
+span.icon:before {
+  content: '';
+  background-size: contain;
+  background-repeat: no-repeat;
+  display: block;
+  width: 24px;
+  height: 24px; 
+}
+.icon__search:before {
+  background-image: url('../image/icons/Search.png');
+}
+.icon__newpage:before {
+  background-image: url('../image/icons/NoteAdd.png');
+}
+.icon__filelist:before {
+  background-image: url('../image/icons/List.png');
+}
+.icon__recentchanges:before {
+  background-image: url('../image/icons/History.png');
+}
+.icon__yetlist:before {
+  background-image: url('../image/icons/BrokenLink.png');
+}
+.icon__addpost:before {
+  background-image: url('../image/icons/PostAdd.png');
+}
+.icon__qblog:before {
+  background-image: url('../image/icons/Settings.png');
+}
+.icon__qblogmenubar:before {
+  background-image: url('../image/icons/Menu.png');
+}
+.icon__qblogtop:before {
+  background-image: url('../image/icons/GarageHome.png');
+}
+.icon__info:before {
+  background-image: url('../image/icons/Settings.png');
+}
+.icon__sitenavigator:before {
+  background-image: url('../image/icons/Menu.png');
+}
+.icon__menubar:before {
+  background-image: url('../image/icons/Menu.png');
+}
+.icon__sitenavigator2:before {
+  background-image: url('../image/icons/Menu.png');
+}
+.icon__design:before {
+  background-image: url('../image/icons/DesignServices.png');
+}
+.icon__close:before {
+  background-image: url('../image/icons/VisibilityLock.png');
+}
+.icon__clear:before {
+  background-image: url('../image/icons/Speed.png');
+}
+.icon__chmod:before {
+  background-image: url('../image/icons/LockReset.png');
+}
+.icon__back:before {
+  background-image: url('../image/icons/CloudDownload.png');
+}
+.icon__sns:before {
+  background-image: url('../image/icons/AssignmentInd.png');
+}
+.icon__counter:before {
+  background-image: url('../image/icons/ResetWrench.png');
+}
+.icon__mail:before {
+  background-image: url('../image/icons/OutgoingMail.png');
+}
+.icon__mobile:before {
+  background-image: url('../image/icons/Smartphone.png');
+}
+.icon__gmap:before {
+  background-image: url('../image/icons/Map.png');
+}
+.icon__admin:before {
+  background-image: url('../image/icons/AccountCircle.png');
+}
+.icon__useradmin:before {
+  background-image: url('../image/icons/LockPerson.png');
+}
+.icon__logout:before {
+  background-image: url('../image/icons/Logout.png');
+}
