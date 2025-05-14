@@ -45,6 +45,8 @@ function plugin_qhmsetting_action()
 	$mode = isset($vars['mode']) ? $vars['mode'] : '';
 
 	$func = 'plugin_qhmsetting_' . $phase . '_' . $mode;
+	$params = plugin_qhmsetting_getparams();
+
 
 	if (function_exists($func)) {
 		$ret = '<div class="admin"><p><a href="' . $script . '">トップ</a> &gt; <a href="' . $script . '?cmd=qhmsetting">設定一覧</a> &gt; here</p>'
@@ -55,7 +57,7 @@ function plugin_qhmsetting_action()
 		$title = '
 			<p><a href="' . $script . '">トップ</a> &gt; here</p>'
 			. plugin_qhmsetting_phpversion_block()
-			. '<h2>QHM v' . QHM_VERSION . ' 設定</h2>';
+			. '<h2>' . $params['page_title'] . ' の設定<br /><small>by QHM v' . QHM_VERSION . '</small></h2>';
 		$ret = $title . plugin_qhmsetting_default();
 	}
 
@@ -339,15 +341,12 @@ EOD;
 		}
 	}
 
-	// お知らせの表示
+	// お知らせなどの表示
 	$update_showcase = '';
 	if (get_qhm_option('banner')) {
 		$update_showcase = <<< EOD
-			<h3>お知らせ</h3>
-			<div class="qhmsetting-update-showcase">
-				<p>現在新しいお知らせはありません。</p>
-				<p><a href="https://github.com/otonooto/qhm/">GitHub</a></p>
-				<hr>
+			<div class="qhmsetting__source_code">
+				GitHub：<a href="https://github.com/otonooto/qhm/" target="_blank">https://github.com/otonooto/qhm/</a>
 			</div>
 EOD;
 
@@ -364,13 +363,12 @@ EOD;
 	}
 	// HTML生成
 	$html .= <<<EOD
-		{$update_showcase}
 		<div id="setting__list">
 	EOD;
 
 	$scnt = 0;
 	foreach ($setlist as $cat) {
-		$html .= $cat['name'];
+		$html .= '<div class="setting__category"><div class="setting__category-name">' . $cat['name'] . '</div>';
 		$html .= '<ul class="cat__' . $cat['slug'] . '">';
 
 		// if ($set['limited']) {
@@ -384,7 +382,7 @@ EOD;
 			<li><a href="' . $item['url'] . '"><span class="icon icon__' . $item['slug'] . '">' . $item['title'] . '</span></a></li>';
 		}
 		// }
-		$html .= '</ul>';
+		$html .= '</ul></div>';
 
 		// if ($scnt % 2 == 1) {
 		// 	$html .= '</div>';
@@ -393,7 +391,10 @@ EOD;
 		$scnt++;
 	}
 
-	$html .= '</div>';
+	$html .= <<<EOD
+	</div>
+	{$update_showcase}
+	EOD;
 
 	return $html;
 }
@@ -409,9 +410,9 @@ function plugin_qhmsetting_phpversion_block()
 
 		$wkstr = '
 #style(class=box_red_dsm){{
-CENTER:&deco(bold,red,,){このQHMはPHP4で動作しています};
+CENTER:&deco(bold,red,,){このQHMは' . $ver . 'で動作しています};
 
-PHP4をサポートしておりません。
+' . $ver . 'をサポートしておりません。
 正常動作させるには、ご利用のサーバーのPHPをバージョンアップ（PHP8.2 以上推奨）してください。
 }}
 ';
@@ -427,24 +428,23 @@ function plugin_qhmsetting_design_form($error = '')
 {
 	global $logo_image, $script, $vars, $style_name;
 	global $enable_wp_theme, $enable_wp_theme_name, $wp_add_css;
-	global $other_plugins;
 
 	$qt = get_qt();
-	$addcsv = '
-<style type="text/css">
-#designList td {
-	padding: 2px;
-}
-td label {
-	cursor: pointer;
-}
-input[name="qhmsetting[style_name]"],
-#designList input[name=design] {
-	display:none;
-}
-</style>
-';
-	$qt->appendv('beforescript', $addcsv);
+	$addcss = '
+		<style type="text/css">
+		#designList td {
+			padding: 2px;
+		}
+		td label {
+			cursor: pointer;
+		}
+		input[name="qhmsetting[style_name]"],
+		#designList input[name=design] {
+			display:none;
+		}
+		</style>
+	';
+	$qt->appendv('beforescript', $addcss);
 
 	// ヘルプリンク作成
 	$hlp_design    = '';
@@ -1155,7 +1155,7 @@ function plugin_qhmsetting_design_msg()
  */
 function plugin_qhmsetting_design_remove()
 {
-	global $vars, $script;
+	global $vars, $script, $style_name;
 
 	// --------------------------------------------
 	// 直接のアクセスを拒否する
@@ -2022,7 +2022,7 @@ EOD;
 
 function plugin_qhmsetting_mail_confirm()
 {
-	global $vars, $script;
+	global $vars, $script, $notify_diff_only;
 
 	// --------------------------------------------
 	// 直接のアクセスを拒否する
@@ -4369,8 +4369,6 @@ function plugin_qhmsetting_ftp_access()
 }
 //--</FTPAccess>--
 
-
-
 function plugin_qhmsetting_club_has_qhm()
 {
 	global $vars;
@@ -4388,11 +4386,11 @@ function plugin_qhmsetting_club_has_qhm()
 	}
 	exit;
 }
-
 //--</GetQHMDesign>--
 
 function plugin_qhmsetting_post($url, $data, $optional_headers = null)
 {
+	$response = '';
 	if (function_exists('stream_get_contents')) {
 		$params = array(
 			'http' => array(

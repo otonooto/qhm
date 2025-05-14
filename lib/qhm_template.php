@@ -46,7 +46,6 @@ class QHM_Template
 	}
 	// Singleton End: --------------------------------------------
 
-
 	var $set_page = false;
 
 	/** ページ名 */
