@@ -73,8 +73,6 @@ define('QHM_SESSION_NAME', 'QHMSSID'); // Plugin directory
 
 define('SKIN_DIR', 'skin/hokukenstyle/');         //hokuken style directory
 
-define('SMART_DIR', 'skin/hokukensmart/');
-
 // Skin files (SKIN_DIR/*.skin.php) are needed at
 // ./DATAHOME/SKIN_DIR from index.php, but
 // CSSs(*.css) and JavaScripts(*.js) are needed at

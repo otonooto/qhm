@@ -148,7 +148,7 @@ if (($qt->getv('editable') || ss_admin_check()) && !$is_setting) {
 <script type="text/javascript" src="js/thickbox.js"></script>
 <script type="text/javascript" src="js/jquery.clickpad.js{$refleshjs}"></script>
 <script type="text/javascript" src="js/clickpad2.js{$refleshjs}"></script>
-<link rel="stylesheet" href="js/clickpad2/clickpad2.css{$refreshjs}">
+<link rel="stylesheet" href="js/clickpad2/clickpad2.css{$refleshjs}">
 <script type="text/javascript" src="js/jquery.exnote.js"></script>
 <script type="text/javascript" src="js/jquery.shortkeys.js"></script>
 <script type="text/javascript" src="js/jquery.edit.js"></script>
@@ -435,9 +435,9 @@ EOD;
 		// main menu
 		$style = $lv1['style'] ?? '';
 		// visible
-		if ($lv1['visible']) {
+		if (isset($lv1['visible']) && ($lv1['visible'] != '')) {
 			// link
-			if ($lv1['link'] != '') {
+			if (isset($lv1['link']) && ($lv1['link'] != '')) {
 				$class = isset($lv1['class']) && ($lv1['class'] != '') ? ' class="' . $lv1['class'] . '"' : '';
 				$target = ($lv1key == 'helplink') ? ' target="help"' : '';
 				$tools_str .= '<li style="background-image:none;' . $style . '"' . $class . '><a href="' . $lv1['link'] . '"' . $target . ' id="' . $lv1key . '">' . $lv1['name'] . '</a>';
@@ -449,7 +449,8 @@ EOD;
 		}
 		// invisible
 		else {
-			$tools_str .= '<li style="background-image:none;" class="nouse">' . $lv1['name'];
+			$lv1_name = isset($lv1['name']) && ($lv1['name'] != '') ? $lv1['name'] : '';
+			$tools_str .= '<li style="background-image:none;" class="nouse">' . $lv1_name;
 		}
 
 		// sub menu
@@ -495,8 +496,8 @@ EOD;
 
 	//最大化型のtoolbar_upper
 	$tk_append = '
-<!-- Toolbar upper -->
-<div id="toolbar_upper_max" class="toolbar_upper hidden-print" style="' . $tb_max_disp . '">
+	<!-- Toolbar upper -->
+	<div id="toolbar_upper_max" class="toolbar_upper hidden-print" style="' . $tb_max_disp . '">
 	<div class="toolkit_switch expand toolline">[ー]</div><div>' . $tools_str . '</div></div>';
 
 	//最小化型のtoolbar upper
@@ -505,11 +506,11 @@ EOD;
 	$tools_str = str_replace('margin-top:1.1em;', '', $tools_str);
 
 	$tk_append .= '
-<!-- Toolbar upper -->
-<div id="toolbar_upper_min" class="toolbar_upper hidden-print" style="border-bottom:1px dashed #999;position:fixed;top:0px;left:0px;line-height:0.8em;' . $tb_min_disp . '">
-	<div class="toolkit_switch toolleft">[＋]</div>
-	<div style="float:left;">' . $tools_str . '</div>
-</div>';
+	<!-- Toolbar upper -->
+	<div id="toolbar_upper_min" class="toolbar_upper hidden-print" style="border-bottom:1px dashed #999;position:fixed;top:0px;left:0px;line-height:0.8em;' . $tb_min_disp . '">
+		<div class="toolkit_switch toolleft">[＋]</div>
+		<div style="float:left;">' . $tools_str . '</div>
+	</div>';
 	$qt->appendv('toolkit_upper', $tk_append);
 
 	//php setting check warning

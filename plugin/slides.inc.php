@@ -12,7 +12,6 @@
 function plugin_slides_convert()
 {
 	global $vars, $script;
-	global $enable_smart_style;
 	$qm = get_qm();
 	$qt = get_qt();
 	$qt->setv('jquery_include', true);
@@ -51,16 +50,6 @@ function plugin_slides_convert()
 		$container_width = 1067;
 		$container_height = 250;
 		$slides_btn_top = 76;
-		if (is_smart_phone() && $enable_smart_style) {
-			$frame_image = "frame_large.png";
-			$frame_width = 550;
-			$frame_height = 180;
-			$slides_container_width = 540;
-			$slides_container_height = 120;
-			$container_width = 550;
-			$container_height = 180;
-			$slides_btn_top = 30;
-		}
 	} else if ($frame == "portrait") {
 		$frame_image = "frame_portrait.png";
 		$frame_width = 388;
@@ -248,26 +237,6 @@ $(function(){
 //-->
 </script>
 ';
-	if ($frame == "large" && is_smart_phone() && $enable_smart_style) {
-		$eachscript .= '
-<style>
-#main_visual #frame_' . $id . ' {
-	left: -36px;
-	width: 640px;
-	height: 178px;
-	top: 0;
-}
-#main_visual #slides_' . $id . ' {
-	left: 14px;
-	top: 10px;
-}
-
-#slides_' . $id . ' .slides_container img{
-	max-width: 100%;
-}
-</style>
-';
-	}
 
 	$qt->appendv('beforescript', $eachscript);
 

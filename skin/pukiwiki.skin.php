@@ -3,7 +3,7 @@
   <title>#{$this_page_title}</title>
   <meta name="keywords" content="#{$keywords}" />
   <meta name="description" content="#{$description}" />
-  <meta name="viewport" content="width=780" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="alternate" type="application/rss+xml" title="RSS" href="#{$rss_link}" />
   #{$default_css}
   <script type="text/javascript" src="js/jquery.js"></script>
@@ -14,8 +14,8 @@
   #{$beforescript}
 </head>
 
-<body>
-  #{$fb_init}
+<body class="admin">
+  #{$example_script}
   #{$toolkit_upper}
   <div id="wrapper"><!-- ■BEGIN id:wrapper -->
     <!-- ◆ Content ◆ ========================================================= -->

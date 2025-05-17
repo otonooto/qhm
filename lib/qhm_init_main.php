@@ -158,8 +158,10 @@ for ($i = 0; $i < count($matches[0]); $i++) {
 }
 $qt->setv('body', ($pairs == null) ? $body : strtr($body, $pairs));
 
-//qhmsetting の場合、ナビやメニューは不要
-if ($vars['plugin'] == 'qhmsetting' or $vars['cmd'] == 'qhmsetting') return;
+//qhmsetting の場合、ナビやメニューは不要のため、早期リターンする
+if ($vars['plugin'] == 'qhmsetting' || $vars['cmd'] == 'qhmsetting') {
+    return;
+};
 
 //-------------------------------------------------
 //
@@ -167,6 +169,8 @@ if ($vars['plugin'] == 'qhmsetting' or $vars['cmd'] == 'qhmsetting') return;
 //
 //-------------------------------------------------
 
+// no_menusが設定されていない場合に表示する
+// （qblog, qhmsetting以外は表示）
 if (! $qt->getv('no_menus')) {
     $scripturi = $script . '\?' . rawurlencode($vars['page']);
     $ptn = '|<li>(.+href="(' . $scripturi . ')".+)?</li>|';
@@ -354,39 +358,6 @@ $w3c_tagstr = <<<EOD
         alt="Valid XHTML 1.0 Transitional" height="31" width="88" />
 EOD;
 $qt->setv('w3c_tag', $w3c_tagstr);
-
-
-// iPhone, iPod, android デザイン
-if ($enable_smart_style && is_smart_phone() && !is_bootstrap_skin()) {
-    if (exist_plugin('use_smart')) {
-        $qt->appendv('site_navigator2', do_plugin_convert('use_smart'));
-    }
-
-    if (plugin_use_smart_is_enable()) {
-        $smart_css = ' <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<link rel="stylesheet" href="' . SMART_DIR . $smart_name . '/smart.css" media="screen" text/css="text/css">
-';
-        $smart_lastscript .= '
-<script type="text/javascript" charset="utf-8">
-if (typeof window.onload === "undefined") {
-    window.onload = function(){
-        setTimeout(function(){window.scrollTo(0,1);},100);
-    };
-} else {
-    var olfunc = window.onload;
-    window.onload = function(){
-        if (typeof olfunc === "function") olfunc();
-        setTimeout(function(){window.scrollTo(0,1);},100);
-    };
-}
-</script>
-';
-
-        $qt->setv('default_css', $smart_css);
-        $qt->appendv('lastscript', $smart_lastscript);
-    }
-}
 
 // Fit videos to screen
 if ($enable_fitvids) {

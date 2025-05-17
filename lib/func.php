@@ -101,6 +101,8 @@ function is_freeze($page, $clearcache = FALSE)
 }
 
 /**
+ *   TODO: skinの切り替えに利用しているがレスポンシブデザインでは不要のため、
+ *   動作テストで問題なければ削除する
  *   iPhone, iPod, android からのアクセスかどうか判定する
  */
 function is_smart_phone()

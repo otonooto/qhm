@@ -44,8 +44,6 @@ $site_close_all = 0;
 $mobile_redirect = '';
 $googlemaps_apikey = '';
 $exclude_to_name = 0;
-$enable_smart_style = 0;
-$smart_name = 'blue';
 $check_login = 1;
 $enable_fitvids = 1;
 $unload_confirm = 1;
@@ -71,5 +69,3 @@ $qblog_ping = '';
 $qblog_comment_notice = 0;
 $is_qmail = 0;
 $mail_encode = 'ISO-2022-JP';
-
-?>

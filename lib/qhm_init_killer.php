@@ -54,45 +54,6 @@ $("#body img:last").on("load", function(){
 </style>
 ';
 
-// for iPhone & iPod Touch & android
-if (is_smart_phone()) {
-	if (exist_plugin('use_smart')) {
-		$qt->appendv('enable_smart_style', do_plugin_convert('use_smart'));
-	}
-
-	//smart 表示
-	if (plugin_use_smart_is_enable()) {
-		$smart_css = '
-<meta name="apple-mobile-web-app-capable" content="yes">
-<style type="text/css">
-#wrapper{
--webkit-border-radius: 20px;
--webkit-box-shadow: 4px 4px 10px #333;
-}
-</style>';
-		$smart_lastscript .= '
-<script type="text/javascript" charset="utf-8">
-if (typeof window.onload == "undefined") {
-	window.onload = function(){
-		setTimeout(function(){window.scrollTo(0,1);},100);
-	};
-} else {
-	var olfunc = window.onload;
-	window.onload = function(){
-		olfunc();
-		setTimeout(function(){window.scrollTo(0,1);},100);
-	};
-}
-</script>
-';
-
-		$qt->appendv('beforescript', $smart_css);
-		$qt->appendv('lastscript', $smart_lastscript);
-
-		//shadedborder を無効化する
-		$sb_beforescript = $sb_lastscript = '';
-	}
-}
 //読込順の関係で、killerpage_css へ追加する
 $qt->appendv('killerpage_css', $sb_beforescript);
 $qt->appendv('lastscript', $sb_lastscript);

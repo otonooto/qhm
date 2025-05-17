@@ -200,10 +200,12 @@ if (isset($retvars['body']) && $retvars['body'] != '') {
 			exit;
 		}
 	}
-	//スマートフォンの場合、強制的にキャッシュ機能をオフ
-	if (is_smart_phone()) {
-		$qt->enable_cache = false;
-	}
+	// TODO: スマートフォンデザインの設定を削除したため、
+	// 動作テストで問題がなければ,以下のコメントアウト部分を削除する
+	// //スマートフォンの場合、強制的にキャッシュ機能をオフ
+	// if (is_smart_phone()) {
+	// 	$qt->enable_cache = false;
+	// }
 
 	//$scriptが変化している場合、キャッシュの有効期限をリフレッシュ
 	chk_script($script);
