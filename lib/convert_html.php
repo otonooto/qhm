@@ -99,9 +99,11 @@ function &Factory_Inline($text)
 {
 	// Check the first letter of the line
 	if (substr($text, 0, 1) == '~') {
-		return new Paragraph(' ' . substr($text, 1));
+		$paragraph = new Paragraph(' ' . substr($text, 1));
+		return $paragraph;
 	} else {
-		return new Inline($text);
+		$inline = new Inline($text);
+		return $inline;
 	}
 }
 
