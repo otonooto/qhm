@@ -33,7 +33,10 @@ class zipfile2 extends zipfile
 					if ((!$filter || preg_match("/$filter/", $fname)) && $fname != '.' && $fname != '..') {
 						$filename = $dir . '/' . $fname;
 						$handle = fopen($dir . '/' . $fname, "rb");
-						$targetFile = fread($handle, filesize($filename));
+						$size = filesize($filename); // ファイルサイズを取得
+						if ($size > 0) {
+							$targetFile = fread($handle, $size); // サイズが 0 より大きい場合のみ読み込む
+						}
 						fclose($handle);
 						if ($namedecode) {
 							$filename = plugin_dump_decodename($filename);
