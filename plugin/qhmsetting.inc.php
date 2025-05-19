@@ -265,8 +265,8 @@ function plugin_qhmsetting_default()
 				[
 					'slug' => 'mobile',
 					'url'  => $scrt . 'mobile',
-					'title' => '携帯アクセス転送',
-					'subtitle' => '携帯端末からのアクセスを携帯専用サイトなどに転送します。',
+					'title' => 'スマホアクセス転送',
+					'subtitle' => 'スマホ端末からのアクセスを別サイトに転送します。',
 					'limited' => false,
 				],
 				[
@@ -3340,14 +3340,16 @@ function plugin_qhmsetting_mobile_form($error = '')
 	$error_msg = ($error != '') ? '<p style="color:red">' . $error . '</p>' : '';
 
 	$body = <<<EOD
-<h2>携帯端末アクセスの転送先{$hlp_mobile}</h2>
-<p>以下にURLを指定して下さい。なお、空を設定すると転送しません。</p>
+<h2>スマホ端末からのアクセス転送{$hlp_mobile}</h2>
+<p>スマートフォンでサイトのどのページにアクセスしても、以下で設定したページに転送されます。</p>
+<p>通常はレスポンシブデザインでスマホでも正しく表示されるようなデザインが適用されているため、この転送設定は不要です。</p>
+<p>転送設定をしない場合、空欄のまま設定してください。</p>
 {$error_msg}
 <form method="post" action="{$script}" class="form-horizontal">
   <div class="form-group">
     <label for="" class="control-label col-sm-3">転送先URL</label>
     <div class="col-sm-9">
-      <input type="text" name="qhmsetting[mobile_redirect]" value="{$params['mobile_redirect']}" class="form-control">
+      <input type="text" name="qhmsetting[mobile_redirect]" value="{$params['mobile_redirect']}" class="form-control" placeholder="https://redirect-url.com">
     </div>
   </div>
 
@@ -3384,9 +3386,9 @@ function plugin_qhmsetting_mobile_msg()
 EOD;
 
 	if ($url == '') {
-		$ret = str_replace('%REP%', '携帯端末からのアクセスを転送しません。', $ret);
+		$ret = str_replace('%REP%', 'スマホのアクセスを転送しません。', $ret);
 	} else {
-		$ret = str_replace('%REP%', '携帯端末からのアクセスを「' . h($url) . '」に転送します。', $ret);
+		$ret = str_replace('%REP%', 'スマホのアクセスを「' . h($url) . '」に転送します。', $ret);
 	}
 
 	$_SESSION['flash_msg'] = $ret;
