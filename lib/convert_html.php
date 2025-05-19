@@ -158,12 +158,11 @@ function &Factory_Div(&$root, $text)
 		) {
 			$len  = strlen($matches[3]);
 			$body = [];
-			$div = new Div($matches);
 			if ($len == 0) {
-				return $div; // Seems legacy block plugin
+				return new Div($matches); // Seems legacy block plugin
 			} else if (preg_match('/\{{' . $len . '}\s*\r(.*)\r\}{' . $len . '}/', $text, $body)) {
 				$matches[2] .= "\r" . $body[1] . "\r";
-				return $div; // Seems multiline-enabled block plugin
+				return new Div($matches); // Seems multiline-enabled block plugin
 			}
 		}
 	}
@@ -260,9 +259,7 @@ class Heading extends Element
 	function &insert(&$obj)
 	{
 		parent::insert($obj);
-		$temp = $this;
-		$this->last = &$temp;
-		return $this->last;
+		return $this->last = &$this;
 	}
 
 	function canContain($obj)
@@ -333,9 +330,7 @@ class ListContainer extends Element
 		$this->level = min(3, strspn($text, $head));
 		$text = ltrim(substr($text, $this->level));
 
-		$listElement = new ListElement($this->level, $tag2);
-
-		parent::insert($listElement);
+		parent::insert(new ListElement($this->level, $tag2));
 		if ($text != '')
 			$this->last = &$this->last->insert(Factory_Inline($text));
 	}
@@ -369,11 +364,8 @@ class ListContainer extends Element
 
 	function &insert(&$obj)
 	{
-		if (! is_a($obj, get_class($this))) {
-			$temp = $this->last->insert($obj);
-			$this->last = &$temp;
-			return $this->last;
-		}
+		if (! is_a($obj, get_class($this)))
+			return $this->last = &$this->last->insert($obj);
 
 		// Break if no elements found (BugTrack/524)
 		if (count($obj->elements) == 1 && empty($obj->elements[0]->elements))
@@ -445,8 +437,7 @@ class DList extends ListContainer
 	function __construct($out)
 	{
 		parent::__construct('dl', 'dt', ':', $out[0]);
-		$listElement = new ListElement($this->level, 'dd');
-		$this->last = &Element::insert($listElement);
+		$this->last = &Element::insert(new ListElement($this->level, 'dd'));
 		if ($out[1] != '')
 			$this->last = &$this->last->insert(Factory_Inline($out[1]));
 	}
@@ -1024,11 +1015,10 @@ class Body extends Element
 
 			// Heading
 			if ($head === '*' or $head === '!') {
-				$heading = new Heading($this, $line);
 				if (is_a($this->last, 'Align'))
-					$this->last->add($heading);
+					$this->last->add(new Heading($this, $line));
 				else
-					$this->insert($heading);
+					$this->insert(new Heading($this, $line));
 				continue;
 			}
 
@@ -1045,8 +1035,7 @@ class Body extends Element
 			// Other Character
 			if (isset($this->classes[$head])) {
 				$classname  = $this->classes[$head];
-				$temp = new $classname($this, $line);
-				$this->last = &$this->last->add($temp);
+				$this->last = &$this->last->add(new $classname($this, $line));
 				continue;
 			}
 
@@ -1216,8 +1205,7 @@ class Body extends Element
 		$text = ' ' . $text;
 
 		// Add 'page contents' link to its heading
-		$contentsUList = new Contents_UList($text, $level, $id);
-		$this->contents_last = &$this->contents_last->add($contentsUList);
+		$this->contents_last = &$this->contents_last->add(new Contents_UList($text, $level, $id));
 
 		// Add heding
 		return array($text . $anchor, $this->count > 1 ? "\n" . $top : '', $autoid);

@@ -159,11 +159,9 @@ for ($i = 0; $i < count($matches[0]); $i++) {
 $qt->setv('body', ($pairs == null) ? $body : strtr($body, $pairs));
 
 //qhmsetting の場合、ナビやメニューは不要のため、早期リターンする
-$plugin = $var['plugin'] ?? '';
-$cmd = $vars['cmd'] ?? '';
-if ($plugin == 'qhmsetting' || $cmd == 'qhmsetting') {
+if ($vars['plugin'] == 'qhmsetting' || $vars['cmd'] == 'qhmsetting') {
     return;
-}
+};
 
 //-------------------------------------------------
 //
@@ -176,8 +174,6 @@ if ($plugin == 'qhmsetting' || $cmd == 'qhmsetting') {
 if (! $qt->getv('no_menus')) {
     $scripturi = $script . '\?' . rawurlencode($vars['page']);
     $ptn = '|<li>(.+href="(' . $scripturi . ')".+)?</li>|';
-    $preview = $vars['preview'] ?? '';
-    $page = $vars['page'] ?? '';
 
     if (exist_plugin_convert('nav')) {
         global $navbar;
@@ -187,7 +183,7 @@ if (! $qt->getv('no_menus')) {
             //プレビューならクラスを付ける
             $focus_class = 'focus';
             if ($is_bootstrap_skin) $focus_class .= ' active';
-            if ($preview && $page == $navbar) {
+            if ($vars['preview'] && $vars['page'] == $navbar) {
                 $site_navigator = preg_replace($ptn, '<li class="' . $focus_class . '">$1</li>', convert_html($vars['msg']));
                 $site_navigator = '<div class="preview_highlight">' . $site_navigator . '</div>';
             } else {
@@ -214,7 +210,7 @@ if (! $qt->getv('no_menus')) {
         global $menubar, $menubar2, $qblog_menubar;
         $vars['page_alt'] = $menubar;
 
-        if (is_qblog() || $page === $qblog_menubar) {
+        if (is_qblog() || $vars['page'] === $qblog_menubar) {
             do_plugin_convert('menu', $qblog_menubar);
         }
 
@@ -223,7 +219,7 @@ if (! $qt->getv('no_menus')) {
         $_menubody = preg_replace($ptn, '<$1 class="focus">$2</$4>', do_plugin_convert('menu'));
 
         //プレビューならクラスを付ける
-        if ($preview && $page === $qblog_menubar) {
+        if ($vars['preview'] && $vars['page'] === $qblog_menubar) {
             if (trim($_menubody) !== '') {
                 $_menubody = '<div class="preview_highlight">' . $_menubody . '</div>';
             }
@@ -260,7 +256,7 @@ $(function(){
 
         $addclass = '';
         //プレビューならクラスを付ける
-        if ($preview && $page == $menubar) {
+        if ($vars['preview'] && $vars['page'] == $menubar) {
             $addclass = ' preview_highlight';
         }
 
@@ -295,7 +291,7 @@ EOD;
 
             //プレビューならクラスを付ける
             $addclass = '';
-            if ($preview && $page == $menubar2) {
+            if ($vars['preview'] && $vars['page'] == $menubar2) {
                 $addclass = ' preview_highlight';
             }
 
@@ -314,7 +310,7 @@ EOD;
         $ptn = '"' . $script . '?' . rawurlencode($vars['page']) . '"';
         $vars['page_alt'] = 'SiteNavigator2'; //swfuの制御のため
         //プレビューならクラスを付ける
-        if ($preview && $page == 'SiteNavigator2') {
+        if ($vars['preview'] && $vars['page'] == 'SiteNavigator2') {
             $site_navigator2 = str_replace($ptn, $ptn . ' class="focus"', convert_html($vars['msg']));
             if (trim($site_navigator2) !== '') {
                 $site_navigator2 = '<div class="preview_highlight">' . $site_navigator2 . '</div>';
@@ -336,7 +332,7 @@ EOD;
         $ptn = '"' . $script . '?' . rawurlencode($vars['page']) . '"';
         $vars['page_alt'] = 'SiteHeader'; //swfuの制御のため
         //プレビューならクラスを付ける
-        if ($preview && $page == 'SiteHeader') {
+        if ($vars['preview'] && $vars['page'] == 'SiteHeader') {
             $site_header = convert_html($vars['msg']);
             if (trim($site_header) !== '') {
                 $site_header = '<div class="preview_highlight">' . $site_header . '</div>';
