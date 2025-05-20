@@ -43,7 +43,6 @@ function catbody($title, $page, $body)
 	global $mobile_redirect, $googlemaps_apikey;
 	global $other_plugins, $other_plugin_categories;
 	global $default_script, $init_scripts;
-	global $enable_smart_style, $smart_name; // smart phone
 	global $is_update;
 	global $enable_fitvids;
 

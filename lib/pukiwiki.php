@@ -185,8 +185,26 @@ if (isset($retvars['body']) && $retvars['body'] != '') {
 	//編集状態の場合、強制的にキャッシュを無効
 	$qt->enable_cache = edit_auth($base, FALSE, FALSE) === TRUE ? false : $qt->enable_cache;
 
+	// TODO: 携帯（keitai）のスキン設定や条件分岐はゆくゆく全て削除する。
 	//携帯の場合、強制的にキャッシュ機能をオフ。もし、転送設定があれば、転送する
-	if (preg_match('/keitai.skin.php$/', SKIN_FILE)) {
+	// if (preg_match('/keitai.skin.php$/', SKIN_FILE)) {
+	// 	$qt->enable_cache = false;
+
+	// 	if (is_url($mobile_redirect)) {
+
+	// 		if (isset($_GET[session_name()])) { //sessionを利用している場合
+	// 			$mobile_redirect .= strpos($mobile_redirect, '?') === FALSE ? '?' : '&';
+	// 			$mobile_redirect .= session_name() . '=' . session_id();
+	// 		}
+
+	// 		header('Location: ' . $mobile_redirect);
+	// 		exit;
+	// 	}
+	// }
+
+	// スマートフォンの場合、強制的にキャッシュ機能をオフ
+	// スマホ転送設定があれば、転送する
+	if (is_smart_phone()) {
 		$qt->enable_cache = false;
 
 		if (is_url($mobile_redirect)) {
@@ -199,10 +217,6 @@ if (isset($retvars['body']) && $retvars['body'] != '') {
 			header('Location: ' . $mobile_redirect);
 			exit;
 		}
-	}
-	//スマートフォンの場合、強制的にキャッシュ機能をオフ
-	if (is_smart_phone()) {
-		$qt->enable_cache = false;
 	}
 
 	//$scriptが変化している場合、キャッシュの有効期限をリフレッシュ

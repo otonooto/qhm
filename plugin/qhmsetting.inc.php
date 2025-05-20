@@ -13,7 +13,12 @@ function plugin_qhmsetting_action()
 {
 	global $vars, $username, $style_name, $script;
 	$qt = get_qt();
-	$qt->setv('no_menus', TRUE); //メニューやナビ等をconvertしない
+
+	// 'no_menus', TRUEは削除しても問題なさそう。
+	// qhm_init_main.phpで、varsが[qhmsetting]の場合は、
+	// 早期リターンでメニューやナビ等をコンバートしない設定になっている。
+	// 本ファイルで明示的にno_menusを宣言するためのもの？
+	$qt->setv('no_menus', TRUE);
 
 	// XSS-Protection を無効化
 	cancel_xss_protection();
@@ -23,11 +28,7 @@ function plugin_qhmsetting_action()
 <script type="text/javascript" src="skin/bootstrap/js/bootstrap.min.js"></script>';
 	$qt->appendv_once('include_bootstrap_pub', 'beforescript', $include_bs);
 
-	$head = '
-<link rel="stylesheet" href="skin/hokukenstyle/qhm.css" />
-<style type="text/css">
-body {background-color: #E7E7E7;}
-</style>';
+	$head = '';
 	$qt->appendv('beforescript', $head);
 
 	//check admin, setting
@@ -44,6 +45,8 @@ body {background-color: #E7E7E7;}
 	$mode = isset($vars['mode']) ? $vars['mode'] : '';
 
 	$func = 'plugin_qhmsetting_' . $phase . '_' . $mode;
+	$params = plugin_qhmsetting_getparams();
+
 
 	if (function_exists($func)) {
 		$ret = '<div class="admin"><p><a href="' . $script . '">トップ</a> &gt; <a href="' . $script . '?cmd=qhmsetting">設定一覧</a> &gt; here</p>'
@@ -52,9 +55,9 @@ body {background-color: #E7E7E7;}
 	} else {
 
 		$title = '
-<p><a href="' . $script . '">トップ</a> &gt; here</p>'
+			<p><a href="' . $script . '">トップ</a> &gt; here</p>'
 			. plugin_qhmsetting_phpversion_block()
-			. '<h2>QHM v' . QHM_VERSION . ' 設定</h2>';
+			. '<h2>' . $params['page_title'] . ' の設定<br /><small>by QHM v' . QHM_VERSION . '</small></h2>';
 		$ret = $title . plugin_qhmsetting_default();
 	}
 
@@ -63,145 +66,266 @@ body {background-color: #E7E7E7;}
 			$ret = $_SESSION['flash_msg'] . $ret;
 		} else {
 			$ret = '
-<div style="background-color:#fee;border:1px solid #c99;padding: 10px;">
-	' . $_SESSION['flash_msg'] . '
-</div>
-' . $ret;
+				<div style="background-color:#fee;border:1px solid #c99;padding: 10px;">
+					' . $_SESSION['flash_msg'] . '
+				</div>
+			' . $ret;
 		}
 		unset($_SESSION['flash_msg']);
 	}
 
-
-
+	// $style_nameを .. にすると、qhm_init_main.php で
+	// $default_css に格納するcssを /skin/main.css に指定し、
+	// $qt->setv('default_css', $bootstrap_css . $default_css);
+	// にセットして、pukiwiki.skin.phpに流し込んでいる
 	$style_name = '..';
+
+	// 下記にすることで、/skin/admin/main.css を読み込む
+	// $style_name = '../admin';
+
+	// 設定を返す。
 	return array('msg' => "サイト情報設定", 'body' => $ret);
 }
 
 function plugin_qhmsetting_default()
 {
-
-	global $script, $other_plugins;
+	global $script;
 	$qt = get_qt();
 
 	$scrt = $script . '?plugin=qhmsetting&amp;mode=form&amp;phase=';
+	$edit_uri = $script . '?cmd=edit&page=';
 
-	$setlist = array(
-		'design'    => array(
-			'help' => 'ChangeDesign',
-			'url'  => $scrt . 'design',
-			'title' => 'デザインの変更',
-			'subtitle' => 'ロゴ画像の設定、ロゴ部分の文字、テンプレートの設定を行います。',
-			'limited' => false,
-		),
-		'info'      => array(
-			'help' => 'SiteConfig',
-			'url'  => $scrt . 'info',
-			'title' => 'サイト情報の設定',
-			'subtitle' => 'キーワード、サイト説明、ヘッダー、フッター、アクセス解析タグなどの設定を行います。',
-			'limited' => false,
-		),
-		'admin'     => array(
-			'help' => 'SetPassword',
-			'url'  => $scrt . 'admin',
-			'title' => 'ユーザー名、パスワードの変更',
-			'subtitle' => '編集用のユーザー名、パスワードの設定を行います。',
-			'limited' => false,
-		),
-		'qblog' => array(
-			'help' => 'BlogSetting',
-			'url' => $script . '?cmd=qblog',
-			'title' => 'ブログ設定',
-			'subtitle' => 'ブログの設定を行います。',
-			'limited' => false,
-		),
-		'useradmin' => array(
-			'help' => 'UserAuthSetting',
-			'url'  => $scrt . 'user',
-			'title' => 'アクセス権限設定',
-			'subtitle' => '特定のページにアクセス権限を設定し、アクセスできるユーザーを追加設定できます。',
-			'limited' => true,
-		),
-		'clear'     => array(
-			'help' => 'SettingCache',
-			'url'  => $scrt . 'clear',
-			'title' => '高速化設定、キャッシュの初期化',
-			'subtitle' => '表示を高速化するためのキャッシュ機能を設定、キャッシュの初期化、テンプレートを初期化を行います。',
-			'limited' => false,
-		),
-		'back'      => array(
-			'help' => 'EasyBackup',
-			'url'  => $script . '?cmd=dump',
-			'title' => 'バックアップ',
-			'subtitle' => 'バックアップをダウンロードできます。フルバックアップ、重要ファイルのみのバックアップなど可能です。',
-			'limited' => true,
-		),
-		'counter'   => array(
-			'help' => 'Counter',
-			'url'  => $scrt . 'counter',
-			'title' => 'アクセスカウンター',
-			'subtitle' => 'アクセスカウンターをリセットします。',
-			'limited' => false,
-		),
-		'chmod'     => array(
-			'help' => 'UserAuthSetting',
-			'url'  => $scrt . 'chmod',
-			'title' => 'ファイル権限設定',
-			'subtitle' => '削除できない、FTPエラーが起こる原因である「ファイル権限」を設定、チェックします。',
-			'limited' => true,
-		),
-		'mail'      => array(
-			'help' => 'MailSetting',
-			'url'  => $scrt . 'mail',
-			'title' => 'メール送信設定',
-			'subtitle' => '送信メールサーバーを設定できます（SMTP送信、GoogleAppsなどの場合）',
-			'limited' => true,
-		),
-		'close'     => array(
-			'help' => 'SettingCloseSite',
-			'url'  => $scrt . 'close',
-			'title' => 'サイトの閉鎖／公開',
-			'subtitle' => '全ページを閉鎖します。閉鎖後は、管理者権限でログインすることで編集、閲覧が可能です。',
-			'limited' => true,
-		),
-		'mobile'    => array(
-			'help' => 'RedirectMobile',
-			'url'  => $scrt . 'mobile',
-			'title' => '携帯アクセス転送',
-			'subtitle' => '携帯端末からのアクセスを携帯専用サイトなどに転送します。',
-			'limited' => false,
-		),
-		'gmap'      => array(
-			'help' => 'GoogleMapsKey',
-			'url'  => $scrt . 'gmap',
-			'title' => 'Googleマップキー',
-			'subtitle' => 'QHMでGoogleマップを使うためのキーを設定します。',
-			'limited' => false,
-		),
-		'sns'       => array(
-			'help' => 'SettingOGP',
-			'url'  => $scrt . 'sns',
-			'title' => 'ソーシャル連携',
-			'subtitle' => 'SNSの連携設定をします。',
-			'limited' => true,
-		),
-		// アップデーターを非表示にする
-		// 'update'       => array(
-		// 	'help' => 'HowToUseUpdatePlugin',
-		// 	'url'  => $script . '?cmd=system_updater',
-		// 	'title' => 'アップデート',
-		// 	'subtitle' => 'アップデートを行います。',
-		// 	'limited' => true,
-		// ),
-	);
+	$setlist = [
+		'search' => [
+			'slug' => 'search',
+			'name' => '検索',
+			'items' => [
+				[
+					'slug' => 'search',
+					'url'  => $script . '?cmd=search',
+					'title' => '単語検索',
+					'subtitle' => '単語検索',
+					'limited' => false,
+				]
+			],
+		],
+		'page' => [
+			'slug' => 'page',
+			'name' => '固定ページ',
+			'items' => [
+				[
+					'slug' => 'newpage',
+					'url'  => $script . '?plugin=newpage',
+					'title' => '新規ページ',
+					'subtitle' => '新規ページの追加',
+					'limited' => false,
+				],
+				[
+					'slug' => 'filelist',
+					'url'  => $script . '?cmd=filelist',
+					'title' => 'ページ一覧',
+					'subtitle' => 'ページ一覧',
+					'limited' => false,
+				],
+				[
+					'slug' => 'recentchanges',
+					'url'  => $script . '?RecentChanges',
+					'title' => '更新履歴',
+					'subtitle' => '更新履歴',
+					'limited' => false,
+				],
+				[
+					'slug' => 'yetlist',
+					'url'  => $script . '?cmd=yetlist',
+					'title' => 'リンク切れ',
+					'subtitle' => 'リンク切れ',
+					'limited' => false,
+				],
+			],
+		],
+		'post' => [
+			'slug' => 'post',
+			'name' => 'ブログ',
+			'items' => [
+				[
+					'slug' => 'addpost',
+					'url' => $script . '?cmd=qblog&mode=addpost',
+					'title' => 'ブログ記事の新規追加',
+					'subtitle' => 'ブログ記事の新規追加を行います。',
+					'limited' => false,
+				],
+				[
+					'slug' => 'qblog',
+					'url' => $script . '?cmd=qblog',
+					'title' => 'ブログ設定',
+					'subtitle' => 'ブログの設定を行います。',
+					'limited' => false,
+				],
+				[
+					'slug' => 'qblogmenubar',
+					'url' => $edit_uri . '?page=QBlogMenuBar',
+					'title' => 'ブログメニュー',
+					'subtitle' => 'ブログメニューの修正を行います。',
+					'limited' => false,
+				],
+				[
+					'slug' => 'qblogtop',
+					'url' => $script . '?QBlog', // TODO: 汎用的な記述に変更
+					'title' => 'ブログトップ',
+					'subtitle' => 'ブログのトップへ',
+					'limited' => false,
+				],
+			],
+		],
+		'general' => [
+			'slug' => 'general',
+			'name' => 'サイトの設定',
+			'items'      => [
+				[
+					'slug' => 'info',
+					'url'  => $scrt . 'info',
+					'title' => 'サイト全般',
+					'subtitle' => 'キーワード、サイト説明、ヘッダー、フッター、アクセス解析タグなどの設定を行います。',
+					'limited' => false,
+				],
+				[
+					'slug' => 'sitenavigator',
+					'url'  => $edit_uri . 'SiteNavigator',
+					'title' => 'ナビ編集',
+					'subtitle' => 'ナビの編集',
+					'limited' => false,
+				],
+				[
+					'slug' => 'menubar',
+					'url'  => $edit_uri . 'MenuBar',
+					'title' => 'メニュー編集',
+					'subtitle' => 'メニューの編集',
+					'limited' => false,
+				],
+				[
+					'slug' => 'sitenavigator2',
+					'url'  => $edit_uri . 'SiteNavigator2',
+					'title' => 'フッター編集',
+					'subtitle' => 'フッターの編集',
+					'limited' => false,
+				],
+				[
+					'slug' => 'design',
+					'url'  => $scrt . 'design',
+					'title' => 'デザインの変更',
+					'subtitle' => 'ロゴ画像の設定、ロゴ部分の文字、テンプレートの設定を行います。',
+					'limited' => false,
+				],
+				[
+					'slug' => 'close',
+					'url'  => $scrt . 'close',
+					'title' => 'サイトの閉鎖／公開',
+					'subtitle' => '全ページを閉鎖します。閉鎖後は、管理者権限でログインすることで編集、閲覧が可能です。',
+					'limited' => true,
+				],
+			],
+		],
+		'tool' => [
+			'slug' => 'tool',
+			'name' => 'ツール',
+			'items'     => [
+				[
+					'slug' => 'clear',
+					'url'  => $scrt . 'clear',
+					'title' => '高速化設定、キャッシュの初期化',
+					'subtitle' => '表示を高速化するためのキャッシュ機能を設定、キャッシュの初期化、テンプレートを初期化を行います。',
+					'limited' => false,
+				],
+				[
+					'slug' => 'chmod',
+					'url'  => $scrt . 'chmod',
+					'title' => 'ファイル権限設定',
+					'subtitle' => '削除できない、FTPエラーが起こる原因である「ファイル権限」を設定、チェックします。',
+					'limited' => true,
+				],
+				[
+					'slug' => 'back',
+					'url'  => $script . '?cmd=dump',
+					'title' => 'バックアップ',
+					'subtitle' => 'バックアップをダウンロードできます。フルバックアップ、重要ファイルのみのバックアップなど可能です。',
+					'limited' => true,
+				],
+				[
+					'slug' => 'sns',
+					'url'  => $scrt . 'sns',
+					'title' => 'ソーシャル連携',
+					'subtitle' => 'SNSの連携設定をします。',
+					'limited' => true,
+				],
+				[
+					'slug' => 'counter',
+					'url'  => $scrt . 'counter',
+					'title' => 'アクセスカウンター',
+					'subtitle' => 'アクセスカウンターをリセットします。',
+					'limited' => false,
+				],
+				[
+					'slug' => 'mail',
+					'url'  => $scrt . 'mail',
+					'title' => 'メール送信設定',
+					'subtitle' => '送信メールサーバーを設定できます（SMTP送信、GoogleAppsなどの場合）',
+					'limited' => true,
+				],
+				[
+					'slug' => 'mobile',
+					'url'  => $scrt . 'mobile',
+					'title' => 'スマホアクセス転送',
+					'subtitle' => 'スマホ端末からのアクセスを別サイトに転送します。',
+					'limited' => false,
+				],
+				[
+					'slug' => 'gmap',
+					'url'  => $scrt . 'gmap',
+					'title' => 'Googleマップキー',
+					'subtitle' => 'QHMでGoogleマップを使うためのキーを設定します。',
+					'limited' => false,
+				],
+			],
+		],
+		'account' => [
+			'slug' => 'account',
+			'name' => 'アカウント',
+			'items'     => [
+				[
+					'slug' => 'admin',
+					'url'  => $scrt . 'admin',
+					'title' => 'ユーザー名、パスワードの変更',
+					'subtitle' => '編集用のユーザー名、パスワードの設定を行います。',
+					'limited' => false,
+				],
+				[
+					'slug' => 'useradmin',
+					'url'  => $scrt . 'user',
+					'title' => 'アクセス権限設定',
+					'subtitle' => '特定のページにアクセス権限を設定し、アクセスできるユーザーを追加設定できます。',
+					'limited' => true,
+				],
+				[
+					'slug' => 'logout',
+					'url'  => $script . '?cmd=qhmlogout',
+					'title' => 'ログアウト',
+					'subtitle' => 'ログアウトします',
+					'limited' => false,
+				],
+			],
+		],
+	];
 
-	foreach ($setlist as $setname => $set) {
-		$setlist[$setname]['help'] = '';
-		//--<LimitedSetting>--
-		if ($set['limited']) {
-			$setlist[$setname]['limited'] = false;
-		}
-		//--</LimitedSetting>--
-	}
+	// foreach ($setlist as $cat) {
+	// 	foreach ($cat as $setname => $set) {
+	// 		$cat[$setname]['help'] = '';
+	// 		//--<LimitedSetting>--
+	// 		if ($set['limited']) {
+	// 			$cat[$setname]['limited'] = false;
+	// 		}
+	// 	}
+	// 	//--</LimitedSetting>--
+	// }
 	//--<UnlimitBackup>--
 	//--</UnlimitBackup>--
 
@@ -226,77 +350,60 @@ EOD;
 		}
 	}
 
+	// お知らせなどの表示
 	$update_showcase = '';
-	/*
-	if (get_qhm_option('banner'))
-	{
-		$update_list_url = h('//ensmall.net/update/index.php?cmd=hkn_upinfo&cat=openqhm');
+	if (get_qhm_option('banner')) {
 		$update_showcase = <<< EOD
-			<style>
-			.qhmsetting-update-showcase {
-				width: 100%;
-				margin: 10px auto 50px;
-				padding: 0 40px;
-			}
-			</style>
-			<h3>お知らせ</h3>
-			<div class="qhmsetting-update-showcase">
-				<div class="fb-page" data-href="https://www.facebook.com/open.qhm" data-width="500" data-height="300" data-small-header="true" data-adapt-container-width="true" data-hide-cover="true" data-show-facepile="false" data-show-posts="true"><div class="fb-xfbml-parse-ignore"><blockquote cite="https://www.facebook.com/open.qhm"><a href="https://www.facebook.com/open.qhm">Open QHM</a></blockquote></div></div>
+			<div class="qhmsetting__source_code">
+				GitHub：<a href="https://github.com/otonooto/qhm/" target="_blank">https://github.com/otonooto/qhm/</a>
 			</div>
 EOD;
-		$fb_init = <<< EOD
-			<div id="fb-root"></div>
-			<script>(function(d, s, id) {
-			var js, fjs = d.getElementsByTagName(s)[0];
-			if (d.getElementById(id)) return;
-			js = d.createElement(s); js.id = id;
-			js.src = "//connect.facebook.net/ja_JP/sdk.js#xfbml=1&version=v2.4&appId=182764055138172";
-			fjs.parentNode.insertBefore(js, fjs);
-			}(document, 'script', 'facebook-jssdk'));</script>
-EOD;
-		$qt->setv('fb_init', $fb_init);
+
+		// テンプレートで設定した変数に渡す
+		// 		$example_script = <<< EOD
+		// 			<script>
+		// 			alert("This message is in file qhmsetting.inc.php");			
+		// 			</script>
+		// EOD;
+		// 例えば、pukiwiki.skin.php に以下が設定されている場合
+		// #{$example_script}
+		// $example_scriptの内容がそのまま挿入されます
+		// $qt->setv('example_script', $example_script);
 	}
-*/
 	// HTML生成
 	$html .= <<<EOD
-<p>以下の項目から、変更したいものをクリックしてください。</p>
-
-{$update_showcase}
-
-<table class="table table-bordered">
-EOD;
+		<div id="setting__list">
+	EOD;
 
 	$scnt = 0;
-	foreach ($setlist as $set) {
-		if ($scnt % 2 == 0) {
-			$html .= '
-	<tr>';
-		}
+	foreach ($setlist as $cat) {
+		$html .= '<div class="setting__category"><div class="setting__category-name">' . $cat['name'] . '</div>';
+		$html .= '<ul class="cat__' . $cat['slug'] . '">';
 
-		if ($set['limited']) {
+		// if ($set['limited']) {
+		// 	$html .= '
+		// <h2><span style="font-weight:bold;color:#666;">' . $set['title'] . '</span></h2>
+		// <p><span style="color:#888;">' . $set['subtitle'] . '</span></p>';
+		// } else {
+		$items = $cat['items'];
+		foreach ($items as $item) {
 			$html .= '
-		<td style="background-color:#e0e0e0;"><p>
-			<span style="font-weight:bold;color:#666;">' . $set['title'] . '</span>
-		</p><span style="color:#888;">' . $set['subtitle'] . '</span></td>';
-		} else {
-			$html .= '
-		<td><p>
-			<a href="' . $set['url'] . '" style="font-weight:bold;">' . $set['title'] . '</a>' . $set['help'] . '
-		</p>' . $set['subtitle'] . '</td>';
+			<li><a href="' . $item['url'] . '"><span class="icon icon__' . $item['slug'] . '">' . $item['title'] . '</span></a></li>';
 		}
+		// }
+		$html .= '</ul></div>';
 
-		if ($scnt % 2 == 1) {
-			$html .= '
-	</tr>';
-		}
+		// if ($scnt % 2 == 1) {
+		// 	$html .= '</div>';
+		// }
 
 		$scnt++;
 	}
 
-
-	$html .= '
-</table>
-';
+	$html .= <<<EOD
+	</div>
+	{$update_showcase}
+	EOD;
 
 	return $html;
 }
@@ -312,9 +419,9 @@ function plugin_qhmsetting_phpversion_block()
 
 		$wkstr = '
 #style(class=box_red_dsm){{
-CENTER:&deco(bold,red,,){このQHMはPHP4で動作しています};
+CENTER:&deco(bold,red,,){このQHMは' . $ver . 'で動作しています};
 
-PHP4をサポートしておりません。
+' . $ver . 'をサポートしておりません。
 正常動作させるには、ご利用のサーバーのPHPをバージョンアップ（PHP8.2 以上推奨）してください。
 }}
 ';
@@ -330,25 +437,23 @@ function plugin_qhmsetting_design_form($error = '')
 {
 	global $logo_image, $script, $vars, $style_name;
 	global $enable_wp_theme, $enable_wp_theme_name, $wp_add_css;
-	global $other_plugins;
-	global $smart_name;
 
 	$qt = get_qt();
-	$addcsv = '
-<style type="text/css">
-#designList td, #smartDesignList td {
-	padding: 2px;
-}
-td label {
-	cursor: pointer;
-}
-input[name="qhmsetting[style_name]"], input[name="qhmsetting[smart_name]"],
-#designList input[name=design] {
-	display:none;
-}
-</style>
-';
-	$qt->appendv('beforescript', $addcsv);
+	$addcss = '
+		<style type="text/css">
+		#designList td {
+			padding: 2px;
+		}
+		td label {
+			cursor: pointer;
+		}
+		input[name="qhmsetting[style_name]"],
+		#designList input[name=design] {
+			display:none;
+		}
+		</style>
+	';
+	$qt->appendv('beforescript', $addcss);
 
 	// ヘルプリンク作成
 	$hlp_design    = '';
@@ -427,19 +532,6 @@ EOD;
 	closedir($hd);
 	sort($wp_dirs);
 
-	//スマートフォンデザインのスキャン
-
-	$hd = opendir(SMART_DIR);
-	$smart_dirs = [];
-	while ($entry = readdir($hd)) {
-		if (is_dir(SMART_DIR . $entry) && ($entry != '.') && ($entry != '..') && (file_exists(SMART_DIR . $entry . '/smart.css'))) {
-			$smart_dirs[] = $entry;
-		}
-	}
-	closedir($hd);
-	sort($smart_dirs);
-
-
 	//ここから
 	$body = $body_msg;
 	$body .= '<h2>デザインの設定' . $hlp_design . '</h2>';
@@ -456,7 +548,6 @@ EOD;
 	<ul class="list2">
 		<li><a href="#qhmdesign">専用デザインの設定</a></li>
 		{$wp_index}
-		<li><a href="#smartdesign">スマートフォンのデザイン設定</a></li>
 	</ul>
 </li>
 </ul>
@@ -802,106 +893,6 @@ EOD;
 </div>
 ';
 	}
-
-	//======================================================
-	// !スマートフォン デザイン設定
-	//======================================================
-	if (count($smart_dirs)) {
-		$body .= '<br /><br /><br /><h2 id="smartdesign">スマートフォンのデザイン設定</h2>' . "\n";
-		$body .= <<<EOD
-<div class="well">
-	<script type="text/javascript">
-	$(function(){
-		$("input:checkbox[name='qhmsetting[enable_smart_style]']")
-		.click(function(){
-			if (this.checked)
-			{
-				$("#smartDesignList").parent().slideDown("normal");
-			}
-			else
-			{
-				//設定を外した時は保存する
-				if ($(this).data("default"))
-				{
-					$(this).closest("form").submit();
-				}
-				else
-				{
-					$("#smartDesignList").parent().slideUp("normal");
-				}
-			}
-		})
-		.each(function(){
-			$(this).data("default", this.checked);
-			if ( ! this.checked)
-			{
-				$("#smartDesignList").parent().hide();
-			}
-
-		});
-
-		// !change bgcolor on select
-		$("#smartDesignList input:radio").click(function(){
-			$(this).closest("form").submit();
-		})
-			.closest("td").hover(
-				function(){
-					$(this).css({"outline" : "5px solid #CBE86B"});
-				},
-				function(){
-					$(this).css({"outline" : ""});
-				}
-			);
-	});
-	</script>
-	<p>
-		「スマートフォンデザインを利用する」にチェックを入れて、スマートフォンのデザインを選択して下さい。<br />
-		デザインをクリックすると反映されます。
-	</p>
-	<form method="post" action="{$script}">
-EOD;
-
-		$checked = ($params['enable_smart_style'] == '1') ? ' checked="checked"' : '';
-		$body .= '
-	<p><input type="hidden" name="qhmsetting[enable_smart_style]" value="0" />
-<label><input type="checkbox" name="qhmsetting[enable_smart_style]" value="1"' . $checked . ' />スマートフォンデザインを利用する</label></p>
-';
-		$body .= '<div><table id="smartDesignList">';
-		$smart_cnt = ceil(count($smart_dirs) / 3) * 3;
-		for ($i = 0; $i < $smart_cnt; $i++) {
-			if ($i % 3 == 0) {
-				$body .= '<tr>';
-			}
-			if (isset($smart_dirs[$i])) {
-				$dir = $smart_dirs[$i];
-				$thumb = file_exists(SMART_DIR . $dir . '/thumbnail.png') ? SMART_DIR . $dir . '/thumbnail.png' : SMART_DIR . $dir . '/thumbnail.jpg';
-				$ckd = ($dir == $params['smart_name']) ? ' checked="checked" class="currentStyle"' : '';
-				$ckd_msg = $ckd == '' ? '' : ' (現在の設定)';
-				$body .= '<td width="33%"><label>
-		<img src="' . $thumb . '" alt="' . $dir . 'サムネール" width="153" height="200" /><br />
-		<input type="radio" name="qhmsetting[smart_name]" value="' . $dir . '"' . $ckd . ' />' . $dir . $ckd_msg . '
-	</label></td>
-	';
-			}
-			if ($i % 3 == 2) {
-				$body .= '</tr>';
-			}
-		}
-		$body .= '</table></div>
-<input type="hidden" name="phase" value="design" />
-<input type="hidden" name="mode" value="confirm" />
-<input type="hidden" name="from" value="design_form" />
-<input type="hidden" name="plugin" value="qhmsetting" />
-<input type="hidden" name="pcmd"   value="post" />
-</form>
-</div>
-';
-	}
-
-	$body .= '<br />';
-	$body .= $body_msg;
-
-
 	return $body;
 }
 
@@ -969,55 +960,6 @@ function plugin_qhmsetting_design_confirm()
 	<input type="hidden" name="qhmsetting[enable_wp_theme]" value="1" />
 	</form>
 EOD;
-	}
-	///////////////////////////////////////////////////////////////////
-	//
-	// スマートフォンデザイン設定
-	//
-	else if (isset($vars['qhmsetting']['smart_name']) && $vars['qhmsetting']['smart_name'] != '') {
-
-		$enable_smart_style = $vars['qhmsetting']['enable_smart_style'];
-		$use_smart = 'スマートフォンデザイン：' . (($enable_smart_style == '1') ? '利用する' : '利用しない');
-
-		//design template setting
-		$smart_name = $vars['qhmsetting']['smart_name'];
-
-		//search thumnail image file
-		$style_thumb = SMART_DIR . $smart_name . '/thumbnail';
-		$style_img = '';
-		if (file_exists($style_thumb . '.jpg'))
-			$style_img = $style_thumb . '.jpg';
-		else if (file_exists($style_thumb . '.png'))
-			$style_img = $style_thumb . '.png';
-		else if (file_exists($style_thumb . '.gif'))
-			$style_img = $style_thumb . '.gif';
-
-		$style_img = ($style_img != '') ? '<img src="' . $style_img . '" title="Thumbnail" />' : '';
-
-		$vars['from'] = 'design_form';
-		$vars['smart_name_setting'] = 1;
-		return plugin_qhmsetting_design_msg();
-
-
-		// ---------------------------------------------
-		// Output confirmation contents
-		//
-		$body = '<h2>スマートフォンデザイン設定の確認</h2>';
-		$body .= '<p>' . $use_smart . '</p>';
-		if ($enable_smart_style == '1') {
-			$body .= '<p><b>テンプレート</b><br />' . $smart_name . '<br />' . $style_img . '</p>';
-		}
-		$body .= '
-	<form method="post" action="' . $script . '">
-	<p style="text-align:center"><input type="submit" value="設定する" class="btn btn-primary" /></p>
-	<input type="hidden" name="phase" value="design" />
-	<input type="hidden" name="mode" value="msg" />
-	<input type="hidden" name="plugin" value="qhmsetting" />
-	<input type="hidden" name="from" value="design_form" />
-	<input type="hidden" name="qhmsetting[enable_smart_style]" value="' . $enable_smart_style . '" />
-	<input type="hidden" name="qhmsetting[smart_name]" value="' . $smart_name . '" />
-	</form>
-';
 	}
 	///////////////////////////////////////////////////////////////////
 	//
@@ -1208,14 +1150,8 @@ function plugin_qhmsetting_design_msg()
 		$_SESSION['temp_style_path']
 	);
 
-	if (isset($vars['smart_name_setting'])) {
-		$to = $script . '?cmd=qhmsetting&mode=form&phase=design';
-		$_SESSION['flash_msg'] = 'スマートフォンのデザイン設定を変更しました';
-		$msg = '';
-	} else {
-		$to = '';
-		$msg = 'デザインの変更を完了しました';
-	}
+	$to = '';
+	$msg = 'デザインの変更を完了しました';
 
 	//goto top
 	redirect($to, $msg);
@@ -1228,7 +1164,7 @@ function plugin_qhmsetting_design_msg()
  */
 function plugin_qhmsetting_design_remove()
 {
-	global $vars, $script;
+	global $vars, $script, $style_name;
 
 	// --------------------------------------------
 	// 直接のアクセスを拒否する
@@ -2095,7 +2031,7 @@ EOD;
 
 function plugin_qhmsetting_mail_confirm()
 {
-	global $vars, $script;
+	global $vars, $script, $notify_diff_only;
 
 	// --------------------------------------------
 	// 直接のアクセスを拒否する
@@ -3413,14 +3349,16 @@ function plugin_qhmsetting_mobile_form($error = '')
 	$error_msg = ($error != '') ? '<p style="color:red">' . $error . '</p>' : '';
 
 	$body = <<<EOD
-<h2>携帯端末アクセスの転送先{$hlp_mobile}</h2>
-<p>以下にURLを指定して下さい。なお、空を設定すると転送しません。</p>
+<h2>スマホ端末からのアクセス転送{$hlp_mobile}</h2>
+<p>スマートフォンでサイトのどのページにアクセスしても、以下で設定したページに転送されます。</p>
+<p>通常はレスポンシブデザインでスマホでも正しく表示されるようなデザインが適用されているため、この転送設定は不要です。</p>
+<p>転送設定をしない場合、空欄のまま設定してください。</p>
 {$error_msg}
 <form method="post" action="{$script}" class="form-horizontal">
   <div class="form-group">
     <label for="" class="control-label col-sm-3">転送先URL</label>
     <div class="col-sm-9">
-      <input type="text" name="qhmsetting[mobile_redirect]" value="{$params['mobile_redirect']}" class="form-control">
+      <input type="text" name="qhmsetting[mobile_redirect]" value="{$params['mobile_redirect']}" class="form-control" placeholder="https://redirect-url.com">
     </div>
   </div>
 
@@ -3457,9 +3395,9 @@ function plugin_qhmsetting_mobile_msg()
 EOD;
 
 	if ($url == '') {
-		$ret = str_replace('%REP%', '携帯端末からのアクセスを転送しません。', $ret);
+		$ret = str_replace('%REP%', 'スマホのアクセスを転送しません。', $ret);
 	} else {
-		$ret = str_replace('%REP%', '携帯端末からのアクセスを「' . h($url) . '」に転送します。', $ret);
+		$ret = str_replace('%REP%', 'スマホのアクセスを「' . h($url) . '」に転送します。', $ret);
 	}
 
 	$_SESSION['flash_msg'] = $ret;
@@ -3828,7 +3766,7 @@ function fill_link(){
 // -->
 </script>
 <h2>リンク設定</h2>
-<p>ドメイン名、パス、リンクのための情報を設定します。{$help_link}<p/>
+<p>ドメイン名、パス、リンクのための情報を設定します。<p/>
 
 <p style="color:red">{$error}</p>
 <form method="post" action="" id="frm_script" name="frm_script">
@@ -4128,8 +4066,6 @@ function plugin_qhmsetting_getparams($update = TRUE, $inifile = '')
 		'mobile_redirect',
 		'googlemaps_apikey',
 		'exclude_to_name',
-		'enable_smart_style',
-		'smart_name',
 		'check_login',
 		'enable_fitvids',
 		'unload_confirm',
@@ -4172,8 +4108,6 @@ function plugin_qhmsetting_getparams($update = TRUE, $inifile = '')
 		'enable_wp_theme'  => '0',
 		'wp_add_css'       => '',
 		'exclude_to_name'  => '0',
-		'enable_smart_style' => '0',
-		'smart_name'       => 'blue',
 		'check_login'      => '1',
 		'enable_fitvids'   => '1',
 		'unload_confirm'   => '1',
@@ -4446,8 +4380,6 @@ function plugin_qhmsetting_ftp_access()
 }
 //--</FTPAccess>--
 
-
-
 function plugin_qhmsetting_club_has_qhm()
 {
 	global $vars;
@@ -4465,11 +4397,11 @@ function plugin_qhmsetting_club_has_qhm()
 	}
 	exit;
 }
-
 //--</GetQHMDesign>--
 
 function plugin_qhmsetting_post($url, $data, $optional_headers = null)
 {
+	$response = '';
 	if (function_exists('stream_get_contents')) {
 		$params = array(
 			'http' => array(
@@ -4492,6 +4424,7 @@ function plugin_qhmsetting_post($url, $data, $optional_headers = null)
 		}
 
 		$response = @stream_get_contents($fp);
+
 		//echo '<br />';
 		//読み込み失敗
 		if ($response === false) {

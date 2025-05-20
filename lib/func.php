@@ -105,10 +105,7 @@ function is_freeze($page, $clearcache = FALSE)
  */
 function is_smart_phone()
 {
-	return
-		strpos(UA_NAME, 'iPhone') !== FALSE ||
-		strpos(UA_NAME, 'iPod')   !== FALSE ||
-		strpos(UA_NAME, 'Mobile Safari') !== FALSE;
+	return preg_match('/iPhone|iPod|Android|Mobile Safari/', UA_NAME);
 }
 
 /**
