@@ -74,7 +74,16 @@ function plugin_qhmsetting_action()
 		unset($_SESSION['flash_msg']);
 	}
 
+	// $style_nameを .. にすると、qhm_init_main.php で
+	// $default_css に格納するcssを /skin/main.css に指定し、
+	// $qt->setv('default_css', $bootstrap_css . $default_css);
+	// にセットして、pukiwiki.skin.phpに流し込んでいる
 	$style_name = '..';
+
+	// 下記にすることで、/skin/admin/main.css を読み込む
+	// $style_name = '../admin';
+
+	// 設定を返す。
 	return array('msg' => "サイト情報設定", 'body' => $ret);
 }
 
