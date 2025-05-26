@@ -163,7 +163,7 @@ function plugin_qhmsetting_default()
 				],
 				[
 					'slug' => 'qblogmenubar',
-					'url' => $edit_uri . '?page=QBlogMenuBar',
+					'url' => $edit_uri . 'QBlogMenuBar',
 					'title' => 'ブログメニュー',
 					'subtitle' => 'ブログメニューの修正を行います。',
 					'limited' => false,
