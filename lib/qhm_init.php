@@ -7,6 +7,92 @@
 // 最後に、ヘッダーの出力までを担当する
 //
 
+// --- モデル
+enum ToolName: string
+{
+	case CONFIG_LINK = 'configlink';
+	case EDITBOX_LINK = 'editboxlink';
+	case EDIT_LINK = 'editlink';
+	case REF_LINK = 'reflink';
+	case PAGE_LINK = 'pagelink';
+	case DIFF_LINK = 'difflink';
+	case BACKUP_LINK = 'backuplink';
+	case RENAME_LINK = 'renamelink';
+	case DEL_LINK = 'dellink';
+	case MAP_LINK = 'maplink';
+	case COPY_LINK = 'copylink';
+	case SHARE_LINK = 'sharelink';
+	case QBLOG_NEW_LINK = 'qblognewlink';
+	case PASSWORD_LINK = 'passwordlink';
+	case UPDATE_LINK = 'updatelink';
+}
+
+class ToolEx
+{
+	public readonly string $name;
+	public readonly string $link;
+	public readonly string $style;
+	public readonly string $class;
+	public bool $visible;
+
+	public function __construct(
+		string $name,
+		string $link,
+		string $style = '',
+		string $class = '',
+		bool $visible = TRUE
+	) {
+		$this->name = $name;
+		$this->link = $link;
+		$this->style = $style;
+		$this->class = $class;
+		$this->visible = $visible;
+	}
+}
+
+class Tool extends ToolEx
+{
+	public ?array $sub;
+
+	public function __construct(
+		string $name,
+		string $link,
+		string $style = '',
+		string $class = '',
+		bool $visible = true,
+		?array $sub = null
+	) {
+		parent::__construct($name, $link, $style, $class, $visible);
+		$this->sub = $sub; // ✅ `null` または `array` を持てるように
+	}
+}
+
+class ToolCollection
+{
+	private array $tools;
+
+	public function __construct(array $tools = [])
+	{
+		$this->tools = $tools;
+	}
+
+	public function getTool(ToolName $toolName): ?Tool
+	{
+		return $this->tools[$toolName->value] ?? null; // ✅ 文字列キーを安全に扱う
+	}
+
+	public function removeTool(ToolName $toolName): void
+	{
+		unset($this->tools[$toolName->value]); // ✅ 安全に削除！
+	}
+
+	public function getAllTools(): array
+	{
+		return $this->tools; // ✅ ツール一覧を取得！
+	}
+}
+
+// --- イニシャライズ
 global $layout_pages;
 global $qblog_defaultpage, $qblog_menubar, $qblog_title;
 
@@ -34,6 +120,7 @@ $qt->getv('lastscript') ? '' : $qt->setv('lastscript', '');
 $qt->setv('_page', $_page);
 $qt->setv('_script', $script);
 $qt->setv('auth_link', ($qhm_adminmenu <= 1) ? ('<a href="' . h($script . '?cmd=qhmauth') . '" class="qhm-auth-link">QHM</a>') : '');
+
 //head
 $qt->setv('headcopy_is_empty', trim($headcopy) === '');
 if (! $qt->getv('headcopy_is_empty')) {
@@ -54,7 +141,7 @@ if (! defined('PKWK_READONLY')) die('PKWK_READONLY is not set');
 
 $link  = &$_LINK;
 $image = &$_IMAGE['skin'];
-$rw    = ! PKWK_READONLY;
+$readOnly    = PKWK_READONLY; // 閲覧専用ではない
 
 $qt->setv_once('rss_link', $link['rss']);
 
@@ -124,7 +211,8 @@ EOD;
 $qt->setv('toolkit_upper', '');
 $qt->setv('toolkit_bottom', '');
 
-if (($qt->getv('editable') || ss_admin_check()) && !$is_setting) {
+// if (($qt->getv('editable') || ss_admin_check()) && !$is_setting) {
+if (($qt->getv('editable') || ss_admin_check())) {
 	$qt->setv('jquery_include', true);
 
 	$link_haik_parts = '//open-qhm.github.io/haik-parts/';
@@ -144,142 +232,173 @@ if (($qt->getv('editable') || ss_admin_check()) && !$is_setting) {
 
 
 	$clickpad_js = <<<EOD
-<!--[if IE 6]><script type="text/javascript" src="js/fixed.js"></script><![endif]-->
-<script type="text/javascript" src="js/thickbox.js"></script>
-<script type="text/javascript" src="js/jquery.clickpad.js{$refleshjs}"></script>
-<script type="text/javascript" src="js/clickpad2.js{$refleshjs}"></script>
-<link rel="stylesheet" href="js/clickpad2/clickpad2.css{$refleshjs}">
-<script type="text/javascript" src="js/jquery.exnote.js"></script>
-<script type="text/javascript" src="js/jquery.shortkeys.js"></script>
-<script type="text/javascript" src="js/jquery.edit.js"></script>
-<script type="text/javascript">
-{$has_swfu}{$has_fwd3}{$enable_unload_confirm}
-$(function(){
-  // clickpad
-  if($("#msg").length) {
-    $("#msg").data("original", $("#msg").val());
+		<!--[if IE 6]><script type="text/javascript" src="js/fixed.js"></script><![endif]-->
+		<script type="text/javascript" src="js/thickbox.js"></script>
+		<script type="text/javascript" src="js/jquery.clickpad.js{$refleshjs}"></script>
+		<script type="text/javascript" src="js/clickpad2.js{$refleshjs}"></script>
+		<link rel="stylesheet" href="js/clickpad2/clickpad2.css{$refleshjs}">
+		<script type="text/javascript" src="js/jquery.exnote.js"></script>
+		<script type="text/javascript" src="js/jquery.shortkeys.js"></script>
+		<script type="text/javascript" src="js/jquery.edit.js"></script>
+		<script type="text/javascript">
+		{$has_swfu}{$has_fwd3}{$enable_unload_confirm}
+		$(function(){
+			// clickpad
+			if($("#msg").length) {
+				$("#msg").data("original", $("#msg").val());
 
-		otherplugin = function(){
-{$op_func}
-		};
-    showHaikParts = function(){
-      tb_show('', '{$link_haik_parts}#{$style_name}?KeepThis=true&TB_iframe=true');
-    }
-		var ck = document.cookie.split(";");
-		for (var i = 0; i < ck.length; i++) {
-			if (ck[i].split("=")[0].replace(/^\s|\s$/, '').match(/otherplugin/)
-				&& ck[i].split("=")[1].replace(/^\s|\s$/, '').match(/show/)) {
-				otherplugin();
-			}
-		}
+				otherplugin = function(){
+		{$op_func}
+				};
+				showHaikParts = function(){
+					tb_show('', '{$link_haik_parts}#{$style_name}?KeepThis=true&TB_iframe=true');
+				}
+				var ck = document.cookie.split(";");
+				for (var i = 0; i < ck.length; i++) {
+					if (ck[i].split("=")[0].replace(/^\s|\s$/, '').match(/otherplugin/)
+						&& ck[i].split("=")[1].replace(/^\s|\s$/, '').match(/show/)) {
+						otherplugin();
+					}
+				}
+
+				if (window.qhm_enable_unload_confirm) {
+					//form からのsubmit では遷移確認を出さない
+					$("#edit_form_main, #edit_form_cancel").submit(function(e){
+						window.onbeforeunload = null;
+					});
+					$("input:submit[name=write], input:submit[name=preview]").click(function(){
+						window.onbeforeunload = null;
+					});
+				}
+
+						// keyboard shortcut in textarea#msg
+						var isWin = (navigator.platform.indexOf('win') != -1);
+						$("#msg").keydown(function(e){
+							//Save [Ctrl + S] [Command + S]
+							if (((isWin && e.ctrlKey) || (! isWin && e.metaKey)) && e.keyCode == 83) {
+								e.preventDefault();
+								$("input:submit[name=write]").click();
+							}
+							//Preview [Ctrl + P] [Command + P]
+							else if (((isWin && e.ctrlKey) || (! isWin && e.metaKey)) && e.keyCode == 80) {
+								e.preventDefault();
+								$("input:submit[name=preview]").click();
+							}
+						});
+				}
+
+		});
 
 		if (window.qhm_enable_unload_confirm) {
-			//form からのsubmit では遷移確認を出さない
-			$("#edit_form_main, #edit_form_cancel").submit(function(e){
-				window.onbeforeunload = null;
-			});
-			$("input:submit[name=write], input:submit[name=preview]").click(function(){
-				window.onbeforeunload = null;
-			});
+			window.onbeforeunload = function(e) {
+				if ($("#msg").val() != $("#msg").data("original")) {
+					return '{$qm->m['qhm_init']['unload_confirm']}';
+				}
+			}
 		}
+		</script>
 
-        // keyboard shortcut in textarea#msg
-        var isWin = (navigator.platform.indexOf('win') != -1);
-        $("#msg").keydown(function(e){
-          //Save [Ctrl + S] [Command + S]
-          if (((isWin && e.ctrlKey) || (! isWin && e.metaKey)) && e.keyCode == 83) {
-            e.preventDefault();
-            $("input:submit[name=write]").click();
-          }
-          //Preview [Ctrl + P] [Command + P]
-          else if (((isWin && e.ctrlKey) || (! isWin && e.metaKey)) && e.keyCode == 80) {
-            e.preventDefault();
-            $("input:submit[name=preview]").click();
-          }
-        });
-    }
+		<link rel="stylesheet" href="skin/hokukenstyle/qhm.css">
+		<link rel="stylesheet" media="screen" href="js/thickbox.css">
+	EOD;
 
-});
-
-if (window.qhm_enable_unload_confirm) {
-	window.onbeforeunload = function(e) {
-		if ($("#msg").val() != $("#msg").data("original")) {
-			return '{$qm->m['qhm_init']['unload_confirm']}';
-		}
-	}
-}
-</script>
-
-<link rel="stylesheet" href="skin/hokukenstyle/qhm.css">
-<link rel="stylesheet" media="screen" href="js/thickbox.css">
-
-EOD;
 	$qt->setv('clickpad_js', $clickpad_js);
 
 	$link_help = QHM_HOME;
 	$link_map = $script . '?cmd=map&amp;refer=' . rawurlencode($_page);
 	$link_password = $script . '?plugin=qhmsetting&amp;phase=user2&mode=form';
 	$link_qhm_update = $script . '?plugin=qhmupdate';
-	$link_qblog = $script . '?' . $qblog_defaultpage;
-	$link_qblog_menu = $script . '?cmd=edit&amp;page=' . $qblog_menubar;
 	$link_haik_skin_customizer = $script . '?cmd=qhmsetting&amp;phase=design&amp;mode=form&amp;preview=1&amp;enable_wp_theme=0&amp;design=' . $style_name . '&amp;customizer=1';
 
+	// 「添付」の表示条件分岐
+	$ref_link = '';
+	$reflink_class = '';
+	$reflink_visible = true;
+	if (!file_exists('swfu/index.php')) {
+		$reflink_visible = false;
+	} else {
+		$ref_link = 'swfu/index_child.php?page=' . rawurlencode($vars['page']) . '&amp;KeepThis=true&amp;TB_iframe=true';
+		$reflink_class = 'swfu';
+	}
 
 	$layout_class = "thickbox";
 	if (is_bootstrap_skin()) {
 		$layout_class = "";
 	}
 
-	$tools = array(
-		'toplink'     => array('name' => $qm->m['qhm_init']['toplink_name'], 'link' => $script, 'style' => '', 'class' => '', 'visible' => true, 'sub' => []),
-		'editboxlink' => array('name' => $qm->m['qhm_init']['editboxlink_name'], 'link' => '#msg', 'style' => '', 'class' => 'go_editbox', 'visible' => true, 'sub' => []),
-		'editlink'    => array('name' => $qm->m['qhm_init']['editlink_name'], 'link' => $link_edit, 'style' => 'margin-top:1.1em;', 'class' => '', 'visible' => true, 'sub' => []),
-		'reflink'     => array('name' => $qm->m['qhm_init']['reflink_name'], 'link' => $link_upload, 'style' => '', 'class' => 'swfu', 'visible' => true, 'sub' => []),
-		'pagelink'    => array('name' => $qm->m['qhm_init']['pagelink_name'], 'link' => '', 'style' => 'margin-top:1.1em;', 'class' => '', 'visible' => true, 'sub' => array(
-			'difflink' => array('name' => $qm->m['qhm_init']['difflink_name'], 'link' => $link_diff, 'style' => '', 'class' => '', 'visible' => true,),
-			'backuplink' => array('name' => $qm->m['qhm_init']['backuplink_name'], 'link' => $link_backup, 'style' => '', 'class' => '', 'visible' => true,),
-			'renamelink' => array('name' => $qm->m['qhm_init']['renamelink_name'], 'link' => $link_rename, 'style' => '', 'class' => '', 'visible' => true,),
-			'dellink' => array('name' => '削除', 'link' => $link_delete, 'style' => '', 'class' => '', 'visible' => true,),
-			'maplink' => array('name' => $qm->m['qhm_init']['maplink_name'], 'link' => $link_map, 'style' => '', 'class' => '', 'visible' => true,),
-			'copylink' => array('name' => $qm->m['qhm_init']['copylink_name'], 'link' => $link_copy, 'style' => '', 'class' => '', 'visible' => true,),
-			'sharelink' => array('name' => '共有', 'link' => '#', 'style' => '', 'class' => '', 'visible' => true),
-		)),
-		'sitelink'   => array('name' => $qm->m['qhm_init']['sitelink_name'], 'link' => '', 'style' => '', 'class' => '', 'visible' => true, 'sub' => array(
-			'headerlink' => array('name' => $layout_pages['SiteHeader'] . '編集', 'link' => $link_edit_header, 'style' => '', 'class' => $layout_class, 'visible' => true,),
-			'navilink' => array('name' => $qm->m['qhm_init']['navilink_name'], 'link' => $link_edit_navi, 'style' => '', 'class' => $layout_class, 'visible' => true,),
-			'menulink' => array('name' => $qm->m['qhm_init']['menulink_name'], 'link' => $link_edit_menu, 'style' => '', 'class' => $layout_class, 'visible' => true,),
-			'menu2link' => array('name' => $qm->m['qhm_init']['menu2link_name'], 'link' => $link_edit_menu2, 'style' => '', 'class' => $layout_class, 'visible' => true,),
-			'navi2link' => array('name' => $layout_pages['SiteNavigator2'] . '編集', 'link' => $link_edit_navi2, 'style' => '', 'class' => $layout_class, 'visible' => true,),
-			'newlink' => array('name' => $qm->m['qhm_init']['newlinklink_name'], 'link' => $link_new, 'style' => 'margin-top:1em;', 'class' => '', 'visible' => true,),
-			'whatnewlink' => array('name' => $qm->m['qhm_init']['whatnewlink_name'], 'link' => $link_whatsnew, 'style' => '', 'class' => '', 'visible' => true,),
-			'pagelistlink' => array('name' => $qm->m['qhm_init']['pagelistlink_name'], 'link' => $link_filelist, 'style' => '', 'class' => '', 'visible' => true,),
-			'yetlistlink' => array('name' => $qm->m['qhm_init']['yetlistlink_name'], 'link' => $link_yetlist, 'style' => '', 'class' => '', 'visible' => true,),
-		)),
-		'toollink'   => array('name' => $qm->m['qhm_init']['toollink_name'], 'link' => '', 'accesskey' => '', 'style' => '', 'class' => '', 'visible' => true, 'sub' => array(
-			'haikskincustomizer' => array('name' => 'テーマ編集', 'link' => $link_haik_skin_customizer, 'style' => '', 'class' => '', 'visible' => TRUE),
-			'searchlink' => array('name' => $qm->m['qhm_init']['searchlink_name'], 'link' => $link_search, 'style' => '', 'class' => '', 'visible' => true,),
-			'swfulink' => array('name' => $qm->m['qhm_init']['swfulink_name'], 'link' => 'swfu/index.php', 'style' => '', 'class' => 'swfu', 'visible' => true,),
-			'fwd3link' => array('name' => $qm->m['qhm_init']['fwd3link_name'], 'link' => 'fwd3/sys/', 'style' => '', 'class' => '', 'visible' => true,),
-			'qdsgnlink' => array('name' => $qm->m['qhm_init']['qdsgnlink_name'], 'link' => 'qdsgn/index.php', 'style' => '', 'class' => '', 'visible' => true,),
-		)),
-		'qbloglink' => array(
-			'name' => 'ブログ',
-			'link' => '',
-			'style' => '',
-			'class' => '',
-			'visible' => true,
-			'sub' => array(
-				'qblogtoplink' => array('name' => 'トップ', 'link' => $link_qblog, 'style' => '', 'class' => '', 'visible' => TRUE),
-				'qblogmenulink' => array('name' => 'メニュー編集', 'link' => $link_qblog_menu, 'style' => '', 'class' => '', 'visible' => true,),
-				'qblogconfiglink' => array('name' => '設定', 'link' => $script . '?cmd=qblog', 'style' => '', 'class' => '', 'visible' => TRUE),
-				'qblognewlink' => array('name' => '記事の追加', 'link' => $script . '?cmd=qblog&mode=addpost', 'style' => '', 'class' => '', 'visible' => TRUE),
-			)
+	// `array<Tool>` 型を明示
+	$tools = new ToolCollection([
+		ToolName::CONFIG_LINK->value => new Tool(
+			$qm->m['qhm_init']['configlink_name'],
+			$link_qhm_setting,
+			visible: true,
 		),
-		'configlink' => array('name' => $qm->m['qhm_init']['configlink_name'], 'link' => $link_qhm_setting, 'style' => 'margin-top:1.1em;', 'visible' => true, 'sub' => []),
-		'passwordlink'   => array('name' => $qm->m['qhm_init']['passwordlink_name'], 'link' => $link_password, 'style' => '', 'visible' => true, 'sub' => []),
-		'logoutlink' => array('name' => $qm->m['qhm_init']['logoutlink_name'], 'link' => $link_qhm_logout, 'style' => 'margin-top:1.1em;', 'visible' => true, 'sub' => []),
-		'updatelink' => array('name' => $qm->m['qhm_init']['updatelink_name'], 'link' => $link_qhm_update, 'style' => 'margin-top:1.1em;', 'visible' => true, 'sub' => []),
-	);
+		// 'editboxlink' => new Tool(
+		// 	name: $qm->m['qhm_init']['editboxlink_name'],
+		// 	link: '#msg',
+		// 	class: 'go_editbox',
+		// ),
+		ToolName::EDIT_LINK->value  => new Tool(
+			name: $qm->m['qhm_init']['editlink_name'],
+			link: $link_edit,
+			style: 'margin-top:1.1em;',
+		),
+		// 'reflink'     => new Tool(
+		// 	name: $qm->m['qhm_init']['reflink_name'],
+		// 	link: $ref_link,
+		// 	class: $reflink_class,
+		// 	visible: $reflink_visible
+		// ),
+		ToolName::PAGE_LINK->value => new Tool(
+			name: $qm->m['qhm_init']['pagelink_name'],
+			link: '',
+			class: 'this_page_tools',
+			visible: true,
+			sub: [
+				ToolName::DIFF_LINK->value => new Tool(
+					name: $qm->m['qhm_init']['difflink_name'],
+					link: $link_diff,
+				),
+				ToolName::BACKUP_LINK->value => new Tool(
+					name: $qm->m['qhm_init']['backuplink_name'],
+					link: $link_backup,
+				),
+				ToolName::RENAME_LINK->value => new Tool(
+					name: $qm->m['qhm_init']['renamelink_name'],
+					link: $link_rename,
+				),
+				ToolName::DEL_LINK->value => new Tool(
+					name: '削除',
+					link: $link_delete,
+				),
+				ToolName::MAP_LINK->value => new Tool(
+					name: $qm->m['qhm_init']['maplink_name'],
+					link: $link_map,
+				),
+				ToolName::COPY_LINK->value => new Tool(
+					name: $qm->m['qhm_init']['copylink_name'],
+					link: $link_copy,
+				),
+				ToolName::SHARE_LINK->value => new Tool(
+					name: '共有',
+					link: '#',
+				),
+			],
+		),
+		// 'qblognewlink' => new Tool(
+		// 	name: '記事の追加',
+		// 	link: $script . '?cmd=qblog&mode=addpost',
+		// ),
+		// 'passwordlink'   => new Tool(
+		// 	name: $qm->m['qhm_init']['passwordlink_name'],
+		// 	link: $link_password,
+		// ),
+		// 'updatelink' => new Tool(
+		// 	name: $qm->m['qhm_init']['updatelink_name'],
+		// 	link: $link_qhm_update,
+		// 	style: 'margin-top:1.1em;',
+		// ),
+	]);
 
 	$prevdiv = '';
 	if (isset($_SESSION['temp_design'])) {
@@ -307,30 +426,30 @@ EOD;
 			$custom_btn = plugin_skin_customizer_set_form();
 		}
 		$prevdiv = '
-<div id="preview_bar_overlay"></div>
-<div id="preview_bar">
-' . $custom_btn . '
-デザイン ' . h($_SESSION['temp_design']) . ' プレビュー中&nbsp;&nbsp;
-<form action="' . h($script) . '" method="post">
-<input type="hidden" name="cmd" value="qhmsetting" />
-<input type="hidden" name="mode" value="form" />
-<input type="hidden" name="phase" value="design" />
-<input type="hidden" name="preview" value="0" />
-<input type="hidden" name="redirect" value="' . h($redirect) . '" />
-<input type="submit" name="preview_cancel" value="プレビューを解除する" class="qhm-btn-default"/>
-</form>
-<form action="' . h($script) . '" method="post">
-<input type="hidden" name="cmd" value="qhmsetting" />
-<input type="hidden" name="mode" value="msg" />
-<input type="hidden" name="phase" value="design" />
-<input type="hidden" name="from" value="design_form" />
-<input type="hidden" name="qhmsetting[style_name]" value="' . h($_SESSION['temp_design']) . '" />
-<input type="hidden" name="qhmsetting[style_type]" value="none" />
-<input type="hidden" name="qhmsetting[enable_wp_theme]" value="' . h($_SESSION['temp_enable_wp']) . '" />
-<input type="submit" name="preview_set" value="このデザインを適用する" class="' . h($btn_class) . ' qhm-btn-primary" />
-</form>
-</div>
-';
+			<div id="preview_bar_overlay"></div>
+			<div id="preview_bar">
+			' . $custom_btn . '
+			デザイン ' . h($_SESSION['temp_design']) . ' プレビュー中&nbsp;&nbsp;
+			<form action="' . h($script) . '" method="post">
+			<input type="hidden" name="cmd" value="qhmsetting" />
+			<input type="hidden" name="mode" value="form" />
+			<input type="hidden" name="phase" value="design" />
+			<input type="hidden" name="preview" value="0" />
+			<input type="hidden" name="redirect" value="' . h($redirect) . '" />
+			<input type="submit" name="preview_cancel" value="プレビューを解除する" class="qhm-btn-default"/>
+			</form>
+			<form action="' . h($script) . '" method="post">
+			<input type="hidden" name="cmd" value="qhmsetting" />
+			<input type="hidden" name="mode" value="msg" />
+			<input type="hidden" name="phase" value="design" />
+			<input type="hidden" name="from" value="design_form" />
+			<input type="hidden" name="qhmsetting[style_name]" value="' . h($_SESSION['temp_design']) . '" />
+			<input type="hidden" name="qhmsetting[style_type]" value="none" />
+			<input type="hidden" name="qhmsetting[enable_wp_theme]" value="' . h($_SESSION['temp_enable_wp']) . '" />
+			<input type="submit" name="preview_set" value="このデザインを適用する" class="' . h($btn_class) . ' qhm-btn-primary" />
+			</form>
+			</div>
+		';
 	}
 
 	//unset menu2 for 2-column style
@@ -339,49 +458,58 @@ EOD;
 		!(file_exists("skin/hokukenstyle/$style_name/pukiwiki.skin.php") &&
 			strpos(file_get_contents("skin/hokukenstyle/$style_name/pukiwiki.skin.php"), '#{$menubar2_tag}') !== FALSE)
 	) {
-		unset($tools['sitelink']['sub']['menu2link']);
+		// unset($tools['sitelink']['sub']['menu2link']);
 	}
 
+	// ページではない＝プラグインで生成されたページ・メッセージ
 	if (!$is_page) {
-		if (isset($tools['editboxlink'])) unset($tools['editboxlink']);
-		$tools['editlink']['visible'] = false;
-		$tools['reflink']['visible'] = false;
-		$tools['pagelink']['visible'] = false;
+		$tools->removeTool(ToolName::EDITBOX_LINK);
+		$tools->removeTool(ToolName::EDIT_LINK);
+		$tools->removeTool(ToolName::REF_LINK);
+		$tools->removeTool(ToolName::PAGE_LINK);
+
+		// $tools['editboxlink']->visible = false;
+		// $tools['editlink']->visible = false;
+		// $tools['reflink']->visible = false;
+		// $tools['pagelink']->visible = false;
 	}
-	if (!$rw) {
+
+	// `cmd=edit` が含まれるかチェック
+	// TODO: そもそも、編集ボックスへのリンクは不要かも。
+	$editboxlink = $tools->getTool(ToolName::EDITBOX_LINK);
+	if ($editboxlink !== null) {
+		$editboxlink->visible = $vars['cmd'] === 'edit' && $vars['page'] !== null && $vars['page'] !== '';
+	}
+
+	if ($readOnly) {
 		$tools['editlink']['visible'] = false;
 		$tools['reflink']['visible'] = false;
 	}
 	if (!(bool)ini_get('file_uploads')) {
 		$tools['reflink']['visible'] = false;
 	}
-	if (!file_exists('swfu/index.php')) {
-		unset($tools['toollink']['sub']['swfulink']);
-		$tools['reflink']['class'] = '';
-	} else {
-		$tools['reflink']['link'] = 'swfu/index_child.php?page=' . rawurlencode($vars['page']) . '&amp;KeepThis=true&amp;TB_iframe=true';
-	}
 	if (!file_exists('fwd3/sys/fwd3.txt')) {
-		unset($tools['toollink']['sub']['fwd3link']);
+		// unset($tools['toollink']['sub']['fwd3link']);
 	}
 	if (!file_exists('qdsgn/index.php')) {
-		if (isset($tools['toollink']['sub']['qdsgnlink'])) unset($tools['toollink']['sub']['qdsgnlink']);
+		// if (isset($tools['toollink']['sub']['qdsgnlink'])) unset($tools['toollink']['sub']['qdsgnlink']);
 	}
 	if (strpos($style_name, 'haik_') !== 0) {
-		if (isset($tools['haikskincustomizer'])) unset($tools['haikskincustomizer']);
-		if (isset($tools['haikpreviewlink'])) unset($tools['haikpreviewlink']);
+
+		// if (isset($tools['haikskincustomizer'])) unset($tools['haikskincustomizer']);
+		// if (isset($tools['haikpreviewlink'])) unset($tools['haikpreviewlink']);
 	} else {
 		$addjs = '
-<script type="text/javascript" src="js/haik_theme_utility.js"></script>
-<script type="text/javascript" src="' . PLUGIN_DIR . 'skin_customizer/color_picker.js"></script>
-';
+			<script type="text/javascript" src="js/haik_theme_utility.js"></script>
+			<script type="text/javascript" src="' . PLUGIN_DIR . 'skin_customizer/color_picker.js"></script>
+		';
 		$qt->appendv('beforescript', $addjs);
 
 		// Determine custom skin
 		$style_config = read_skin_config($style_name);
 		$skin_custom_vars = get_skin_custom_vars($style_name);
 		if (! isset($style_config['custom_options']['header']) || ! $skin_custom_vars['header']) {
-			unset($tools['sitelink']['sub']['headerlink']);
+			// unset($tools['sitelink']['sub']['headerlink']);
 		}
 	}
 	if (! ss_admin_check()) {
@@ -394,19 +522,22 @@ EOD;
 		if (isset($tools['haikskincustomizer'])) unset($tools['haikskincustomizer']);
 		if (isset($tools['haikpreviewlink'])) unset($tools['haikpreviewlink']);
 	} else {
-		if (isset($tools['passwordlink'])) unset($tools['passwordlink']);
+		// if (isset($tools['passwordlink'])) unset($tools['passwordlink']);
+		$tools->removeTool(ToolName::PASSWORD_LINK);
 	}
-	if ($_page === $defaultpage) {
 
-		if (isset($tools['pagelink']['sub']['dellink'])) unset($tools['pagelink']['sub']['dellink']);
+	if ($_page === $defaultpage) {
+		$tools->removeTool(ToolName::DEL_LINK);
+		// $tools['pagelink']->sub['dellink']->visible = false;
 	}
 
 	if (! isset($_COOKIE['QHM_VERSION']) || $_COOKIE['QHM_VERSION'] <= QHM_VERSION || get_qhm_option('update') !== 'vendor') {
-		unset($tools['updatelink']);
+		$tools->removeTool(ToolName::UPDATE_LINK);
+		// unset($tools['updatelink']);
 	}
 
 	if (is_qblog()) {
-		if (isset($tools['pagelink']['sub']['renamelink'])) unset($tools['pagelink']['sub']['renamelink']);
+		$tools['pagelink']->sub['renamelink']->visible = false;
 	}
 	if (! is_page($qblog_defaultpage)) {
 		if (isset($tools['qbloglink'])) unset($tools['qbloglink']);
@@ -431,85 +562,60 @@ EOD;
 	}
 
 	$tools_str = '<ul class="toolbar_menu">';
-	foreach ($tools as $lv1key => $lv1) {
-		// main menu
-		$style = $lv1['style'] ?? '';
+	foreach ($tools->getAllTools() as $lv1key => $lv1) {
 		// visible
-		if (isset($lv1['visible']) && ($lv1['visible'] != '')) {
+		if ($lv1->visible) {
 			// link
-			if (isset($lv1['link']) && ($lv1['link'] != '')) {
-				$class = isset($lv1['class']) && ($lv1['class'] != '') ? ' class="' . $lv1['class'] . '"' : '';
-				$target = ($lv1key == 'helplink') ? ' target="help"' : '';
-				$tools_str .= '<li style="background-image:none;' . $style . '"' . $class . '><a href="' . $lv1['link'] . '"' . $target . ' id="' . $lv1key . '">' . $lv1['name'] . '</a>';
+			if ($lv1->visible) {
+				$tools_str .= '<li style="background-image:none;' . $style . '"' . $lv1->$class . '><a href="' . $lv1->link . '"' . $target . ' id="' . $lv1key . '">' . $lv1->name . '</a>';
 			} else {
 				$class = isset($lv1['class']) ? ' class="' . $lv1['class'] . '"' : '';
-				$style = ($style != '') ? ' style="position:relative;' . $class . $style . '"' : ' style="position:relative;"';
-				$tools_str .= '<li' . $style . '>' . $lv1['name'];
+				$style = ($style != '') ? ' style="position:relative;' . $style . '"' : ' style="position:relative;"';
+				$tools_str .= '<li' . $style . $class . '>' . $lv1['name'];
 			}
 		}
 		// invisible
 		else {
-			$lv1_name = isset($lv1['name']) && ($lv1['name'] != '') ? $lv1['name'] : '';
-			$tools_str .= '<li style="background-image:none;" class="nouse">' . $lv1_name;
+			$tools_str .= '<li style="display: none;">' . $lv1->name;
 		}
 
 		// sub menu
-		if (count($lv1['sub'] ?? []) > 0) {
+		if ($lv1->visible && $lv1->sub != null && $lv1->sub != []) {
 			$tools_str .= '<ul class="toolbar_submenu">';
-			foreach ($lv1['sub'] as $lv2key => $lv2) {
-				$class = isset($lv2['class']) ? ' class="' . $lv2['class'] . '"' : '';
-				$style = isset($lv2['style']) ? ' style="' . $lv2['style'] . '"' : '';
-				$tools_str .= '<li' . $class . $style . '>';
-				$target = isset($lv2['target']) ? ' target="' . $lv2['target'] . '"' : '';
-				// visible
-				if ($lv2['visible']) {
-					// link
-					if ($lv2['link'] != '') {
-						$target = '';
-						$tools_str .= '<a href="' . $lv2['link'] . '"' . $target . ' id="' . $lv2key . '">' . $lv2['name'] . '</a>';
+			foreach ($lv1->sub as $lv2key => $lv2) {
+				if ($lv2->visible) {
+					$class = $lv2->class;
+					$style = $lv2->style;
+					$tools_str .= '<li class="' . $class . '" style="' . $style . '">';
+					if ($lv2->link != '') {
+						$tools_str .= '<a href="' . $lv2->link . '" id="' . $lv2key . '">' . $lv2->name . '</a>';
 					} else {
-						$tools_str .= $lv2['name'];
+						$tools_str .= $lv2->name;
 					}
+					$tools_str .= '</li>';
 				}
-				// invisible
-				else {
-					$tools_str .= '<li style="background-image:none;" class="nouse">' . $lv2['name'];
-				}
-				$tools_str .= '</li>';
 			}
 			$tools_str .= '</ul>'; // sub menu end
 		}
-		$tools_str .= '</li>';
+		$tools_str .= '</li>'; // lv1 の li 閉じタグ
 	}
 	$tools_str .= '</ul>'; // main manu end
 
-	//クッキーで大きさを調節
-	if ((array_key_exists($_page, $layout_pages) && ! is_bootstrap_skin()) or (isset($_COOKIE['toolbar_size']) && $_COOKIE['toolbar_size'] == 'min')) {
-		$tb_max_disp = 'display:none';
-		$tb_min_disp = '';
-	} else {
-		$tb_max_disp = '';
-		$tb_min_disp = 'display:none';
-	}
-
 	$qm = get_qm();
 
-	//最大化型のtoolbar_upper
-	$tk_append = '
-	<!-- Toolbar upper -->
-	<div id="toolbar_upper_max" class="toolbar_upper hidden-print" style="' . $tb_max_disp . '">
-	<div class="toolkit_switch expand toolline">[ー]</div><div>' . $tools_str . '</div></div>';
-
 	//最小化型のtoolbar upper
-	$tools_str = preg_replace('/\sid="([a-z_]+?)"/', ' id="$1_min"', $tools_str);
-	$tools_str = str_replace('toolbar_menu', 'toolbar_menu_min', $tools_str);
+	// 直下の行は不要なので削除予定
+	// $tools_str = preg_replace('/\sid="([a-z_]+?)"/', ' id="$1_min"', $tools_str);
+	$tools_str = str_replace('toolbar_menu', 'toolbar_menu', $tools_str);
 	$tools_str = str_replace('margin-top:1.1em;', '', $tools_str);
+
+	$logout_label = $qm->m['qhm_init']['logoutlink_name'];
 
 	$tk_append .= '
 	<!-- Toolbar upper -->
-	<div id="toolbar_upper_min" class="toolbar_upper hidden-print" style="border-bottom:1px dashed #999;position:fixed;top:0px;left:0px;line-height:0.8em;' . $tb_min_disp . '">
-		<div class="toolkit_switch toolleft">[＋]</div>
-		<div style="float:left;">' . $tools_str . '</div>
+	<div id="toolbar" class="toolbar">
+		' . $tools_str . '
+		<div><a href="' . $link_qhm_logout . '" class="btn_logout">' . $logout_label . '</a></div>
 	</div>';
 	$qt->appendv('toolkit_upper', $tk_append);
 
