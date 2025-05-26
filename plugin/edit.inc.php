@@ -139,7 +139,7 @@ function plugin_edit_preview()
 		margin-left: -275px;
 		z-index: 30;
 	}
-	ul.toolbar_menu li.preview_notice, ul.toolbar_menu_min li.preview_notice {
+	ul.toolbar_menu li.preview_notice {
 		padding: 0 2px;
 		margin: 0 auto;
 		background-color: #ff9;
@@ -167,7 +167,7 @@ function plugin_edit_preview()
 	$addscript = '
 <script type="text/javascript">
 	$(function(){
-		$("div.toolbar_upper ul.toolbar_menu, div.toolbar_upper ul.toolbar_menu_min").prepend("<li class=\"preview_notice\">' . $qm->m['plg_edit']['label_preview'] . '</li>")
+		$("div.toolbar ul.toolbar_menu").prepend("<li class=\"preview_notice\">' . $qm->m['plg_edit']['label_preview'] . '</li>")
 			.children(":nth-child(2)").remove();
 		$("#preview_notice")
 		.css("cursor", "pointer")

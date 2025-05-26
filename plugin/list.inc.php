@@ -178,7 +178,7 @@ function plugin_list_create_html($pages_data, $withfilename = FALSE)
 #wrapper{
 	width: 880px;
 }
-#header,#navigator,#navigator2,#footer,#licence,#wrap_sidebar,#wrap_sidebar2,#toolbar_upper_max,#toolbar_upper_min{
+#header,#navigator,#navigator2,#footer,#licence,#wrap_sidebar,#wrap_sidebar2,#toolbar{
 	display: none;
 }
 #wrap_content {

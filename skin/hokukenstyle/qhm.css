@@ -1,11 +1,12 @@
-#toolbar_upper_max {
+#toolbar{
 	font-family: 'ヒラギノ角ゴ Pro W3','Hiragino Kaku Gothic Pro','メイリオ',Meiryo,'ＭＳ Ｐゴシック',sans-serif;
 	letter-spacing: normal;
-	width:120px;
 }
-#toolbar_upper_min{
-	font-family: 'ヒラギノ角ゴ Pro W3','Hiragino Kaku Gothic Pro','メイリオ',Meiryo,'ＭＳ Ｐゴシック',sans-serif;
-	letter-spacing: normal;
+
+.toolbar ul,
+.toolbar li {
+	padding: 0;
+	margin: 0;
 }
 
 .ie6dummy{
@@ -22,35 +23,27 @@
 	-ms-filter: "alpha(opacity=50)";
 }
 
-.toolbar_upper {
-	position:fixed;
+.toolbar {
 	font-size:13px;
 	color:#666;
 	line-height:1.5em;
 	text-align:left;
-	border-right:1px dashed #999;
-	border-bottom:1px dashed #999;
-	background:transparent url('../../image/admin_bg.png');
-	padding:0 0 0 0;
-	margin-top:0px;
-	z-index:10;
-	top:0px;
-	left:0px;
+	background-color: black;
+	padding: 4px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
 }
-.toolbar_upper a, .toolbar_upper a:visited {
+.toolbar a, .toolbar a:visited {
 	text-decoration:none;
 	color:#fff;
 }
-ul.toolbar_menu,
-ul.toolbar_menu_min{
+ul.toolbar_menu {
 	list-style:none;
-	background:none;
-	padding:0;
-	margin:0;
-	z-index:20;
-}
-ul.toolbar_menu_min{
-	float:left;
+	display: flex;
+	padding: 0;
+	justify-content: start;
+	align-items: center;
 }
 ul.toolbar_submenu{
 	list-style:none;
@@ -68,20 +61,6 @@ ul.toolbar_submenu{
 ul.toolbar_menu li{
 	position:relative;
 	color:#fff;
-	padding:0 2px 0 10px;
-	margin:0;
-	text-decoration:none;
-	height:25px;
-	line-height:25px;
-	background-image:url(../../image/arrow2.png);
-	background-repeat:no-repeat;
-	background-position:right top;
-	cursor:pointer;
-}
-ul.toolbar_menu_min li{
-	position:relative;
-	float:left;
-	color:#fff;
 	padding:0 15px 0 17px;
 	margin:0 2px;
 	text-decoration:none;
@@ -92,14 +71,13 @@ ul.toolbar_menu_min li{
 	background-position:left top;
 	cursor:pointer;
 }
-ul.toolbar_menu_min li a{
+ul.toolbar_menu li a{
 	padding:0;
 	color:#fff;
 	text-decoration:none;
 	display:block;
 	outline:none;
 }
-ul.toolbar_menu li a,
 ul.toolbar_submenu li a{
 	padding:0;
 	color:#fff;
@@ -108,7 +86,6 @@ ul.toolbar_submenu li a{
 	outline:none;
 }
 ul.toolbar_menu li a:hover,
-ul.toolbar_menu_min li a:hover,
 ul.toolbar_submenu li a:hover{
 	color:#fff;
 	background:none;
@@ -129,7 +106,7 @@ ul.toolbar_submenu li{
 }
 .tool_menuHover{
 	color:#333;
-	background-color:#999999;
+	background-color:#616161;
 }
 .toolleft{
 	float:left;
@@ -140,6 +117,12 @@ ul.toolbar_submenu li{
 	color:#fff;
 	cursor:pointer;
 	margin:0 5px;
+}
+.btn_logout {
+	padding: 8px;
+}
+.btn_logout:hover {
+	background-color: #707070;
 }
 
 #tinyUrl {
