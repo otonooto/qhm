@@ -83,7 +83,7 @@ function plugin_show_inline()
 		$f_page = rawurlencode($vars['page']);
 		$f_args = rawurlencode($s_args);
 		$ret = <<<EOD
-<a href="$script?plugin=show&amp;show_no=$show_no&amp;show_opt=$f_args&amp;refer=$f_page&amp;digest=$digest" title="$btn_text" style="display:inline-block;width:300px;height:200px;background-color:#eee;text-align:center;line-height:200px;text-decoration:none;" class="img-rounded text-muted">300 x 200</a>
+<a href="$script?plugin=show&amp;show_no=$show_no&amp;show_opt=$f_args&amp;refer=$f_page&amp;digest=$digest" title="$btn_text" style="display:grid;place-items:center;border-radius:6px;width:100%;height:200px;background-color:#F5F5F7;margin-top:5px;margin-bottom:5px;font-size:14px;color:#3F6EB8;" class="img-rounded text-muted">+ 画像</a>
 EOD;
 		return $ret;
 	}
@@ -604,7 +604,8 @@ $(function(){
 	}
 	//指定されたクラスを追加する
 	$imgclass = ' class="' . h($params['class']) . '"';
-
+	// 縦横比に関する属性のようだが、未定義の経緯が不明なため空文字で初期化する
+	$ratio_attr = '';
 
 	if ($params['label'] !== FALSE && $params['label'] != '') {
 		//画像を指定した場合、画像を表示する
@@ -819,7 +820,7 @@ function show_form($page)
 	$msg_maxsize = $qm->replace('plg_attach.maxsize', number_format($maxsize / 1024) . "KB");
 
 	$pass = '';
-	if (ATTACHREF_PASSWORD_REQUIRE or ATTACHREF_UPLOAD_ADMIN_ONLY) {
+	if (exist_plugin('attachref') && ATTACHREF_PASSWORD_REQUIRE or ATTACHREF_UPLOAD_ADMIN_ONLY) {
 		$title = $qm->m['plg_attach'][ATTACHREF_UPLOAD_ADMIN_ONLY ? 'adminpass' : 'password'];
 	}
 	return <<<EOD
@@ -958,7 +959,7 @@ function show_insert_ref($filename)
  * Get Image Size
  *
  * @param string $image_path image's path or URL
- * @return array size of image OR FALSE
+ * @return mixed size of image OR FALSE
  */
 function plugin_show_get_imagesize($image_path = '')
 {
