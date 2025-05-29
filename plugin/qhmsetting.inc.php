@@ -6,6 +6,120 @@ define('PLUGIN_QHMSETTING_USER_INI_FILE', 'qhm_users.ini.txt');
 define('PLUGIN_QHMSETTING_ACCESS_INI_FILE', 'qhm_access.ini.txt');
 define('PLUGIN_QHMSETTING_ALLOW_PASSWD_PATTERN', "/^[!-~]+$/");
 
+enum SetName: string
+{
+	case SEARCH = 'search';
+	case NEW_PAGE = 'newpage';
+	case FILE_LIST = 'filelist';
+	case RECENT_CHANGES = 'recentchanges';
+	case YET_LIST = 'yetlist';
+	case ADD_POST = 'addpost';
+	case QBLOG = 'qblog';
+	case QBLOG_MENUBAR = 'qblogmenubar';
+	case QBLOG_TOP = 'qblogtop';
+	case INFO = 'info';
+	case SITE_NAVIGATOR = 'sitenavigator';
+	case SITE_NAVIGATOR2 = 'sitenavigator2';
+	case MENUBAR = 'menubar';
+	case DESIGN = 'design';
+	case CLOSE = 'close';
+	case CLEAR = 'clear';
+	case CMOD = 'cmod';
+	case SNS = 'sns';
+	case COUNTER = 'counter';
+	case MAIL = 'mail';
+	case MOBILE = 'mobile';
+	case GMAP = 'gmap';
+	case ADMIN = 'admin';
+	case USER_ADMIN = 'useradmin';
+	case LOGOUT = 'logout';
+}
+
+enum CategoryID: string
+{
+	case SEARCH = 'search';
+	case PAGE = 'page';
+	case POST = 'post';
+	case GENERAL = 'general';
+	case TOOL = 'tool';
+	case ACCOUNT = 'account';
+}
+
+class SetItem
+{
+	public readonly string $slug;
+	public string $url;
+	public string $title;
+	public string $subtitle;
+	public bool $limited;
+
+	public function __construct(
+		string $slug,
+		string $url,
+		string $title,
+		string $subtitle,
+		bool $limited,
+	) {
+		$this->slug = $slug;
+		$this->url = $url;
+		$this->title = $title;
+		$this->subtitle = $subtitle;
+		$this->limited = $limited;
+	}
+}
+
+class SetCategory
+{
+	// public readonly string $slug;
+	public readonly string $id;
+	public readonly string $name;
+	/** @var SetItem[] */
+	public array $items;
+
+	public function __construct(
+		string $id,
+		string $name,
+		array $items,
+	) {
+		// 配列の型チェック
+		foreach ($items as $item) {
+			if (!$item instanceof SetItem) {
+				throw new InvalidArgumentException("items は SetItem の配列である必要があります");
+			}
+		}
+
+		$this->id = $id;
+		$this->name = $name;
+		$this->items = $items;
+	}
+}
+
+class SetItems
+{
+	private array $setItems;
+
+	public function __construct(array $setItems)
+	{
+		foreach ($setItems as $category) {
+			if (!$category instanceof SetCategory) {
+				throw new InvalidArgumentException("setItems は SetCategory の配列である必要があります");
+			}
+		}
+
+		$this->setItems = $setItems;
+	}
+
+	public function getAllItems(): array
+	{
+		return $this->setItems;
+	}
+
+	public function getItems(string $catkey): array
+	{
+		return isset($this->setItems[$catkey]) ? $this->setItems[$catkey]->items : [];
+	}
+}
+
 /**
  * qhmsettingが動作するメインの関数
  */
@@ -95,239 +209,237 @@ function plugin_qhmsetting_default()
 	$scrt = $script . '?plugin=qhmsetting&amp;mode=form&amp;phase=';
 	$edit_uri = $script . '?cmd=edit&page=';
 
-	$setlist = [
-		'search' => [
-			'slug' => 'search',
-			'name' => '検索',
-			'items' => [
-				[
-					'slug' => 'search',
-					'url'  => $script . '?cmd=search',
-					'title' => '単語検索',
-					'subtitle' => '単語検索',
-					'limited' => false,
+	$setItems = new SetItems(
+		[
+			new SetCategory(
+				id: CategoryID::SEARCH->value,
+				name: '検索',
+				items: [
+					new SetItem(
+						slug: 'search',
+						url: $script . '?cmd=search',
+						title: '単語検索',
+						subtitle: '単語検索',
+						limited: false,
+					),
+				],
+			),
+			new SetCategory(
+				id: CategoryID::PAGE->value,
+				name: '固定ページ',
+				items: [
+					new SetItem(
+						slug: SetName::NEW_PAGE->value,
+						url: $script . '?plugin=newpage',
+						title: '新規ページ',
+						subtitle: '新規ページの追加',
+						limited: false,
+					),
+					new SetItem(
+						slug: SetName::FILE_LIST->value,
+						url: $script . '?cmd=filelist',
+						title: 'ページ一覧',
+						subtitle: 'ページ一覧',
+						limited: false,
+					),
+					new SetItem(
+						slug: SetName::RECENT_CHANGES->value,
+						url: $script . '?RecentChanges',
+						title: '更新履歴',
+						subtitle: '更新履歴',
+						limited: false,
+					),
+					new SetItem(
+						slug: SetName::YET_LIST->value,
+						url: $script . '?cmd=yetlist',
+						title: 'リンク切れ',
+						subtitle: 'リンク切れ',
+						limited: false,
+					),
 				]
-			],
+			),
+			new SetCategory(
+				id: CategoryID::POST->value,
+				name: 'ブログ',
+				items: [
+					new SetItem(
+						slug: SetName::ADD_POST->value,
+						url: $script . '?cmd=qblog&mode=addpost',
+						title: 'ブログ記事の新規追加',
+						subtitle: 'ブログ記事の新規追加を行います。',
+						limited: false,
+					),
+					new SetItem(
+						slug: SetName::QBLOG->value,
+						url: $script . '?cmd=qblog',
+						title: 'ブログ設定',
+						subtitle: 'ブログの設定を行います。',
+						limited: false,
+					),
+					new SetItem(
+						slug: SetName::QBLOG_MENUBAR->value,
+						url: $edit_uri . 'QBlogMenuBar',
+						title: 'ブログメニュー',
+						subtitle: 'ブログメニューの修正を行います。',
+						limited: false,
+					),
+					new SetItem(
+						slug: SetName::QBLOG_TOP->value,
+						url: $script . '?QBlog',  // TODO: 汎用的な記述に変更
+						title: 'ブログトップ',
+						subtitle: 'ブログのトップへ',
+						limited: false,
+					),
+				],
+			),
+			new SetCategory(
+				id: CategoryID::GENERAL->value,
+				name: 'サイトの設定',
+				items: [
+					new SetItem(
+						slug: SetName::INFO->value,
+						url: $scrt . 'info',
+						title: 'サイト全般',
+						subtitle: 'キーワード、サイト説明、ヘッダー、フッター、アクセス解析タグなどの設定を行います。',
+						limited: false,
+					),
+					new SetItem(
+						slug: SetName::SITE_NAVIGATOR->value,
+						url: $edit_uri . 'SiteNavigator',
+						title: 'ナビ編集',
+						subtitle: 'ナビの編集',
+						limited: false,
+					),
+					new SetItem(
+						slug: SetName::MENUBAR->value,
+						url: $edit_uri . 'MenuBar',
+						title: 'メニュー編集',
+						subtitle: 'メニューの編集',
+						limited: false,
+					),
+					new SetItem(
+						slug: SetName::SITE_NAVIGATOR2->value,
+						url: $edit_uri . 'SiteNavigator2',
+						title: 'フッター編集',
+						subtitle: 'フッターの編集',
+						limited: false,
+					),
+					new SetItem(
+						slug: SetName::DESIGN->value,
+						url: $scrt . 'design',
+						title: 'デザインの変更',
+						subtitle: 'ロゴ画像の設定、ロゴ部分の文字、テンプレートの設定を行います。',
+						limited: false,
+					),
+					new SetItem(
+						slug: SetName::CLOSE->value,
+						url: $scrt . 'close',
+						title: 'サイトの閉鎖／公開',
+						subtitle: '全ページを閉鎖します。閉鎖後は、管理者権限でログインすることで編集、閲覧が可能です。',
+						limited: true,
+					),
+				]
+			),
+			new SetCategory(
+				id: CategoryID::TOOL->value,
+				name: 'ツール',
+				items: [
+					new SetItem(
+						slug: 'clear',
+						url: $scrt . 'clear',
+						title: '高速化設定、キャッシュの初期化',
+						subtitle: '表示を高速化するためのキャッシュ機能を設定、キャッシュの初期化、テンプレートを初期化を行います。',
+						limited: false,
+					),
+					new SetItem(
+						slug: 'chmod',
+						url: $scrt . 'chmod',
+						title: 'ファイル権限設定',
+						subtitle: '削除できない、FTPエラーが起こる原因である「ファイル権限」を設定、チェックします。',
+						limited: true,
+					),
+					new SetItem(
+						slug: 'back',
+						url: $script . '?cmd=dump',
+						title: 'バックアップ',
+						subtitle: 'バックアップをダウンロードできます。フルバックアップ、重要ファイルのみのバックアップなど可能です。',
+						limited: true,
+					),
+					new SetItem(
+						slug: SetName::SNS->value,
+						url: $scrt . 'sns',
+						title: 'ソーシャル連携',
+						subtitle: 'SNSの連携設定をします。',
+						limited: true,
+					),
+					new SetItem(
+						slug: 'counter',
+						url: $scrt . 'counter',
+						title: 'アクセスカウンター',
+						subtitle: 'アクセスカウンターをリセットします。',
+						limited: false,
+					),
+					new SetItem(
+						slug: 'mail',
+						url: $scrt . 'mail',
+						title: 'メール送信設定',
+						subtitle: '送信メールサーバーを設定できます（SMTP送信、GoogleAppsなどの場合）',
+						limited: true,
+					),
+					new SetItem(
+						slug: 'mobile',
+						url: $scrt . 'mobile',
+						title: 'スマホアクセス転送',
+						subtitle: 'スマホ端末からのアクセスを別サイトに転送します。',
+						limited: false,
+					),
+					new SetItem(
+						slug: 'gmap',
+						url: $scrt . 'gmap',
+						title: 'Googleマップキー',
+						subtitle: 'QHMでGoogleマップを使うためのキーを設定します。',
+						limited: false,
+					),
+				],
+			),
+			new SetCategory(
+				id: CategoryID::ACCOUNT->value,
+				name: 'アカウント',
+				items: [
+					new SetItem(
+						slug: SetName::ADMIN->value,
+						url: $scrt . 'admin',
+						title: 'ユーザー名、パスワードの変更',
+						subtitle: '編集用のユーザー名、パスワードの設定を行います。',
+						limited: false,
+					),
+					new SetItem(
+						slug: SetName::USER_ADMIN->value,
+						url: $scrt . 'user',
+						title: 'アクセス権限設定',
+						subtitle: '特定のページにアクセス権限を設定し、アクセスできるユーザーを追加設定できます。',
+						limited: true,
+					),
+					new SetItem(
+						slug: SetName::LOGOUT->value,
+						url: $script . '?cmd=qhmlogout',
+						title: 'ログアウト',
+						subtitle: 'ログアウトします',
+						limited: false,
+					),
+				],
+			),
 		],
-		'page' => [
-			'slug' => 'page',
-			'name' => '固定ページ',
-			'items' => [
-				[
-					'slug' => 'newpage',
-					'url'  => $script . '?plugin=newpage',
-					'title' => '新規ページ',
-					'subtitle' => '新規ページの追加',
-					'limited' => false,
-				],
-				[
-					'slug' => 'filelist',
-					'url'  => $script . '?cmd=filelist',
-					'title' => 'ページ一覧',
-					'subtitle' => 'ページ一覧',
-					'limited' => false,
-				],
-				[
-					'slug' => 'recentchanges',
-					'url'  => $script . '?RecentChanges',
-					'title' => '更新履歴',
-					'subtitle' => '更新履歴',
-					'limited' => false,
-				],
-				[
-					'slug' => 'yetlist',
-					'url'  => $script . '?cmd=yetlist',
-					'title' => 'リンク切れ',
-					'subtitle' => 'リンク切れ',
-					'limited' => false,
-				],
-			],
-		],
-		'post' => [
-			'slug' => 'post',
-			'name' => 'ブログ',
-			'items' => [
-				[
-					'slug' => 'addpost',
-					'url' => $script . '?cmd=qblog&mode=addpost',
-					'title' => 'ブログ記事の新規追加',
-					'subtitle' => 'ブログ記事の新規追加を行います。',
-					'limited' => false,
-				],
-				[
-					'slug' => 'qblog',
-					'url' => $script . '?cmd=qblog',
-					'title' => 'ブログ設定',
-					'subtitle' => 'ブログの設定を行います。',
-					'limited' => false,
-				],
-				[
-					'slug' => 'qblogmenubar',
-					'url' => $edit_uri . 'QBlogMenuBar',
-					'title' => 'ブログメニュー',
-					'subtitle' => 'ブログメニューの修正を行います。',
-					'limited' => false,
-				],
-				[
-					'slug' => 'qblogtop',
-					'url' => $script . '?QBlog', // TODO: 汎用的な記述に変更
-					'title' => 'ブログトップ',
-					'subtitle' => 'ブログのトップへ',
-					'limited' => false,
-				],
-			],
-		],
-		'general' => [
-			'slug' => 'general',
-			'name' => 'サイトの設定',
-			'items'      => [
-				[
-					'slug' => 'info',
-					'url'  => $scrt . 'info',
-					'title' => 'サイト全般',
-					'subtitle' => 'キーワード、サイト説明、ヘッダー、フッター、アクセス解析タグなどの設定を行います。',
-					'limited' => false,
-				],
-				[
-					'slug' => 'sitenavigator',
-					'url'  => $edit_uri . 'SiteNavigator',
-					'title' => 'ナビ編集',
-					'subtitle' => 'ナビの編集',
-					'limited' => false,
-				],
-				[
-					'slug' => 'menubar',
-					'url'  => $edit_uri . 'MenuBar',
-					'title' => 'メニュー編集',
-					'subtitle' => 'メニューの編集',
-					'limited' => false,
-				],
-				[
-					'slug' => 'sitenavigator2',
-					'url'  => $edit_uri . 'SiteNavigator2',
-					'title' => 'フッター編集',
-					'subtitle' => 'フッターの編集',
-					'limited' => false,
-				],
-				[
-					'slug' => 'design',
-					'url'  => $scrt . 'design',
-					'title' => 'デザインの変更',
-					'subtitle' => 'ロゴ画像の設定、ロゴ部分の文字、テンプレートの設定を行います。',
-					'limited' => false,
-				],
-				[
-					'slug' => 'close',
-					'url'  => $scrt . 'close',
-					'title' => 'サイトの閉鎖／公開',
-					'subtitle' => '全ページを閉鎖します。閉鎖後は、管理者権限でログインすることで編集、閲覧が可能です。',
-					'limited' => true,
-				],
-			],
-		],
-		'tool' => [
-			'slug' => 'tool',
-			'name' => 'ツール',
-			'items'     => [
-				[
-					'slug' => 'clear',
-					'url'  => $scrt . 'clear',
-					'title' => '高速化設定、キャッシュの初期化',
-					'subtitle' => '表示を高速化するためのキャッシュ機能を設定、キャッシュの初期化、テンプレートを初期化を行います。',
-					'limited' => false,
-				],
-				[
-					'slug' => 'chmod',
-					'url'  => $scrt . 'chmod',
-					'title' => 'ファイル権限設定',
-					'subtitle' => '削除できない、FTPエラーが起こる原因である「ファイル権限」を設定、チェックします。',
-					'limited' => true,
-				],
-				[
-					'slug' => 'back',
-					'url'  => $script . '?cmd=dump',
-					'title' => 'バックアップ',
-					'subtitle' => 'バックアップをダウンロードできます。フルバックアップ、重要ファイルのみのバックアップなど可能です。',
-					'limited' => true,
-				],
-				[
-					'slug' => 'sns',
-					'url'  => $scrt . 'sns',
-					'title' => 'ソーシャル連携',
-					'subtitle' => 'SNSの連携設定をします。',
-					'limited' => true,
-				],
-				[
-					'slug' => 'counter',
-					'url'  => $scrt . 'counter',
-					'title' => 'アクセスカウンター',
-					'subtitle' => 'アクセスカウンターをリセットします。',
-					'limited' => false,
-				],
-				[
-					'slug' => 'mail',
-					'url'  => $scrt . 'mail',
-					'title' => 'メール送信設定',
-					'subtitle' => '送信メールサーバーを設定できます（SMTP送信、GoogleAppsなどの場合）',
-					'limited' => true,
-				],
-				[
-					'slug' => 'mobile',
-					'url'  => $scrt . 'mobile',
-					'title' => 'スマホアクセス転送',
-					'subtitle' => 'スマホ端末からのアクセスを別サイトに転送します。',
-					'limited' => false,
-				],
-				[
-					'slug' => 'gmap',
-					'url'  => $scrt . 'gmap',
-					'title' => 'Googleマップキー',
-					'subtitle' => 'QHMでGoogleマップを使うためのキーを設定します。',
-					'limited' => false,
-				],
-			],
-		],
-		'account' => [
-			'slug' => 'account',
-			'name' => 'アカウント',
-			'items'     => [
-				[
-					'slug' => 'admin',
-					'url'  => $scrt . 'admin',
-					'title' => 'ユーザー名、パスワードの変更',
-					'subtitle' => '編集用のユーザー名、パスワードの設定を行います。',
-					'limited' => false,
-				],
-				[
-					'slug' => 'useradmin',
-					'url'  => $scrt . 'user',
-					'title' => 'アクセス権限設定',
-					'subtitle' => '特定のページにアクセス権限を設定し、アクセスできるユーザーを追加設定できます。',
-					'limited' => true,
-				],
-				[
-					'slug' => 'logout',
-					'url'  => $script . '?cmd=qhmlogout',
-					'title' => 'ログアウト',
-					'subtitle' => 'ログアウトします',
-					'limited' => false,
-				],
-			],
-		],
-	];
+	);
 
-	// foreach ($setlist as $cat) {
-	// 	foreach ($cat as $setname => $set) {
-	// 		$cat[$setname]['help'] = '';
-	// 		//--<LimitedSetting>--
-	// 		if ($set['limited']) {
-	// 			$cat[$setname]['limited'] = false;
-	// 		}
-	// 	}
-	// 	//--</LimitedSetting>--
-	// }
-	//--<UnlimitBackup>--
-	//--</UnlimitBackup>--
+	// TODO: 管理者の場合に限定する
+	foreach ($setItems->getAllItems() as $cat) {
+		foreach ($cat->items as $set) {
+			if ($set->limited) {
+				$set->limited = false;
+			}
+		}
+	}
 
 	$html = '';
 
@@ -375,29 +487,20 @@ EOD;
 		<div id="setting__list">
 	EOD;
 
-	$scnt = 0;
-	foreach ($setlist as $cat) {
-		$html .= '<div class="setting__category"><div class="setting__category-name">' . $cat['name'] . '</div>';
-		$html .= '<ul class="cat__' . $cat['slug'] . '">';
+	foreach ($setItems->getAllItems() as $catkey => $cat) {
+		$html .= '<div class="setting__category"><div class="setting__category-name">' . $cat->name . '</div>';
+		$html .= '<ul class="cat__' . $catkey . '">';
 
-		// if ($set['limited']) {
-		// 	$html .= '
-		// <h2><span style="font-weight:bold;color:#666;">' . $set['title'] . '</span></h2>
-		// <p><span style="color:#888;">' . $set['subtitle'] . '</span></p>';
-		// } else {
-		$items = $cat['items'];
+		$items = $cat->items ?? [];
 		foreach ($items as $item) {
-			$html .= '
-			<li><a href="' . $item['url'] . '"><span class="icon icon__' . $item['slug'] . '">' . $item['title'] . '</span></a></li>';
+			if ($item->limited) {
+				$html .= '<li class="limited"><span class="icon icon__' . $item->slug . '">' . $item->title . '</span>
+				<small>' . $item->subtitle . '</small></li>';
+			} else {
+				$html .= '<li><a href="' . $item->url . '"><span class="icon icon__' . $item->slug . '">' . $item->title . '</span></a></li>';
+			}
 		}
-		// }
 		$html .= '</ul></div>';
-
-		// if ($scnt % 2 == 1) {
-		// 	$html .= '</div>';
-		// }
-
-		$scnt++;
 	}
 
 	$html .= <<<EOD
@@ -1354,7 +1457,7 @@ function plugin_qhmsetting_info_getVals($params)
 				1 => "非表示（非推奨・QHMAdminページからログイン）",
 			),
 		),
-		/*		'qhm_access_key' => array(
+		'qhm_access_key' => array(
 			'title' => 'ショートカット',
 			'msg' => '編集時に、ショートカットキーを使うか設定ができます。<br />',
 			'default' => $params['qhm_access_key'],
@@ -1362,7 +1465,7 @@ function plugin_qhmsetting_info_getVals($params)
 				0 => "利用しない",
 				1 => "利用する",
 			),
-		),*/
+		),
 		'autolink' => array(
 			'title' => '自動リンク',
 			'msg' => 'ページ名が長く、「\'」や「"」を利用し、リンクが正常に動かない場合、<br />「オフ」にして下さい<br />',

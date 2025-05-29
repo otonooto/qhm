@@ -103,6 +103,8 @@ $no_toolmenu = array_key_exists($_page, $layout_pages);
 if (isset($vars['disable_toolmenu']) && $vars['disable_toolmenu']) {
 	$is_setting = TRUE;
 }
+// TODO: これがなくても $qtが使えるのがそもそも微妙
+$qt = get_qt();
 
 //---- set ini values for template engine
 $qt->setv('version', QHM_VERSION);
@@ -164,23 +166,6 @@ $qhm_dir = (preg_match('/.*\.php/', $script)) ? dirname($script) : dirname($scri
 $qt->setv('qhm_dir', $qhm_dir);
 
 $qt->setv('clickpad_js', '');
-
-// Set toolbar-specific images
-$_IMAGE['skin']['edit']     = 'edit.png';
-$_IMAGE['skin']['diff']     = 'diff.png';
-$_IMAGE['skin']['upload']   = 'file.png';
-$_IMAGE['skin']['list']     = 'list.png';
-$_IMAGE['skin']['search']   = 'search.png';
-$_IMAGE['skin']['recent']   = 'recentchanges.png';
-$_IMAGE['skin']['backup']   = 'backup.png';
-$_IMAGE['skin']['help']     = 'help.png';
-$_IMAGE['skin']['rss']      = 'rss.png';
-$_IMAGE['skin']['rss10']    = &$_IMAGE['skin']['rss'];
-$_IMAGE['skin']['rss20']    = 'rss20.png';
-$_IMAGE['skin']['rdf']      = 'rdf.png';
-$_IMAGE['skin']['rename']   = 'rename.png';
-$_IMAGE['skin']['menuadmin']   = 'menuadmin.png';
-
 
 // Editable mode preparation
 $qt->setv('editable', check_editable($_page, FALSE, FALSE));
@@ -333,22 +318,22 @@ if (($qt->getv('editable') || ss_admin_check())) {
 			$link_qhm_setting,
 			visible: true,
 		),
-		// 'editboxlink' => new Tool(
-		// 	name: $qm->m['qhm_init']['editboxlink_name'],
-		// 	link: '#msg',
-		// 	class: 'go_editbox',
-		// ),
+		ToolName::EDITBOX_LINK->value => new Tool(
+			name: $qm->m['qhm_init']['editboxlink_name'],
+			link: '#msg',
+			class: 'go_editbox',
+		),
 		ToolName::EDIT_LINK->value  => new Tool(
 			name: $qm->m['qhm_init']['editlink_name'],
 			link: $link_edit,
 			style: 'margin-top:1.1em;',
 		),
-		// 'reflink'     => new Tool(
-		// 	name: $qm->m['qhm_init']['reflink_name'],
-		// 	link: $ref_link,
-		// 	class: $reflink_class,
-		// 	visible: $reflink_visible
-		// ),
+		ToolName::REF_LINK->value => new Tool(
+			name: $qm->m['qhm_init']['reflink_name'],
+			link: $ref_link,
+			class: $reflink_class,
+			visible: $reflink_visible
+		),
 		ToolName::PAGE_LINK->value => new Tool(
 			name: $qm->m['qhm_init']['pagelink_name'],
 			link: '',
@@ -368,7 +353,7 @@ if (($qt->getv('editable') || ss_admin_check())) {
 					link: $link_rename,
 				),
 				ToolName::DEL_LINK->value => new Tool(
-					name: '削除',
+					name: $qm->m['qhm_init']['dellink_name'],
 					link: $link_delete,
 				),
 				ToolName::MAP_LINK->value => new Tool(
@@ -385,34 +370,29 @@ if (($qt->getv('editable') || ss_admin_check())) {
 				),
 			],
 		),
-		// 'qblognewlink' => new Tool(
-		// 	name: '記事の追加',
-		// 	link: $script . '?cmd=qblog&mode=addpost',
-		// ),
-		// 'passwordlink'   => new Tool(
-		// 	name: $qm->m['qhm_init']['passwordlink_name'],
-		// 	link: $link_password,
-		// ),
-		// 'updatelink' => new Tool(
-		// 	name: $qm->m['qhm_init']['updatelink_name'],
-		// 	link: $link_qhm_update,
-		// 	style: 'margin-top:1.1em;',
-		// ),
+		ToolName::QBLOG_NEW_LINK->value => new Tool(
+			name: '記事の追加',
+			link: $script . '?cmd=qblog&mode=addpost',
+		),
+		ToolName::PASSWORD_LINK->value => new Tool(
+			name: $qm->m['qhm_init']['passwordlink_name'],
+			link: $link_password,
+		),
+		ToolName::UPDATE_LINK->value => new Tool(
+			name: $qm->m['qhm_init']['updatelink_name'],
+			link: $link_qhm_update,
+			style: 'margin-top:1.1em;',
+		),
 	]);
 
 	$prevdiv = '';
 	if (isset($_SESSION['temp_design'])) {
-		unset(
-			$tools['editboxlink'],
-			$tools['editlink'],
-			$tools['reflink'],
-			$tools['pagelink'],
-			$tools['sitelink'],
-			$tools['toollink'],
-			$tools['configlink'],
-			$tools['helplink'],
-			$tools['qbloglink']
-		);
+		$tools->removeTool(ToolName::EDITBOX_LINK);
+		$tools->removeTool(ToolName::EDIT_LINK);
+		$tools->removeTool(ToolName::REF_LINK);
+		$tools->removeTool(ToolName::PAGE_LINK);
+		$tools->removeTool(ToolName::CONFIG_LINK);
+		$tools->removeTool(ToolName::QBLOG_NEW_LINK);
 
 		$btn_class = (! isset($_SESSION['temp_skin']) or strlen($_SESSION['temp_skin']) === 0) ? 'local' : '';
 
@@ -467,11 +447,6 @@ if (($qt->getv('editable') || ss_admin_check())) {
 		$tools->removeTool(ToolName::EDIT_LINK);
 		$tools->removeTool(ToolName::REF_LINK);
 		$tools->removeTool(ToolName::PAGE_LINK);
-
-		// $tools['editboxlink']->visible = false;
-		// $tools['editlink']->visible = false;
-		// $tools['reflink']->visible = false;
-		// $tools['pagelink']->visible = false;
 	}
 
 	// `cmd=edit` が含まれるかチェック
@@ -482,11 +457,13 @@ if (($qt->getv('editable') || ss_admin_check())) {
 	}
 
 	if ($readOnly) {
-		$tools['editlink']['visible'] = false;
-		$tools['reflink']['visible'] = false;
+		$tools->removeTool(ToolName::EDITBOX_LINK);
+		$tools->removeTool(ToolName::EDIT_LINK);
+		$tools->removeTool(ToolName::REF_LINK);
 	}
+
 	if (!(bool)ini_get('file_uploads')) {
-		$tools['reflink']['visible'] = false;
+		$tools->removeTool(ToolName::REF_LINK);
 	}
 	if (!file_exists('fwd3/sys/fwd3.txt')) {
 		// unset($tools['toollink']['sub']['fwd3link']);
@@ -513,52 +490,45 @@ if (($qt->getv('editable') || ss_admin_check())) {
 		}
 	}
 	if (! ss_admin_check()) {
-		if (isset($tools['reflink'])) unset($tools['reflink']);
-		if (isset($tools['pagelink'])) unset($tools['pagelink']);
-		if (isset($tools['sitelink'])) unset($tools['sitelink']);
-		if (isset($tools['toollink'])) unset($tools['toollink']);
-		if (isset($tools['configlink'])) unset($tools['configlink']);
-		if (isset($tools['helplink'])) unset($tools['helplink']);
-		if (isset($tools['haikskincustomizer'])) unset($tools['haikskincustomizer']);
-		if (isset($tools['haikpreviewlink'])) unset($tools['haikpreviewlink']);
+		$tools->removeTool(ToolName::REF_LINK);
+		$tools->removeTool(ToolName::PAGE_LINK);
+		$tools->removeTool(ToolName::CONFIG_LINK);
 	} else {
-		// if (isset($tools['passwordlink'])) unset($tools['passwordlink']);
 		$tools->removeTool(ToolName::PASSWORD_LINK);
 	}
 
+	// FrontPageは削除できないので、削除の項目を表示しない
 	if ($_page === $defaultpage) {
+		// TODO: removeToolが第一階層からのunsetしかできないため、リファクタが必要
 		$tools->removeTool(ToolName::DEL_LINK);
-		// $tools['pagelink']->sub['dellink']->visible = false;
 	}
 
 	if (! isset($_COOKIE['QHM_VERSION']) || $_COOKIE['QHM_VERSION'] <= QHM_VERSION || get_qhm_option('update') !== 'vendor') {
 		$tools->removeTool(ToolName::UPDATE_LINK);
-		// unset($tools['updatelink']);
 	}
 
+	// cmd=edit&page=QBlog...の場合
 	if (is_qblog()) {
-		$tools['pagelink']->sub['renamelink']->visible = false;
+		// TODO: removeToolが第一階層からのunsetしかできないため、リファクタが必要
+		$tools->removeTool(ToolName::RENAME_LINK);
 	}
 	if (! is_page($qblog_defaultpage)) {
+		// TODO: 
 		if (isset($tools['qbloglink'])) unset($tools['qbloglink']);
 	}
 
-
 	// レイアウトページの時の管理ウィンドウの制御
 	if ($no_toolmenu) {
+		// TODO: このケースが不明
 		if (! is_bootstrap_skin()) {
-			$tools = array('editlink' => $tools['editlink'], 'reflink' => $tools['reflink'], 'pagelink' => $tools['pagelink']);
+			$tools = array(
+				'editlink' => $tools['editlink'],
+				'reflink' => $tools['reflink'],
+				'pagelink' => $tools['pagelink']
+			);
 		}
 
-		unset($tools['pagelink']['sub']['sharelink']);
-		unset($tools['pagelink']['sub']['renamelink']);
-		unset($tools['pagelink']['sub']['dellink']);
-		unset($tools['pagelink']['sub']['copylink']);
-		unset($tools['pagelink']['sub']['maplink']);
-		unset($tools['pagelink']['sub']['tinyurllink']);
-		if (arg_check('backup') or arg_check('diff')) {
-			$tools['reflink']['visible'] = FALSE;
-		}
+		$tools->removeTool(ToolName::PAGE_LINK);
 	}
 
 	$tools_str = '<ul class="toolbar_menu">';

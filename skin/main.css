@@ -1212,6 +1212,11 @@ width: 260px;
 #setting__list li {
   border-bottom: 1px solid #333;
 }
+#setting__list li.limited {
+  padding: 12px 16px;
+  background-color: #ececec;
+  opacity: 0.6;
+}
 #setting__list li:last-child {
   border-bottom: none;
 }
