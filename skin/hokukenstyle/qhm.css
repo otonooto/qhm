@@ -61,15 +61,26 @@ ul.toolbar_submenu{
 ul.toolbar_menu li{
 	position:relative;
 	color:#fff;
-	padding:0 15px 0 17px;
+	padding:0 16px 0 16px;
 	margin:0 2px;
 	text-decoration:none;
 	height:25px;
 	line-height:25px;
-	background-image:url(../../image/arrow3.png);
-	background-repeat:no-repeat;
-	background-position:left top;
 	cursor:pointer;
+}
+ul.toolbar_menu li.has_children {
+	padding-right: 24px;
+}
+ul.toolbar_menu li.has_children::after {
+	content: '';
+	position: absolute;
+	width: 0;
+	height: 0;
+	border-left: 4px solid transparent;
+	border-right: 4px solid transparent;
+	border-top: 6px solid white;
+	top: 10px;
+	right: 8px;
 }
 ul.toolbar_menu li a{
 	padding:0;

@@ -11,7 +11,6 @@
 enum ToolName: string
 {
 	case CONFIG_LINK = 'configlink';
-	case EDITBOX_LINK = 'editboxlink';
 	case EDIT_LINK = 'editlink';
 	case REF_LINK = 'reflink';
 	case PAGE_LINK = 'pagelink';
@@ -76,19 +75,24 @@ class ToolCollection
 		$this->tools = $tools;
 	}
 
+	public function getAllTools(): array
+	{
+		return $this->tools; // ✅ ツール一覧を取得！
+	}
+
 	public function getTool(ToolName $toolName): ?Tool
 	{
 		return $this->tools[$toolName->value] ?? null; // ✅ 文字列キーを安全に扱う
 	}
 
+	public function addTool(ToolName $toolName, Tool $tool): void
+	{
+		$this->tools[$toolName->value] = $tool; // ✅ 安全にツールを追加・更新！
+	}
+
 	public function removeTool(ToolName $toolName): void
 	{
 		unset($this->tools[$toolName->value]); // ✅ 安全に削除！
-	}
-
-	public function getAllTools(): array
-	{
-		return $this->tools; // ✅ ツール一覧を取得！
 	}
 }
 
@@ -316,12 +320,6 @@ if (($qt->getv('editable') || ss_admin_check())) {
 		ToolName::CONFIG_LINK->value => new Tool(
 			$qm->m['qhm_init']['configlink_name'],
 			$link_qhm_setting,
-			visible: true,
-		),
-		ToolName::EDITBOX_LINK->value => new Tool(
-			name: $qm->m['qhm_init']['editboxlink_name'],
-			link: '#msg',
-			class: 'go_editbox',
 		),
 		ToolName::EDIT_LINK->value  => new Tool(
 			name: $qm->m['qhm_init']['editlink_name'],
@@ -333,42 +331,6 @@ if (($qt->getv('editable') || ss_admin_check())) {
 			link: $ref_link,
 			class: $reflink_class,
 			visible: $reflink_visible
-		),
-		ToolName::PAGE_LINK->value => new Tool(
-			name: $qm->m['qhm_init']['pagelink_name'],
-			link: '',
-			class: 'this_page_tools',
-			visible: true,
-			sub: [
-				ToolName::DIFF_LINK->value => new Tool(
-					name: $qm->m['qhm_init']['difflink_name'],
-					link: $link_diff,
-				),
-				ToolName::BACKUP_LINK->value => new Tool(
-					name: $qm->m['qhm_init']['backuplink_name'],
-					link: $link_backup,
-				),
-				ToolName::RENAME_LINK->value => new Tool(
-					name: $qm->m['qhm_init']['renamelink_name'],
-					link: $link_rename,
-				),
-				ToolName::DEL_LINK->value => new Tool(
-					name: $qm->m['qhm_init']['dellink_name'],
-					link: $link_delete,
-				),
-				ToolName::MAP_LINK->value => new Tool(
-					name: $qm->m['qhm_init']['maplink_name'],
-					link: $link_map,
-				),
-				ToolName::COPY_LINK->value => new Tool(
-					name: $qm->m['qhm_init']['copylink_name'],
-					link: $link_copy,
-				),
-				ToolName::SHARE_LINK->value => new Tool(
-					name: '共有',
-					link: '#',
-				),
-			],
 		),
 		ToolName::QBLOG_NEW_LINK->value => new Tool(
 			name: '記事の追加',
@@ -385,12 +347,11 @@ if (($qt->getv('editable') || ss_admin_check())) {
 		),
 	]);
 
+	// デザインプレビュー中の表示 ----
 	$prevdiv = '';
 	if (isset($_SESSION['temp_design'])) {
-		$tools->removeTool(ToolName::EDITBOX_LINK);
 		$tools->removeTool(ToolName::EDIT_LINK);
 		$tools->removeTool(ToolName::REF_LINK);
-		$tools->removeTool(ToolName::PAGE_LINK);
 		$tools->removeTool(ToolName::CONFIG_LINK);
 		$tools->removeTool(ToolName::QBLOG_NEW_LINK);
 
@@ -431,36 +392,78 @@ if (($qt->getv('editable') || ss_admin_check())) {
 			</div>
 		';
 	}
+	// ---- デザインプレビュー中の表示
 
-	//unset menu2 for 2-column style
-	if (
-		strpos($style_name, '3_') !== 0 &&
-		!(file_exists("skin/hokukenstyle/$style_name/pukiwiki.skin.php") &&
-			strpos(file_get_contents("skin/hokukenstyle/$style_name/pukiwiki.skin.php"), '#{$menubar2_tag}') !== FALSE)
-	) {
-		// unset($tools['sitelink']['sub']['menu2link']);
-	}
 
-	// ページではない＝プラグインで生成されたページ・メッセージ
-	if (!$is_page) {
-		$tools->removeTool(ToolName::EDITBOX_LINK);
-		$tools->removeTool(ToolName::EDIT_LINK);
-		$tools->removeTool(ToolName::REF_LINK);
-		$tools->removeTool(ToolName::PAGE_LINK);
-	}
+	// ３カラムデザイン以外（2カラムデザイン）のケース ----
+	// メニュー2の編集項目を表示しない
+	// TODO: toolbarからメニュー編集は行わないので、設定画面に移設する
+	// if (
+	// 	strpos($style_name, '3_') !== 0 &&
+	// 	!(file_exists("skin/hokukenstyle/$style_name/pukiwiki.skin.php") &&
+	// 		strpos(file_get_contents("skin/hokukenstyle/$style_name/pukiwiki.skin.php"), '#{$menubar2_tag}') !== FALSE)
+	// ) {
+	// 	unset($tools['sitelink']['sub']['menu2link']);
+	// }
+	// ---- ３カラムデザイン以外（2カラムデザイン）のケース
 
+
+	// ページの編集画面 ----
 	// `cmd=edit` が含まれるかチェック
-	// TODO: そもそも、編集ボックスへのリンクは不要かも。
-	$editboxlink = $tools->getTool(ToolName::EDITBOX_LINK);
-	if ($editboxlink !== null) {
-		$editboxlink->visible = $vars['cmd'] === 'edit' && $vars['page'] !== null && $vars['page'] !== '';
+	$is_editing = $vars['cmd'] === 'edit' && $vars['page'] !== null && $vars['page'] !== '';
+	if ($is_editing) {
+		$tools->removeTool(ToolName::EDIT_LINK);
+		$tools->removeTool(ToolName::QBLOG_NEW_LINK);
+		$tools->addTool(
+			ToolName::PAGE_LINK,
+			new Tool(
+				name: $qm->m['qhm_init']['pagelink_name'],
+				link: '',
+				class: 'this_page_tools has_children',
+				sub: [
+					ToolName::DIFF_LINK->value => new Tool(
+						name: $qm->m['qhm_init']['difflink_name'],
+						link: $link_diff,
+					),
+					ToolName::BACKUP_LINK->value => new Tool(
+						name: $qm->m['qhm_init']['backuplink_name'],
+						link: $link_backup,
+					),
+					ToolName::RENAME_LINK->value => new Tool(
+						name: $qm->m['qhm_init']['renamelink_name'],
+						link: $link_rename,
+					),
+					ToolName::DEL_LINK->value => new Tool(
+						name: $qm->m['qhm_init']['dellink_name'],
+						link: $link_delete,
+					),
+					ToolName::MAP_LINK->value => new Tool(
+						name: $qm->m['qhm_init']['maplink_name'],
+						link: $link_map,
+					),
+					ToolName::COPY_LINK->value => new Tool(
+						name: $qm->m['qhm_init']['copylink_name'],
+						link: $link_copy,
+					),
+					ToolName::SHARE_LINK->value => new Tool(
+						name: '共有',
+						link: '#',
+					),
+				],
+			),
+		);
 	}
+	// ---- ページの編集画面
 
-	if ($readOnly) {
-		$tools->removeTool(ToolName::EDITBOX_LINK);
+
+	// プラグインで生成されたページ、または閲覧権限飲みの場合 ----
+	// lib/html.php:152 で定義した $is_page を利用して
+	// 「ページではない」ことを判定
+	if (!$is_page || $readOnly) {
 		$tools->removeTool(ToolName::EDIT_LINK);
 		$tools->removeTool(ToolName::REF_LINK);
 	}
+	// ---- プラグインで生成されたページ
 
 	if (!(bool)ini_get('file_uploads')) {
 		$tools->removeTool(ToolName::REF_LINK);
@@ -491,7 +494,6 @@ if (($qt->getv('editable') || ss_admin_check())) {
 	}
 	if (! ss_admin_check()) {
 		$tools->removeTool(ToolName::REF_LINK);
-		$tools->removeTool(ToolName::PAGE_LINK);
 		$tools->removeTool(ToolName::CONFIG_LINK);
 	} else {
 		$tools->removeTool(ToolName::PASSWORD_LINK);
@@ -527,37 +529,35 @@ if (($qt->getv('editable') || ss_admin_check())) {
 				'pagelink' => $tools['pagelink']
 			);
 		}
-
-		$tools->removeTool(ToolName::PAGE_LINK);
 	}
 
 	$tools_str = '<ul class="toolbar_menu">';
 	foreach ($tools->getAllTools() as $lv1key => $lv1) {
+		$class = !empty($lv1->class) ? sprintf(' class="%s"', $lv1->class) : '';
+
 		// visible
 		if ($lv1->visible) {
 			// link
 			if ($lv1->visible) {
-				$tools_str .= '<li style="background-image:none;' . $style . '"' . $lv1->$class . '><a href="' . $lv1->link . '"' . $target . ' id="' . $lv1key . '">' . $lv1->name . '</a>';
+				$style = !empty($lv1->style) ? sprintf(' style="%s"', $lv1->style) : '';
+				$tools_str .= '<li' . $style . $class . '>
+					<a href="' . $lv1->link . '" id="' . $lv1key . '">' . $lv1->name . '</a>';
 			} else {
-				$class = isset($lv1['class']) ? ' class="' . $lv1['class'] . '"' : '';
-				$style = ($style != '') ? ' style="position:relative;' . $style . '"' : ' style="position:relative;"';
+				$style = ($lv1->style != '') ? ' style="position:relative;' . $style . '"' : ' style="position:relative;"';
 				$tools_str .= '<li' . $style . $class . '>' . $lv1['name'];
 			}
-		}
-		// invisible
-		else {
-			$tools_str .= '<li style="display: none;">' . $lv1->name;
 		}
 
 		// sub menu
 		if ($lv1->visible && $lv1->sub != null && $lv1->sub != []) {
 			$tools_str .= '<ul class="toolbar_submenu">';
 			foreach ($lv1->sub as $lv2key => $lv2) {
+				$class = !empty($lv2->class) ? sprintf(' class="%s"', $lv2->class) : '';
+				$style = !empty($lv2->style) ? sprintf(' style="%s"', $lv2->style) : '';
+
 				if ($lv2->visible) {
-					$class = $lv2->class;
-					$style = $lv2->style;
-					$tools_str .= '<li class="' . $class . '" style="' . $style . '">';
-					if ($lv2->link != '') {
+					$tools_str .= '<li' . $class . $style . '>';
+					if (!empty($lv2->link)) {
 						$tools_str .= '<a href="' . $lv2->link . '" id="' . $lv2key . '">' . $lv2->name . '</a>';
 					} else {
 						$tools_str .= $lv2->name;

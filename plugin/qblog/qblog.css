@@ -19,6 +19,12 @@ margin: 10px 0;
 #qblog_list {
 /* 	background-color: red; */
 }
+.qblog_closed_message {
+  margin-block: 16px;
+  background-color: #ffecec;
+  border: 2px solid #ff8f8f;
+  border-radius: 16px;
+}
 .qblog-list .pagination li a{
   font-size: 12px;
 }

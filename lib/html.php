@@ -752,38 +752,27 @@ EOD;
 
 
 	$addscript = <<< EOD
-<script data-qhm-plugin="edit">
-$(function(){
+		<script data-qhm-plugin="edit">
+		$(function(){
 
-  if ($("h2.title").length == 0) {
-    $(".edit_form").before('<h2 class="title">$s_page の編集</h2>');
-  }
-  $("h2.title").css({fontSize: "14px", marginBottom: '15px'});
+			if ($("h2.title").length == 0) {
+				$(".edit_form").before('<h2 class="title">$s_page の編集</h2>');
+			}
+			$("h2.title").css({fontSize: "14px", marginBottom: '15px'});
 
-  $("#editboxlink").on("click", function(){
-    if ($(".qblog_edit_form").length) {
-      QHM.scroll(".qblog_edit_form", 300);
-    }
-    else {
-      QHM.scroll("h2.title", 300);
-    }
-    $("#msg").focus();
-    return false;
-  });
+			if ($("#preview_body").length) {
+			}
+			else {
+				$(".qhm-eyecatch").hide();
 
-  if ($("#preview_body").length) {
-  }
-  else {
-    $(".qhm-eyecatch").hide();
-
-    setTimeout(function(){
-      $("html, body").animate({scrollTop: $("h2.title").offset().top}, 300);
-      $("#msg").focus();
-    }, 25);
-  }
-});
-</script>
-EOD;
+				setTimeout(function(){
+					$("html, body").animate({scrollTop: $("h2.title").offset().top}, 300);
+					$("#msg").focus();
+				}, 25);
+			}
+		});
+		</script>
+	EOD;
 	$qt->appendv_once("plugin_edit_form_script", 'lastscript', $addscript);
 
 	// List of attached files to the page by hokuken.com
