@@ -28,16 +28,16 @@ function plugin_qblog_head_convert()
 	if ($qblog_close) {
 		if (ss_admin_check()) {
 			$closed_msg = '
-<div class="qblog_info alert alert-danger qblog_closed_message">
-	<button class="close" data-dismiss="alert">×</button>
-	<p>ブログは閉鎖されています。管理者以外のブログのトップ・個別の記事にアクセスがあった場合は、<b>トップページへ転送</b>されます。
-	</p>
-	<p>
-		※ブログメニュー上のリストも管理者以外には表示されません。
-	</p>
-	<p><a href="' . $script . '?cmd=qblog#misc">ブログ設定（その他）へ</a></p>
-</div>
-';
+				<div class="qblog_info alert alert-danger qblog_closed_message">
+					<button class="close" data-dismiss="alert">×</button>
+					<p>ブログは閉鎖されています。管理者以外のブログのトップ・個別の記事にアクセスがあった場合は、<b>トップページへ転送</b>されます。
+					</p>
+					<p>
+						※ブログメニュー上のリストも管理者以外には表示されません。
+					</p>
+					<p><a href="' . $script . '?cmd=qblog#misc">ブログ設定（その他）へ</a></p>
+				</div>
+			';
 		} else {
 			redirect($defaultpage);
 		}

@@ -461,7 +461,7 @@ vertical-align:middle;
 
 #content {
 border:none;
-padding:0 16px;
+padding: 16px;
 }
 
 #lastmodified {
@@ -1332,4 +1332,8 @@ span.icon:before {
 }
 .icon__logout:before {
   background-image: url('../image/icons/Logout.png');
+}
+
+.qhmsetting__source_code {
+  margin-top: 16px;
 }

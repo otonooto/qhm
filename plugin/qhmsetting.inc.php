@@ -163,14 +163,11 @@ function plugin_qhmsetting_action()
 
 
 	if (function_exists($func)) {
-		$ret = '<div class="admin"><p><a href="' . $script . '">トップ</a> &gt; <a href="' . $script . '?cmd=qhmsetting">設定一覧</a> &gt; here</p>'
+		$ret = '<div class="admin">'
 			. plugin_qhmsetting_phpversion_block()
 			. $func() . '</div>';
 	} else {
-
-		$title = '
-			<p><a href="' . $script . '">トップ</a> &gt; here</p>'
-			. plugin_qhmsetting_phpversion_block()
+		$title = plugin_qhmsetting_phpversion_block()
 			. '<h2>' . $params['page_title'] . ' の設定<br /><small>by QHM v' . QHM_VERSION . '</small></h2>';
 		$ret = $title . plugin_qhmsetting_default();
 	}
@@ -180,7 +177,7 @@ function plugin_qhmsetting_action()
 			$ret = $_SESSION['flash_msg'] . $ret;
 		} else {
 			$ret = '
-				<div style="background-color:#fee;border:1px solid #c99;padding: 10px;">
+				<div style="margin-top: 16px;" class="alert alert-info">
 					' . $_SESSION['flash_msg'] . '
 				</div>
 			' . $ret;
@@ -203,7 +200,7 @@ function plugin_qhmsetting_action()
 
 function plugin_qhmsetting_default()
 {
-	global $script;
+	global $script, $site_close_all, $qblog_close;
 	$qt = get_qt();
 
 	$scrt = $script . '?plugin=qhmsetting&amp;mode=form&amp;phase=';
@@ -487,6 +484,8 @@ EOD;
 		<div id="setting__list">
 	EOD;
 
+	// var_dump($qblog_close);
+
 	foreach ($setItems->getAllItems() as $catkey => $cat) {
 		$html .= '<div class="setting__category"><div class="setting__category-name">' . $cat->name . '</div>';
 		$html .= '<ul class="cat__' . $catkey . '">';
@@ -496,6 +495,14 @@ EOD;
 			if ($item->limited) {
 				$html .= '<li class="limited"><span class="icon icon__' . $item->slug . '">' . $item->title . '</span>
 				<small>' . $item->subtitle . '</small></li>';
+			} elseif ($item->slug === SetName::QBLOG->value) {
+				$closed_class = $qblog_close ? 'class="qblog__closed alert-danger"' : '';
+				$closed_message = $qblog_close ? '<span class="text-danger">（閉鎖中）</span>' : '';
+				$html .= '<li ' . $closed_class . '><a href="' . $item->url . '"><span class="icon icon__' . $item->slug . '">' . $item->title . $closed_message . '</span></a></li>';
+			} elseif ($item->slug === SetName::CLOSE->value) {
+				$closed_class = $site_close_all ? 'class="site__closed alert-danger"' : '';
+				$closed_message = $site_close_all ? '<span class="text-danger">（閉鎖中）</span>' : '';
+				$html .= '<li ' . $closed_class . '><a href="' . $item->url . '"><span class="icon icon__' . $item->slug . '">' . $item->title . $closed_message . '</span></a></li>';
 			} else {
 				$html .= '<li><a href="' . $item->url . '"><span class="icon icon__' . $item->slug . '">' . $item->title . '</span></a></li>';
 			}
@@ -2977,8 +2984,14 @@ background-color: #2575cf;
 }
 </style>
 ';
-	$body .= '<ul>';
+	$body .= '<h2>アクセスカウンターのリセット</h2>';
 
+	if ($list === []) {
+		$body .= '<p>カウンターを設置して数値があれば表示されます。</p>';
+		return $body;
+	}
+
+	$body .= '<ul>';
 	foreach ($list as $fname => $pname) {
 		$url = $script . '?' . rawurlencode($pname);
 		$reset_url = $script . '?cmd=qhmsetting&amp;phase=counter&amp;mode=form&amp;reset='
@@ -2988,7 +3001,6 @@ background-color: #2575cf;
 			. $reset_url . '\'" class="btn btn-primary" ><a href="' . $url . '"> ' . $pname .
 			'</a> </li>' . "\n";
 	}
-
 	$body .= '</ul>';
 
 	return $body;
@@ -3209,7 +3221,7 @@ function plugin_qhmsetting_clear_msg($error = '')
 			: nl2br('削除できなかったファイル' . "\n" . $error);
 
 		$_SESSION['flash_msg'] = <<<EOD
-<h2>削除を完了しました</h2>
+<p><b>削除を完了しました</b></p>
 <p>テンプレートキャッシュを削除しました</p>
 $log_msg
 EOD;
@@ -3234,7 +3246,7 @@ EOD;
 			: nl2br('削除できなかったファイル' . "\n" . $error);
 
 		$_SESSION['flash_msg'] = <<<EOD
-<h2>削除を完了しました</h2>
+<p><b>削除を完了しました</b></p>
 <p>検索用キャッシュを削除しました</p>
 $log_msg
 EOD;
@@ -3259,7 +3271,7 @@ EOD;
 			: nl2br('削除できなかったファイル' . "\n" . $error);
 
 		$_SESSION['flash_msg'] = <<<EOD
-<h2>削除を完了しました</h2>
+<p><b>削除を完了しました</b></p>
 <p>haik用キャッシュを削除しました</p>
 $log_msg
 EOD;
@@ -3282,7 +3294,7 @@ EOD;
 
 		plugin_qhmsetting_update_ini();
 
-		$_SESSION['flash_msg'] = '<h2>高速化設定の変更完了</h2><p>キャッシュ機能を、' . $msg . '</p>';
+		$_SESSION['flash_msg'] = '<p><b>高速化設定の変更完了</b></p><p>キャッシュ機能を、' . $msg . '</p>';
 		redirect($script . '?cmd=qhmsetting&mode=form&phase=clear');
 
 		return '<p>キャッシュ機能を、' . $msg . '</p>' . '<p><a href="' . $script . '?cmd=qhmsetting">設定に戻る</a></p>';
@@ -3302,7 +3314,7 @@ EOD;
 		}
 
 		if (count($files) > 0) {
-			$_SESSION['flash_msg'] = '<h2>高速化キャッシュの削除完了</h2>';
+			$_SESSION['flash_msg'] = '<p><b>高速化キャッシュの削除完了</b></p>';
 			$_SESSION['flash_msg'] .= '<p>以下のファイルを削除しました</p>
 <ul>
 <li>'
@@ -3335,7 +3347,7 @@ EOD;
 			}
 		}
 		$_SESSION['flash_msg'] = <<< HTML
-<h2>プラグインキャッシュの削除完了</h2>
+<p><b>プラグインキャッシュの削除完了</b></p>
 <p>以下のファイルを削除しました。</p>
 <ul>
 HTML;
@@ -3428,7 +3440,7 @@ function plugin_qhmsetting_close_msg($error = '')
 	plugin_qhmsetting_update_ini();
 
 	$_SESSION['flash_msg'] = <<<EOD
-<h2>$msg</h2>
+<p><b>$msg</b></p>
 <p>$note</p>
 EOD;
 
@@ -3493,7 +3505,7 @@ function plugin_qhmsetting_mobile_msg()
 	plugin_qhmsetting_update_ini();
 
 	$ret =  <<<EOD
-<h2>転送設定完了</h2>
+<p><b>転送設定完了</b></p>
 <p>%REP%</p>
 EOD;
 
@@ -3559,7 +3571,7 @@ function plugin_qhmsetting_gmap_msg()
 	plugin_qhmsetting_update_ini();
 
 	return <<<EOD
-<h2>転送設定完了</h2>
+<p><b>転送設定完了</b></p>
 <p>Google Maps API Keyを設定しました。<br />
 {$vars['qhmsetting']['googlemaps_apikey']}</p>
 <p><a href="{$script}?plugin=qhmsetting" style="font-weight:bold;background-color:#ff6;">戻る</a></p>

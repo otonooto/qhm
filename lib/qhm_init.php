@@ -24,6 +24,7 @@ enum ToolName: string
 	case QBLOG_NEW_LINK = 'qblognewlink';
 	case PASSWORD_LINK = 'passwordlink';
 	case UPDATE_LINK = 'updatelink';
+	case TO_TOP = 'totop';
 }
 
 class ToolEx
@@ -88,6 +89,11 @@ class ToolCollection
 	public function addTool(ToolName $toolName, Tool $tool): void
 	{
 		$this->tools[$toolName->value] = $tool; // ✅ 安全にツールを追加・更新！
+	}
+
+	public function prependTool(ToolName $toolName, Tool $tool): void
+	{
+		$this->tools = [$toolName->value => $tool] + $this->tools; // ✅ 先頭に追加
 	}
 
 	public function removeTool(ToolName $toolName): void
@@ -315,7 +321,8 @@ if (($qt->getv('editable') || ss_admin_check())) {
 		$layout_class = "";
 	}
 
-	// `array<Tool>` 型を明示
+	// toolsの作成
+	// ページの通常表示で表示するツールを生成
 	$tools = new ToolCollection([
 		ToolName::CONFIG_LINK->value => new Tool(
 			$qm->m['qhm_init']['configlink_name'],
@@ -408,55 +415,72 @@ if (($qt->getv('editable') || ss_admin_check())) {
 	// ---- ３カラムデザイン以外（2カラムデザイン）のケース
 
 
-	// ページの編集画面 ----
+	// ページの編集画面で表示するツールの設定 ----
 	// `cmd=edit` が含まれるかチェック
-	$is_editing = $vars['cmd'] === 'edit' && $vars['page'] !== null && $vars['page'] !== '';
-	if ($is_editing) {
-		$tools->removeTool(ToolName::EDIT_LINK);
-		$tools->removeTool(ToolName::QBLOG_NEW_LINK);
-		$tools->addTool(
-			ToolName::PAGE_LINK,
-			new Tool(
-				name: $qm->m['qhm_init']['pagelink_name'],
-				link: '',
-				class: 'this_page_tools has_children',
-				sub: [
-					ToolName::DIFF_LINK->value => new Tool(
-						name: $qm->m['qhm_init']['difflink_name'],
-						link: $link_diff,
-					),
-					ToolName::BACKUP_LINK->value => new Tool(
-						name: $qm->m['qhm_init']['backuplink_name'],
-						link: $link_backup,
-					),
-					ToolName::RENAME_LINK->value => new Tool(
-						name: $qm->m['qhm_init']['renamelink_name'],
-						link: $link_rename,
-					),
-					ToolName::DEL_LINK->value => new Tool(
-						name: $qm->m['qhm_init']['dellink_name'],
-						link: $link_delete,
-					),
-					ToolName::MAP_LINK->value => new Tool(
-						name: $qm->m['qhm_init']['maplink_name'],
-						link: $link_map,
-					),
-					ToolName::COPY_LINK->value => new Tool(
-						name: $qm->m['qhm_init']['copylink_name'],
-						link: $link_copy,
-					),
-					ToolName::SHARE_LINK->value => new Tool(
-						name: '共有',
-						link: '#',
-					),
-				],
-			),
-		);
+	if (isset($vars['cmd'])) {
+		$is_editing = $vars['cmd'] === 'edit' && $vars['page'] !== null && $vars['page'] !== '';
+		if ($is_editing) {
+			$tools->removeTool(ToolName::EDIT_LINK);
+			$tools->removeTool(ToolName::QBLOG_NEW_LINK);
+			// 「このページの」で表示する項目の生成
+			$tools->addTool(
+				ToolName::PAGE_LINK,
+				new Tool(
+					name: $qm->m['qhm_init']['pagelink_name'],
+					link: '',
+					class: 'this_page_tools has_children',
+					sub: [
+						ToolName::DIFF_LINK->value => new Tool(
+							name: $qm->m['qhm_init']['difflink_name'],
+							link: $link_diff,
+						),
+						ToolName::BACKUP_LINK->value => new Tool(
+							name: $qm->m['qhm_init']['backuplink_name'],
+							link: $link_backup,
+						),
+						ToolName::RENAME_LINK->value => new Tool(
+							name: $qm->m['qhm_init']['renamelink_name'],
+							link: $link_rename,
+						),
+						ToolName::DEL_LINK->value => new Tool(
+							name: $qm->m['qhm_init']['dellink_name'],
+							link: $link_delete,
+						),
+						ToolName::MAP_LINK->value => new Tool(
+							name: $qm->m['qhm_init']['maplink_name'],
+							link: $link_map,
+						),
+						ToolName::COPY_LINK->value => new Tool(
+							name: $qm->m['qhm_init']['copylink_name'],
+							link: $link_copy,
+						),
+						ToolName::SHARE_LINK->value => new Tool(
+							name: '共有',
+							link: '#',
+						),
+					],
+				),
+			);
+		}
 	}
 	// ---- ページの編集画面
 
 
-	// プラグインで生成されたページ、または閲覧権限飲みの場合 ----
+	// 設定ページの場合の表示 ----
+	if ($is_setting && ($vars['mode'] === null || $vars['mode'] === '')) {
+		$tools->removeTool(ToolName::CONFIG_LINK);
+		$tools->prependTool(
+			ToolName::TO_TOP,
+			new Tool(
+				name: 'トップ',
+				link: $script,
+			),
+		);
+	}
+	// ---- 設定ページの場合の表示
+
+
+	// プラグインで生成されたページ、または閲覧権限のみの場合 ----
 	// lib/html.php:152 で定義した $is_page を利用して
 	// 「ページではない」ことを判定
 	if (!$is_page || $readOnly) {
@@ -515,19 +539,19 @@ if (($qt->getv('editable') || ss_admin_check())) {
 		$tools->removeTool(ToolName::RENAME_LINK);
 	}
 	if (! is_page($qblog_defaultpage)) {
-		// TODO: 
-		if (isset($tools['qbloglink'])) unset($tools['qbloglink']);
+		// TODO: 削除？
+		$tools->removeTool(ToolName::QBLOG_NEW_LINK);
 	}
 
 	// レイアウトページの時の管理ウィンドウの制御
 	if ($no_toolmenu) {
 		// TODO: このケースが不明
 		if (! is_bootstrap_skin()) {
-			$tools = array(
-				'editlink' => $tools['editlink'],
-				'reflink' => $tools['reflink'],
-				'pagelink' => $tools['pagelink']
-			);
+			// $tools = array(
+			// 	'editlink' => $tools['editlink'],
+			// 	'reflink' => $tools['reflink'],
+			// 	'pagelink' => $tools['pagelink']
+			// );
 		}
 	}
 
@@ -581,6 +605,7 @@ if (($qt->getv('editable') || ss_admin_check())) {
 
 	$logout_label = $qm->m['qhm_init']['logoutlink_name'];
 
+	$tk_append = '';
 	$tk_append .= '
 	<!-- Toolbar upper -->
 	<div id="toolbar" class="toolbar">

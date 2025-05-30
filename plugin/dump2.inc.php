@@ -47,7 +47,6 @@ function plugin_dump2_action()
 	$qm = get_qm();
 
 	$style_name = '..';
-	$back_url = '<p><a href="' . $script . '">' . $qm->m['frontpage'] . '</a> &gt; <a href="' . $script . '?cmd=qhmsetting">' . $qm->m['preferences'] . '</a> &gt; here</p>';
 
 	$editable = ss_admin_check();
 	if (!$editable) {
@@ -75,7 +74,7 @@ function plugin_dump2_action()
 					$retcode = plugin_dump2_upload();
 					$msg = $retcode['code'] ? $qm->m['plg_dump']['restore_success'] : $qm->m['plg_dump']['restore_failed'];
 					$body .= $retcode['msg'];
-					return array('msg' => $msg, 'body' => $back_url . $body);
+					return array('msg' => $msg, 'body' => $body);
 					break;
 				case PLUGIN_DUMP_FULL:
 					$body = plugin_dump2_download_full();
@@ -94,7 +93,7 @@ function plugin_dump2_action()
 		$msg = $qm->m['plg_dump']['title_bk'];
 	}
 
-	return array('msg' => $msg, 'body' => $back_url . $body);
+	return array('msg' => $msg, 'body' => $body);
 }
 
 /////////////////////////////////////////////////

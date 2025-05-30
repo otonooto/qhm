@@ -191,15 +191,6 @@ $(function(){
 });
 </script>
 
-
-<p>
-	<a href="<?php echo h($script)?>">トップ</a> <span class="devider"> &gt; </span>
-	<a href="<?php echo h($script)?>?cmd=qhmsetting">設定一覧</a> <span class="devider"> &gt; </span>
-	here
-	<a href="<?php echo $script?>?QBlog" style="display:block;float:right;"><i class="icon icon-home"></i>ブログトップ</a>
-</p>
-
-
 <h2>ブログ設定</h2>
 
 
@@ -308,8 +299,7 @@ $(function(){
 					</div>
 
 					<ul class="nav nav-pills" style="margin-left: 0;">
-						<li><a href="<?php echo h($script.'?'.$qblog_defaultpage)?>">&gt;&gt; 表示を確認する</a></li>
-
+						<li><a href="<?php echo h($script.'?'.$qblog_defaultpage)?>">&gt;&gt; ブログのトップページ（タイトルの確認）</a></li>
 					</ul>
 
 
@@ -628,34 +618,6 @@ $(function(){
 						<input type="hidden" name="cmd" value="qblog" />
 					</form>
 				</div>
-
-			<?php if ($move_amebro) : ?>
-				<div id="qblog_move_ameba"	class="well well-small">
-					<h2>アメブロからの引越し</h2>
-					<p>アメブロからブログを引越します</p>
-					<p style="font-size:90%;color:#666;">※ アメンバー限定記事は引っ越せません</p>
-
-					<form action="<?php echo h($script) ?>" method="post">
-						<div>
-							<label>アメブロのID：
-							<input type="text" name="ameba_id" value="" />
-							</label>
-						</div>
-						<div>
-							<label>アメブロのパスワード：
-							<input type="password" name="ameba_password" value="" />
-							</label>
-						</div>
-						<div class="form-actions">
-							<input type="submit" value="次へ" class="btn btn-primary" />
-						</div>
-						<input type="hidden" name="mode" value="move_confirm" />
-						<input type="hidden" name="cmd" value="qblog" />
-					</form>
-				</div>
-			<?php endif; ?>
-
-
 			</div>
 		</div>
 	</div>

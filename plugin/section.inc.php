@@ -72,6 +72,8 @@ function plugin_section_convert()
 
     $is_eyecatch = FALSE;
 
+    $video_html = '';
+
     foreach ($args as $arg) {
         if (preg_match('/\A(left|center|right)\z/i', $arg, $mts)) {
             $h_align = strtolower($mts[1]);
