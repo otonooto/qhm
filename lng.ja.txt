@@ -2554,8 +2554,6 @@ err_plg_not_implement = "plugin=$1 is not implemented."
 ;///////////////////////////////////////
 [qhm_init]
 
-toplink_name      = "トップへ"
-editboxlink_name  = "編集ボックスへ"
 editlink_name     = "編集"
 reflink_name      = "添付"
 pagelink_name     = "このページの"
@@ -2563,6 +2561,7 @@ difflink_name     = "差分"
 backuplink_name   = "バックアップ"
 renamelink_name   = "名前変更"
 maplink_name      = "マップ"
+dellink_name      = "削除"
 copylink_name     = "複製"
 tinyurllink_name  = "URL"
 sitelink_name     = "サイトの"

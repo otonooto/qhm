@@ -2,17 +2,10 @@
 //[For admin window & other plugin] copyright(c) 2007 Hokuken lab.
 //------------------------------------------------------------------------
 $(document).ready(function(){
-	var badBrowser=(/MSIE ((5\.5)|6)/.test(navigator.userAgent) && navigator.platform == "Win32");
-	if (badBrowser) {
-		$('div.toolbar_upper').wrap('<div class="ie6dummy"></div>');
-		$('div.toolbar_upper').css('position','absolute');
-		$('div.other_plugin').wrap('<div class="ie6dummy"></div>');
-		$('div.other_plugin').css('position','absolute');
-	}
-
-
 	if ($('#msg').length <= 0) {
 		$(".go_editbox").hide();
+		$(".this_page_tools").hide();
+		$(".toolbar_blog").hide();
 
 		// プレビュー
 		var previewScreen;
@@ -50,7 +43,7 @@ $(document).ready(function(){
 		});
 
 		if (window.name === "devicepreview") {
-			$(".toolbar_upper").hide();
+			$(".toolbar").hide();
 		}
 	}
 	//編集画面
@@ -74,34 +67,14 @@ $(document).ready(function(){
 		});
 	}
 
-
 	$("ul.toolbar_menu > li[class!=nouse]")
 		.hover(
 			function() {
 				$(this).addClass('tool_menuHover');
-				$(this).css('background-position','right -25px');
-				$(">ul:not(:animated)",this).show();
-			},
-			function() {
-				$(this).removeClass('tool_menuHover');
-				$(this).css('background-position','right 0');
-			  	$(">ul",this).hide();
-			}
-		)
-		.click(function(e){
-			return toolbar_make_link($(this));
-		});
-
-	$("ul.toolbar_menu_min > li[class!=nouse]")
-		.hover(
-			function() {
-				$(this).addClass('tool_menuHover');
-				$(this).css({'background-position':'0 -25px'});
 				$(">ul:not(:animated)",this).css({left:0, top:$(this).parent().height()}).show();
 			},
 			function() {
 				$(this).removeClass('tool_menuHover');
-				$(this).css('background-position','0 0');
 			  	$(">ul",this).hide();
 			}
 		)
@@ -111,7 +84,7 @@ $(document).ready(function(){
 	$("ul.toolbar_submenu li[class!=nouse]")
 		.hover(
 			function(){
-				$(this).css({'background-color':'#999999'});
+				$(this).css({'background-color':'#666'});
 			},
 			function(){
 				$(this).css({'background-color':'transparent'});
@@ -136,20 +109,6 @@ $(document).ready(function(){
 			$li.css("background-color", $li.data("backgroundColor"));
 		}
 	);
-
-	$("div.toolkit_switch")
-		.click(function(){
-			if ($(this).hasClass('expand')) {
-				$("#toolbar_upper_max").hide();
-				$("#toolbar_upper_min").show();
-				document.cookie = 'toolbar_size=min';
-			}
-			else {
-				$("#toolbar_upper_max").show();
-				$("#toolbar_upper_min").hide();
-				document.cookie = 'toolbar_size=max';
-			}
-		});
 
 	function toolbar_make_link(obj) {
 		if (obj.children('a').length <= 0) {
@@ -183,7 +142,7 @@ $(document).ready(function(){
 		"i": function(){if(typeof window.qhm_has_swfu != "undefined"){$("#keybind_list").modal("hide");tb_show("", "swfu/index.php?KeepThis=true&TB_iframe=true");}},
 		"t": function(){$("html,body").animate({scrollTop:0}, "fast")},
 		"q": function(){location.href=$("#searchlink").attr("href")},
-		"m": function(){window.open("http://manual.haik-cms.jp/")},
+		"m": function(){window.open("http://manual.haik-cms.jp/")}, // TODO: URLを変更する
 		"Shift+/": function(){$("#keybind_list").modal()},
 		"n": function(){location.href=$("#newlink").attr("href")},
 		"l": function(){location.href=$("#pagelistlink").attr("href")},

@@ -116,7 +116,7 @@ function plugin_list_create_html($pages_data, $withfilename = FALSE)
 				$head . '</strong></a>';
 			$html .= '
 	<tr class="plugin_list_navi">
-	<td  colspan=2>
+	<td colspan=2>
 		<a href="#plugin_list_index_' . $head_cnt . '" id="head_' . $head_cnt . '"><strong>' . $head . '</strong></a>
 	</td>';
 		}
@@ -124,7 +124,7 @@ function plugin_list_create_html($pages_data, $withfilename = FALSE)
 		foreach ($pages as $page => $data) {
 			$html .= '
 	<tr class="plugin_list_pagerow">
-	<td>
+	<td class="plugin_list_pageinfo">
 		<div class="plugin_list_pagename"><a href="' . h($script . '?' . $data['urlencoded']) . '">' . $data['sanitized'] . $data['title'] . '</a></div>
 		<div class="plugin_list_commands">';
 
@@ -155,7 +155,6 @@ function plugin_list_create_html($pages_data, $withfilename = FALSE)
 	}
 
 	$body = '
-<p><a href="' . $script . '">トップページ</a> &gt; here</p>
 <div class="plugin_list">
 	<h2>ページの一覧</h2>
 	<div id="plugin_list_index">
@@ -175,10 +174,13 @@ function plugin_list_create_html($pages_data, $withfilename = FALSE)
 
 	$beforescript = '
 <style type="text/css">
-#wrapper{
-	width: 880px;
+html, body {
+font-size: 10px;
 }
-#header,#navigator,#navigator2,#footer,#licence,#wrap_sidebar,#wrap_sidebar2,#toolbar_upper_max,#toolbar_upper_min{
+#wrapper{
+	max-width: 740px;
+}
+#header,#navigator,#navigator2,#footer,#licence,#wrap_sidebar,#wrap_sidebar2{
 	display: none;
 }
 #wrap_content {
@@ -189,9 +191,10 @@ function plugin_list_create_html($pages_data, $withfilename = FALSE)
 }
 .plugin_list {
 	margin-bottom: 16px;
+	font-size: 14px;
 }
 .plugin_list table {
-	width: 850px;
+	max-width: 740px;
 }
 .plugin_list td {
 	border-bottom: 1px solid #DFDFDF;
@@ -205,31 +208,39 @@ tr.plugin_list_pagerow td {
 }
 thead td {
 	background: #eee;
-	padding: 2px 0px 2px 10px;
-	font-size: 16px;
+	padding: 4px 10px;
+	font-size: 1.6rem;
+	vertical-align: middle;
+}
+tbody td.plugin_list_pageinfo {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	padding-block: 10px;
+	padding-inline: 12px;
 }
 .plugin_list_pagename {
 	font-size: 16px;
 	font-weight: bold;
-	margin: 8px 0px 4px 10px;
+	margin: 0;
 }
 .plugin_list_pagename a{
 	color: inherit;
 	text-decoration: none;	
 }
 .plugin_list_commands {
-	font-size: 12px;
-	margin: 0px 0px 0px 10px;
+	font-size: 1.3rem;
+	margin: 0;
 	opacity: 0;
 }
 .plugin_list_filename {
-	margin: 0px 0px 0px 10px;
-	font-size: 12px;
+	margin: 0;
+	font-size: 1.2rem;
 	color: #666;
 	max-width: 620px;
 }
 .plugin_list_mtime {
-	font-size: 12px;
+	font-size: 1.3rem;
 	padding: 10px;
 	white-space: nowrap;
 	width: 190px;

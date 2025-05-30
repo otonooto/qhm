@@ -1143,10 +1143,12 @@ function qblog_update_categories($force = FALSE)
 
 	// カテゴリ毎のファイルを取得し、属するページ数をカウント
 	$files = glob(CACHEQBLOG_DIR . '*.qbc.dat');
-	foreach ($files as $file) {
-		$cat = decode(basename($file, '.qbc.dat'));
-		$pages = count($categories[$cat]);
-		$cat_data .= $cat . "\t" . $pages . "\n";
+	if (!empty($files)) { // ファイルがある場合のみループ実行
+		foreach ($files as $file) {
+			$cat = decode(basename($file, '.qbc.dat'));
+			$pages = isset($categories[$cat]) ? count($categories[$cat]) : 0;
+			$cat_data .= $cat . "\t" . $pages . "\n";
+		}
 	}
 
 	// カテゴリの一覧を作成

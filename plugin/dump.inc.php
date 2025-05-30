@@ -139,7 +139,6 @@ body {background-color: #E7E7E7;}
 	$qt->appendv('beforescript', $head);
 
 	$style_name = '..';
-	$back_url = '<p><a href="' . $script . '">' . $qm->m['frontpage'] . '</a> &gt; <a href="' . $script . '?cmd=qhmsetting">' . $qm->m['preferences'] . '</a> &gt; ' . $qm->m['here'] . '</p>';
 
 	$editable = ss_admin_check();
 	if (!$editable) {
@@ -167,7 +166,7 @@ body {background-color: #E7E7E7;}
 					$retcode = plugin_dump_upload();
 					$msg = $retcode['code'] ? $qm->m['plg_dump']['restore_success'] : $qm->m['plg_dump']['restore_failed'];
 					$body .= $retcode['msg'];
-					return array('msg' => $msg, 'body' => $back_url . $body);
+					return array('msg' => $msg, 'body' => $body);
 					break;
 				case PLUGIN_DUMP_FULL:
 					$body = plugin_dump_download_full();
@@ -186,7 +185,7 @@ body {background-color: #E7E7E7;}
 		$msg = $qm->m['plg_dump']['title_bk'];
 	}
 
-	return array('msg' => $msg, 'body' => $back_url . $body);
+	return array('msg' => $msg, 'body' => $body);
 }
 
 

@@ -123,18 +123,14 @@ function plugin_qblog_action()
 				if (! glob(DATA_DIR . encode($qblog_page_prefix) . '*')) {
 					$vars['hash'] = 'misc';
 					$qblog_info .= '
-	<p>
-		<b>アメブロをお持ちの方：</b><br />
-		<a href="#qblog_move_ameba" data-tab="move" class="btn">アメブロからの引越し</a>に進んでください。
-	</p>
-	<p>
-		<b>QHMプロの簡易ブログをご利用の方：</b><br />
-		<a href="#qblog_move_eblog" data-tab="move" class="btn">簡易ブログからの引越し</a>に進んでください。
-	</p>
-	<p>
-		<b>ブログを利用されていない方：</b><br />
-		<a href="' . $script . '?cmd=qblog&mode=addpost" class="btn">さっそく、新しい記事を投稿しましょう！</a>
-	</p>';
+						<p>
+							<b>ブログのトップを確認</b><br />
+							<a href="' . $script . '?' . $qblog_defaultpage . '" class="btn">ブログのトップページを確認する</a>
+						</p>
+						<p>
+							<b>ブログの記事の追加</b><br />
+							<a href="' . $script . '?cmd=qblog&mode=addpost" class="btn">さっそく、新しい記事を投稿しましょう。</a>
+						</p>';
 				}
 				$qblog_info .= '
 </div>

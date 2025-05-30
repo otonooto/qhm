@@ -106,6 +106,7 @@ class QHM_Template
 		}
 		return false;
 	}
+
 	function setv($key = '', $value = '')
 	{
 		return $this->set_value($key, $value);

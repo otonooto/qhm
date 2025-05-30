@@ -3,7 +3,7 @@ $(function(){
 
   if ($("#preview_bar").length > 0)
   {
-    $(".toolbar_upper").hide();
+    $(".toolbar").hide();
 
     /* check save before leave */
     $(".qhm-skin-customizer-menu form").on("change", function(){
