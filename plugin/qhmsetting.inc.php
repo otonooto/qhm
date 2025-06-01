@@ -11,6 +11,7 @@ enum SetName: string
 	case SEARCH = 'search';
 	case NEW_PAGE = 'newpage';
 	case FILE_LIST = 'filelist';
+	case TINY_CODE = 'tinycode';
 	case RECENT_CHANGES = 'recentchanges';
 	case YET_LIST = 'yetlist';
 	case ADD_POST = 'addpost';
@@ -237,6 +238,13 @@ function plugin_qhmsetting_default()
 						url: $script . '?cmd=filelist',
 						title: 'ページ一覧',
 						subtitle: 'ページ一覧',
+						limited: false,
+					),
+					new SetItem(
+						slug: SetName::TINY_CODE->value,
+						url: $script . '?cmd=update_tinycode',
+						title: '短縮URL一覧',
+						subtitle: '',
 						limited: false,
 					),
 					new SetItem(
