@@ -483,7 +483,8 @@ if (($qt->getv('editable') || ss_admin_check())) {
 	// プラグインで生成されたページ、または閲覧権限のみの場合 ----
 	// lib/html.php:152 で定義した $is_page を利用して
 	// 「ページではない」ことを判定
-	if (!$is_page || $readOnly) {
+	$is_update_tinycode = (isset($vars['cmd']) && $vars['cmd'] == 'update_tinycode');
+	if (!$is_page || $readOnly || $is_update_tinycode) {
 		$tools->removeTool(ToolName::EDIT_LINK);
 		$tools->removeTool(ToolName::REF_LINK);
 	}
