@@ -78,8 +78,7 @@ function plugin_search_search_form($s_word = '', $type = '', $bases = [])
 		$and_check = ' checked="checked"';
 	}
 
-	$qt->setv('beforescript', '
-	<style type="text/css">
+	$style = '<style type="text/css">
 	#qhm_search_form {padding: 0;}
 	.qhm_search_form * {padding: 0;margin: 0;font-weight: normal;}
 	input[type=checkbox], input[type=radio] {margin:0;}
@@ -119,7 +118,9 @@ function plugin_search_search_form($s_word = '', $type = '', $bases = [])
     align-items: center;
 		letter-spacing: 1px;
 	}
-	</style>');
+	</style>';
+
+	$qt->appendv('beforescript', $style);
 
 	$base_option = '';
 	if (!empty($bases)) {

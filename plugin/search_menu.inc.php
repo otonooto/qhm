@@ -10,37 +10,72 @@
 
 function plugin_search_menu_convert()
 {
-	global $script;
-	$qm = get_qm();
-	
-	return <<<EOF
-<div id="searchmenu">
-<h2>{$qm->m['plg_search_menu']['hdr']}</h2>
-<form action="{$script}" method="get">
-<div style="text-align:center">
-  <div class="form-group">
-    <div class="input-group">
-    	<input type="text" name="word" value="" tabindex="1" accesskey="k" class="form-control input-sm" />
-      <span class="input-group-btn">
-    	  <input type="submit" value="{$qm->m['plg_search']['btn']}" tabindex="2" accesskey="s" class="btn btn-default btn-sm" />
-      </span>
-    </div>
+  global $script;
+  $qm = get_qm();
+  $qt = get_qt();
+
+  $style = '  <style type="text/css">
+  #qhm_search_menu_form {padding: 0;}
+  .qhm_search_form * {padding: 0;margin: 0;font-weight: normal;}
+  input[type=checkbox], input[type=radio] {margin:0;}
+  .wrap_search_input {display:flex;width: 100%;max-width: 320px;}
+  .search_text_input {
+    max-width: 80%;
+    border: 1px #ccc solid;
+    border-right: 0;
+  	border-top-left-radius: 6px;
+    border-bottom-left-radius: 6px;
+  	padding: 4px;
+  }
+  .search_text_button {
+  	border: 1px #1790d6 solid;
+  	border-right: 0;
+  	background-color: #1790d6;
+  	border-top-right-radius: 6px;
+  	border-bottom-right-radius: 6px;
+  	width: 20%;
+  	color: #ffffff;
+  }
+  .qhm_search_form{
+  	display: flex;
+  	flex-direction: column;
+  	gap: 6px;
+  	margin-top: 12px;
+  }
+  .wrap_search_select {
+  	display: flex;
+  	flex-wrap: wrap;
+  	gap: 12px;
+  	align-items: center;
+  }
+  .search_select {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+  	letter-spacing: 1px;
+  }
+  </style>';
+
+  $qt->appendv('beforescript', $style);
+
+  return <<<EOF
+<form action="{$script}" method="get" class="qhm_search_form" id="qhm_search_menu_form">
+	<div class="wrap_search_input">
+		<input type="text" class="search_text_input" name="word" value="" size="50" accesskey="k" tabindex="1" />
+    <input type="submit" value="{$qm->m['plg_search']['btn']}" tabindex="2" accesskey="s" class="search_text_button" />
   </div>
-  <div class="form-group">
-    <label for="and_search" class="radio-inline" style="display:inline-block;line-height:normal">
-    	<input type="radio" name="type" value="AND" checked="checked" id="and_search" tabindex="3" accesskey="a" />{$qm->m['plg_search']['lbl_and']}
+  <div class="wrap_search_select">
+    <label for="_p_search_AND" class="search_select">
+      <input type="radio" name="type" id="and_search" value="AND" tabindex="3" accesskey="a" /> {$qm->m['plg_search']['lbl_and']}
     </label>
-    <label for="or_search" class="radio-inline" style="display:inline-block;line-height:normal">
-      <input type="radio" name="type" value="OR" id="or_search" tabindex="3" accesskey="o" />{$qm->m['plg_search']['lbl_or']}
+    <label for="_p_search_OR" class="search_select">
+      <input type="radio" name="type" id="or_search"  value="OR" tabindex="3" accesskey="o" /> {$qm->m['plg_search']['lbl_or']}
     </label>
   </div>
+
 
 	<input type="hidden" name="cmd" value="search" />
 	<input type="hidden" name="encode_hint" value="ぷ" />
-</div>
 </form>
-</div>
 EOF;
-
 }
-?>
