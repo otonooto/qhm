@@ -109,6 +109,7 @@ function plugin_list_create_html($pages_data, $withfilename = FALSE)
 	// $pages_dataのArray内部を表示
 	// echo '<pre>';
 	// var_dump($pages_data);
+	// echo '</pre>';
 	// exit;
 
 	$head_cnt = 0;
