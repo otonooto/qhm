@@ -142,7 +142,7 @@ $(document).ready(function(){
 		"i": function(){if(typeof window.qhm_has_swfu != "undefined"){$("#keybind_list").modal("hide");tb_show("", "swfu/index.php?KeepThis=true&TB_iframe=true");}},
 		"t": function(){$("html,body").animate({scrollTop:0}, "fast")},
 		"q": function(){location.href=$("#searchlink").attr("href")},
-		"m": function(){window.open("http://manual.haik-cms.jp/")}, // TODO: URLを変更する
+		"m": function(){window.open("https://github.com/otonooto/qhm/")},
 		"Shift+/": function(){$("#keybind_list").modal()},
 		"n": function(){location.href=$("#newlink").attr("href")},
 		"l": function(){location.href=$("#pagelistlink").attr("href")},
