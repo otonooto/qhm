@@ -621,6 +621,7 @@ function format_date($val, $paren = FALSE)
 	global $date_format, $time_format, $weeklabels;
 
 	$val += ZONETIME;
+	$date_format = 'Y/m/d';
 
 	$date = date($date_format, $val) .
 		' (' . $weeklabels[date('w', $val)] . ') ' .
@@ -628,6 +629,31 @@ function format_date($val, $paren = FALSE)
 
 	return $paren ? '(' . $date . ')' : $date;
 }
+
+// Format date string
+function format_date_Ymdw($val, $paren = FALSE)
+{
+	global $date_format, $weeklabels;
+
+	$val += ZONETIME;
+	$date_format = 'Y/m/d';
+
+	$date = date($date_format, $val) .
+		' (' . $weeklabels[date('w', $val)] . ') ';
+
+	return $paren ? '(' . $date . ')' : $date;
+}
+
+// Format date string
+function format_date_His($val)
+{
+	global $time_format;
+
+	$val += ZONETIME;
+	$date = date($time_format, $val);
+	return $date;
+}
+
 
 // Get short string of the passage, 'N seconds/minutes/hours/days/years ago'
 function get_passage($time, $paren = TRUE)

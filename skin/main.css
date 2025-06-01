@@ -483,11 +483,11 @@ margin:5px 0;
 }
 
 #body h3 {
-margin:15px 0 3px;
+margin: 15px 0 10px 0px;
 }
 
 #body h4 {
-margin:10px 0 0 3px;
+margin:10px 0 10px 0;
 }
 
 #body ul {
@@ -851,7 +851,7 @@ width:80%;
 div.contents:before {
 background-color:#999;
 color:#fff;
-content:"������";
+content:"目次";
 display:block;
 font-size:12px;
 font-weight:700;
@@ -1264,6 +1264,10 @@ span.icon:before {
 .icon__filelist:before {
   background-image: url('../image/icons/List.png');
 }
+.icon__tinycode:before {
+  background-image: url('../image/icons/List.png');
+}
+
 .icon__recentchanges:before {
   background-image: url('../image/icons/History.png');
 }
@@ -1336,4 +1340,22 @@ span.icon:before {
 
 .qhmsetting__source_code {
   margin-top: 16px;
+}
+
+/* cmd=update_tinycode
+短縮URLの管理画面のスタイル */
+.admin ul#list__tinycode {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+pre.tinycode_url {
+  margin: 0;
+  padding: 4px 8px;
+  border: 1px solid gray;
+  border-radius: 4px;
+  background-color: #efefef;
 }

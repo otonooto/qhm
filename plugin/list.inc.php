@@ -38,23 +38,27 @@ function plugin_list_getlist($withfilename = FALSE)
 
 function plugin_list_array($pages)
 {
+	global $script;
 	$qm = get_qm();
 
 	$symbol = ' ';
 	$other = 'zz';
 	$list = [];
 	$cnt = 0;
+
 	//並び替える
 	foreach ($pages as $file => $page) {
 		$pgdata = [];
 		$pgdata['urlencoded']  = rawurlencode($page);
 		$pgdata['sanitized']   = htmlspecialchars($page, ENT_QUOTES);
 		$pgdata['passage'] = get_pg_passage($page, FALSE);
-		$pgdata['mtime'] = date('Y年m月d日 H時i分s秒', filemtime(get_filename($page)));
-
+		$pgdata['mtime'] = format_date(filemtime(get_filename($page)));
+		$pgdata['date'] = format_date_Ymdw(filemtime(get_filename($page)));
+		$pgdata['time'] = format_date_His(filemtime(get_filename($page)));
 		$pgdata['title'] = get_page_title($page);
 		$pgdata['title'] = ($pgdata['title'] == $pgdata['sanitized']) ? '' : '（' . $pgdata['title'] . '）';
 		$pgdata['filename'] = htmlspecialchars($file);
+		$pgdata['tinycode'] = get_tiny_code($pgdata['sanitized']) ?? '';
 
 		$head = (preg_match('/^([A-Za-z])/', $page, $matches)) ? $matches[1] : (preg_match('/^([ -~])/', $page, $matches) ? $symbol : $other);
 
@@ -102,7 +106,12 @@ function plugin_list_create_html($pages_data, $withfilename = FALSE)
 	$qt = get_qt();
 	$qt->setv('jquery_include', true);
 
-	//echo '<pre>';var_dump($pages_data);exit;
+	// $pages_dataのArray内部を表示
+	// echo '<pre>';
+	// var_dump($pages_data);
+	// echo '</pre>';
+	// exit;
+
 	$head_cnt = 0;
 	$indexies = [];
 	foreach ($pages_data as $head => $pages) {
@@ -134,23 +143,32 @@ function plugin_list_create_html($pages_data, $withfilename = FALSE)
 				$label = $cmddata['label'];
 
 				$cmds[] = '
-			<a href="' . h(sprintf($fmt, $script, $data['urlencoded'])) . '" class="plugin_list_page_' . h($cmd) . '">' . h($label) . '</a>';
+				<a href="' . h(sprintf($fmt, $script, $data['urlencoded'])) . '" class="plugin_list_page_' . h($cmd) . '">' . h($label) . '</a>';
 			}
 			$html .= join(' | ', $cmds);
 
-			$html .= '
-		</div>
-		' . $data['passage'];
+			$html .= '</div>'
+				. $data['passage'];
+
+			$page_url = $script . '?' . $data['urlencoded'];
+			$tiny_url = $script . '?go=' . $data['tinycode'];
+			$edit_tiny_url = $script . '?cmd=update_tinycode&page=' . $data['urlencoded'];
+
+			$html .= '<div class="plugin_list_normal_url">通常URL：<a href="' . $page_url . '">' . $page_url . '</a></div>';
+			$html .= '<div class="plugin_list_tiny_url">短縮URL：<a href="' . $tiny_url . '">' . $tiny_url . '
+			<a href="' . $edit_tiny_url . '">（設定）</a></div>';
+
 			if ($withfilename) {
-				$html .= '
-	    <div class="plugin_list_filename">ファイル名： ' . h($data['filename']) . '</div>   ';
+				$html .= '<div class="plugin_list_filename">ファイル名：' . h($data['filename']) . '</div>   ';
 			}
 			$html .= '
-	</td>
-	<td class="plugin_list_mtime">
-		' . h($data['mtime']) . '
-	</td>
-	</tr>';
+				</td>
+				<td class="plugin_list_mtime">
+					' . h($data['date']) . '<br/>
+					' . h($data['time']) . '
+				</td>
+				</tr>
+			';
 		}
 	}
 
@@ -233,6 +251,8 @@ tbody td.plugin_list_pageinfo {
 	margin: 0;
 	opacity: 0;
 }
+.plugin_list_normal_url,
+.plugin_list_tiny_url,
 .plugin_list_filename {
 	margin: 0;
 	font-size: 1.2rem;
@@ -243,7 +263,8 @@ tbody td.plugin_list_pageinfo {
 	font-size: 1.3rem;
 	padding: 10px;
 	white-space: nowrap;
-	width: 190px;
+	width: auto;
+	text-align: right;
 }
 #plugin_list_index {
 	text-align:center;

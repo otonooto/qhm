@@ -11,6 +11,7 @@ enum SetName: string
 	case SEARCH = 'search';
 	case NEW_PAGE = 'newpage';
 	case FILE_LIST = 'filelist';
+	case TINY_CODE = 'tinycode';
 	case RECENT_CHANGES = 'recentchanges';
 	case YET_LIST = 'yetlist';
 	case ADD_POST = 'addpost';
@@ -237,6 +238,13 @@ function plugin_qhmsetting_default()
 						url: $script . '?cmd=filelist',
 						title: 'ページ一覧',
 						subtitle: 'ページ一覧',
+						limited: false,
+					),
+					new SetItem(
+						slug: SetName::TINY_CODE->value,
+						url: $script . '?cmd=update_tinycode',
+						title: '短縮URL一覧',
+						subtitle: '',
 						limited: false,
 					),
 					new SetItem(
@@ -2948,8 +2956,9 @@ EOD;
 function plugin_qhmsetting_counter_form($error = '')
 {
 	global $script, $vars;
-	global $other_plugins;
-	$hlp_counter  = '';
+	$qt = get_qt();
+	$body = '';
+	$style = '';
 
 	//reset
 	$message = '';
@@ -2965,7 +2974,7 @@ function plugin_qhmsetting_counter_form($error = '')
 
 	$list = get_existpages('counter', '.count');
 
-	$body = '
+	$style = '
 <style type="text/css">
 ul {
 list-style-type:none;
@@ -2984,24 +2993,53 @@ background-color: #2575cf;
 }
 </style>
 ';
+	$qt->appendv($style);
+
 	$body .= '<h2>アクセスカウンターのリセット</h2>';
 
+	$how_to_reset = '<h3>カウンターを完全に削除する方法</h3>
+	<p>アクセスカウンターを完全に削除するには、qhmフォルダ内の counter ディレクトリ内の .count という拡張子のファイルを削除します。</p>
+	';
+
 	if ($list === []) {
-		$body .= '<p>カウンターを設置して数値があれば表示されます。</p>';
+		$body .= '<p>カウンターを設置して、計測が開始されたらページとリセットボタンが表示されます。</p>
+<h3>カウンターの設置方法</h3>
+<p><a href="' . $script . '?cmd=edit&page=SiteNavigator2">フッター</a>に、以下を記載する</p>
+<h4>方法1</h4>
+<p>記述</p>
+<pre>#counter</pre>
+<p>表示　Counter: 2, today: 1, yesterday: 0<br>
+説明　Coutnerが合計、todayが本日、yesterdayが昨日</p>
+<br>
+<h4>方法2</h4>
+<p>記述</p>
+<pre>&counter();</pre>
+<p>表示　2<br>
+説明　本日のアクセス数</p>
+<br>
+<h4>方法3</h4>
+<p>記述</p>
+<pre>a:&counter(total); t:&counter(today); y:&counter(yesterday);</pre>
+<p>表示　a:2 t:1 y:0</p>';
+
+		$body .= $how_to_reset;
 		return $body;
 	}
 
-	$body .= '<ul>';
+	$body .= '<p>ページのアクセスカウンターを0にします。</p>';
+	$body .= '<div>';
 	foreach ($list as $fname => $pname) {
 		$url = $script . '?' . rawurlencode($pname);
 		$reset_url = $script . '?cmd=qhmsetting&amp;phase=counter&amp;mode=form&amp;reset='
 			. rawurlencode($fname);
 
-		$body .= '<li><input type="button" value="リセット" onclick="javascript:location.href=\''
-			. $reset_url . '\'" class="btn btn-primary" ><a href="' . $url . '"> ' . $pname .
-			'</a> </li>' . "\n";
+		$body .= '<p>
+		<input type="button" value="リセット" onclick="javascript:location.href=\''
+			. $reset_url . '\'" class="btn btn-primary" /> - <a href="' . $url . '">' . $pname . '</a>
+		</p>';
 	}
-	$body .= '</ul>';
+	$body .= '</div>';
+	$body .= $how_to_reset;
 
 	return $body;
 }
