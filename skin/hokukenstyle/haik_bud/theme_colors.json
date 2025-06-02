@@ -1,32 +1,32 @@
 [
 {
-  "name": "cyan",
-  "color": "#00BCD4",
-  "note": "水色"
+  "name": "forest",
+  "color": "#4E3B31",
+  "note": "Forest"
 },
 {
-  "name": "blue",
-  "color": "#03A9F4",
-  "note": "青"
+  "name": "desert",
+  "color": "#C2B280",
+  "note": "Desert"
 },
 {
-  "name": "red",
-  "color": "#F44336",
-  "note": "赤"
+  "name": "mountain",
+  "color": "#A3B1B5",
+  "note": "Mountain"
 },
 {
-  "name": "orange",
-  "color": "#FF9800",
-  "note": "オレンジ"
+  "name": "ocean",
+  "color": "#003B5C",
+  "note": "Ocean"
 },
 {
-  "name": "brown",
-  "color": "#795548",
-  "note": "茶色"
+  "name": "rocky",
+  "color": "#7B6A4D",
+  "note": "Rocky"
 },
 {
-  "name": "green",
-  "color": "#4CAF50",
-  "note": "緑"
+  "name": "jungle",
+  "color": "#2E5B3C",
+  "note": "Jungle"
 }
 ]
