@@ -1,0 +1,32 @@
+[
+{
+  "name": "forest",
+  "color": "#4E3B31",
+  "note": "Forest"
+},
+{
+  "name": "desert",
+  "color": "#C2B280",
+  "note": "Desert"
+},
+{
+  "name": "mountain",
+  "color": "#A3B1B5",
+  "note": "Mountain"
+},
+{
+  "name": "ocean",
+  "color": "#003B5C",
+  "note": "Ocean"
+},
+{
+  "name": "rocky",
+  "color": "#7B6A4D",
+  "note": "Rocky"
+},
+{
+  "name": "jungle",
+  "color": "#2E5B3C",
+  "note": "Jungle"
+}
+]

@@ -621,6 +621,20 @@ function format_date($val, $paren = FALSE)
 	global $date_format, $time_format, $weeklabels;
 
 	$val += ZONETIME;
+	$date_format = 'Y-m-d';
+
+	$date = date($date_format, $val) .
+		' (' . $weeklabels[date('w', $val)] . ') ' .
+		date($time_format, $val);
+
+	return $paren ? '(' . $date . ')' : $date;
+}
+
+function format_date_by_slash($val, $paren = FALSE)
+{
+	global $date_format, $time_format, $weeklabels;
+
+	$val += ZONETIME;
 	$date_format = 'Y/m/d';
 
 	$date = date($date_format, $val) .
@@ -629,6 +643,7 @@ function format_date($val, $paren = FALSE)
 
 	return $paren ? '(' . $date . ')' : $date;
 }
+
 
 // Format date string
 function format_date_Ymdw($val, $paren = FALSE)

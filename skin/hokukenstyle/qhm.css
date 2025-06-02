@@ -47,7 +47,7 @@ ul.toolbar_menu {
 }
 ul.toolbar_submenu{
 	list-style:none;
-	background:transparent url('../../image/admin_bg.png');
+	background: rgba(0,0,0,0.6);
 	margin:0;
 	padding:2px 0;
 	border:1px solid #666;
