@@ -11,7 +11,7 @@
 // PukiWiki version / Copyright / Licence
 
 define('S_VERSION', '1.4.7');
-define('QHM_VERSION', '8.0.0');  // version
+define('QHM_VERSION', '8.0.2');  // version
 define('QHM_OPTIONS', 'update=download; support=false; banner=true');
 define(
 	'S_COPYRIGHT',
