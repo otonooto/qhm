@@ -14,7 +14,7 @@ backup/*
 count/*
 swfu/d/*
 swfu/data/*
-skin/hokukenstyle/*
+# skin/hokukenstyle/*
 vendor
 
 # Development
