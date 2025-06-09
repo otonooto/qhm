@@ -20,7 +20,7 @@ return array(
 
 		'palette_color' => array(
 			'type'        => 'theme_color',
-			'value'       => 'cyan',
+			'value'       => 'forest',
 			'title'       => 'テーマカラー',
 			'description' => 'テーマカラーを選びます',
 		),

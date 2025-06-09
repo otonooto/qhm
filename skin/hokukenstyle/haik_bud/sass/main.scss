@@ -1,34 +1,10 @@
+// base
+@import "reset";
 @import "colors";
-
-// reset bootstrap
-h1, h2, h3, h4, h5 {
-  margin: 0;
-  padding: 0;
-}
-.navbar-default {
-  background-color: inherit;
-  border-color: inherit;
-  .navbar-brand {
-    color: inherit;
-  }
-  .navbar-toggle {
-    border-color: inherit;
-  }
-  .navbar-collapse,
-  .navbar-form {
-    border-color: inherit;
-  }
-}
-
-// common
-html, body {
-  font-size: 12px;
-}
-
-.qhm-head-copy {
-  h1 {
-    font-size: 1.1rem;
-  }
-}
+@import "layout";
 
 // plugin
+@import "qblog";
+
+// common
+@import "common";

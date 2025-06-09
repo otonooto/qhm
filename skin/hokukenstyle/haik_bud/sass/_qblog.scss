@@ -1,0 +1,167 @@
+// QBlog用のスタイル
+.haik_bud_post_list {
+  display: flex;
+  flex-direction: column;
+  @include MinWidth-SM {
+    flex-direction: initial;
+    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(214px, 1fr));
+    gap: 32px;
+  }
+  .post_item {
+    display: flex;
+    justify-content: space-between;
+    padding-block-start: 1rem;
+    padding-block-end: 1rem;
+    border-bottom: 1px solid var(--border-color);
+    @include MinWidth-SM {
+      flex-direction: column-reverse;
+      border-bottom: none;
+    }
+  }
+  .post_link {
+    transition: all 0.3s ease-in-out;
+    &:hover {
+      transform: scale(1.05);
+      text-decoration: blink;
+    }
+  }
+  .post_thumbnail {
+    display: block;
+    background-repeat: no-repeat;
+    background-size: cover;
+    border-radius: 8px;
+    width: 20%;
+    max-height: 50px;
+    aspect-ratio: 16/9;
+    background-position: center center;
+    @include MinWidth-SM {
+      width: 100%;
+      max-height: none;
+      height: auto;
+    }
+  }
+  .post_info {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    justify-content: space-between;
+    gap: 4px;
+    max-width: 76%;
+    @include MinWidth-SM {
+      max-width: 100%;
+    }
+  }
+  .post_title {
+    font-size: 1.1rem;
+    line-height: 1.2;
+    font-weight: bold;
+    overflow-wrap: break-word;
+    word-break: break-word;
+  }
+  .post_date {
+    font-size: 0.8rem;
+  }
+  .post_category {
+    font-size: 0.8rem;
+  }
+}
+#qblog h2.qblog_title a {
+  color: inherit;
+}
+.qblog-list-line .qblog_date {
+  color: inherit;
+}
+
+.qblog_edit_form {
+  margin-top: 20px;
+}
+.qblog_edit_form table > tbody th {
+	white-space: nowrap;
+}
+
+.qblog_edit_form .qblog_categories {
+	list-style-type: none;
+	padding: 4px 0;
+}
+.qblog_edit_form .qblog_categories li {
+	width: auto;
+	cursor: pointer;
+}
+
+.qblog_edit_form input[name=title] {
+	font-size:13pt;
+	width:100%;
+}
+.qblog_edit_form input[name=category] {
+	font-size:13pt;
+}
+.qblog_edit_form input[name=image] {
+	font-size:13pt;
+}
+.qblog_edit_form input[name=qblog_date] {
+	font-size:13pt;
+	width:100%;
+}
+
+.qbog_edit_form .form-horizontal .form-actions {
+    padding-left: 120px;
+}
+
+.qblog_edit_form .input-group .form-control,
+.qblog_edit_form .input-group .btn {
+	height: 38px;
+}
+
+#body .qblog_categories {
+    margin: 0;
+    padding:4px;
+}
+
+.qblog_edit_form ul.qblog_categories li {
+    float:left;
+    margin:2px;
+}
+
+.qblog_edit_form ul.online_help {
+    display:none;
+}
+
+.qblog_categories {
+    position: relative;
+    top: 0;
+    left: 0;
+    border:none;
+    box-shadow:none;
+}
+
+.qblog_edit_form div.set-thumbnail{
+    display:none;
+    border:1px solid #ccc;
+    border-radius:3px;
+    padding:10px;
+    color:#666;
+}
+
+.qblog_edit_form ul.typeahead.dropdown-menu {
+    text-align:left
+}
+
+.qblog_edit_form input:-moz-placeholder {
+    color: #999
+}
+
+.qblog_edit_form input::-webkit-input-placeholder {
+    line-height:30px;
+}
+
+.haik-article {
+  & > h2 {
+    margin: 2rem 0 1rem;
+  }
+  h2 + h2 {
+    margin-top: 0em;
+  }
+}
+
