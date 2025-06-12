@@ -63,28 +63,26 @@
     </div>
     #{$summary}
   </div>
-  <?php if (! $site_navigator2_is_empty): ?>
-    <!-- ◆ Footer ◆ ========================================================== -->
-    <footer class="haik-footer" role="contentinfo">
-      <div class="container haik-footer-border">
-        #{$site_navigator2}
-      </div>
-    </footer>
-  <?php endif ?>
-  <!-- ◆ Licence ◆ ========================================================== -->
-  <div class="haik-licence" role="contentinfo">
-    <div class="container">
-      <div class="text-center haik-copyright">
-        <p> Copyright © #{$today_year} <a href="#{$modifierlink}">#{$modifier}</a> All Rights Reserved.
-          #{$owneraddr} #{$ownertel}</p>
-      </div>
-      <?php if ($licence_tag !== ''): ?>
-        <div>
-          <p>powered by <strong>QHM</strong> #{$version} based on PukiWiki 1.4.7 License is GPL. #{$auth_link}</p>
+  <!-- ◆ Footer ◆ ========================================================== -->
+  <footer class="footer" role="contentinfo">
+    <?php if (! $site_navigator2_is_empty): ?>
+      <div class="container footer-inner">
+        <div class="site_navigator2">
+          #{$site_navigator2}
         </div>
-      <?php endif ?>
+      </div>
+    <?php endif ?>
+    <!-- ◆ Licence ◆ ========================================================== -->
+    <div class="copyright">
+      Copyright © #{$today_year} <a href="#{$modifierlink}">#{$modifier}</a> All Rights Reserved.
+      #{$owneraddr} #{$ownertel}
     </div>
-  </div>
+    <?php if ($licence_tag !== ''): ?>
+      <div class="licence">
+        powered by <strong>Quick Homepage Maker</strong> #{$version} based on PukiWiki 1.4.7 License is GPL. #{$auth_link}
+      </div>
+    <?php endif ?>
+  </footer>
   <!-- ■　アクセスタグ■ ============================================== -->
   #{$accesstag_tag}
   #{$lastscript}

@@ -24,7 +24,8 @@ function plugin_qblog_action()
 	global $qblog_comment_notice;
 
 	$qt = get_qt();
-	$style_name = '..';
+	// $style_name = '..';
+	$beforescript = '';
 	$vars['disable_toolmenu'] = TRUE;
 	$qt->setv('no_menus', TRUE); //メニューやナビ等をconvertしない
 
@@ -33,8 +34,13 @@ function plugin_qblog_action()
 <script type="text/javascript" src="skin/bootstrap/js/bootstrap.min.js"></script>';
 	$qt->appendv_once('include_bootstrap_pub', 'beforescript', $include_bs);
 
-	$beforescript = '
-<link rel="stylesheet" href="' . PLUGIN_DIR . 'qblog/qblog.css" />
+	if (file_exists(SKIN_DIR . $style_name . '/qblog.css')) {
+		$beforescript .= '<link rel="stylesheet" href="' . SKIN_DIR . $style_name . '/qblog.css">';
+	} else {
+		$beforescript .= 	'<link rel="stylesheet" href="' . PLUGIN_DIR . 'qblog/qblog.css" />';
+	}
+
+	$beforescript .= '
 <script type="text/javascript" src="js/jQuery.ajaxQueue.min.js"></script>';
 	$qt->appendv('beforescript', $beforescript);
 

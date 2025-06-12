@@ -21,7 +21,7 @@ define('PLUGIN_QBLOG_RECENT_DEFAULT_NUM', 10);
 
 function plugin_qblog_recent_convert()
 {
-	global $vars, $script, $qblog_page_re, $qblog_close;
+	global $script, $qblog_page_re, $qblog_close, $style_name;
 
 	//閉鎖中は何も表示しない
 	if ($qblog_close && ! ss_admin_check()) {
@@ -84,8 +84,13 @@ function plugin_qblog_recent_convert()
 	}
 
 	//qblog.css を読み込む
-	$head = '
+	$head = '';
+	if (file_exists(SKIN_DIR . $style_name . '/qblog.css')) {
+		$head .= '<link rel="stylesheet" href="' . SKIN_DIR . $style_name . '/qblog.css">';
+	} else {
+		$head = '
     <link rel="stylesheet" href="plugin/qblog/qblog.css" />';
+	}
 	$qt->appendv_once('qblog_beforescript', 'beforescript', $head);
 
 

@@ -65,10 +65,10 @@ function plugin_search_menu_convert()
     <input type="submit" value="{$qm->m['plg_search']['btn']}" tabindex="2" accesskey="s" class="search_text_button" />
   </div>
   <div class="wrap_search_select">
-    <label for="_p_search_AND" class="search_select">
+    <label class="search_select">
       <input type="radio" name="type" id="and_search" value="AND" tabindex="3" accesskey="a" /> {$qm->m['plg_search']['lbl_and']}
     </label>
-    <label for="_p_search_OR" class="search_select">
+    <label class="search_select">
       <input type="radio" name="type" id="or_search"  value="OR" tabindex="3" accesskey="o" /> {$qm->m['plg_search']['lbl_or']}
     </label>
   </div>
