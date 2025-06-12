@@ -19,7 +19,7 @@
 
 function plugin_qblog_head_convert()
 {
-	global $vars, $script, $defaultpage;
+	global $vars, $script, $defaultpage, $style_name;
 	global $qblog_date_format, $qblog_page_re, $qblog_defaultpage, $qblog_close, $qblog_default_cat;
 
 	if (! is_qblog()) return '';
@@ -59,8 +59,12 @@ function plugin_qblog_head_convert()
 	}
 
 	//qblog.css を読み込む
-	$head = '
-<link rel="stylesheet" href="plugin/qblog/qblog.css' . '" />';
+	$head = '';
+	if (file_exists(SKIN_DIR . $style_name . '/qblog.css')) {
+		$head .= '<link rel="stylesheet" href="' . SKIN_DIR . $style_name . '/qblog.css">';
+	} else {
+		$head = '<link rel="stylesheet" href="plugin/qblog/qblog.css' . '" />';
+	}
 
 	$qt->appendv_once('qblog_beforescript', 'beforescript', $head);
 

@@ -100,8 +100,13 @@ function plugin_qblog_list_convert()
 	}
 
 	//qblog.css を読み込む
-	$head = '
+	$head = '';
+	if (file_exists(SKIN_DIR . $style_name . '/qblog.css')) {
+		$head .= '<link rel="stylesheet" href="' . SKIN_DIR . $style_name . '/qblog.css">';
+	} else {
+		$head = '
 <link rel="stylesheet" href="plugin/qblog/qblog.css" />';
+	}
 	$qt->appendv_once('qblog_beforescript', 'beforescript', $head);
 
 
@@ -220,11 +225,9 @@ function plugin_qblog_list_convert()
 
 		if (is_file(SWFU_IMAGE_DIR . $data['image'])) {
 			$data['image'] = SWFU_IMAGE_DIR . $data['image'];
+		} elseif (trim($data['image']) === '' && file_exists(SKIN_DIR . $style_name . '/qblog_thumbnail.png')) {
+			$data['image'] = SKIN_DIR . $style_name . '/qblog_thumbnail.png';
 		}
-		if (trim($data['image']) === '') {
-			$data['image'] = PLUGIN_DIR . 'qblog/qblog_thumbnail.png';
-		}
-
 		if (trim($data['image']) === '') {
 			$data['image'] = PLUGIN_DIR . 'qblog/qblog_thumbnail.png';
 		}

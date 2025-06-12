@@ -47,7 +47,7 @@ ul.toolbar_menu {
 }
 ul.toolbar_submenu{
 	list-style:none;
-	background:transparent url('../../image/admin_bg.png');
+	background: rgba(0,0,0,0.6);
 	margin:0;
 	padding:2px 0;
 	border:1px solid #666;
@@ -191,7 +191,6 @@ ul.toolbar_submenu li{
   font-size: 18px;
 }
 
-
 div.other_plugin{
 	font-size:13px;
 	color:#333;
@@ -314,102 +313,11 @@ span.insert_cmd{
 	display: inline;
 }
 
-.qblog_edit_form {
-  margin-top: 20px;
-}
-.qblog_edit_form table > tbody th {
-	white-space: nowrap;
-}
-
-.qblog_edit_form .qblog_categories {
-	list-style-type: none;
-/* 	display: none; */
-	padding: 4px 0;
-}
-.qblog_edit_form .qblog_categories li {
-	width: auto;
-	cursor: pointer;
-}
-
-.qblog_edit_form input[name=title] {
-	color:black;
-	font-size:13pt;
-	font-family: 'ヒラギノ角ゴ Pro W3','Hiragino Kaku Gothic Pro','メイリオ',Meiryo,'ＭＳ Ｐゴシック',sans-serif;
-	width:100%;
-}
-.qblog_edit_form input[name=category] {
-	color:black;
-	font-size:13pt;
-	font-family: 'ヒラギノ角ゴ Pro W3','Hiragino Kaku Gothic Pro','メイリオ',Meiryo,'ＭＳ Ｐゴシック',sans-serif;
-}
-.qblog_edit_form input[name=image] {
-	color:black;
-	font-size:13pt;
-	font-family: 'ヒラギノ角ゴ Pro W3','Hiragino Kaku Gothic Pro','メイリオ',Meiryo,'ＭＳ Ｐゴシック',sans-serif;
-}
-.qblog_edit_form input[name=qblog_date] {
-	color:black;
-	font-size:13pt;
-	font-family: 'ヒラギノ角ゴ Pro W3','Hiragino Kaku Gothic Pro','メイリオ',Meiryo,'ＭＳ Ｐゴシック',sans-serif;
-	width:100%;
-}
-
-.qbog_edit_form .form-horizontal .form-actions {
-    padding-left: 120px;
-}
-
-.qblog_edit_form .input-group .form-control,
-.qblog_edit_form .input-group .btn {
-	height: 38px;
-}
-
 #msg {
 	color:black;
 	font-family: 'ヒラギノ角ゴ Pro W3','Hiragino Kaku Gothic Pro','メイリオ',Meiryo,'ＭＳ Ｐゴシック',sans-serif;
 	font-size:13pt;
 	margin-bottom: 5px;
-}
-
-#body .qblog_categories {
-    margin: 0;
-    padding:4px;
-}
-
-.qblog_edit_form ul.qblog_categories li {
-    float:left;
-    margin:2px;
-}
-
-.qblog_edit_form ul.online_help {
-    display:none;
-}
-
-.qblog_categories {
-    position: relative;
-    top: 0;
-    left: 0;
-    border:none;
-    box-shadow:none;
-}
-
-.qblog_edit_form div.set-thumbnail{
-    display:none;
-    border:1px solid #ccc;
-    border-radius:3px;
-    padding:10px;
-    color:#666;
-}
-
-.qblog_edit_form ul.typeahead.dropdown-menu {
-    text-align:left
-}
-
-.qblog_edit_form input:-moz-placeholder {
-    color: #999
-}
-
-.qblog_edit_form input::-webkit-input-placeholder {
-    line-height:30px;
 }
 
 .exnote-agwrapper {

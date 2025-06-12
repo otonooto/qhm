@@ -122,7 +122,7 @@ margin-top: 20px;
 
 function plugin_qblog_comment_convert()
 {
-	global $script, $vars, $digest, $username;
+	global $script, $vars, $digest, $username, $style_name;
 	global $qblog_defaultpage, $qblog_comment_check, $qblog_enable_comment;
 
 	static $called = FALSE;
@@ -213,7 +213,11 @@ function plugin_qblog_comment_convert()
 	}
 
 	ob_start();
-	include(PLUGIN_DIR . 'qblog/comment_template.html');
+	if (file_exists(SKIN_DIR . $style_name . '/comment_template.html')) {
+		include(SKIN_DIR . $style_name . '/comment_template.html');
+	} else {
+		include(PLUGIN_DIR . 'qblog/comment_template.html');
+	}
 	$html = ob_get_clean();
 
 	return $html;

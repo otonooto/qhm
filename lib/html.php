@@ -616,9 +616,17 @@ EOD;
 		$s_h2title = h($h2title);
 		$s_blog_title = h($data['title']);
 
+		//qblog.css を読み込む
+		$qblogcss = '';
+		if (file_exists(SKIN_DIR . $style_name . '/qblog.css')) {
+			$qblogcss = '<link rel="stylesheet" href="' . SKIN_DIR . $style_name . '/qblog.css">';
+		} else {
+			$qblogcss = '<link rel="stylesheet" href="plugin/qblog/qblog.css" />';
+		}
+
 		$body = <<< EOD
 <link rel="stylesheet" href="js/datepicker/css/datepicker.css" />
-<link rel="stylesheet" href="plugin/qblog/qblog.css" />
+$qblogcss
 <script src="js/datepicker/js/bootstrap-datepicker.js"></script>
 <script tyle="text/javascript">
 $(function(){
@@ -657,18 +665,18 @@ $template
   <input type="hidden" name="digest" value="{$s_digest}" />
   <fieldset>
     <div class="form-group">
-      <label class="control-label col-sm-2">日付</label>
+      <label class="control-label col-sm-2" for="qblog_datepicker">日付</label>
       <div class="controls col-sm-10"><input type="text" name="qblog_date" id="qblog_datepicker" tabindex="1" class="datepicker form-control" size="16" value="{$date}"  data-date="{$date}"  data-date-format="yyyy-mm-dd" class="form-control" /></div>
     </div>
     <div class="form-group">
-      <label class="control-label col-sm-2">タイトル</label>
-      <div class="controls col-sm-10"><input type="text" name="title" value="{$s_blog_title}" tabindex="2" class="form-control" /></div>
+      <label class="control-label col-sm-2" for="qblog_title">タイトル</label>
+      <div class="controls col-sm-10"><input type="text" name="title" value="{$s_blog_title}" tabindex="2" class="form-control" id="qblog_title"/></div>
   	</div>
     <div class="form-group">
-      <label class="control-label col-sm-2">カテゴリ</label>
+      <label class="control-label col-sm-2" for="qblog_category">カテゴリ</label>
       <div class="controls col-sm-10">
         <div class="input-group">
-          <input type="text" name="category" value="{$category}" placeholder="{$qblog_default_cat}" tabindex="3" class="form-control" data-provide="typeahead" data-source="{$h_qblog_cat_json}" autocomplete="off" />
+          <input id="qblog_category" type="text" name="category" value="{$category}" placeholder="{$qblog_default_cat}" tabindex="3" class="form-control" data-provide="typeahead" data-source="{$h_qblog_cat_json}" autocomplete="off" />
           <span class="input-group-btn">
             <button type="button" id="qblog_cat_trigger" class="btn btn-default qhm-btn-default" data-toggle="collapse" data-target="#qblog_categories_selector" style="color:#333">
               カテゴリ
@@ -680,7 +688,7 @@ $template
       </div>
     </div>
       <div class="form-group">
-          <label class="control-label col-sm-2">記事の内容</label>
+          <label class="control-label col-sm-2" for="msg">記事の内容</label>
           <div class="controls col-sm-10">
               <textarea name="msg" id="msg" tabindex="4" rows="20" class="form-control">$s_postdata</textarea>
   		</div>

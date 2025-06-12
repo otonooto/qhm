@@ -1,0 +1,24 @@
+@mixin media($size) {
+  @media screen and (max-width: $size) {
+    @content;
+  }
+}
+
+@mixin MinWidth-SM {
+  @media screen and (min-width: 431px) {
+    @content;
+  }
+}
+
+@mixin MaxWidth-SM {
+  @media screen and (min-width: 430px) {
+    @content;
+  }
+}
+
+.container {
+  padding-block: 0;
+  padding-inline: 1.5rem;
+  margin-inline: auto;
+}
+
