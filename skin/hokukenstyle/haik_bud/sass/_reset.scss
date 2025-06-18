@@ -1,0 +1,111 @@
+#qhm_section_1,
+.jumbotron {
+  background-color: inherit;
+  color: inherit;
+  h1 {
+      color: inherit;
+  }
+}
+.navbar-default > * {
+  color: inherit;
+  background-color: inherit;
+}
+
+// reset bootstrap
+h1, h2, h3, h4, h5, ul, li {
+  margin: 0;
+  padding: 0;
+  overflow-wrap: break-word;
+}
+ul {
+  list-style: none;
+}
+img {
+  max-width: 100%;
+}
+a {
+  color: inherit;
+  &:hover,
+  &:active {
+    color: inherit;
+  }
+  &:focus {
+    color: inherit;
+  }
+}
+.pager li>a, .pager li>span {
+  background-color: transparent;
+}
+.jumbotron {
+  .h1 {
+    font-size: 2rem;
+  }
+}
+
+.navbar-default {
+  background-color: inherit;
+  border-color: inherit;
+  .navbar-brand {
+    color: inherit;
+    &:focus,
+    &:hover {
+      color: inherit;
+    }
+  }
+  .navbar-nav {
+    >li {
+      >a {
+        color: inherit;
+        &:focus,
+        &:hover {
+          color: inherit;
+        }
+      }
+    }
+    .active {
+      a {
+        background-color: var(--active-bg-color);
+        color: var(--link-color);
+        &:focus,
+        &:hover {
+          background-color: var(--active-bg-color);
+          color: var(--link-color);
+        }
+      }
+    }
+  }
+  .navbar-toggle {
+    border-color: inherit;
+    &:focus,
+    &:hover {
+      border-color: inherit;
+      background-color: inherit;
+    }
+  }
+  .navbar-collapse,
+  .navbar-form {
+    border-color: inherit;
+  }
+}
+.list-group-item {
+  background-color: inherit;
+}
+.thumbnail {
+  background-color: inherit;
+}
+
+.btn-default {
+  color: inherit;
+  background-color: inherit;
+  border-color: inherit; 
+  &:hover {
+    color: inherit;
+    background-color: inherit;
+    border-color: inherit; 
+  }
+}
+
+.container {
+  padding: 0;
+  margin: 0;
+}

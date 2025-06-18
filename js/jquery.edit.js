@@ -3,10 +3,6 @@
 //------------------------------------------------------------------------
 $(document).ready(function(){
 	if ($('#msg').length <= 0) {
-		$(".go_editbox").hide();
-		$(".this_page_tools").hide();
-		$(".toolbar_blog").hide();
-
 		// プレビュー
 		var previewScreen;
 		var $links = $("#mobilesm, #mobilemd, #mobilelg, #tablet, #laptop, #desktop");

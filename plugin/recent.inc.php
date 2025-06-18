@@ -36,7 +36,7 @@ function plugin_recent_convert()
 	}
 
 	//---- キャッシュのための処理を登録 -----
-	if($qt->create_cache) {
+	if ($qt->create_cache) {
 		$args = func_get_args();
 		return $qt->get_dynamic_plugin_mark(__FUNCTION__, $args);
 	}
@@ -56,7 +56,7 @@ function plugin_recent_convert()
 	// Get latest N changes
 	$lines = file_head(PLUGIN_RECENT_CACHE, $recent_lines);
 
-	if ($lines == FALSE) return $qm->m['plg_recent']['err_file_cannotopen']. '<br />' . "\n";
+	if ($lines == FALSE) return $qm->m['plg_recent']['err_file_cannotopen'] . '<br />' . "\n";
 
 	$script = get_script_uri();
 	$date = $items = '';
@@ -79,9 +79,9 @@ function plugin_recent_convert()
 		//customized by hokuken.com
 		$s_page  = get_page_title($page);
 
-		if($page == $vars['page']) {
+		if ($page == $vars['page']) {
 			// No need to link to the page you just read, or notify where you just read
-			$items .= ' <li>' . $s_page . '</li>' . "\n";
+			$items .= ' <li><span>' . $s_page . '</span></li>' . "\n";
 		} else {
 			$r_page = rawurlencode($page);
 			$passage = $show_passage ? ' ' . get_passage($time) : '';

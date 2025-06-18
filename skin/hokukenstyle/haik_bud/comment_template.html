@@ -68,7 +68,7 @@ $(function(){
 	});
 	$("#qblog_comment_list").on('click', 'a.qblog_comment_reply', function(){
 		var id = $(this).closest("li").attr("id").split("_").pop();
-		var title = "Re: " + $(this).closest("li").find("span.qblog_comment_title").text();
+		var title = "Re: " + $(this).closest("li").find("div.qblog_comment_title").text();
 		var anchor = '>>' + id;
 		$("#qblog_comment_title").val(title);
 		$("#qblog_comment_msg").val(anchor + "\n" + $("#qblog_comment_msg").val()).focus().select();
@@ -81,51 +81,67 @@ $(function(){
 	}
 });	
 </script>
-<h2>コメント</h2>
+<h3 class="qblog_comment_list_title">コメント</h3>
 
 <?php if (count($comments) > 0):?>
 
-<ul id="qblog_comment_list" class="list-unstyled">
+<ul id="qblog_comment_list" class="qblog_comment_list">
 <?php foreach ($comments as $comment):?>
 
-	<?php if ($editable):?>
-	<li id="qbcomment_<?php echo h($comment['id'])?>" class="<?php echo $comment['accepted'] ? '': 'do_accept'?><?php echo $comment['admin'] ? ' qblog_admin_comment' : ''?>">
+	<?php if ($editable): // Author／Manager ?>
+	<li id="qbcomment_<?php echo h($comment['id'])?>" class="<?php echo $comment['admin'] ? 'qblog_admin_comment qblog_comment_list_item' : 'qblog_comment_list_item'?><?php echo $comment['accepted'] ? '': ' do_accept'?>">
 	
 		<?php if ( ! $comment['accepted']) :?>
 		<div class="alert alert-danger">
 			<button class="close" data-dismiss="alert">×</button>
 			このコメントは、未承認です。<br />「コメントを承認」ボタンをクリックして公開してください。
-		</div>	
+		</div>
 		<?php endif; ?>
 
-		<span class="qblog_comment_title"><?php echo h($comment['title'])?></span>
-		<p class="qblog_comment_body"><?php echo $comment['msg']?></p>
-		<p class="qblog_comment_footer"><span class="badge qblog_comment_reply">コメント <?php echo h($comment['id'])?></span>
-		<?php echo h($comment['datetime'])?>｜<?php echo h($comment['name'])?><br />
-		<a href="#" class="qblog_comment_reply">&gt;&gt;このコメントに返信</a>
-		</p>
+		<div class="qblog_comment_header">
+			<div class="qblog_comment_title"><?php echo h($comment['title'])?></div>
+			<div class="qblog_comment_id">#<?php echo h($comment['id'])?></div>
+		</div>
+		<div class="qblog_comment_meta">
+			<div class="qblog_comment_author_name"><?php echo h($comment['name'])?></div>
+			<div class="qblog_comment_datetime"><?php echo h($comment['datetime'])?></div>
+		</div>
+		<div class="qblog_comment_body"><?php echo $comment['msg']?></div>
+		<div class="qblog_comment_footer">
+			<div class="qblog_comment_reply_button">
+				<a href="#" class="qblog_comment_reply">&gt;&gt;このコメントに返信</a>
+			</div>
+		</div>
 		
-		<p class="qblog_comment_control">
+		<div class="qblog_comment_control">
 		<?php if ( ! $comment['accepted']):?>
 		<input type="button" value="コメントを承認" name="accept" class="btn btn-default btn-primary"/>
 		<?php endif;?>
 		<input type="button" value="削除" name="hide" class="btn btn-danger"/>
-		</p>
+		</div>
 		<hr />
 
 		
 	<?php else:?>
 	
-	<li id="qbcomment_<?php echo h($comment['id'])?>" class="<?php echo $comment['admin'] ? 'qblog_admin_comment' : ''?>">
+	<li id="qbcomment_<?php echo h($comment['id'])?>" class="<?php echo $comment['admin'] ? 'qblog_comment_list_item' : 'qblog_comment_list_item'?>">
 
 		<?php if ($comment['accepted']):?>
 
-			<span class="qblog_comment_title"><?php echo h($comment['title'])?></span>
-			<p class="qblog_comment_body"><?php echo $comment['msg']?></p>
-			<p class="qblog_comment_footer"><span class="badge qblog_comment_reply">コメント <?php echo h($comment['id'])?></span>
-			<?php echo h($comment['datetime'])?>｜<?php echo h($comment['name'])?><br />
-			<a href="#" class="qblog_comment_reply">&gt;&gt;このコメントに返信</a>
-			</p>
+			<div class="qblog_comment_header">
+				<div class="qblog_comment_title"><?php echo h($comment['title'])?></div>
+				<div class="qblog_comment_id">#<?php echo h($comment['id'])?></div>
+			</div>
+			<div class="qblog_comment_meta">
+				<div class="qblog_comment_author_name"><?php echo h($comment['name'])?></div>
+				<div class="qblog_comment_datetime"><?php echo h($comment['datetime'])?></div>
+			</div>
+			<div class="qblog_comment_body"><?php echo $comment['msg']?></div>
+			<div class="qblog_comment_footer">
+				<div class="qblog_comment_reply_button">
+					<a href="#" class="qblog_comment_reply">&gt;&gt;このコメントに返信</a>
+				</div>
+			</div>
 			<hr />
 
 		<?php else:?>
@@ -138,11 +154,8 @@ $(function(){
 		</p>
 		<hr />
 		
-		<?php endif;?>
-
-	
-	<?php endif;?>
-	
+		<?php endif; // author以外 ?>	
+	<?php endif;?>	
 	</li>
 <?php endforeach;?>
 </ul>
@@ -150,6 +163,7 @@ $(function(){
 <?php endif;?>
 
 <br />
+<div class="wrap_qblog_comment_form">
 <form id="qblog_comment_form" action="<?php echo h($action)?>" method="post" autocomplete="off">
  <div>
   <?php if ($auth_err OR $title_err OR $name_err):?>
@@ -189,3 +203,4 @@ $(function(){
   <input type="submit" name="qblog_comment" value="コメントする" class="btn btn-default" />
  </div>
 </form>
+</div>

@@ -1,0 +1,53 @@
+:root {
+  --bg-color: #fefefe;
+  --text-color: #333;
+  --text-sub-color: #8a8a8a;
+  --surface-color: #FFFFFF;
+  --eyecatch-color: #353a3d;
+  --hover-color: #999;
+  --link-color: #1c1c1c;
+
+  // Base
+  $secondary: #666;
+  $third: #888;
+  $forth: #ccc;
+  $fifth: #efefef;
+  $white: #FFFFFF;
+
+  // Forest
+  --forest-primary: #4E3B31;
+  $forest-secondary: #7A5B3A;
+  $forest-third: #A8CBA0;
+  $forest-fourth: #D9E4B2;
+  $forest-fifth: #F2F2F2;
+
+  // Desert
+  $desert: #C2B280;
+
+  // Mountain
+  $mountain: #A3B1B5;
+
+  // Ocean
+  $ocean: #003B5C;
+
+  // Rocky
+  $rocky: #7B6A4D;
+
+  // Jungle
+  $jungle: #2E5B3C;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-color: #191d22;
+    --text-color: #d1d1d1;
+    --text-sub-color: #a6a6a6;
+    --surface-color: #2e3134;
+    --eyecatch-color: #353a3d;
+    --hover-color: #c7c7c7;
+    --current-page-bg-color: #5e5e5e;
+    --link-color: #f4f4f4;
+    --active-bg-color: #434343;
+    --border-color: #656565;
+  }
+}

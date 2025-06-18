@@ -1,0 +1,65 @@
+<?php
+/**
+ *   Template for QBlog List
+ *   -------------------------------------------
+ *   qblog_list_template.html
+ *
+ *   Copyright (c) 2015 hokuken
+ *   http://hokuken.com/
+ *
+ *   created  : 15/06/26
+ *   modified :
+ *
+ */
+?>
+<div id="qblog_list" class="qblog-list qblog-list-<?php echo h($list_type)?>">
+  <?php if (hv('blog_list_type', true) == 'grid' && $list_type != 'line') : ?>
+  <div class="haik_bud_post_list">
+  <?php foreach ($posts as $post):?>
+    <a class="post_link" href="<?php echo h($post['url'])?>">
+      <div class="post_item">
+          <div class="post_info">
+            <h3 class="post_title"><?php echo h($post['title'])?></h3>
+            <div class="post_category"><?php echo h($post['category'])?></div>
+            <div class="post_date"><?php echo h($post['date'])?></div>
+          </div>
+          <div class="post_thumbnail" style="background-image: url(<?php echo h($post['image'])?>);"></div>
+      </div>
+  	</a>
+  <?php endforeach;?>
+  </div>
+
+  <?php else : ?>
+
+  <ul>
+  <?php foreach ($posts as $post):?>
+    <li>
+      <a href="<?php echo h($post['url'])?>">
+        <div class="qblog_date"><?php echo h($post['date'])?></div>
+        <h2 class="qblog_title no-toc"><?php echo h($post['title'])?></h2>
+        <p class="qblog_abstract"><?php echo h($post['abstract'])?></p>
+        <div class="qblog_thumbnail_box" style="background-image: url(<?php echo h($post['image'])?>)">
+        </div>
+      </a>
+    </li>
+  <?php endforeach;?>
+  </ul>
+
+  <?php endif; ?>
+
+  <?php if ($list_type == 'table'):?>
+  <ul class="pagination">
+  <?php foreach ($paginates as $label => $url):?>
+  	<?php if ($url === ''):?>
+  	<li class="active">
+  		<a href="#"><?php echo h($label)?></a>
+  	<?php else:?>
+  	<li>
+  		<a href="<?php echo h($url)?>"><?php echo h($label)?></a>
+  	<?php endif;?>
+  	</li>
+  <?php endforeach;?>
+  </ul>
+  <?php endif;?>
+
+</div>

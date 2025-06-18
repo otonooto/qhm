@@ -719,24 +719,24 @@ HTML;
   </div>
   <div class="modal-body clearfix form-horizontal">
     <div class="form-group">
-      <label class="col-sm-3 control-label">' . $qm->m['qhm_init']['su_shorten'] . '</label>
+      <label class="col-sm-3 control-label" for="go_url">' . $qm->m['qhm_init']['su_shorten'] . '</label>
       <div class="col-sm-9">
-        <input type="text" value="' . $_go_url . '" readonly="readonly" size="36" class="form-control" />
+        <input id="go_url" type="text" value="' . $_go_url . '" readonly="readonly" size="36" class="form-control" />
         <a href="' . $script . '?cmd=update_tinycode&page=' . h($_page) . '" class="help-block pull-right">' . $qm->m['qhm_init']['su_update'] . '</a>
       </div>
     </div>
 
     <div class="form-group">
-      <label class="col-sm-3 control-label">' . $qm->m['qhm_init']['su_url'] . '</label>
+      <label class="col-sm-3 control-label" for="qhm_rawurl">' . $qm->m['qhm_init']['su_url'] . '</label>
       <div class="col-sm-9">
-        <input type="text" value="' . $_qhm_rawurl . '" readonly="readonly" size="36" class="form-control" />
+        <input id="qhm_rawurl" type="text" value="' . $_qhm_rawurl . '" readonly="readonly" size="36" class="form-control" />
       </div>
     </div>
 
     <div class="form-group">
-      <label class="col-sm-3 control-label">Twitter</label>
+      <label class="col-sm-3 control-label" for="twitter_msg">Twitter</label>
       <div class="col-sm-9">
-        <textarea cols="90" rows="3" class="form-control">' . h($tweettext) . '</textarea>
+        <textarea cols="90" rows="3" class="form-control" id="twitter_msg">' . h($tweettext) . '</textarea>
 		<ol class="help-block">
 			<li><span class="small">内容を編集して投稿できます。<br /><b>%URL%</b> と書くとURLに自動変換されます。</span></li>
 			<li><a href="' . $tweeturl . '" class="shareTwitter btn qhm-btn-primary qhm-btn-sm" data-format="' . h($tweeturl_fmt) . '" data-url="' . h($_go_url) . '" target="_blank" rel="noopener">クリックしてTwitterへ投稿</a></li>
@@ -745,9 +745,8 @@ HTML;
     </div>
 
     <div class="form-group">
-      <label class="col-sm-3 control-label">Facebook</label>
+      <div class="col-sm-3 control-label">Facebook</div>
       <div class="col-sm-9">
-
         <ol class="help-block">
           <li>短縮URLをコピーする。</li>
           <li><a href="http://www.facebook.com/" class="btn qhm-btn-primary qhm-btn-sm" target="_blank" rel="noopener">ここをクリックして、Facebook を開いて投稿</a></li>

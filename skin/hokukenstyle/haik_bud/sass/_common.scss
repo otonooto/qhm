@@ -1,0 +1,134 @@
+html, body {
+  font-size: 100%;
+  text-wrap: wrap;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+input, textarea, button,
+input[type=text],
+input[type=radio] {
+  background-color: var(--surface-color);
+  color: var(--text-color);
+  font-size: 1.125rem;
+  max-width: 100%;
+}
+a {
+  color: var(--link-color);
+  &:hover {
+    text-decoration: blink;
+  }
+}
+
+.qhm-head-copy {
+  h1 {
+    font-size: 0.8rem;
+  }
+}
+.content {
+  letter-spacing: 0.05rem;
+  font-size: 1.125rem;
+  h2 {
+    font-size: 1.85rem;
+  }
+  h3 {
+    font-size: 1.65em;
+  }
+  h4 {
+    font-size: 1.4em;
+  }
+  h2, h3, h4 {
+    margin-block-start: 1em;
+    margin-block-end: .4em;
+  }
+  & > h2:first-child {
+    margin-block-start: 0em;
+  }
+  h2 + h3 {
+    margin-block-start: 0;
+  }
+  h3 + h4 {
+    margin-block-start: 0;
+  }
+  p {
+    line-height: 1.7em;
+    margin-block-end: 2em;
+  }
+  ul {
+    margin-inline-start: 1em;
+    margin-block-end: 1em;
+    li > ul {
+      margin-block-start: 0.5em;
+      margin-block-end: 0;
+    }
+    &.list1 {
+      list-style: disc;
+    }
+    &.list2 {
+      list-style: circle;
+    }
+  }
+  li {
+    margin-block-end: 0.5em;
+  }
+}
+
+.bar {
+  font-size: 0.9rem;
+  h2, h3, h4, h5 {
+    font-size: 1rem;
+    font-weight: bold;
+    margin-block: 1.5rem 0.5rem;
+    &:first-child {
+      margin-block-start: 0rem;
+    }
+  }
+  .list-group-item {
+    padding: 0;
+    background-color: var(--surface-color);
+    border-color: var(--border-color);
+    a {
+      padding: 0.5em 1em;
+      display: block;
+      &:hover {
+        text-decoration: blink;
+      }
+    }
+  }
+  ul {
+    margin-block-end: 1.5rem;
+  }
+}
+
+.footer {
+  font-size: 0.9rem;
+}
+.site_navigator2 {
+  padding-block: 2em;
+}
+.copyright,
+.licence {
+  font-size: 0.7rem;
+  background-color: var(--surface-color);
+  color: var(--text-sub-color);
+  padding-block: 0.5em;
+  padding-inline: 1.5em;
+  a {
+    color: inherit;
+  }
+  & + .licence {
+    margin-block-start: -0.5em;
+    padding-block-start: 0em;
+  }
+}
+
+.bar {
+  .list-group-item {
+  & > span {
+    padding: 0.5em 1em;
+    display: block;
+    background-color: var(--current-page-bg-color);
+  }
+  }
+}
