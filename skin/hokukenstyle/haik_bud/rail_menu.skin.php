@@ -43,17 +43,11 @@
       </div>
     </div>
   </nav>
-  <!-- ◆ Eyecatch ◆ ========================================================= -->
-  <div class="haik-eyecatch-top">
-    #{$main_visual}
-  </div>
   <!-- ◆ Content ◆ ========================================================= -->
   <div class="container">
     <div class="row">
       <div class="col-md-9">
         <main class="haik-container haik-article" role="main">
-          aaaaaaaaaaaaaaaa
-
           #{$body}
         </main>
       </div>

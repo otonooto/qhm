@@ -169,7 +169,7 @@ $(function(){
   </div>
   <div class="form-group">
     <label for="qblog_comment_name" class="control-label">お名前：</label>
-    <input type="text" name="name" id="qblog_comment_name" size="<?php echo PLUGIN_QBLOG_COMMENT_INPUT_SIZE?>" value="<?php echo h($name)?>" maxlength="<?php echo h(PLUGIN_QBLOG_MAX_COMMENT_NAME_LENGTH)?>" class="form-control input-sm" />
+    <input type="text" name="name" id="qblog_comment_name" size="<?php echo PLUGIN_QBLOG_COMMENT_INPUT_SIZE?>" value="<?php echo h($name)?>" maxlength="<?php echo h(PLUGIN_QBLOG_MAX_COMMENT_NAME_LENGTH)?>" class="form-control input-sm" autocomplete="name"/>
   </div>
 <?php if ( ! $editable):?>
   <div class="form-group">
@@ -181,7 +181,7 @@ $(function(){
 <?php endif;?>
   <div class="form-group">
     <label for="qblog_comment_msg">コメント：</label>
-    <textarea name="msg" id="qblog_comment_msg" rows="6" style="width:100%;" cols="<?php echo h(PLUGIN_QBLOG_COMMENT_SIZE_MSG)?>" class="form-control"><?php echo h($msg)?></textarea>
+    <textarea name="msg" id="qblog_comment_msg" rows="6" style="width:100%;" cols="<?php echo h(PLUGIN_QBLOG_COMMENT_SIZE_MSG)?>"><?php echo h($msg)?></textarea>
   </div>
 <?php if ( ! $editable && $qblog_comment_check):?>
   <p>コメントは管理者の承認後に表示されます。</p>

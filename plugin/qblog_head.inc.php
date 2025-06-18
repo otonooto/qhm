@@ -101,35 +101,30 @@ function plugin_qblog_head_convert()
 
 	$category_url = $script . '?' . $qblog_defaultpage . '&mode=category&catname=' . rawurlencode($data['category']);
 
-	$addpostlink_html = '';
-	if (ss_admin_check()) {
-		$editpostlink = $script . '?cmd=edit&page=' . $page;
-		$addpostlink = $script . '?cmd=qblog&mode=addpost';
-		$addpostlink_html = '
-<a href="' . h($editpostlink) . '" class="badge badge-important" style="color:#fff"><i class="icon-white icon-edit" style="vertical-align:text-bottom"></i> この記事を編集</a>
-<a href="' . h($addpostlink) . '" class="badge badge-info" style="color:#fff"><i class="icon-white icon-plus" style="vertical-align:text-bottom"></i> 記事の追加</a>
-';
-	}
-	$head = '
-<style type="text/css">
-#content h2.title{display:none;}
-</style>
-' . $closed_msg . '
-<div class="title">
-<span class="qblog_post_date">' . h($date) . '</span>
-' . $addpostlink_html . '
-<a href="' . h($category_url) . '" class="qblog_category badge">カテゴリ：' . h($data['category']) . '</a>
-</div>
-<h2>' . h($data['title']) . '</h2>
-';
-
+	// アイキャッチ画像（feature_image）が設定されている場合
+	$feature_image = '';
 	if (trim($data['image']) !== '') {
 		if (is_file(SWFU_IMAGE_DIR . $data['image'])) {
 			$data['image'] = SWFU_IMAGE_DIR . $data['image'];
 		}
-		$head .= <<< EOH
+		$feature_image = <<< EOH
+	<img src="{$data['image']}" alt="{$data['title']}" class="qblog_feature_image" />
 EOH;
 	}
+
+	// ブログ詳細のタイトル部分の表示
+	$head = '
+<style type="text/css">
+#content h2.title{display:none;}
+</style>
+' . $closed_msg . $feature_image . '
+
+<h2 class="qblog_post_title">' . h($data['title']) . '</h2>
+<div class="title">
+<span class="qblog_post_date">' . h($date) . '</span>
+<a href="' . h($category_url) . '" class="qblog_category badge">' . h($data['category']) . '</a>
+</div>
+';
 
 	return $head;
 }

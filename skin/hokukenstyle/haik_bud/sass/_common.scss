@@ -122,3 +122,13 @@ a {
     padding-block-start: 0em;
   }
 }
+
+.bar {
+  .list-group-item {
+  & > span {
+    padding: 0.5em 1em;
+    display: block;
+    background-color: var(--current-page-bg-color);
+  }
+  }
+}
